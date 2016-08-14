@@ -10,9 +10,6 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Intersector.MinimumTranslationVector;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -23,13 +20,15 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntitySystemManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
-import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.DrawableSystem;
+import dclib.epf.systems.LimbsSystem;
+import dclib.epf.systems.PhysicsSystem;
 import dclib.epf.systems.TranslateSystem;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
 import dclib.graphics.TextureCache;
+import dclib.physics.BodyCollidedListener;
 import dclib.system.Advancer;
 
 public final class LevelController {
@@ -64,7 +63,7 @@ public final class LevelController {
 		groundedEntities.clear();
 		advancer.advance(delta);
 		processInput();
-		CameraUtils.centerOn(targetman, unitConverter, camera);
+		CameraUtils.follow(targetman, unitConverter, camera);
 	}
 
 	public final void draw() {
@@ -76,20 +75,36 @@ public final class LevelController {
 
 	private EntitySystemManager createEntitySystemManager() {
 		EntitySystemManager entitySystemManager = new DefaultEntitySystemManager(entityManager);
-		entitySystemManager.add(new DrawableSystem(unitConverter));
+		entitySystemManager.add(new LimbsSystem());
 		entitySystemManager.add(new TranslateSystem());
+		PhysicsSystem physicsSystem = new PhysicsSystem(entityManager, -8);
+		physicsSystem.addBodyCollidedListener(bodyCollided());
+		entitySystemManager.add(physicsSystem);
+		entitySystemManager.add(new DrawableSystem(unitConverter));
 		return entitySystemManager;
 	}
 
+	private BodyCollidedListener bodyCollided() {
+		return new BodyCollidedListener() {
+			@Override
+			public void collided(final Entity entity, final Vector2 offset) {
+				if (offset.y > 0) {
+					groundedEntities.add(entity);
+				}
+			}
+		};
+	}
+
 	private void spawnInitialEntities() {
-		Entity wall = entityFactory.createTargetman(new Vector2(2f, 3), new Vector3(-2, -2, 0));
+		Entity wall = entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
 		entityManager.add(wall);
-		Entity wall2 = entityFactory.createTargetman(new Vector2(3, 0.05f), new Vector3(0, -2, 0));
+		Entity wall2 = entityFactory.createWall(new Vector2(3, 0.05f), new Vector3(0, -2, 0));
 		entityManager.add(wall2);
-		Entity wall3 = entityFactory.createTargetman(new Vector2(3, 0.05f), new Vector3(4, -2, 0));
+		Entity wall3 = entityFactory.createWall(new Vector2(3, 0.05f), new Vector3(4, -2, 0));
 		entityManager.add(wall3);
-		targetman = entityFactory.createTargetman(new Vector2(1, 1), new Vector3());
-		entityManager.add(targetman);
+		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector2(1, 1), new Vector3(1, 0, 0));
+		targetman = targetmanEntities.get(0);
+		entityManager.addAll(targetmanEntities);
 	}
 
 	private Advancer createAdvancer() {
@@ -97,53 +112,12 @@ public final class LevelController {
 			@Override
 			protected void update(final float delta) {
 				entitySystemManager.update(delta);
-				applyGravity(delta);
-				processObstacleCollisions();
 			}
 		};
 	}
 
-	private void applyGravity(final float delta) {
-		final float gravity = -8;
-		targetman.get(TranslatePart.class).addVelocity(0, gravity * delta);
-	}
-
-	private void processObstacleCollisions() {
-		for (Entity obstacle : entityManager.getAll()) {
-			if (obstacle != targetman) {
-				Polygon obstaclePolygon = obstacle.get(TransformPart.class).getPolygon();
-				processObstacleCollision(targetman, obstaclePolygon);
-			}
-		}
-	}
-
-	private void processObstacleCollision(final Entity movingEntity, final Polygon obstaclePolygon) {
-		final float bounceDampening = 0.0001f;
-		TransformPart transformPart = movingEntity.get(TransformPart.class);
-		MinimumTranslationVector translation = new MinimumTranslationVector();
-		if (Intersector.overlapConvexPolygons(transformPart.getPolygon(), obstaclePolygon, translation)) {
-			TranslatePart translatePart = movingEntity.get(TranslatePart.class);
-			Vector2 velocity = translatePart.getVelocity();
-			if (translation.normal.x != 0) {
-				translatePart.setVelocityX(-velocity.x * bounceDampening);
-			}
-			float normalXSign = -Math.signum(velocity.x);
-			float normalYSign = -Math.signum(velocity.y);
-			if (translation.normal.y != 0) {
-				translatePart.setVelocityY(-velocity.y * bounceDampening);
-				if (normalYSign > 0) {
-					groundedEntities.add(movingEntity);
-				}
-			}
-			Vector2 offset = translation.normal.cpy().scl(normalXSign, normalYSign);
-			offset.setLength(translation.depth);
-			transformPart.translate(offset);
-		}
-	}
-
 	private void processInput() {
 		final float speed = 3;
-		final float jumpSpeed = 4;
 		TranslatePart translatePart = targetman.get(TranslatePart.class);
 		float velocityX = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
@@ -151,12 +125,13 @@ public final class LevelController {
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			velocityX = speed;
 		}
+		translatePart.setVelocityX(velocityX);
+		final float jumpSpeed = 4;
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			if (groundedEntities.contains(targetman)) {
 				translatePart.setVelocityY(jumpSpeed);
 			}
 		}
-		translatePart.setVelocityX(velocityX);
 	}
 
 }
