@@ -98,12 +98,12 @@ public final class LevelController {
 	private void spawnInitialEntities() {
 		Entity wall = entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
 		entityManager.add(wall);
-		Entity wall2 = entityFactory.createWall(new Vector2(3, 0.05f), new Vector3(0, -2, 0));
+		Entity wall2 = entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
 		entityManager.add(wall2);
-		Entity wall3 = entityFactory.createWall(new Vector2(3, 0.05f), new Vector3(4, -2, 0));
+		Entity wall3 = entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
 		entityManager.add(wall3);
-		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector2(1, 1), new Vector3(1, 0, 0));
-		targetman = targetmanEntities.get(0);
+		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector2(2, 2), new Vector3(1, 0, 0));
+		targetman = targetmanEntities.get(targetmanEntities.size() - 1);
 		entityManager.addAll(targetmanEntities);
 	}
 
@@ -118,6 +118,7 @@ public final class LevelController {
 
 	private void processInput() {
 		final float speed = 3;
+		final float jumpSpeed = 4;
 		TranslatePart translatePart = targetman.get(TranslatePart.class);
 		float velocityX = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
@@ -126,7 +127,6 @@ public final class LevelController {
 			velocityX = speed;
 		}
 		translatePart.setVelocityX(velocityX);
-		final float jumpSpeed = 4;
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			if (groundedEntities.contains(targetman)) {
 				translatePart.setVelocityY(jumpSpeed);
