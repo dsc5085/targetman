@@ -10,6 +10,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -20,6 +21,8 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntitySystemManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
+import dclib.epf.graphics.EntityTransformDrawer;
+import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
@@ -45,12 +48,14 @@ public final class LevelController {
 	private final Set<Entity> groundedEntities = new HashSet<Entity>();
 	private Entity targetman;
 
-	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch) {
-		camera = new OrthographicCamera(1024, 768);
+	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
+			final ShapeRenderer shapeRenderer) {
+		camera = new OrthographicCamera(320, 240);
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		entityFactory = new EntityFactory(textureCache);
 		entitySystemManager = createEntitySystemManager();
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera));
+		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		spawnInitialEntities();
 		advancer = createAdvancer();
 	}
@@ -102,7 +107,7 @@ public final class LevelController {
 		entityManager.add(wall2);
 		Entity wall3 = entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
 		entityManager.add(wall3);
-		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector2(2, 2), new Vector3(1, 0, 0));
+		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector3(1, 10, 0));
 		targetman = targetmanEntities.get(targetmanEntities.size() - 1);
 		entityManager.addAll(targetmanEntities);
 	}
@@ -125,6 +130,11 @@ public final class LevelController {
 			velocityX = -speed;
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			velocityX = speed;
+		}
+		if (velocityX == 0) {
+			targetman.get(LimbAnimationsPart.class).get("walk").stop();
+		} else {
+			targetman.get(LimbAnimationsPart.class).get("walk").play();
 		}
 		translatePart.setVelocityX(velocityX);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
