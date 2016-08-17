@@ -131,12 +131,12 @@ public final class LevelController {
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			velocityX = speed;
 		}
+		translatePart.setVelocityX(velocityX);
 		if (velocityX == 0) {
 			targetman.get(LimbAnimationsPart.class).get("walk").stop();
 		} else {
 			targetman.get(LimbAnimationsPart.class).get("walk").play();
 		}
-		translatePart.setVelocityX(velocityX);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			if (groundedEntities.contains(targetman)) {
 				translatePart.setVelocityY(jumpSpeed);

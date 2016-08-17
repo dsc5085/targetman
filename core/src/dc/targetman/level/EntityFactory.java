@@ -51,8 +51,8 @@ public final class EntityFactory {
 				.addJoint(rightForemanLimb, 0.5f, 0.05f, 0, 0.05f, 90);
 		Limb headLimb = createLimb(entities, new Vector2(0.5f, 0.5f), "objects/head");
 		Limb torsoLimb = createLimb(entities, new Vector2(1, 0.1f), "objects/limb")
-				.addJoint(leftBicepLimb, 0.8f, 0.05f, 0, 0.05f, -135)
-				.addJoint(rightBicepLimb, 0.8f, 0.05f, 0, 0.05f, -225)
+				.addJoint(leftBicepLimb, 0.8f, 0.05f, 0, 0.05f, -225)
+				.addJoint(rightBicepLimb, 0.8f, 0.05f, 0, 0.05f, -135)
 				.addJoint(headLimb, 1, 0.05f, 0, 0.25f, 0);
 		Limb leftLeg = createLimb(entities, new Vector2(1, 0.1f), "objects/limb");
 		Limb rightLeg = createLimb(entities, new Vector2(1, 0.1f), "objects/limb");
