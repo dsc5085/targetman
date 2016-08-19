@@ -23,6 +23,7 @@ import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.parts.LimbAnimationsPart;
+import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
@@ -124,23 +125,31 @@ public final class LevelController {
 	private void processInput() {
 		final float speed = 3;
 		final float jumpSpeed = 4;
-		TranslatePart translatePart = targetman.get(TranslatePart.class);
-		float velocityX = 0;
+		float moveVelocityX = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
-			velocityX = -speed;
+			moveVelocityX = -speed;
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-			velocityX = speed;
+			moveVelocityX = speed;
 		}
-		translatePart.setVelocityX(velocityX);
-		if (velocityX == 0) {
-			targetman.get(LimbAnimationsPart.class).get("walk").stop();
-		} else {
-			targetman.get(LimbAnimationsPart.class).get("walk").play();
-		}
+		setMoveVelocityX(targetman, moveVelocityX);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			if (groundedEntities.contains(targetman)) {
-				translatePart.setVelocityY(jumpSpeed);
+				targetman.get(TranslatePart.class).setVelocityY(jumpSpeed);
 			}
+		}
+	}
+
+	private void setMoveVelocityX(final Entity entity, final float moveVelocityX) {
+		entity.get(TranslatePart.class).setVelocityX(moveVelocityX);
+		if (moveVelocityX == 0) {
+			entity.get(LimbAnimationsPart.class).get("walk").stop();
+		} else {
+			entity.get(LimbAnimationsPart.class).get("walk").play();
+		}
+		if (moveVelocityX > 0) {
+			entity.get(LimbsPart.class).setFlipX(false);
+		} else if (moveVelocityX < 0) {
+			entity.get(LimbsPart.class).setFlipX(true);
 		}
 	}
 
