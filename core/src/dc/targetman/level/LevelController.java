@@ -107,7 +107,7 @@ public final class LevelController {
 		entityManager.add(wall2);
 		Entity wall3 = entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
 		entityManager.add(wall3);
-		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector3(1, 10, 0));
+		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector3(1, 0, 0));
 		targetman = targetmanEntities.get(targetmanEntities.size() - 1);
 		entityManager.addAll(targetmanEntities);
 	}
