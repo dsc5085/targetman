@@ -81,11 +81,11 @@ public final class LevelController {
 
 	private EntitySystemManager createEntitySystemManager() {
 		EntitySystemManager entitySystemManager = new DefaultEntitySystemManager(entityManager);
-		entitySystemManager.add(new LimbsSystem());
 		entitySystemManager.add(new TranslateSystem());
 		PhysicsSystem physicsSystem = new PhysicsSystem(entityManager, -8);
 		physicsSystem.addBodyCollidedListener(bodyCollided());
 		entitySystemManager.add(physicsSystem);
+		entitySystemManager.add(new LimbsSystem());
 		entitySystemManager.add(new DrawableSystem(unitConverter));
 		return entitySystemManager;
 	}
