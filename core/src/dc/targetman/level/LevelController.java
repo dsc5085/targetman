@@ -31,6 +31,7 @@ import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
 import dclib.epf.systems.PhysicsSystem;
+import dclib.epf.systems.TimedDeathSystem;
 import dclib.epf.systems.TranslateSystem;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
@@ -90,6 +91,7 @@ public final class LevelController {
 		entitySystemManager.add(physicsSystem);
 		entitySystemManager.add(new AutoRotateSystem());
 		entitySystemManager.add(new LimbsSystem());
+		entitySystemManager.add(new TimedDeathSystem(entityManager));
 		entitySystemManager.add(new WeaponSystem(entityManager, entityFactory));
 		entitySystemManager.add(new DrawableSystem(unitConverter));
 		return entitySystemManager;
@@ -137,6 +139,14 @@ public final class LevelController {
 			moveVelocityX = speed;
 		}
 		setMoveVelocityX(targetman, moveVelocityX);
+		// TODO: make this based off delta
+		float aimingLimbRotationOffset = 0;
+		if (Gdx.input.isKeyPressed(Keys.W)){
+			aimingLimbRotationOffset = 2;
+		} else if (Gdx.input.isKeyPressed(Keys.S)) {
+			aimingLimbRotationOffset = -2;
+		}
+		targetman.get(WeaponPart.class).rotateAimingLimb(aimingLimbRotationOffset);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			if (groundedEntities.contains(targetman)) {
 				targetman.get(TranslatePart.class).setVelocityY(jumpSpeed);

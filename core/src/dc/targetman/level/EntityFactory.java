@@ -19,6 +19,7 @@ import dclib.epf.parts.DrawablePart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.PhysicsPart;
+import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.geometry.Centrum;
@@ -56,9 +57,10 @@ public final class EntityFactory {
 		Limb rightBicepLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb")
 				.addJoint(rightForemanLimb, 0.4f, 0.05f, 0, 0.05f, 45);
 		Limb headLimb = createLimb(entities, new Vector2(0.5f, 0.5f), "objects/head");
+		Joint rightBicepJoint = new Joint(rightBicepLimb, new Vector2(0.8f, 0.05f), new Vector2(0, 0.05f), -135);
 		Limb torsoLimb = createLimb(entities, new Vector2(1, 0.1f), "objects/limb")
 				.addJoint(leftBicepLimb, 0.8f, 0.05f, 0, 0.05f, -225)
-				.addJoint(rightBicepLimb, 0.8f, 0.05f, 0, 0.05f, -135)
+				.addJoint(rightBicepJoint)
 				.addJoint(headLimb, 1, 0.05f, 0, 0.25f, 0);
 		Limb leftLeg = createLimb(entities, new Vector2(1, 0.1f), "objects/limb");
 		Limb rightLeg = createLimb(entities, new Vector2(1, 0.1f), "objects/limb");
@@ -82,7 +84,7 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
-		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.3f)), 0.1f));
+		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.3f)), 0.1f, rightBicepJoint, new FloatRange(-180, -45)));
 		return entities;
 	}
 
@@ -90,8 +92,9 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.05f, 0.05f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(position, size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Entity entity = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC);
+		Entity entity = createBaseEntity(size, position3, "objects/bullet", BodyType.NONE);
 		entity.attach(new AutoRotatePart());
+		entity.attach(new TimedDeathPart(3));
 		Vector2 velocity = new Vector2(10, 0).setAngle(rotation);
 		entity.get(TranslatePart.class).setVelocity(velocity);
 		return entity;
