@@ -11,14 +11,18 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.limb.WalkAnimation;
 import dclib.epf.Entity;
+import dclib.epf.parts.AutoRotatePart;
 import dclib.epf.parts.DrawablePart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
+import dclib.geometry.Centrum;
+import dclib.geometry.PolygonUtils;
 import dclib.graphics.ConvexHullCache;
 import dclib.graphics.TextureCache;
 import dclib.limb.Joint;
@@ -43,12 +47,14 @@ public final class EntityFactory {
 
 	public final List<Entity> createTargetman(final Vector3 position) {
 		List<Entity> entities = new ArrayList<Entity>();
-		Limb leftForemanLimb = createLimb(entities, new Vector2(0.5f, 0.1f), "objects/limb");
-		Limb leftBicepLimb = createLimb(entities, new Vector2(0.5f, 0.1f), "objects/limb")
-				.addJoint(leftForemanLimb, 0.5f, 0.05f, 0, 0.05f, 90);
-		Limb rightForemanLimb = createLimb(entities, new Vector2(0.5f, 0.1f), "objects/limb");
-		Limb rightBicepLimb = createLimb(entities, new Vector2(0.5f, 0.1f), "objects/limb")
-				.addJoint(rightForemanLimb, 0.5f, 0.05f, 0, 0.05f, 90);
+		Limb leftForemanLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb");
+		Limb leftBicepLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb")
+				.addJoint(leftForemanLimb, 0.4f, 0.05f, 0, 0.05f, 90);
+		Limb gun = createLimb(entities, new Vector2(0.4f, 0.3f), "objects/gun");
+		Limb rightForemanLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb")
+				.addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0);
+		Limb rightBicepLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb")
+				.addJoint(rightForemanLimb, 0.4f, 0.05f, 0, 0.05f, 45);
 		Limb headLimb = createLimb(entities, new Vector2(0.5f, 0.5f), "objects/head");
 		Limb torsoLimb = createLimb(entities, new Vector2(1, 0.1f), "objects/limb")
 				.addJoint(leftBicepLimb, 0.8f, 0.05f, 0, 0.05f, -225)
@@ -76,10 +82,22 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
+		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.3f)), 0.1f));
 		return entities;
 	}
 
-	public final Limb createLimb(final List<Entity> entities, final Vector2 size, final String regionName) {
+	public final Entity createBullet(final Vector2 position, final float rotation) {
+		Vector2 size = new Vector2(0.05f, 0.05f);
+		Vector2 relativeCenter = PolygonUtils.relativeCenter(position, size);
+		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
+		Entity entity = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC);
+		entity.attach(new AutoRotatePart());
+		Vector2 velocity = new Vector2(10, 0).setAngle(rotation);
+		entity.get(TranslatePart.class).setVelocity(velocity);
+		return entity;
+	}
+
+	private final Limb createLimb(final List<Entity> entities, final Vector2 size, final String regionName) {
 		Entity entity = createBaseEntity(size, new Vector3(), regionName, BodyType.NONE);
 		entities.add(entity);
 		return new Limb(entity.get(TransformPart.class).getPolygon());

@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import dc.targetman.epf.parts.WeaponPart;
+import dc.targetman.epf.systems.WeaponSystem;
 import dclib.epf.DefaultEntityManager;
 import dclib.epf.DefaultEntitySystemManager;
 import dclib.epf.Entity;
@@ -25,6 +27,7 @@ import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TranslatePart;
+import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
 import dclib.epf.systems.PhysicsSystem;
@@ -85,7 +88,9 @@ public final class LevelController {
 		PhysicsSystem physicsSystem = new PhysicsSystem(entityManager, -8);
 		physicsSystem.addBodyCollidedListener(bodyCollided());
 		entitySystemManager.add(physicsSystem);
+		entitySystemManager.add(new AutoRotateSystem());
 		entitySystemManager.add(new LimbsSystem());
+		entitySystemManager.add(new WeaponSystem(entityManager, entityFactory));
 		entitySystemManager.add(new DrawableSystem(unitConverter));
 		return entitySystemManager;
 	}
@@ -136,6 +141,9 @@ public final class LevelController {
 			if (groundedEntities.contains(targetman)) {
 				targetman.get(TranslatePart.class).setVelocityY(jumpSpeed);
 			}
+		}
+		if (Gdx.input.isKeyPressed(Keys.J)){
+			targetman.get(WeaponPart.class).setTriggered(true);
 		}
 	}
 
