@@ -1,8 +1,7 @@
 package dc.targetman.epf.parts;
 
+import dc.targetman.limb.Rotator;
 import dclib.geometry.Centrum;
-import dclib.limb.Joint;
-import dclib.util.FloatRange;
 import dclib.util.Timer;
 
 public final class WeaponPart {
@@ -10,18 +9,16 @@ public final class WeaponPart {
 	private final String entityType;
 	private final Centrum centrum;
 	private final Timer fireTimer;
-	private final Joint aimJoint;
-	private final FloatRange aimRange;
+	private final Rotator aimRotator;
 	private boolean triggered = false;
 
 	public WeaponPart(final String entityType, final Centrum centrum, final float fireTime,
-			final Joint aimJoint, final FloatRange aimRange) {
+			final Rotator aimRotator) {
 		this.entityType = entityType;
 		this.centrum = centrum;
 		fireTimer = new Timer(fireTime);
 		fireTimer.elapse();
-		this.aimJoint = aimJoint;
-		this.aimRange = aimRange;
+		this.aimRotator = aimRotator;
 	}
 
 	public final String getEntityType() {
@@ -36,9 +33,8 @@ public final class WeaponPart {
 		return triggered && fireTimer.isElapsed();
 	}
 
-	public final void rotateAimingLimb(final float rotationOffset) {
-		float clampedRotation = aimRange.clamp(aimJoint.getRotation() + rotationOffset);
-		aimJoint.setRotation(clampedRotation);
+	public final void setRotateMultiplier(final float rotateMultiplier) {
+		aimRotator.setRotateMultiplier(rotateMultiplier);
 	}
 
 	public final void reset() {
@@ -51,6 +47,7 @@ public final class WeaponPart {
 
 	public final void update(final float delta) {
 		fireTimer.tick(delta);
+		aimRotator.update(delta);
 	}
 
 }

@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.WeaponPart;
+import dc.targetman.limb.Rotator;
 import dc.targetman.limb.WalkAnimation;
 import dclib.epf.Entity;
 import dclib.epf.parts.AutoRotatePart;
@@ -84,7 +85,8 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
-		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.3f)), 0.1f, rightBicepJoint, new FloatRange(-180, -45)));
+		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
+		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.3f)), 0.1f, rotator));
 		return entities;
 	}
 

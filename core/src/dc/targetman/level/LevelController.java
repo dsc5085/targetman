@@ -23,7 +23,6 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntitySystemManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
-import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TranslatePart;
@@ -60,7 +59,7 @@ public final class LevelController {
 		entityFactory = new EntityFactory(textureCache);
 		entitySystemManager = createEntitySystemManager();
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera));
-		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+//		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		spawnInitialEntities();
 		advancer = createAdvancer();
 	}
@@ -140,13 +139,13 @@ public final class LevelController {
 		}
 		setMoveVelocityX(targetman, moveVelocityX);
 		// TODO: make this based off delta
-		float aimingLimbRotationOffset = 0;
+		float aimRotateMultiplier = 0;
 		if (Gdx.input.isKeyPressed(Keys.W)){
-			aimingLimbRotationOffset = 2;
+			aimRotateMultiplier = 1;
 		} else if (Gdx.input.isKeyPressed(Keys.S)) {
-			aimingLimbRotationOffset = -2;
+			aimRotateMultiplier = -1;
 		}
-		targetman.get(WeaponPart.class).rotateAimingLimb(aimingLimbRotationOffset);
+		targetman.get(WeaponPart.class).setRotateMultiplier(aimRotateMultiplier);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			if (groundedEntities.contains(targetman)) {
 				targetman.get(TranslatePart.class).setVelocityY(jumpSpeed);
