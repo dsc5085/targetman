@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.epf.systems.WeaponSystem;
+import dc.targetman.level.models.CollisionGroup;
 import dclib.epf.DefaultEntityManager;
 import dclib.epf.DefaultEntitySystemManager;
 import dclib.epf.Entity;
@@ -25,6 +26,7 @@ import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
+import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DrawableSystem;
@@ -58,7 +60,7 @@ public final class LevelController {
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		entityFactory = new EntityFactory(textureCache);
 		entitySystemManager = createEntitySystemManager();
-		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera));
+		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		spawnInitialEntities();
 		advancer = createAdvancer();
@@ -99,9 +101,14 @@ public final class LevelController {
 	private BodyCollidedListener bodyCollided() {
 		return new BodyCollidedListener() {
 			@Override
-			public void collided(final Entity entity, final Vector2 offset) {
-				if (offset.y > 0) {
-					groundedEntities.add(entity);
+			public void collided(final Entity entity, final List<Vector2> offsets) {
+				for (Vector2 offset : offsets) {
+					if (offset.y > 0) {
+						groundedEntities.add(entity);
+					}
+				}
+				if (entity.get(PhysicsPart.class).inCollisionGroups(CollisionGroup.BULLET)) {
+					entityManager.remove(entity);
 				}
 			}
 		};
@@ -130,7 +137,7 @@ public final class LevelController {
 
 	private void processInput() {
 		final float speed = 3;
-		final float jumpSpeed = 4;
+		final float jumpSpeed = 5;
 		float moveVelocityX = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			moveVelocityX = -speed;

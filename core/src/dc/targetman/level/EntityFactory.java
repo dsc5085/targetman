@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.WeaponPart;
+import dc.targetman.level.models.CollisionGroup;
 import dc.targetman.limb.Rotator;
 import dc.targetman.limb.WalkAnimation;
 import dclib.epf.Entity;
@@ -51,7 +52,7 @@ public final class EntityFactory {
 		List<Entity> entities = new ArrayList<Entity>();
 		Limb leftForemanLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb");
 		Limb leftBicepLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb")
-				.addJoint(leftForemanLimb, 0.4f, 0.05f, 0, 0.05f, 90);
+				.addJoint(leftForemanLimb, 0.4f, 0.05f, 0, 0.05f, 45);
 		Limb gun = createLimb(entities, new Vector2(0.4f, 0.3f), "objects/gun");
 		Limb rightForemanLimb = createLimb(entities, new Vector2(0.4f, 0.1f), "objects/limb")
 				.addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0);
@@ -76,7 +77,7 @@ public final class EntityFactory {
 		transformPart.setPosition(new Vector2(position.x, position.y));
 		entity.attach(transformPart);
 		entity.attach(new TranslatePart());
-		entity.attach(new PhysicsPart(BodyType.DYNAMIC));
+		entity.attach(new PhysicsPart(BodyType.DYNAMIC, new CollisionGroup[0]));
 		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(leftLeg, rightLeg, torsoLimb, headLimb));
 		entity.attach(limbsPart);
 		entities.add(entity);
@@ -91,10 +92,10 @@ public final class EntityFactory {
 	}
 
 	public final Entity createBullet(final Vector2 position, final float rotation) {
-		Vector2 size = new Vector2(0.05f, 0.05f);
+		Vector2 size = new Vector2(1, 0.05f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(position, size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Entity entity = createBaseEntity(size, position3, "objects/bullet", BodyType.NONE);
+		Entity entity = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new CollisionGroup[] { CollisionGroup.BULLET });
 		entity.attach(new AutoRotatePart());
 		entity.attach(new TimedDeathPart(3));
 		Vector2 velocity = new Vector2(10, 0).setAngle(rotation);
@@ -110,12 +111,17 @@ public final class EntityFactory {
 
 	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName,
 			final BodyType bodyType) {
+		return createBaseEntity(size, position, regionName, bodyType, new CollisionGroup[0]);
+	}
+
+	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName,
+			final BodyType bodyType, final CollisionGroup[] collisionGroups) {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create(regionName, size);
 		polygon.setPosition(position.x,  position.y);
 		entity.attach(new TransformPart(polygon, position.z));
 		entity.attach(new TranslatePart());
-		entity.attach(new PhysicsPart(bodyType));
+		entity.attach(new PhysicsPart(bodyType, collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);
