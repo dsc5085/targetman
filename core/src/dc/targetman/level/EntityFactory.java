@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.CollisionGroup;
-import dc.targetman.limb.Rotator;
 import dc.targetman.limb.WalkAnimation;
 import dclib.epf.Entity;
 import dclib.epf.parts.AutoRotatePart;
@@ -31,6 +30,7 @@ import dclib.graphics.TextureCache;
 import dclib.limb.Joint;
 import dclib.limb.Limb;
 import dclib.limb.LimbAnimation;
+import dclib.limb.Rotator;
 import dclib.physics.BodyType;
 import dclib.util.FloatRange;
 
@@ -45,7 +45,7 @@ public final class EntityFactory {
 	}
 
 	public final Entity createWall(final Vector2 size, final Vector3 position) {
-		return createBaseEntity(size, position, "objects/bluepixel", BodyType.STATIC);
+		return createBaseEntity(size, position, "objects/white", BodyType.STATIC);
 	}
 
 	public final List<Entity> createTargetman(final Vector3 position) {
@@ -92,10 +92,11 @@ public final class EntityFactory {
 	}
 
 	public final Entity createBullet(final Vector2 position, final float rotation) {
-		Vector2 size = new Vector2(1, 0.05f);
+		Vector2 size = new Vector2(1.5f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(position, size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Entity entity = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new CollisionGroup[] { CollisionGroup.BULLET });
+		entity.get(PhysicsPart.class).setGravityScale(0.05f);
 		entity.attach(new AutoRotatePart());
 		entity.attach(new TimedDeathPart(3));
 		Vector2 velocity = new Vector2(10, 0).setAngle(rotation);

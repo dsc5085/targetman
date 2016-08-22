@@ -1,7 +1,7 @@
 package dc.targetman.epf.parts;
 
-import dc.targetman.limb.Rotator;
 import dclib.geometry.Centrum;
+import dclib.limb.Rotator;
 import dclib.util.Timer;
 
 public final class WeaponPart {
