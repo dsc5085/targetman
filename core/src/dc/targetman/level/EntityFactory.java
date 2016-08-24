@@ -66,7 +66,7 @@ public final class EntityFactory {
 		Limb torsoLimb = createLimb(new Vector2(1, 0.1f), "objects/limb")
 				.addJoint(leftBicepLimb, 0.8f, 0.05f, 0, 0.05f, -225)
 				.addJoint(rightBicepJoint)
-				.addJoint(headLimb, 1, 0.05f, 0, 0.25f, 0);
+				.addJoint(headLimb, 1, 0.05f, 0.05f, 0.25f, 0);
 		Limb leftLeg = createLimb(new Vector2(1, 0.1f), "objects/limb");
 		Limb rightLeg = createLimb(new Vector2(1, 0.1f), "objects/limb");
 		Joint leftLegJoint = new Joint(leftLeg, new Vector2(), new Vector2(0, 0.05f), -110);
@@ -75,7 +75,7 @@ public final class EntityFactory {
 		polygon.setPosition(position.x, position.y);
 		TransformPart transformPart = new TransformPart(polygon, position.z);
 		Limb root = new Limb(polygon)
-		.addJoint(torsoLimb, 0, 0, 0, 0.05f, 90)
+		.addJoint(torsoLimb, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
 		Entity entity = new Entity();
@@ -90,7 +90,7 @@ public final class EntityFactory {
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
-		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.3f)), 0.1f, rotator));
+		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator));
 		entityManager.add(entity);
 		return entity;
 	}
@@ -103,7 +103,7 @@ public final class EntityFactory {
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
 		bullet.attach(new AutoRotatePart());
 		bullet.attach(new TimedDeathPart(3));
-		Vector2 velocity = new Vector2(10, 0).setAngle(centrum.getRotation());
+		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
 		entity.attach(new ScalePart(new FloatRange(0, 1), 0.2f));

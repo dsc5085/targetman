@@ -142,7 +142,7 @@ public final class LevelController {
 	}
 
 	private void processInput() {
-		final float speed = 3;
+		final float speed = 5;
 		final float jumpSpeed = 5;
 		float moveVelocityX = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
