@@ -101,10 +101,10 @@ active: false
 active: false
 - Gravity - 
 active: true
-lowMin: -10.0
-lowMax: -10.0
-highMin: -2.0
-highMax: -2.0
+lowMin: -3.0
+lowMax: -3.0
+highMin: -1.0
+highMax: -1.0
 relative: false
 scalingCount: 1
 scaling0: 1.0

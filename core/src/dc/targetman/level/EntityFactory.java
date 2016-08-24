@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -53,36 +56,44 @@ public final class EntityFactory {
 	}
 
 	public final Entity createTargetman(final Vector3 position) {
-		Limb leftForemanLimb = createLimb(new Vector2(0.4f, 0.1f), "objects/limb");
-		Limb leftBicepLimb = createLimb(new Vector2(0.4f, 0.1f), "objects/limb")
-				.addJoint(leftForemanLimb, 0.4f, 0.05f, 0, 0.05f, 45);
-		Limb gun = createLimb(new Vector2(0.4f, 0.3f), "objects/gun");
-		Limb rightForemanLimb = createLimb(new Vector2(0.4f, 0.1f), "objects/limb")
-				.addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0);
-		Limb rightBicepLimb = createLimb(new Vector2(0.4f, 0.1f), "objects/limb")
-				.addJoint(rightForemanLimb, 0.4f, 0.05f, 0, 0.05f, 45);
-		Limb headLimb = createLimb(new Vector2(0.5f, 0.5f), "objects/head");
-		Joint rightBicepJoint = new Joint(rightBicepLimb, new Vector2(0.8f, 0.05f), new Vector2(0, 0.05f), -135);
-		Limb torsoLimb = createLimb(new Vector2(1, 0.1f), "objects/limb")
-				.addJoint(leftBicepLimb, 0.8f, 0.05f, 0, 0.05f, -225)
+		Limb leftForearm = new Limb();
+		Limb leftBicep = new Limb().addJoint(leftForearm, 0.4f, 0.05f, 0, 0.05f, 45);
+		Limb gun = new Limb();
+		Limb rightForearm = new Limb().addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0);
+		Limb rightBicep = new Limb().addJoint(rightForearm, 0.4f, 0.05f, 0, 0.05f, 45);
+		Limb head = new Limb();
+		Joint rightBicepJoint = new Joint(rightBicep, new Vector2(0.8f, 0.05f), new Vector2(0, 0.05f), -135);
+		Limb torso = new Limb()
+				.addJoint(leftBicep, 0.8f, 0.05f, 0, 0.05f, -225)
 				.addJoint(rightBicepJoint)
-				.addJoint(headLimb, 1, 0.05f, 0.05f, 0.25f, 0);
-		Limb leftLeg = createLimb(new Vector2(1, 0.1f), "objects/limb");
-		Limb rightLeg = createLimb(new Vector2(1, 0.1f), "objects/limb");
+				.addJoint(head, 1, 0.05f, 0.05f, 0.25f, 0);
+		Limb leftLeg = new Limb();
+		Limb rightLeg = new Limb();
+		Limb[] zOrder = new Limb[] { leftForearm, leftBicep, leftLeg, torso, head, rightLeg, rightBicep, rightForearm };
+		float startZ = position.z;
+		createLimbEntity(leftForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
+		createLimbEntity(leftBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
+		createLimbEntity(gun, startZ, zOrder, new Vector2(0.4f, 0.3f), "objects/gun");
+		createLimbEntity(rightForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
+		createLimbEntity(rightBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
+		createLimbEntity(head, startZ, zOrder, new Vector2(0.5f, 0.5f), "objects/head");
+		createLimbEntity(torso, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb");
+		createLimbEntity(leftLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb");
+		createLimbEntity(rightLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb");
 		Joint leftLegJoint = new Joint(leftLeg, new Vector2(), new Vector2(0, 0.05f), -110);
 		Joint rightLegJoint = new Joint(rightLeg, new Vector2(), new Vector2(0, 0.05f), -70);
 		Polygon polygon = PolygonFactory.createDefault();
 		polygon.setPosition(position.x, position.y);
 		TransformPart transformPart = new TransformPart(polygon, position.z);
 		Limb root = new Limb(polygon)
-		.addJoint(torsoLimb, 0, 0, 0.05f, 0.05f, 90)
+		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
 		Entity entity = new Entity();
 		entity.attach(transformPart);
 		entity.attach(new TranslatePart());
 		entity.attach(new PhysicsPart(BodyType.DYNAMIC, new CollisionGroup[0]));
-		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(leftLeg.getPolygon(), rightLeg.getPolygon(), torsoLimb.getPolygon(), headLimb.getPolygon()));
+		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(leftLeg.getPolygon(), rightLeg.getPolygon(), torso.getPolygon(), head.getPolygon()));
 		entity.attach(limbsPart);
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
@@ -116,10 +127,11 @@ public final class EntityFactory {
 		entityManager.add(bullet);
 	}
 
-	private final Limb createLimb(final Vector2 size, final String regionName) {
-		Entity entity = createBaseEntity(size, new Vector3(), regionName, BodyType.NONE);
+	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName) {
+		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
+		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.NONE);
+		limb.setPolygon(entity.get(TransformPart.class).getPolygon());
 		entityManager.add(entity);
-		return new Limb(entity.get(TransformPart.class).getPolygon());
 	}
 
 	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName,
