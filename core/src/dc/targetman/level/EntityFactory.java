@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.CollisionGroup;
 import dc.targetman.limb.WalkAnimation;
@@ -104,7 +105,10 @@ public final class EntityFactory {
 		bullet.attach(new TimedDeathPart(3));
 		Vector2 velocity = new Vector2(10, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
-		Limb trail = createLimb(new Vector2(1.5f, 0.08f), "objects/bullet_trail");
+		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
+		entity.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
+		entityManager.add(entity);
+		Limb trail = new Limb(entity.get(TransformPart.class).getPolygon());
 		Polygon polygon = bullet.get(TransformPart.class).getPolygon();
 		Limb root = new Limb(polygon).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(polygon));

@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.WeaponPart;
+import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.level.models.CollisionGroup;
 import dclib.epf.DefaultEntityManager;
@@ -97,6 +98,7 @@ public final class LevelController {
 		physicsSystem.addBodyCollidedListener(bodyCollided());
 		entitySystemManager.add(physicsSystem);
 		entitySystemManager.add(new AutoRotateSystem());
+		entitySystemManager.add(new ScaleSystem());
 		entitySystemManager.add(new LimbsSystem(entityManager));
 		entitySystemManager.add(new TimedDeathSystem(entityManager));
 		entitySystemManager.add(new WeaponSystem(entityFactory));
