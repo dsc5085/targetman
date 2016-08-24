@@ -27,6 +27,7 @@ import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.PhysicsPart;
+import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DrawableSystem;
@@ -36,6 +37,7 @@ import dclib.epf.systems.TimedDeathSystem;
 import dclib.epf.systems.TranslateSystem;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
+import dclib.graphics.ParticlesManager;
 import dclib.graphics.TextureCache;
 import dclib.physics.BodyCollidedListener;
 import dclib.system.Advancer;
@@ -50,6 +52,7 @@ public final class LevelController {
 	private final Advancer advancer;
 	private final Camera camera;
 	private final UnitConverter unitConverter;
+	private final ParticlesManager particlesManager;
 	private final List<EntityDrawer> entityDrawers = new ArrayList<EntityDrawer>();
 	private final Set<Entity> groundedEntities = new HashSet<Entity>();
 	private Entity targetman;
@@ -58,8 +61,10 @@ public final class LevelController {
 			final ShapeRenderer shapeRenderer) {
 		camera = new OrthographicCamera(320, 240);
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
-		entityFactory = new EntityFactory(textureCache);
+		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
+		entityFactory = new EntityFactory(entityManager, textureCache);
 		entitySystemManager = createEntitySystemManager();
+		// TODO: Remove entity drawer.  Create generic drawer where i can add particles drawing
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		spawnInitialEntities();
@@ -78,6 +83,7 @@ public final class LevelController {
 	}
 
 	public final void draw() {
+		particlesManager.draw();
 		List<Entity> entities = entityManager.getAll();
 		for (EntityDrawer entityDrawer : entityDrawers) {
 			entityDrawer.draw(entities);
@@ -91,9 +97,9 @@ public final class LevelController {
 		physicsSystem.addBodyCollidedListener(bodyCollided());
 		entitySystemManager.add(physicsSystem);
 		entitySystemManager.add(new AutoRotateSystem());
-		entitySystemManager.add(new LimbsSystem());
+		entitySystemManager.add(new LimbsSystem(entityManager));
 		entitySystemManager.add(new TimedDeathSystem(entityManager));
-		entitySystemManager.add(new WeaponSystem(entityManager, entityFactory));
+		entitySystemManager.add(new WeaponSystem(entityFactory));
 		entitySystemManager.add(new DrawableSystem(unitConverter));
 		return entitySystemManager;
 	}
@@ -109,21 +115,18 @@ public final class LevelController {
 				}
 				if (entity.get(PhysicsPart.class).inCollisionGroups(CollisionGroup.BULLET)) {
 					entityManager.remove(entity);
+					Vector2 position = entity.get(TransformPart.class).getCenter();
+					particlesManager.createEffect("spark", position);
 				}
 			}
 		};
 	}
 
 	private void spawnInitialEntities() {
-		Entity wall = entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
-		entityManager.add(wall);
-		Entity wall2 = entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
-		entityManager.add(wall2);
-		Entity wall3 = entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
-		entityManager.add(wall3);
-		List<Entity> targetmanEntities = entityFactory.createTargetman(new Vector3(1, 0, 0));
-		targetman = targetmanEntities.get(targetmanEntities.size() - 1);
-		entityManager.addAll(targetmanEntities);
+		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
+		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
+		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
+		targetman = entityFactory.createTargetman(new Vector3(4, 0, 0));
 	}
 
 	private Advancer createAdvancer() {
@@ -131,6 +134,7 @@ public final class LevelController {
 			@Override
 			protected void update(final float delta) {
 				entitySystemManager.update(delta);
+				particlesManager.update(delta);
 			}
 		};
 	}
