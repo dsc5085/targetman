@@ -117,13 +117,13 @@ public final class LevelController {
 		return new CollidedListener() {
 			@Override
 			public void collided(final Entity collider, final Entity collidee, final Vector2 offset) {
-				if (offset.y > 0) {
+				PhysicsPart colliderPhysicsPart = collider.get(PhysicsPart.class);
+				PhysicsPart collideePhysicsPart = collidee.get(PhysicsPart.class);
+				if (collideePhysicsPart.getBodyType() == BodyType.STATIC && offset.y > 0) {
 					groundedEntities.add(collider);
 				}
-				PhysicsPart physicsPart1 = collider.get(PhysicsPart.class);
-				PhysicsPart physicsPart2 = collidee.get(PhysicsPart.class);
-				if (physicsPart1.containsAny(CollisionGroup.BULLET.ordinal())
-						&& physicsPart2.getBodyType() == BodyType.STATIC) {
+				if (colliderPhysicsPart.containsAny(CollisionGroup.BULLET.ordinal())
+						&& collideePhysicsPart.getBodyType() == BodyType.STATIC) {
 					entityManager.remove(collider);
 					Vector2 position = collider.get(TransformPart.class).getCenter();
 					particlesManager.createEffect("spark", position);
