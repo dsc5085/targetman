@@ -124,8 +124,8 @@ public final class LevelController {
 	private Advancer createAdvancer() {
 		return new Advancer()
 		.add(collisionSystem)
-		.add(new PhysicsSystem(-8, entityManager, collisionSystem))
 		.add(new TranslateSystem(entityManager))
+		.add(new PhysicsSystem(-8, entityManager, collisionSystem))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new ScaleSystem(entityManager))
 		.add(new LimbsSystem(entityManager))

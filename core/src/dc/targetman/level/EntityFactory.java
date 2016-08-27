@@ -1,6 +1,5 @@
 package dc.targetman.level;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,7 +91,7 @@ public final class EntityFactory {
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
-		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(leftLeg.getPolygon(), rightLeg.getPolygon(), torso.getPolygon(), head.getPolygon()));
+		LimbsPart limbsPart = new LimbsPart(root, leftLeg, rightLeg, torso, head);
 		Entity entity = new Entity();
 		entity.attach(transformPart);
 		entity.attach(new TranslatePart());
@@ -126,7 +125,7 @@ public final class EntityFactory {
 		Limb trail = new Limb(entity.get(TransformPart.class).getPolygon());
 		Polygon polygon = bullet.get(TransformPart.class).getPolygon();
 		Limb root = new Limb(polygon).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
-		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(polygon));
+		LimbsPart limbsPart = new LimbsPart(root, root);
 		bullet.attach(limbsPart);
 		entityManager.add(bullet);
 	}
