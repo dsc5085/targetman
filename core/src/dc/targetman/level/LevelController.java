@@ -15,12 +15,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.WeaponPart;
+import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.WeaponSystem;
-import dc.targetman.level.models.CollisionGroup;
+import dc.targetman.level.models.Alliance;
+import dc.targetman.level.models.CollisionType;
 import dclib.epf.DefaultEntityManager;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
+import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.EntityTransformDrawer;
@@ -72,6 +75,7 @@ public final class LevelController {
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
+		entityManager.addEntityRemovedListener(entityRemoved());
 		advancer = createAdvancer();
 		spawnInitialEntities();
 	}
@@ -95,20 +99,27 @@ public final class LevelController {
 		}
 	}
 
+	private EntityRemovedListener entityRemoved() {
+		return new EntityRemovedListener() {
+			@Override
+			public void removed(final Entity entity) {
+				if (entity.has(PhysicsPart.class)) {
+					if (entity.get(PhysicsPart.class).containsAny(CollisionType.BULLET)) {
+						Vector2 position = entity.get(TransformPart.class).getCenter();
+						particlesManager.createEffect("spark", position);
+					}
+				}
+			}
+		};
+	}
+
 	private CollidedListener collided() {
 		return new CollidedListener() {
 			@Override
 			public void collided(final Entity collider, final Entity collidee, final Vector2 offset) {
-				PhysicsPart colliderPhysicsPart = collider.get(PhysicsPart.class);
 				PhysicsPart collideePhysicsPart = collidee.get(PhysicsPart.class);
 				if (collideePhysicsPart.getBodyType() == BodyType.STATIC && offset.y > 0) {
 					groundedEntities.add(collider);
-				}
-				if (colliderPhysicsPart.containsAny(CollisionGroup.BULLET.ordinal())
-						&& collideePhysicsPart.getBodyType() == BodyType.STATIC) {
-					entityManager.remove(collider);
-					Vector2 position = collider.get(TransformPart.class).getCenter();
-					particlesManager.createEffect("spark", position);
 				}
 			}
 		};
@@ -118,6 +129,7 @@ public final class LevelController {
 		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
 		collisionSystem.addCollidedListener(collided());
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
+		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
 		return collisionSystem;
 	}
 
@@ -139,8 +151,8 @@ public final class LevelController {
 		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
-		targetman = entityFactory.createStickman(new Vector3(4, 0, 0));
-		entityFactory.createStickman(new Vector3(6, 0, 0));
+		targetman = entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.PLAYER);
+		entityFactory.createStickman(new Vector3(6, 0, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {
