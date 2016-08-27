@@ -25,22 +25,26 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntitySystemManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
+import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.AutoRotateSystem;
+import dclib.epf.systems.DamageCollidedListener;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
 import dclib.epf.systems.PhysicsSystem;
+import dclib.epf.systems.RemoveOnNoHealthEntityAddedListener;
 import dclib.epf.systems.TimedDeathSystem;
 import dclib.epf.systems.TranslateSystem;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
 import dclib.graphics.ParticlesManager;
 import dclib.graphics.TextureCache;
-import dclib.physics.BodyCollidedListener;
+import dclib.physics.BodyType;
+import dclib.physics.CollidedListener;
 import dclib.system.Advancer;
 
 public final class LevelController {
@@ -49,7 +53,9 @@ public final class LevelController {
 
 	private final EntityFactory entityFactory;
 	private final EntityManager entityManager = new DefaultEntityManager();
+	// TODO: Get rid of entitySystemManager and just make a single generic update interface
 	private final EntitySystemManager entitySystemManager;
+	private final PhysicsSystem physicsSystem;
 	private final Advancer advancer;
 	private final Camera camera;
 	private final UnitConverter unitConverter;
@@ -65,9 +71,13 @@ public final class LevelController {
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, textureCache);
 		entitySystemManager = createEntitySystemManager();
+		physicsSystem = new PhysicsSystem(entityManager, -8);
+		physicsSystem.addCollidedListener(collided());
+		physicsSystem.addCollidedListener(new DamageCollidedListener());
 		// TODO: Remove entity drawer.  Create generic drawer where i can add particles drawing
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
-//		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		spawnInitialEntities();
 		advancer = createAdvancer();
 	}
@@ -94,9 +104,6 @@ public final class LevelController {
 	private EntitySystemManager createEntitySystemManager() {
 		EntitySystemManager entitySystemManager = new DefaultEntitySystemManager(entityManager);
 		entitySystemManager.add(new TranslateSystem());
-		PhysicsSystem physicsSystem = new PhysicsSystem(entityManager, -8);
-		physicsSystem.addBodyCollidedListener(bodyCollided());
-		entitySystemManager.add(physicsSystem);
 		entitySystemManager.add(new AutoRotateSystem());
 		entitySystemManager.add(new ScaleSystem());
 		entitySystemManager.add(new LimbsSystem(entityManager));
@@ -106,18 +113,19 @@ public final class LevelController {
 		return entitySystemManager;
 	}
 
-	private BodyCollidedListener bodyCollided() {
-		return new BodyCollidedListener() {
+	private CollidedListener collided() {
+		return new CollidedListener() {
 			@Override
-			public void collided(final Entity entity, final List<Vector2> offsets) {
-				for (Vector2 offset : offsets) {
-					if (offset.y > 0) {
-						groundedEntities.add(entity);
-					}
+			public void collided(final Entity collider, final Entity collidee, final Vector2 offset) {
+				if (offset.y > 0) {
+					groundedEntities.add(collider);
 				}
-				if (entity.get(PhysicsPart.class).inCollisionGroups(CollisionGroup.BULLET)) {
-					entityManager.remove(entity);
-					Vector2 position = entity.get(TransformPart.class).getCenter();
+				PhysicsPart physicsPart1 = collider.get(PhysicsPart.class);
+				PhysicsPart physicsPart2 = collidee.get(PhysicsPart.class);
+				if (physicsPart1.containsAny(CollisionGroup.BULLET.ordinal())
+						&& physicsPart2.getBodyType() == BodyType.STATIC) {
+					entityManager.remove(collider);
+					Vector2 position = collider.get(TransformPart.class).getCenter();
 					particlesManager.createEffect("spark", position);
 				}
 			}
@@ -128,7 +136,8 @@ public final class LevelController {
 		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
-		targetman = entityFactory.createTargetman(new Vector3(4, 0, 0));
+		targetman = entityFactory.createStickman(new Vector3(4, 0, 0));
+		entityFactory.createStickman(new Vector3(6, 0, 0));
 	}
 
 	private Advancer createAdvancer() {
@@ -136,6 +145,7 @@ public final class LevelController {
 			@Override
 			protected void update(final float delta) {
 				entitySystemManager.update(delta);
+				physicsSystem.update(delta);
 				particlesManager.update(delta);
 			}
 		};
@@ -151,7 +161,6 @@ public final class LevelController {
 			moveVelocityX = speed;
 		}
 		setMoveVelocityX(targetman, moveVelocityX);
-		// TODO: make this based off delta
 		float aimRotateMultiplier = 0;
 		if (Gdx.input.isKeyPressed(Keys.W)){
 			aimRotateMultiplier = 1;

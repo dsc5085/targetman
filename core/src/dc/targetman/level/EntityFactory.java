@@ -16,10 +16,13 @@ import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.CollisionGroup;
 import dc.targetman.limb.WalkAnimation;
+import dc.targetman.util.EnumUtils;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.AutoRotatePart;
+import dclib.epf.parts.CollisionDamagePart;
 import dclib.epf.parts.DrawablePart;
+import dclib.epf.parts.HealthPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.PhysicsPart;
@@ -55,7 +58,7 @@ public final class EntityFactory {
 		entityManager.add(entity);
 	}
 
-	public final Entity createTargetman(final Vector3 position) {
+	public final Entity createStickman(final Vector3 position) {
 		Limb leftForearm = new Limb();
 		Limb leftBicep = new Limb().addJoint(leftForearm, 0.4f, 0.05f, 0, 0.05f, 45);
 		Limb gun = new Limb();
@@ -71,15 +74,15 @@ public final class EntityFactory {
 		Limb rightLeg = new Limb();
 		Limb[] zOrder = new Limb[] { leftForearm, leftBicep, leftLeg, torso, head, rightLeg, rightBicep, rightForearm };
 		float startZ = position.z;
-		createLimbEntity(leftForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
-		createLimbEntity(leftBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
-		createLimbEntity(gun, startZ, zOrder, new Vector2(0.4f, 0.3f), "objects/gun");
-		createLimbEntity(rightForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
-		createLimbEntity(rightBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb");
-		createLimbEntity(head, startZ, zOrder, new Vector2(0.5f, 0.5f), "objects/head");
-		createLimbEntity(torso, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb");
-		createLimbEntity(leftLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb");
-		createLimbEntity(rightLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb");
+		createLimbEntity(leftForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100);
+		createLimbEntity(leftBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100);
+		createLimbEntity(gun, startZ, zOrder, new Vector2(0.4f, 0.3f), "objects/gun", 500);
+		createLimbEntity(rightForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100);
+		createLimbEntity(rightBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100);
+		createLimbEntity(head, startZ, zOrder, new Vector2(0.5f, 0.5f), "objects/head", 100);
+		createLimbEntity(torso, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb", 200);
+		createLimbEntity(leftLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb", 100);
+		createLimbEntity(rightLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb", 100);
 		Joint leftLegJoint = new Joint(leftLeg, new Vector2(), new Vector2(0, 0.05f), -110);
 		Joint rightLegJoint = new Joint(rightLeg, new Vector2(), new Vector2(0, 0.05f), -70);
 		Polygon polygon = PolygonFactory.createDefault();
@@ -89,11 +92,11 @@ public final class EntityFactory {
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
+		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(leftLeg.getPolygon(), rightLeg.getPolygon(), torso.getPolygon(), head.getPolygon()));
 		Entity entity = new Entity();
 		entity.attach(transformPart);
 		entity.attach(new TranslatePart());
-		entity.attach(new PhysicsPart(BodyType.DYNAMIC, new CollisionGroup[0]));
-		LimbsPart limbsPart = new LimbsPart(root, Arrays.asList(leftLeg.getPolygon(), rightLeg.getPolygon(), torso.getPolygon(), head.getPolygon()));
+		entity.attach(new PhysicsPart(BodyType.DYNAMIC, new int[0]));
 		entity.attach(limbsPart);
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
@@ -114,6 +117,7 @@ public final class EntityFactory {
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
 		bullet.attach(new AutoRotatePart());
 		bullet.attach(new TimedDeathPart(3));
+		bullet.attach(new CollisionDamagePart(new int[] { CollisionGroup.PLAYER.ordinal() }, 10));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
@@ -127,9 +131,10 @@ public final class EntityFactory {
 		entityManager.add(bullet);
 	}
 
-	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName) {
+	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName, final float health) {
 		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
-		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.NONE);
+		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.SENSOR, new CollisionGroup[] { CollisionGroup.PLAYER });
+		entity.attach(new HealthPart(health));
 		limb.setPolygon(entity.get(TransformPart.class).getPolygon());
 		entityManager.add(entity);
 	}
@@ -146,7 +151,7 @@ public final class EntityFactory {
 		polygon.setPosition(position.x,  position.y);
 		entity.attach(new TransformPart(polygon, position.z));
 		entity.attach(new TranslatePart());
-		entity.attach(new PhysicsPart(bodyType, collisionGroups));
+		entity.attach(new PhysicsPart(bodyType, EnumUtils.toIntArray(collisionGroups)));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);
