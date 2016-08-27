@@ -19,10 +19,8 @@ import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.level.models.CollisionGroup;
 import dclib.epf.DefaultEntityManager;
-import dclib.epf.DefaultEntitySystemManager;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
-import dclib.epf.EntitySystemManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.EntityTransformDrawer;
@@ -53,8 +51,6 @@ public final class LevelController {
 
 	private final EntityFactory entityFactory;
 	private final EntityManager entityManager = new DefaultEntityManager();
-	// TODO: Get rid of entitySystemManager and just make a single generic update interface
-	private final EntitySystemManager entitySystemManager;
 	private final PhysicsSystem physicsSystem;
 	private final Advancer advancer;
 	private final Camera camera;
@@ -70,7 +66,6 @@ public final class LevelController {
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, textureCache);
-		entitySystemManager = createEntitySystemManager();
 		physicsSystem = new PhysicsSystem(entityManager, -8);
 		physicsSystem.addCollidedListener(collided());
 		physicsSystem.addCollidedListener(new DamageCollidedListener());
@@ -101,18 +96,6 @@ public final class LevelController {
 		}
 	}
 
-	private EntitySystemManager createEntitySystemManager() {
-		EntitySystemManager entitySystemManager = new DefaultEntitySystemManager(entityManager);
-		entitySystemManager.add(new TranslateSystem());
-		entitySystemManager.add(new AutoRotateSystem());
-		entitySystemManager.add(new ScaleSystem());
-		entitySystemManager.add(new LimbsSystem(entityManager));
-		entitySystemManager.add(new TimedDeathSystem(entityManager));
-		entitySystemManager.add(new WeaponSystem(entityFactory));
-		entitySystemManager.add(new DrawableSystem(unitConverter));
-		return entitySystemManager;
-	}
-
 	private CollidedListener collided() {
 		return new CollidedListener() {
 			@Override
@@ -141,14 +124,16 @@ public final class LevelController {
 	}
 
 	private Advancer createAdvancer() {
-		return new Advancer() {
-			@Override
-			protected void update(final float delta) {
-				entitySystemManager.update(delta);
-				physicsSystem.update(delta);
-				particlesManager.update(delta);
-			}
-		};
+		return new Advancer()
+		.add(physicsSystem)
+		.add(new TranslateSystem(entityManager))
+		.add(new AutoRotateSystem(entityManager))
+		.add(new ScaleSystem(entityManager))
+		.add(new LimbsSystem(entityManager))
+		.add(new TimedDeathSystem(entityManager))
+		.add(new WeaponSystem(entityManager, entityFactory))
+		.add(new DrawableSystem(entityManager, unitConverter))
+		.add(particlesManager);
 	}
 
 	private void processInput() {
