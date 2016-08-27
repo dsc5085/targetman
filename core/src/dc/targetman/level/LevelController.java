@@ -30,6 +30,7 @@ import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.AutoRotateSystem;
+import dclib.epf.systems.CollisionSystem;
 import dclib.epf.systems.DamageCollidedListener;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
@@ -51,7 +52,7 @@ public final class LevelController {
 
 	private final EntityFactory entityFactory;
 	private final EntityManager entityManager = new DefaultEntityManager();
-	private final PhysicsSystem physicsSystem;
+	private final CollisionSystem collisionSystem;
 	private final Advancer advancer;
 	private final Camera camera;
 	private final UnitConverter unitConverter;
@@ -66,15 +67,13 @@ public final class LevelController {
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, textureCache);
-		physicsSystem = new PhysicsSystem(entityManager, -8);
-		physicsSystem.addCollidedListener(collided());
-		physicsSystem.addCollidedListener(new DamageCollidedListener());
+		collisionSystem = createCollisionSystem();
 		// TODO: Remove entity drawer.  Create generic drawer where i can add particles drawing
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
-		spawnInitialEntities();
 		advancer = createAdvancer();
+		spawnInitialEntities();
 	}
 
 	public final void dispose() {
@@ -115,17 +114,17 @@ public final class LevelController {
 		};
 	}
 
-	private void spawnInitialEntities() {
-		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
-		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
-		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
-		targetman = entityFactory.createStickman(new Vector3(4, 0, 0));
-		entityFactory.createStickman(new Vector3(6, 0, 0));
+	private CollisionSystem createCollisionSystem() {
+		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
+		collisionSystem.addCollidedListener(collided());
+		collisionSystem.addCollidedListener(new DamageCollidedListener());
+		return collisionSystem;
 	}
 
 	private Advancer createAdvancer() {
 		return new Advancer()
-		.add(physicsSystem)
+		.add(collisionSystem)
+		.add(new PhysicsSystem(-8, entityManager, collisionSystem))
 		.add(new TranslateSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new ScaleSystem(entityManager))
@@ -134,6 +133,14 @@ public final class LevelController {
 		.add(new WeaponSystem(entityManager, entityFactory))
 		.add(new DrawableSystem(entityManager, unitConverter))
 		.add(particlesManager);
+	}
+
+	private void spawnInitialEntities() {
+		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
+		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
+		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
+		targetman = entityFactory.createStickman(new Vector3(4, 0, 0));
+		entityFactory.createStickman(new Vector3(6, 0, 0));
 	}
 
 	private void processInput() {
