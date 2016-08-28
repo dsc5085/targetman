@@ -17,8 +17,8 @@ public final class WeaponSystem extends EntitySystem {
 
 	@Override
 	protected final void update(final float delta, final Entity entity) {
-		if (entity.has(WeaponPart.class)) {
-			WeaponPart weaponPart = entity.get(WeaponPart.class);
+		WeaponPart weaponPart = entity.tryGet(WeaponPart.class);
+		if (weaponPart != null) {
 			fire(weaponPart);
 			weaponPart.update(delta);
 			weaponPart.setTriggered(false);

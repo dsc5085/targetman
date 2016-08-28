@@ -103,8 +103,9 @@ public final class LevelController {
 		return new EntityRemovedListener() {
 			@Override
 			public void removed(final Entity entity) {
-				if (entity.has(PhysicsPart.class)) {
-					if (entity.get(PhysicsPart.class).containsAny(CollisionType.BULLET)) {
+				PhysicsPart physicsPart = entity.tryGet(PhysicsPart.class);
+				if (physicsPart != null) {
+					if (physicsPart.containsAny(CollisionType.BULLET)) {
 						Vector2 position = entity.get(TransformPart.class).getCenter();
 						particlesManager.createEffect("spark", position);
 					}

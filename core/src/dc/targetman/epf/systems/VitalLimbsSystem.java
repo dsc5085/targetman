@@ -20,9 +20,10 @@ public final class VitalLimbsSystem extends EntitySystem {
 
 	@Override
 	protected final void update(final float delta, final Entity entity) {
-		if (entity.has(VitalLimbsPart.class)) {
+		VitalLimbsPart vitalLimbsPart = entity.tryGet(VitalLimbsPart.class);
+		if (vitalLimbsPart != null) {
 			List<Entity> entities = entityManager.getAll();
-			Limb[] vitalLimbs = entity.get(VitalLimbsPart.class).getVitalLimbs();
+			Limb[] vitalLimbs = vitalLimbsPart.getVitalLimbs();
 			for (Limb limb : vitalLimbs) {
 				if (LimbUtils.findEntity(entities, limb) == null) {
 					entityManager.remove(entity);
