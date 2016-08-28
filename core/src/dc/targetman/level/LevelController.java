@@ -135,12 +135,12 @@ public final class LevelController {
 
 	private Advancer createAdvancer() {
 		return new Advancer()
-		.add(collisionSystem)
-		.add(new TranslateSystem(entityManager))
-		.add(new PhysicsSystem(-8, entityManager, collisionSystem))
-		.add(new AutoRotateSystem(entityManager))
 		.add(new ScaleSystem(entityManager))
+		.add(new AutoRotateSystem(entityManager))
+		.add(new TranslateSystem(entityManager))
 		.add(new LimbsSystem(entityManager))
+		.add(collisionSystem)
+		.add(new PhysicsSystem(-8, entityManager, collisionSystem))
 		.add(new TimedDeathSystem(entityManager))
 		.add(new WeaponSystem(entityManager, entityFactory))
 		.add(new DrawableSystem(entityManager, unitConverter))
@@ -151,8 +151,9 @@ public final class LevelController {
 		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
+		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(7, -2, 0));
 		targetman = entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(6, 0, 0), Alliance.ENEMY);
+//		entityFactory.createStickman(new Vector3(6, 0, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {
