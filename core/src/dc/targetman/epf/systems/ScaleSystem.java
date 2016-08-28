@@ -16,8 +16,8 @@ public final class ScaleSystem extends EntitySystem {
 	}
 
 	@Override
-	public final void update(final float delta, final Entity entity) {
-		if (entity.hasActive(ScalePart.class)) {
+	protected final void update(final float delta, final Entity entity) {
+		if (entity.has(ScalePart.class)) {
 			ScalePart scalePart = entity.get(ScalePart.class);
 			Timer scaleTimer = scalePart.getScaleTimer();
 			scaleTimer.tick(delta);

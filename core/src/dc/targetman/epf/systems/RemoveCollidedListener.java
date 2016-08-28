@@ -19,7 +19,7 @@ public class RemoveCollidedListener implements CollidedListener {
 
 	@Override
 	public final void collided(final Entity collider, final Entity collidee, final Vector2 offsets) {
-		if (collider.hasActive(CollisionRemovePart.class) && collidee.hasActive(PhysicsPart.class)) {
+		if (collider.has(CollisionRemovePart.class) && collidee.has(PhysicsPart.class)) {
 			PhysicsPart collideePhysicsPart = collidee.get(PhysicsPart.class);
 			Enum<?>[] collisionGroups = collider.get(CollisionRemovePart.class).getCollisionGroups();
 			if (collideePhysicsPart.getBodyType() == BodyType.STATIC
