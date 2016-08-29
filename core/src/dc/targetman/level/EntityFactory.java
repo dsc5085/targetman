@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.CollisionRemovePart;
+import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
@@ -105,6 +106,7 @@ public final class EntityFactory {
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
+		entity.attach(new MovementPart(5, 5));
 		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator));
 		entity.attach(new VitalLimbsPart(head, torso));
 		entityManager.add(entity);

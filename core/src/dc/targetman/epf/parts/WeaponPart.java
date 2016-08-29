@@ -33,8 +33,8 @@ public final class WeaponPart {
 		return triggered && fireTimer.isElapsed();
 	}
 
-	public final void setRotateMultiplier(final float rotateMultiplier) {
-		aimRotator.setRotateMultiplier(rotateMultiplier);
+	public final void setAimDirection(final float aimDirection) {
+		aimRotator.setRotateMultiplier(aimDirection);
 	}
 
 	public final void reset() {
