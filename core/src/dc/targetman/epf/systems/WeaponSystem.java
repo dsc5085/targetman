@@ -27,7 +27,7 @@ public final class WeaponSystem extends EntitySystem {
 
 	private void fire(final WeaponPart weaponPart) {
 		if (weaponPart.shouldFire()) {
-			entityFactory.createBullet(weaponPart.getCentrum());
+			entityFactory.createBullet(weaponPart.getCentrum(), weaponPart.getEntityType());
 			weaponPart.reset();
 		}
 	}

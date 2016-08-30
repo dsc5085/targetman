@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
@@ -107,13 +108,18 @@ public final class EntityFactory {
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		entity.attach(new MovementPart(5, 5));
-		entity.attach(new WeaponPart("", new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator));
+		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
+		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator));
 		entity.attach(new VitalLimbsPart(head, torso));
+		if (alliance == Alliance.ENEMY){
+			entity.attach(new AiPart());
+		}
 		entityManager.add(entity);
 		return entity;
 	}
 
-	public final void createBullet(final Centrum centrum) {
+	public final void createBullet(final Centrum centrum, final String type) {
+		Alliance alliance = Alliance.valueOf(type); // TODO: hacky...
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
@@ -121,7 +127,7 @@ public final class EntityFactory {
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
 		bullet.attach(new AutoRotatePart());
 		bullet.attach(new TimedDeathPart(3));
-		bullet.attach(new CollisionDamagePart(10, Alliance.ENEMY));
+		bullet.attach(new CollisionDamagePart(10, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
@@ -132,7 +138,7 @@ public final class EntityFactory {
 		Limb root = new Limb(polygon).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
 		bullet.attach(limbsPart);
-		bullet.attach(new CollisionRemovePart(Alliance.ENEMY));
+		bullet.attach(new CollisionRemovePart(alliance));
 		entityManager.add(bullet);
 	}
 

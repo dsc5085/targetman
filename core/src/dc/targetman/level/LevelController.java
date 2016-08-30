@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.VitalLimbsSystem;
@@ -25,6 +26,7 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
+import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.AutoRotateSystem;
@@ -67,7 +69,7 @@ public final class LevelController {
 		stickActions = new StickActions(collisionSystem);
 		// TODO: Remove entity drawer.  Create generic drawer where i can add particles drawing
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
-//		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		entityManager.addEntityRemovedListener(entityRemoved());
 		advancer = createAdvancer();
@@ -116,6 +118,7 @@ public final class LevelController {
 
 	private Advancer createAdvancer() {
 		return new Advancer()
+		.add(new AiSystem(entityManager, stickActions)) // TODO: Don't update every frame
 		.add(new ScaleSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new TranslateSystem(entityManager))
@@ -135,7 +138,7 @@ public final class LevelController {
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
 		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(7, -2, 0));
 		targetman = entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(6, 0, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {
