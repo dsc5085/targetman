@@ -1,5 +1,7 @@
 package dc.targetman.epf.util;
 
+import java.util.List;
+
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dclib.epf.Entity;
@@ -8,6 +10,8 @@ import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.epf.systems.CollisionSystem;
+import dclib.limb.Limb;
+import dclib.limb.LimbAnimation;
 import dclib.physics.BodyType;
 import dclib.physics.Collision;
 
@@ -20,12 +24,13 @@ public final class StickActions {
 	}
 
 	public final void move(final Entity entity, final float direction) {
-		float moveVelocityX = entity.get(MovementPart.class).getMoveSpeed() * direction;
+		float moveVelocityX = getMoveSpeed(entity) * direction;
 		entity.get(TranslatePart.class).setVelocityX(moveVelocityX);
+		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
 		if (moveVelocityX == 0) {
-			entity.get(LimbAnimationsPart.class).get("walk").stop();
+			walkAnimation.stop();
 		} else {
-			entity.get(LimbAnimationsPart.class).get("walk").play();
+			walkAnimation.play();
 		}
 		if (moveVelocityX > 0) {
 			entity.get(LimbsPart.class).setFlipX(false);
@@ -51,6 +56,18 @@ public final class StickActions {
 
 	public final void trigger(final Entity entity) {
 		entity.get(WeaponPart.class).setTriggered(true);
+	}
+
+	private float getMoveSpeed(final Entity entity) {
+		int numMovementLimbs = 0;
+		List<Limb> movementLimbs = entity.get(MovementPart.class).getLimbs();
+		for (Limb limb : entity.get(LimbsPart.class).getRoot().getDescendants()) {
+			if (movementLimbs.contains(limb)) {
+				numMovementLimbs++;
+			}
+		}
+		float movementRatio = (float)numMovementLimbs / movementLimbs.size();
+		return entity.get(MovementPart.class).getMoveSpeed() * movementRatio;
 	}
 
 }

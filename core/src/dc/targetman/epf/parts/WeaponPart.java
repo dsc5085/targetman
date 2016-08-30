@@ -1,6 +1,7 @@
 package dc.targetman.epf.parts;
 
 import dclib.geometry.Centrum;
+import dclib.limb.Limb;
 import dclib.limb.Rotator;
 import dclib.util.Timer;
 
@@ -23,6 +24,10 @@ public final class WeaponPart {
 
 	public final String getEntityType() {
 		return entityType;
+	}
+
+	public final Limb getRotatorLimb() {
+		return aimRotator.getJoint().getLimb();
 	}
 
 	public final Centrum getCentrum() {

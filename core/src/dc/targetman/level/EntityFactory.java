@@ -107,7 +107,7 @@ public final class EntityFactory {
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
-		entity.attach(new MovementPart(5, 5));
+		entity.attach(new MovementPart(5, 5, leftLeg, rightLeg));
 		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
 		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator));
 		entity.attach(new VitalLimbsPart(head, torso));
