@@ -23,8 +23,7 @@ public final class VitalLimbsSystem extends EntitySystem {
 		VitalLimbsPart vitalLimbsPart = entity.tryGet(VitalLimbsPart.class);
 		if (vitalLimbsPart != null) {
 			List<Entity> entities = entityManager.getAll();
-			Limb[] vitalLimbs = vitalLimbsPart.getVitalLimbs();
-			for (Limb limb : vitalLimbs) {
+			for (Limb limb : vitalLimbsPart.getVitalLimbs()) {
 				if (LimbUtils.findEntity(entities, limb) == null) {
 					entityManager.remove(entity);
 					break;

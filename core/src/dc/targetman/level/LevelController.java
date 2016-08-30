@@ -1,6 +1,7 @@
 package dc.targetman.level;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
@@ -100,7 +101,8 @@ public final class LevelController {
 			public void removed(final Entity entity) {
 				PhysicsPart physicsPart = entity.tryGet(PhysicsPart.class);
 				if (physicsPart != null) {
-					if (physicsPart.containsAny(CollisionType.BULLET)) {
+					Enum<?>[] collisionGroups = new Enum<?>[] { CollisionType.BULLET };
+					if (physicsPart.containsAny(Arrays.asList(collisionGroups))) {
 						Vector2 position = entity.get(TransformPart.class).getCenter();
 						particlesManager.createEffect("spark", position);
 					}

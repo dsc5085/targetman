@@ -1,5 +1,7 @@
 package dc.targetman.epf.systems;
 
+import java.util.List;
+
 import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.CollisionRemovePart;
@@ -22,7 +24,7 @@ public class RemoveCollidedListener implements CollidedListener {
 		CollisionRemovePart collisionRemovePart = collider.tryGet(CollisionRemovePart.class);
 		PhysicsPart collideePhysicsPart = collidee.tryGet(PhysicsPart.class);
 		if (collisionRemovePart != null && collideePhysicsPart != null) {
-			Enum<?>[] collisionGroups = collisionRemovePart.getCollisionGroups();
+			List<Enum<?>> collisionGroups = collisionRemovePart.getCollisionGroups();
 			if (collideePhysicsPart.getBodyType() == BodyType.STATIC
 					|| collideePhysicsPart.containsAny(collisionGroups)) {
 				entityManager.remove(collider);

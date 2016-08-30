@@ -1,5 +1,7 @@
 package dc.targetman.epf.systems;
 
+import java.util.Arrays;
+
 import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.AiPart;
@@ -61,7 +63,8 @@ public final class AiSystem extends EntitySystem {
 	private Vector2 getTargetPosition(final Entity entity) {
 		for (Entity target : entityManager.getAll()) {
 			PhysicsPart targetPhysicsPart = target.tryGet(PhysicsPart.class);
-			if (targetPhysicsPart != null && targetPhysicsPart.containsAny(Alliance.PLAYER)) {
+			Enum<?>[] collisionGroups = new Enum<?>[] { Alliance.PLAYER };
+			if (targetPhysicsPart != null && targetPhysicsPart.containsAny(Arrays.asList(collisionGroups))) {
 				return target.get(TransformPart.class).getCenter();
 			}
 		}
