@@ -123,7 +123,7 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.BULLET });
+		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.PROJECTILE });
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
 		bullet.attach(new AutoRotatePart());
 		bullet.attach(new TimedDeathPart(3));
@@ -142,9 +142,16 @@ public final class EntityFactory {
 		entityManager.add(bullet);
 	}
 
+	public final void createBloodParticle(final float size, final Vector3 position, final Vector2 velocity) {
+		Entity entity = createBaseEntity(new Vector2(size, size), position, "objects/blood", BodyType.DYNAMIC);
+		entity.get(TranslatePart.class).setVelocity(velocity);
+		entity.attach(new CollisionRemovePart());
+		entityManager.add(entity);
+	}
+
 	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName, final float health, final Alliance alliance) {
 		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
-		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.SENSOR, new Enum<?>[] { alliance });
+		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.SENSOR, new Enum<?>[] { alliance, CollisionType.FLESH });
 		entity.attach(new HealthPart(health));
 		limb.setPolygon(entity.get(TransformPart.class).getPolygon());
 		entityManager.add(entity);

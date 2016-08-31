@@ -11,7 +11,7 @@ import dclib.epf.parts.PhysicsPart;
 import dclib.physics.BodyType;
 import dclib.physics.CollidedListener;
 
-public class RemoveCollidedListener implements CollidedListener {
+public final class RemoveCollidedListener implements CollidedListener {
 
 	private final EntityManager entityManager;
 

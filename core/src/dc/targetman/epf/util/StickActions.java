@@ -24,7 +24,7 @@ public final class StickActions {
 	}
 
 	public final void move(final Entity entity, final float direction) {
-		float moveVelocityX = getMoveSpeed(entity) * direction;
+		float moveVelocityX = entity.get(MovementPart.class).getMoveSpeed() * getMoveRatio(entity) * direction;
 		entity.get(TranslatePart.class).setVelocityX(moveVelocityX);
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
 		if (moveVelocityX == 0) {
@@ -44,7 +44,7 @@ public final class StickActions {
 			PhysicsPart collideePhysicsPart = collision.getCollidee().get(PhysicsPart.class);
 			boolean isUpOffset = collision.getOffset().y > 0;
 			if (collideePhysicsPart.getBodyType() == BodyType.STATIC && isUpOffset) {
-				float jumpSpeed = entity.get(MovementPart.class).getJumpSpeed();
+				float jumpSpeed = entity.get(MovementPart.class).getJumpSpeed() * getMoveRatio(entity);
 				entity.get(TranslatePart.class).setVelocityY(jumpSpeed);
 			}
 		}
@@ -58,7 +58,7 @@ public final class StickActions {
 		entity.get(WeaponPart.class).setTriggered(true);
 	}
 
-	private float getMoveSpeed(final Entity entity) {
+	private float getMoveRatio(final Entity entity) {
 		int numMovementLimbs = 0;
 		List<Limb> movementLimbs = entity.get(MovementPart.class).getLimbs();
 		for (Limb limb : entity.get(LimbsPart.class).getRoot().getDescendants()) {
@@ -66,8 +66,7 @@ public final class StickActions {
 				numMovementLimbs++;
 			}
 		}
-		float movementRatio = (float)numMovementLimbs / movementLimbs.size();
-		return entity.get(MovementPart.class).getMoveSpeed() * movementRatio;
+		return (float)numMovementLimbs / movementLimbs.size();
 	}
 
 }

@@ -1,7 +1,6 @@
 package dc.targetman.level;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
@@ -14,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.systems.AiSystem;
+import dc.targetman.epf.systems.BleedCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.VitalLimbsSystem;
@@ -27,7 +27,6 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
-import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.AutoRotateSystem;
@@ -70,7 +69,7 @@ public final class LevelController {
 		stickActions = new StickActions(collisionSystem);
 		// TODO: Remove entity drawer.  Create generic drawer where i can add particles drawing
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
-		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+//		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		entityManager.addEntityRemovedListener(entityRemoved());
 		advancer = createAdvancer();
@@ -101,8 +100,7 @@ public final class LevelController {
 			public void removed(final Entity entity) {
 				PhysicsPart physicsPart = entity.tryGet(PhysicsPart.class);
 				if (physicsPart != null) {
-					Enum<?>[] collisionGroups = new Enum<?>[] { CollisionType.BULLET };
-					if (physicsPart.containsAny(Arrays.asList(collisionGroups))) {
+					if (physicsPart.containsAny(CollisionType.PROJECTILE)) {
 						Vector2 position = entity.get(TransformPart.class).getCenter();
 						particlesManager.createEffect("spark", position);
 					}
@@ -115,6 +113,7 @@ public final class LevelController {
 		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
 		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new BleedCollidedListener(entityFactory));
 		return collisionSystem;
 	}
 
