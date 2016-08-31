@@ -13,22 +13,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.systems.AiSystem;
-import dc.targetman.epf.systems.BleedCollidedListener;
+import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.VitalLimbsSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.epf.util.StickActions;
 import dc.targetman.level.models.Alliance;
-import dc.targetman.level.models.CollisionType;
 import dclib.epf.DefaultEntityManager;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
-import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
-import dclib.epf.parts.PhysicsPart;
-import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.CollisionSystem;
 import dclib.epf.systems.DamageCollidedListener;
@@ -71,7 +67,6 @@ public final class LevelController {
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
-		entityManager.addEntityRemovedListener(entityRemoved());
 		advancer = createAdvancer();
 		spawnInitialEntities();
 	}
@@ -94,26 +89,11 @@ public final class LevelController {
 		}
 	}
 
-	private EntityRemovedListener entityRemoved() {
-		return new EntityRemovedListener() {
-			@Override
-			public void removed(final Entity entity) {
-				PhysicsPart physicsPart = entity.tryGet(PhysicsPart.class);
-				if (physicsPart != null) {
-					if (physicsPart.containsAny(CollisionType.PROJECTILE)) {
-						Vector2 position = entity.get(TransformPart.class).getCenter();
-						particlesManager.createEffect("spark", position);
-					}
-				}
-			}
-		};
-	}
-
 	private CollisionSystem createCollisionSystem() {
 		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
 		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
-		collisionSystem.addCollidedListener(new BleedCollidedListener(entityFactory));
+		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
 		return collisionSystem;
 	}
 

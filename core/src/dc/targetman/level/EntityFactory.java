@@ -57,7 +57,7 @@ public final class EntityFactory {
 	}
 
 	public final void createWall(final Vector2 size, final Vector3 position) {
-		Entity entity = createBaseEntity(size, position, "objects/white", BodyType.STATIC);
+		Entity entity = createBaseEntity(size, position, "objects/white", BodyType.STATIC, new Enum<?>[] { CollisionType.METAL });
 		entityManager.add(entity);
 	}
 
@@ -123,7 +123,7 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.PROJECTILE });
+		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.METAL });
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
 		bullet.attach(new AutoRotatePart());
 		bullet.attach(new TimedDeathPart(3));
@@ -146,6 +146,7 @@ public final class EntityFactory {
 		Entity entity = createBaseEntity(new Vector2(size, size), position, "objects/blood", BodyType.DYNAMIC);
 		entity.get(TranslatePart.class).setVelocity(velocity);
 		entity.attach(new CollisionRemovePart());
+		entity.attach(new TimedDeathPart(3));
 		entityManager.add(entity);
 	}
 
