@@ -15,6 +15,7 @@ import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
+import dc.targetman.epf.parts.StickyPart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.Alliance;
@@ -24,6 +25,7 @@ import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.AutoRotatePart;
 import dclib.epf.parts.CollisionDamagePart;
+import dclib.epf.parts.CollisionPart;
 import dclib.epf.parts.DrawablePart;
 import dclib.epf.parts.HealthPart;
 import dclib.epf.parts.LimbAnimationsPart;
@@ -95,9 +97,10 @@ public final class EntityFactory {
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
-		LimbsPart limbsPart = new LimbsPart(root, leftLeg, rightLeg, torso, head);
+		LimbsPart limbsPart = new LimbsPart(root, leftForearm, rightForearm, leftLeg, rightLeg, torso, head);
 		Entity entity = new Entity();
 		entity.attach(transformPart);
+		entity.attach(new CollisionPart());
 		entity.attach(new TranslatePart());
 		entity.attach(new PhysicsPart(BodyType.DYNAMIC));
 		entity.attach(limbsPart);
@@ -147,6 +150,7 @@ public final class EntityFactory {
 		entity.get(TranslatePart.class).setVelocity(velocity);
 		entity.attach(new CollisionRemovePart());
 		entity.attach(new TimedDeathPart(3));
+		entity.attach(new StickyPart());
 		entityManager.add(entity);
 	}
 
@@ -170,7 +174,8 @@ public final class EntityFactory {
 		polygon.setPosition(position.x,  position.y);
 		entity.attach(new TransformPart(polygon, position.z));
 		entity.attach(new TranslatePart());
-		entity.attach(new PhysicsPart(bodyType, collisionGroups));
+		entity.attach(new PhysicsPart(bodyType));
+		entity.attach(new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);

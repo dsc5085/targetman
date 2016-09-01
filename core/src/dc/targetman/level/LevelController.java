@@ -16,6 +16,7 @@ import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
+import dc.targetman.epf.systems.StickyEntityRemovedListener;
 import dc.targetman.epf.systems.VitalLimbsSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.epf.util.StickActions;
@@ -67,6 +68,7 @@ public final class LevelController {
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
+		entityManager.addEntityRemovedListener(new StickyEntityRemovedListener(entityManager));
 		advancer = createAdvancer();
 		spawnInitialEntities();
 	}

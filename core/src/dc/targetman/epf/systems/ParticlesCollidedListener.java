@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import dc.targetman.level.EntityFactory;
 import dc.targetman.level.models.CollisionType;
 import dclib.epf.Entity;
-import dclib.epf.parts.PhysicsPart;
+import dclib.epf.parts.CollisionPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.graphics.ParticlesManager;
@@ -25,15 +25,17 @@ public final class ParticlesCollidedListener implements CollidedListener {
 
 	@Override
 	public final void collided(final Entity collider, final Entity collidee, final Vector2 offset) {
-		PhysicsPart colliderPhysicsPart = collider.get(PhysicsPart.class);
-		PhysicsPart collideePhysicsPart = collidee.get(PhysicsPart.class);
-		Vector2 position = collider.get(TransformPart.class).getPosition();
-		Vector2 velocity = collider.get(TranslatePart.class).getVelocity();
-		if (colliderPhysicsPart.containsAny(CollisionType.METAL) && velocity.len() > 0) {
-			if (collideePhysicsPart.containsAny(CollisionType.METAL)) {
-				createSparks(position);
-			} else if (collideePhysicsPart.containsAny(CollisionType.FLESH)) {
-				createBloodParticles(position, velocity);
+		CollisionPart colliderPart = collider.tryGet(CollisionPart.class);
+		CollisionPart collideePart = collidee.tryGet(CollisionPart.class);
+		if (colliderPart != null && collideePart != null) {
+			Vector2 position = collider.get(TransformPart.class).getPosition();
+			Vector2 velocity = collider.get(TranslatePart.class).getVelocity();
+			if (colliderPart.containsAny(CollisionType.METAL) && velocity.len() > 0) {
+				if (collideePart.containsAny(CollisionType.METAL)) {
+					createSparks(position);
+				} else if (collideePart.containsAny(CollisionType.FLESH)) {
+					createBloodParticles(position, velocity);
+				}
 			}
 		}
 	}
@@ -51,7 +53,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 			Vector2 randomizedVelocity = velocity.cpy();
 			randomizedVelocity.setAngle(randomizedVelocity.angle() + rotationDiffRange.random());
 			randomizedVelocity.scl(velocityRatioRange.random());
-			Vector3 position3 = new Vector3(position.x, position.y, 0);
+			Vector3 position3 = new Vector3(position.x, position.y, /* TODO: Replace with variable */0.1f);
 			entityFactory.createBloodParticle(sizeRange.random(), position3, randomizedVelocity);
 		}
 	}
