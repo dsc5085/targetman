@@ -32,16 +32,12 @@ public final class ParticlesCollidedListener implements CollidedListener {
 			Vector2 velocity = collider.get(TranslatePart.class).getVelocity();
 			if (colliderPart.containsAny(CollisionType.METAL) && velocity.len() > 0) {
 				if (collideePart.containsAny(CollisionType.METAL)) {
-					createSparks(position);
+					particlesManager.createEffect("spark", position);
 				} else if (collideePart.containsAny(CollisionType.FLESH)) {
 					createBloodParticles(position, velocity);
 				}
 			}
 		}
-	}
-
-	private void createSparks(final Vector2 position) {
-		particlesManager.createEffect("spark", position);
 	}
 
 	private void createBloodParticles(final Vector2 position, final Vector2 velocity) {

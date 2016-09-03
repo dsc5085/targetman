@@ -99,11 +99,7 @@ public final class EntityFactory {
 		.addJoint(rightLegJoint);
 		LimbsPart limbsPart = new LimbsPart(root, leftForearm, rightForearm, leftLeg, rightLeg, torso, head);
 		Entity entity = new Entity();
-		entity.attach(transformPart)
-		.attach(new CollisionPart())
-		.attach(new TranslatePart())
-		.attach(new PhysicsPart(BodyType.DYNAMIC))
-		.attach(limbsPart);
+		entity.attach(transformPart, new CollisionPart(), new TranslatePart(), new PhysicsPart(BodyType.DYNAMIC));
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
 		animations.put("walk", walkAnimation);
@@ -112,8 +108,8 @@ public final class EntityFactory {
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		entity.attach(new MovementPart(5, 5, leftLeg, rightLeg));
 		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
-		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator))
-		.attach(new VitalLimbsPart(head, torso));
+		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
+				limbsPart, new VitalLimbsPart(head, torso));
 		if (alliance == Alliance.ENEMY){
 			entity.attach(new AiPart());
 		}
@@ -128,29 +124,24 @@ public final class EntityFactory {
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.METAL });
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
-		bullet.attach(new AutoRotatePart())
-		.attach(new TimedDeathPart(3))
-		.attach(new CollisionDamagePart(10, alliance));
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
-		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE)
-				.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
+		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
+		entity.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
 		entityManager.add(entity);
 		Limb trail = new Limb(entity.get(TransformPart.class).getPolygon());
 		Polygon polygon = bullet.get(TransformPart.class).getPolygon();
 		Limb root = new Limb(polygon).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
-		bullet.attach(limbsPart)
-		.attach(new CollisionRemovePart(alliance));
+		bullet.attach(limbsPart, new CollisionRemovePart(alliance));
 		entityManager.add(bullet);
 	}
 
 	public final void createBloodParticle(final float size, final Vector3 position, final Vector2 velocity) {
 		Entity entity = createBaseEntity(new Vector2(size, size), position, "objects/blood", BodyType.DYNAMIC);
 		entity.get(TranslatePart.class).setVelocity(velocity);
-		entity.attach(new CollisionRemovePart())
-		.attach(new TimedDeathPart(3))
-		.attach(new StickyPart());
+		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3), new StickyPart());
 		entityManager.add(entity);
 	}
 
@@ -172,10 +163,7 @@ public final class EntityFactory {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create(regionName, size);
 		polygon.setPosition(position.x,  position.y);
-		entity.attach(new TransformPart(polygon, position.z))
-		.attach(new TranslatePart())
-		.attach(new PhysicsPart(bodyType))
-		.attach(new CollisionPart(collisionGroups));
+		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new PhysicsPart(bodyType), new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);

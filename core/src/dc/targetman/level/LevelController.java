@@ -16,7 +16,7 @@ import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
-import dc.targetman.epf.systems.StickyEntityRemovedListener;
+import dc.targetman.epf.systems.StickyCollidedListener;
 import dc.targetman.epf.systems.VitalLimbsSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.epf.util.StickActions;
@@ -68,7 +68,6 @@ public final class LevelController {
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
-		entityManager.addEntityRemovedListener(new StickyEntityRemovedListener(entityManager));
 		advancer = createAdvancer();
 		spawnInitialEntities();
 	}
@@ -95,6 +94,7 @@ public final class LevelController {
 		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
 		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
 		return collisionSystem;
 	}
@@ -116,10 +116,11 @@ public final class LevelController {
 	}
 
 	private void spawnInitialEntities() {
-		entityFactory.createWall(new Vector2(2f, 3), new Vector3(-2, -2, 0));
+		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(7, -2, 0));
+		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(-2, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
-		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(7, -2, 0));
+		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, 2.5f, 0));
 		targetman = entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.PLAYER);
 		entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.ENEMY);
 	}
