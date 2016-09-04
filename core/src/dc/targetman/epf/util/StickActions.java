@@ -2,6 +2,8 @@ package dc.targetman.epf.util;
 
 import java.util.List;
 
+import com.badlogic.gdx.math.Vector2;
+
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dclib.epf.Entity;
@@ -24,8 +26,9 @@ public final class StickActions {
 	}
 
 	public final void move(final Entity entity, final float direction) {
-		float moveVelocityX = entity.get(MovementPart.class).getMoveSpeed() * getMoveRatio(entity) * direction;
-		entity.get(TranslatePart.class).setVelocityX(moveVelocityX);
+		MovementPart movementPart = entity.get(MovementPart.class);
+		float moveVelocityX = movementPart.getMoveSpeed() * getMoveRatio(entity) * direction;
+		movementPart.setVelocity(new Vector2(moveVelocityX, 0));
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
 		if (moveVelocityX == 0) {
 			walkAnimation.stop();

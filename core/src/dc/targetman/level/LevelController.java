@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.ForceCollidedListener;
+import dc.targetman.epf.systems.MovementSystem;
 import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
@@ -106,6 +107,7 @@ public final class LevelController {
 		.add(new ScaleSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new TranslateSystem(entityManager))
+		.add(new MovementSystem(entityManager))
 		.add(new LimbsSystem(entityManager))
 		.add(collisionSystem)
 		.add(new PhysicsSystem(-8, entityManager, collisionSystem))

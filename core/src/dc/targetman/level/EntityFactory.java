@@ -107,7 +107,7 @@ public final class EntityFactory {
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
-		entity.attach(new MovementPart(5, 5, leftLeg, rightLeg));
+		entity.attach(new MovementPart(15, 5, leftLeg, rightLeg));
 		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
 		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
 				limbsPart, new VitalLimbsPart(head, torso));
@@ -125,7 +125,7 @@ public final class EntityFactory {
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.METAL });
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(5, alliance));
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(2, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
