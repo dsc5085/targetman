@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.systems.AiSystem;
+import dc.targetman.epf.systems.ForceCollidedListener;
 import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
@@ -58,13 +59,12 @@ public final class LevelController {
 
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
 			final ShapeRenderer shapeRenderer) {
-		camera = new OrthographicCamera(320, 240);
+		camera = new OrthographicCamera(640, 480);
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, textureCache);
 		collisionSystem = createCollisionSystem();
 		stickActions = new StickActions(collisionSystem);
-		// TODO: Remove entity drawer.  Create generic drawer where i can add particles drawing
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
@@ -94,6 +94,7 @@ public final class LevelController {
 		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
 		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
 		return collisionSystem;
@@ -121,7 +122,7 @@ public final class LevelController {
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
 		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, 2.5f, 0));
-		targetman = entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.PLAYER);
+		targetman = entityFactory.createStickman(new Vector3(1, 0, 0), Alliance.PLAYER);
 		entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.ENEMY);
 	}
 

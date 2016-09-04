@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
+import dc.targetman.epf.parts.ForcePart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.StickyPart;
@@ -124,7 +125,7 @@ public final class EntityFactory {
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.METAL });
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance));
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(5, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
