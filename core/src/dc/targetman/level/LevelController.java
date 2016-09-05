@@ -44,6 +44,7 @@ import dclib.graphics.CameraUtils;
 import dclib.graphics.ParticlesManager;
 import dclib.graphics.TextureCache;
 import dclib.system.Advancer;
+import dclib.system.Updater;
 
 public final class LevelController {
 
@@ -87,7 +88,6 @@ public final class LevelController {
 
 	public final void update(final float delta) {
 		advancer.advance(delta);
-		processInput();
 		CameraUtils.follow(targetman, unitConverter, camera);
 		mapRenderer.setView(camera);
 	}
@@ -113,6 +113,7 @@ public final class LevelController {
 
 	private Advancer createAdvancer() {
 		return new Advancer()
+		.add(getUpdater())
 		.add(new AiSystem(entityManager, stickActions)) // TODO: Don't update every frame
 		.add(new ScaleSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
@@ -126,6 +127,15 @@ public final class LevelController {
 		.add(new VitalLimbsSystem(entityManager))
 		.add(new DrawableSystem(entityManager, unitConverter))
 		.add(particlesManager);
+	}
+
+	private Updater getUpdater() {
+		return new Updater() {
+			@Override
+			public void update(final float delta) {
+				processInput();
+			}
+		};
 	}
 
 	private void spawnInitialEntities() {
