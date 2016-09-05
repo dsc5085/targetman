@@ -5,11 +5,13 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.maps.MapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.epf.systems.AiSystem;
@@ -52,10 +54,12 @@ public final class LevelController {
 	private final CollisionSystem collisionSystem;
 	private final StickActions stickActions;
 	private final Advancer advancer;
-	private final Camera camera;
+	private final OrthographicCamera camera;
+	private final MapRenderer mapRenderer;
 	private final UnitConverter unitConverter;
 	private final ParticlesManager particlesManager;
 	private final List<EntityDrawer> entityDrawers = new ArrayList<EntityDrawer>();
+	private final TiledMap map;
 	private Entity targetman;
 
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
@@ -70,10 +74,14 @@ public final class LevelController {
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		advancer = createAdvancer();
+		map = new TmxMapLoader().load("maps/test_level.tmx");
+		MapUtils.spawn(map, entityFactory);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, 1, spriteBatch);
 		spawnInitialEntities();
 	}
 
 	public final void dispose() {
+		map.dispose();
 		entityManager.dispose();
 	}
 
@@ -81,10 +89,12 @@ public final class LevelController {
 		advancer.advance(delta);
 		processInput();
 		CameraUtils.follow(targetman, unitConverter, camera);
+		mapRenderer.setView(camera);
 	}
 
 	public final void draw() {
 		particlesManager.draw();
+		mapRenderer.render();
 		List<Entity> entities = entityManager.getAll();
 		for (EntityDrawer entityDrawer : entityDrawers) {
 			entityDrawer.draw(entities);
@@ -119,13 +129,8 @@ public final class LevelController {
 	}
 
 	private void spawnInitialEntities() {
-		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(7, -2, 0));
-		entityFactory.createWall(new Vector2(0.3f, 3), new Vector3(-2, -2, 0));
-		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(0, -2, 0));
-		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, -2, 0));
-		entityFactory.createWall(new Vector2(3, 0.3f), new Vector3(4, 2.5f, 0));
-		targetman = entityFactory.createStickman(new Vector3(1, 0, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(4, 0, 0), Alliance.ENEMY);
+		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
+		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

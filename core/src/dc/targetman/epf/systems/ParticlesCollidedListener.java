@@ -1,5 +1,6 @@
 package dc.targetman.epf.systems;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -28,11 +29,11 @@ public final class ParticlesCollidedListener implements CollidedListener {
 		CollisionPart colliderPart = collider.tryGet(CollisionPart.class);
 		CollisionPart collideePart = collidee.tryGet(CollisionPart.class);
 		if (colliderPart != null && collideePart != null) {
-			Vector2 position = collider.get(TransformPart.class).getPosition();
+			Vector3 position = collider.get(TransformPart.class).getPosition3();
 			Vector2 velocity = collider.get(TranslatePart.class).getVelocity();
 			if (colliderPart.containsAny(CollisionType.METAL) && velocity.len() > 0) {
 				if (collideePart.containsAny(CollisionType.METAL)) {
-					particlesManager.createEffect("spark", position);
+					particlesManager.createEffect("spark", new Vector2(position.x, position.y));
 				} else if (collideePart.containsAny(CollisionType.FLESH)) {
 					createBloodParticles(position, velocity);
 				}
@@ -40,7 +41,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 		}
 	}
 
-	private void createBloodParticles(final Vector2 position, final Vector2 velocity) {
+	private void createBloodParticles(final Vector3 position, final Vector2 velocity) {
 		final float numParticles = 10;
 		final FloatRange sizeRange = new FloatRange(0.01f, 0.07f);
 		final FloatRange rotationDiffRange = new FloatRange(-10, 10);
@@ -49,8 +50,8 @@ public final class ParticlesCollidedListener implements CollidedListener {
 			Vector2 randomizedVelocity = velocity.cpy();
 			randomizedVelocity.setAngle(randomizedVelocity.angle() + rotationDiffRange.random());
 			randomizedVelocity.scl(velocityRatioRange.random());
-			Vector3 position3 = new Vector3(position.x, position.y, /* TODO: Replace with variable */0.1f);
-			entityFactory.createBloodParticle(sizeRange.random(), position3, randomizedVelocity);
+			position.z += MathUtils.FLOAT_ROUNDING_ERROR;
+			entityFactory.createBloodParticle(sizeRange.random(), position, randomizedVelocity);
 		}
 	}
 

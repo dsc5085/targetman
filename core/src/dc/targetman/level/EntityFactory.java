@@ -60,7 +60,10 @@ public final class EntityFactory {
 	}
 
 	public final void createWall(final Vector2 size, final Vector3 position) {
-		Entity entity = createBaseEntity(size, position, "objects/white", BodyType.STATIC, new Enum<?>[] { CollisionType.METAL });
+		Entity entity = new Entity();
+		Polygon polygon = convexHullCache.create("objects/white", size);
+		polygon.setPosition(position.x,  position.y);
+		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new PhysicsPart(BodyType.STATIC), new CollisionPart(CollisionType.METAL));
 		entityManager.add(entity);
 	}
 
@@ -82,7 +85,7 @@ public final class EntityFactory {
 		float startZ = position.z;
 		createLimbEntity(leftForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100, alliance);
 		createLimbEntity(leftBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100, alliance);
-		createLimbEntity(gun, startZ, zOrder, new Vector2(0.4f, 0.3f), "objects/gun", 500, alliance);
+		createLimbEntity(gun, startZ, zOrder, new Vector2(0.4f, 0.3f), "objects/gun", 500, alliance, CollisionType.METAL);
 		createLimbEntity(rightForearm, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100, alliance);
 		createLimbEntity(rightBicep, startZ, zOrder, new Vector2(0.4f, 0.1f), "objects/limb", 100, alliance);
 		createLimbEntity(head, startZ, zOrder, new Vector2(0.5f, 0.5f), "objects/head", 100, alliance);
@@ -125,7 +128,7 @@ public final class EntityFactory {
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.METAL });
 		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(2, alliance));
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(1, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
@@ -147,8 +150,12 @@ public final class EntityFactory {
 	}
 
 	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName, final float health, final Alliance alliance) {
+		createLimbEntity(limb, startZ, zOrder, size, regionName, health, alliance, CollisionType.FLESH);
+	}
+
+	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName, final float health, final Alliance alliance, final CollisionType collisionType) {
 		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
-		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.SENSOR, new Enum<?>[] { alliance, CollisionType.FLESH });
+		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.SENSOR, new Enum<?>[] { alliance, collisionType });
 		entity.attach(new HealthPart(health));
 		limb.setPolygon(entity.get(TransformPart.class).getPolygon());
 		entityManager.add(entity);
