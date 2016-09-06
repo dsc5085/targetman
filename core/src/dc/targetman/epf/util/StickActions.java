@@ -11,10 +11,10 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.WorldManifold;
 import com.badlogic.gdx.utils.Array;
 
-import dc.targetman.epf.parts.BodyPart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dclib.epf.Entity;
+import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.limb.Limb;

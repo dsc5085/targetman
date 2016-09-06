@@ -3,10 +3,10 @@ package dc.targetman.epf.systems;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
-import dc.targetman.epf.parts.BodyPart;
 import dc.targetman.epf.parts.MovementPart;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
+import dclib.epf.parts.BodyPart;
 import dclib.epf.systems.EntitySystem;
 
 public final class MovementSystem extends EntitySystem {

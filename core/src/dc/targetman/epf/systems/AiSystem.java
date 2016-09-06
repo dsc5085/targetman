@@ -38,7 +38,7 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void move(final Entity entity, final Vector2 targetPosition) {
-		Vector2 position = entity.get(TransformPart.class).getCenter();
+		Vector2 position = entity.get(TransformPart.class).getTransform().getCenter();
 		Vector2 targetOffset = VectorUtils.offset(position, targetPosition);
 		boolean flipX = entity.get(LimbsPart.class).getFlipX();
 		float moveDirection = 0;
@@ -62,7 +62,7 @@ public final class AiSystem extends EntitySystem {
 		for (Entity target : entityManager.getAll()) {
 			CollisionPart targetCollisionPart = target.tryGet(CollisionPart.class);
 			if (targetCollisionPart != null && targetCollisionPart.containsAny(Alliance.PLAYER)) {
-				return target.get(TransformPart.class).getCenter();
+				return target.get(TransformPart.class).getTransform().getCenter();
 			}
 		}
 		return null;

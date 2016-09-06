@@ -178,9 +178,9 @@ public final class LevelController {
 	}
 
 	private void renderBox2D() {
-		Matrix4 box2DMatrix = new Matrix4(camera.combined);
-		box2DMatrix.scale(PIXELS_PER_UNIT, PIXELS_PER_UNIT, 1);
-		box2DRenderer.render(world, box2DMatrix);
+		Matrix4 renderMatrix = new Matrix4(camera.combined);
+		renderMatrix.scale(PIXELS_PER_UNIT, PIXELS_PER_UNIT, 1);
+		box2DRenderer.render(world, renderMatrix);
 	}
 
 }

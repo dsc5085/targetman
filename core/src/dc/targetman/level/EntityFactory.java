@@ -18,7 +18,6 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 import dc.targetman.epf.parts.AiPart;
-import dc.targetman.epf.parts.BodyPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.ForcePart;
 import dc.targetman.epf.parts.MovementPart;
@@ -32,6 +31,7 @@ import dc.targetman.limb.WalkAnimation;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.AutoRotatePart;
+import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.CollisionDamagePart;
 import dclib.epf.parts.CollisionPart;
 import dclib.epf.parts.DrawablePart;
@@ -42,8 +42,10 @@ import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.geometry.Centrum;
+import dclib.geometry.DefaultTransform;
 import dclib.geometry.PolygonFactory;
 import dclib.geometry.PolygonUtils;
+import dclib.geometry.Transform;
 import dclib.graphics.ConvexHullCache;
 import dclib.graphics.TextureCache;
 import dclib.limb.Joint;
@@ -71,7 +73,8 @@ public final class EntityFactory {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create("objects/white", size);
 		polygon.setPosition(position.x,  position.y);
-		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new CollisionPart(CollisionType.METAL));
+		// TODO: Create convenience method to shorten new TransformPart(new DefaultTransform(position.z, polygon))
+		entity.attach(new TransformPart(new DefaultTransform(position.z, polygon)), new TranslatePart(), new CollisionPart(CollisionType.METAL));
 
 		BodyDef def = new BodyDef();
 		def.type = BodyType.StaticBody;
@@ -115,8 +118,9 @@ public final class EntityFactory {
 		Joint rightLegJoint = new Joint(rightLeg, new Vector2(), new Vector2(0, 0.05f), -70);
 		Polygon polygon = PolygonFactory.createDefault();
 		polygon.setPosition(position.x, position.y);
-		TransformPart transformPart = new TransformPart(polygon, position.z);
-		Limb root = new Limb(polygon)
+		Transform transform = new DefaultTransform(position.z, polygon);
+		TransformPart transformPart = new TransformPart(transform);
+		Limb root = new Limb(transform)
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
@@ -131,7 +135,7 @@ public final class EntityFactory {
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		entity.attach(new MovementPart(5, 5, leftLeg, rightLeg));
 		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
-		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
+		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
 				limbsPart, new VitalLimbsPart(head, torso));
 		if (alliance == Alliance.ENEMY){
 			entity.attach(new AiPart());
@@ -170,9 +174,9 @@ public final class EntityFactory {
 		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail");
 		entity.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
 		entityManager.add(entity);
-		Limb trail = new Limb(entity.get(TransformPart.class).getPolygon());
-		Polygon polygon = bullet.get(TransformPart.class).getPolygon();
-		Limb root = new Limb(polygon).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
+		Limb trail = new Limb(entity.get(TransformPart.class).getTransform());
+		Transform transform = bullet.get(TransformPart.class).getTransform();
+		Limb root = new Limb(transform).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
 		bullet.attach(limbsPart, new CollisionRemovePart(alliance));
 		entityManager.add(bullet);
@@ -193,7 +197,7 @@ public final class EntityFactory {
 		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
 		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, new Enum<?>[] { alliance, collisionType });
 		entity.attach(new HealthPart(health));
-		limb.setPolygon(entity.get(TransformPart.class).getPolygon());
+		limb.setTransform(entity.get(TransformPart.class).getTransform());
 		entityManager.add(entity);
 	}
 
@@ -205,7 +209,7 @@ public final class EntityFactory {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create(regionName, size);
 		polygon.setPosition(position.x,  position.y);
-		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new CollisionPart(collisionGroups));
+		entity.attach(new TransformPart(new DefaultTransform(position.z, polygon)), new TranslatePart(), new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);
