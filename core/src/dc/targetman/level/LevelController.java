@@ -12,15 +12,15 @@ import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 
 import dc.targetman.epf.systems.AiSystem;
-import dc.targetman.epf.systems.ForceCollidedListener;
 import dc.targetman.epf.systems.MovementSystem;
-import dc.targetman.epf.systems.ParticlesCollidedListener;
-import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
-import dc.targetman.epf.systems.StickyCollidedListener;
 import dc.targetman.epf.systems.VitalLimbsSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.epf.util.StickActions;
@@ -31,11 +31,8 @@ import dclib.epf.EntityManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.systems.AutoRotateSystem;
-import dclib.epf.systems.CollisionSystem;
-import dclib.epf.systems.DamageCollidedListener;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
-import dclib.epf.systems.PhysicsSystem;
 import dclib.epf.systems.RemoveOnNoHealthEntityAddedListener;
 import dclib.epf.systems.TimedDeathSystem;
 import dclib.epf.systems.TranslateSystem;
@@ -52,7 +49,8 @@ public final class LevelController {
 
 	private final EntityFactory entityFactory;
 	private final EntityManager entityManager = new DefaultEntityManager();
-	private final CollisionSystem collisionSystem;
+	private final World world = new World(new Vector2(0, -10), true);
+	private final Box2DDebugRenderer box2DRenderer = new Box2DDebugRenderer();
 	private final StickActions stickActions;
 	private final Advancer advancer;
 	private final OrthographicCamera camera;
@@ -68,9 +66,8 @@ public final class LevelController {
 		camera = new OrthographicCamera(640, 480);
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
-		entityFactory = new EntityFactory(entityManager, textureCache);
-		collisionSystem = createCollisionSystem();
-		stickActions = new StickActions(collisionSystem);
+		entityFactory = new EntityFactory(entityManager, world, textureCache);
+		stickActions = new StickActions(world);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
@@ -95,33 +92,31 @@ public final class LevelController {
 	public final void draw() {
 		particlesManager.draw();
 		mapRenderer.render();
-		List<Entity> entities = entityManager.getAll();
-		for (EntityDrawer entityDrawer : entityDrawers) {
-			entityDrawer.draw(entities);
-		}
+		renderEntities();
+		renderBox2D();
 	}
 
-	private CollisionSystem createCollisionSystem() {
-		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
-		collisionSystem.addCollidedListener(new DamageCollidedListener());
-		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
-		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
-		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
-		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
-		return collisionSystem;
-	}
+	// TODO:
+//	private CollisionSystem createCollisionSystem() {
+//		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
+//		collisionSystem.addCollidedListener(new DamageCollidedListener());
+//		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+//		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
+//		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
+//		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
+//		return collisionSystem;
+//	}
 
 	private Advancer createAdvancer() {
 		return new Advancer()
-		.add(getUpdater())
+		.add(getInputUpdater())
 		.add(new AiSystem(entityManager, stickActions)) // TODO: Don't update every frame
 		.add(new ScaleSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new TranslateSystem(entityManager))
 		.add(new MovementSystem(entityManager))
 		.add(new LimbsSystem(entityManager))
-		.add(collisionSystem)
-		.add(new PhysicsSystem(-8, entityManager, collisionSystem))
+		.add(getPhysicsUpdater())
 		.add(new TimedDeathSystem(entityManager))
 		.add(new WeaponSystem(entityManager, entityFactory))
 		.add(new VitalLimbsSystem(entityManager))
@@ -129,7 +124,7 @@ public final class LevelController {
 		.add(particlesManager);
 	}
 
-	private Updater getUpdater() {
+	private Updater getInputUpdater() {
 		return new Updater() {
 			@Override
 			public void update(final float delta) {
@@ -138,9 +133,18 @@ public final class LevelController {
 		};
 	}
 
+	private Updater getPhysicsUpdater() {
+		return new Updater() {
+			@Override
+			public void update(final float delta) {
+				world.step(delta, 1, 1);
+			}
+		};
+	}
+
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
+//		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {
@@ -164,6 +168,19 @@ public final class LevelController {
 		if (Gdx.input.isKeyPressed(Keys.J)){
 			stickActions.trigger(targetman);
 		}
+	}
+
+	private void renderEntities() {
+		List<Entity> entities = entityManager.getAll();
+		for (EntityDrawer entityDrawer : entityDrawers) {
+			entityDrawer.draw(entities);
+		}
+	}
+
+	private void renderBox2D() {
+		Matrix4 box2DMatrix = new Matrix4(camera.combined);
+		box2DMatrix.scale(PIXELS_PER_UNIT, PIXELS_PER_UNIT, 1);
+		box2DRenderer.render(world, box2DMatrix);
 	}
 
 }

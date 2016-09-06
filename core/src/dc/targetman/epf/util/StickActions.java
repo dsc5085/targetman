@@ -2,37 +2,52 @@ package dc.targetman.epf.util;
 
 import java.util.List;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.WorldManifold;
+import com.badlogic.gdx.utils.Array;
 
+import dc.targetman.epf.parts.BodyPart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dclib.epf.Entity;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
-import dclib.epf.parts.PhysicsPart;
-import dclib.epf.parts.TranslatePart;
-import dclib.epf.systems.CollisionSystem;
 import dclib.limb.Limb;
 import dclib.limb.LimbAnimation;
-import dclib.physics.BodyType;
-import dclib.physics.Collision;
 
 public final class StickActions {
 
-	private final CollisionSystem collisionSystem;
+	private final World world;
 
-	public StickActions(final CollisionSystem collisionSystem) {
-		this.collisionSystem = collisionSystem;
+	public StickActions(final World world) {
+		this.world = world;
 	}
 
 	public final void move(final Entity entity, final float direction) {
+		final float acceleration = 2;
 		MovementPart movementPart = entity.get(MovementPart.class);
 		float moveVelocityX = movementPart.getMoveSpeed() * getMoveRatio(entity) * direction;
-		movementPart.setVelocity(new Vector2(moveVelocityX, 0));
+		Body body = entity.get(BodyPart.class).getBody();
+		Vector2 position = body.getPosition();
+		body.applyLinearImpulse(acceleration * direction, 0, position.x, position.y, true);
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
 		if (moveVelocityX == 0) {
+			for (Fixture fixture : body.getFixtureList()) {
+				fixture.setFriction(100);
+			}
+			Vector2 velocity = body.getLinearVelocity();
+			float deceleration = 0.5f;
+			body.setLinearVelocity(velocity.x * deceleration, velocity.y);
 			walkAnimation.stop();
 		} else {
+			for (Fixture fixture : body.getFixtureList()) {
+				fixture.setFriction(0.2f);
+			}
 			walkAnimation.play();
 		}
 		if (moveVelocityX > 0) {
@@ -43,13 +58,13 @@ public final class StickActions {
 	}
 
 	public final void jump(final Entity entity) {
-		for (Collision collision : collisionSystem.getCollisions(entity)) {
-			PhysicsPart collideePhysicsPart = collision.getCollidee().get(PhysicsPart.class);
-			boolean isUpOffset = collision.getOffset().y > 0;
-			if (collideePhysicsPart.getBodyType() == BodyType.STATIC && isUpOffset) {
-				float jumpSpeed = entity.get(MovementPart.class).getJumpSpeed() * getMoveRatio(entity);
-				entity.get(TranslatePart.class).setVelocityY(jumpSpeed);
-			}
+		Body body = entity.get(BodyPart.class).getBody();
+		if (isGrounded(body)) {
+			Vector2 position = body.getPosition();
+			body.setLinearVelocity(body.getLinearVelocity().x, 0);
+			body.setTransform(position.x, position.y + MathUtils.FLOAT_ROUNDING_ERROR, 0);
+			float jumpSpeed = entity.get(MovementPart.class).getJumpSpeed();
+			body.applyLinearImpulse(0, jumpSpeed, position.x, position.y, true);
 		}
 	}
 
@@ -70,6 +85,28 @@ public final class StickActions {
 			}
 		}
 		return (float)numMovementLimbs / movementLimbs.size();
+	}
+
+	private boolean isGrounded(final Body body) {
+		final float height = 0.8f;
+		for (Contact contact : world.getContactList()) {
+			if (contact.isTouching() && isInContact(body, contact)) {
+				Vector2 position = body.getPosition();
+				WorldManifold manifold = contact.getWorldManifold();
+				for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
+					if (manifold.getPoints()[i].y >= position.y - height) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isInContact(final Body body, final Contact contact) {
+		Array<Fixture> fixtures = body.getFixtureList();
+		return fixtures.contains(contact.getFixtureA(), true) || fixtures.contains(contact.getFixtureB(), true);
 	}
 
 }

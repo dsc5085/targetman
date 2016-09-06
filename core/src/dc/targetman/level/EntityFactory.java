@@ -10,8 +10,15 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 
 import dc.targetman.epf.parts.AiPart;
+import dc.targetman.epf.parts.BodyPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.ForcePart;
 import dc.targetman.epf.parts.MovementPart;
@@ -31,7 +38,6 @@ import dclib.epf.parts.DrawablePart;
 import dclib.epf.parts.HealthPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
-import dclib.epf.parts.PhysicsPart;
 import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
@@ -44,17 +50,19 @@ import dclib.limb.Joint;
 import dclib.limb.Limb;
 import dclib.limb.LimbAnimation;
 import dclib.limb.Rotator;
-import dclib.physics.BodyType;
 import dclib.util.FloatRange;
 
+// TODO: Cleanup
 public final class EntityFactory {
 
 	private final EntityManager entityManager;
+	private final World world;
 	private final TextureCache textureCache;
 	private final ConvexHullCache convexHullCache;
 
-	public EntityFactory(final EntityManager entityManager, final TextureCache textureCache) {
+	public EntityFactory(final EntityManager entityManager, final World world, final TextureCache textureCache) {
 		this.entityManager = entityManager;
+		this.world = world;
 		this.textureCache = textureCache;
 		convexHullCache = new ConvexHullCache(textureCache);
 	}
@@ -63,7 +71,18 @@ public final class EntityFactory {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create("objects/white", size);
 		polygon.setPosition(position.x,  position.y);
-		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new PhysicsPart(BodyType.STATIC), new CollisionPart(CollisionType.METAL));
+		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new CollisionPart(CollisionType.METAL));
+
+		BodyDef def = new BodyDef();
+		def.type = BodyType.StaticBody;
+		Body body = world.createBody(def);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(size.x / 2, size.y / 2);
+		body.createFixture(shape, 0);
+		shape.dispose();
+		// Box2d position is its center
+		body.setTransform(position.x + size.x / 2, position.y + size.y / 2, 0);
+
 		entityManager.add(entity);
 	}
 
@@ -103,14 +122,14 @@ public final class EntityFactory {
 		.addJoint(rightLegJoint);
 		LimbsPart limbsPart = new LimbsPart(root, leftForearm, rightForearm, leftLeg, rightLeg, torso, head);
 		Entity entity = new Entity();
-		entity.attach(transformPart, new CollisionPart(), new TranslatePart(), new PhysicsPart(BodyType.DYNAMIC));
+		entity.attach(transformPart, new CollisionPart(), new TranslatePart());
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
 		animations.put("walk", walkAnimation);
 		LimbAnimationsPart limbAnimationsPart = new LimbAnimationsPart(animations);
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
-		entity.attach(new MovementPart(15, 5, leftLeg, rightLeg));
+		entity.attach(new MovementPart(5, 5, leftLeg, rightLeg));
 		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
 		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getPolygon(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
 				limbsPart, new VitalLimbsPart(head, torso));
@@ -118,6 +137,24 @@ public final class EntityFactory {
 			entity.attach(new AiPart());
 		}
 		entityManager.add(entity);
+
+		BodyDef def = new BodyDef();
+		def.type = BodyType.DynamicBody;
+		Body body = world.createBody(def);
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(0.25f, 0.75f);
+		body.createFixture(shape, 1);
+		shape.dispose();
+		CircleShape baseShape = new CircleShape();
+		baseShape.setRadius(0.25f);
+		baseShape.setPosition(new Vector2(0, -0.75f));
+		body.createFixture(baseShape, 0);
+		baseShape.dispose();
+		body.setBullet(true);
+		body.setFixedRotation(true);
+		body.setTransform(position.x, position.y, 0);
+		entity.attach(new BodyPart(body));
+
 		return entity;
 	}
 
@@ -126,12 +163,11 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Entity bullet = createBaseEntity(size, position3, "objects/bullet", BodyType.DYNAMIC, new Enum<?>[] { CollisionType.METAL });
-		bullet.get(PhysicsPart.class).setGravityScale(0.05f);
+		Entity bullet = createBaseEntity(size, position3, "objects/bullet", new Enum<?>[] { CollisionType.METAL });
 		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(1, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
-		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail", BodyType.NONE);
+		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail");
 		entity.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
 		entityManager.add(entity);
 		Limb trail = new Limb(entity.get(TransformPart.class).getPolygon());
@@ -143,7 +179,7 @@ public final class EntityFactory {
 	}
 
 	public final void createBloodParticle(final float size, final Vector3 position, final Vector2 velocity) {
-		Entity entity = createBaseEntity(new Vector2(size, size), position, "objects/blood", BodyType.DYNAMIC);
+		Entity entity = createBaseEntity(new Vector2(size, size), position, "objects/blood");
 		entity.get(TranslatePart.class).setVelocity(velocity);
 		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3), new StickyPart());
 		entityManager.add(entity);
@@ -155,23 +191,21 @@ public final class EntityFactory {
 
 	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName, final float health, final Alliance alliance, final CollisionType collisionType) {
 		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
-		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, BodyType.SENSOR, new Enum<?>[] { alliance, collisionType });
+		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, new Enum<?>[] { alliance, collisionType });
 		entity.attach(new HealthPart(health));
 		limb.setPolygon(entity.get(TransformPart.class).getPolygon());
 		entityManager.add(entity);
 	}
 
-	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName,
-			final BodyType bodyType) {
-		return createBaseEntity(size, position, regionName, bodyType, new Enum<?>[0]);
+	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName) {
+		return createBaseEntity(size, position, regionName, new Enum<?>[0]);
 	}
 
-	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName,
-			final BodyType bodyType, final Enum<?>[] collisionGroups) {
+	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create(regionName, size);
 		polygon.setPosition(position.x,  position.y);
-		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new PhysicsPart(bodyType), new CollisionPart(collisionGroups));
+		entity.attach(new TransformPart(polygon, position.z), new TranslatePart(), new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);
