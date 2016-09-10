@@ -43,7 +43,6 @@ import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.geometry.Centrum;
 import dclib.geometry.DefaultTransform;
-import dclib.geometry.PolygonFactory;
 import dclib.geometry.PolygonUtils;
 import dclib.geometry.Transform;
 import dclib.graphics.ConvexHullCache;
@@ -52,6 +51,7 @@ import dclib.limb.Joint;
 import dclib.limb.Limb;
 import dclib.limb.LimbAnimation;
 import dclib.limb.Rotator;
+import dclib.physics.Box2dTransform;
 import dclib.util.FloatRange;
 
 // TODO: Cleanup
@@ -73,8 +73,6 @@ public final class EntityFactory {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create("objects/white", size);
 		polygon.setPosition(position.x,  position.y);
-		// TODO: Create convenience method to shorten new TransformPart(new DefaultTransform(position.z, polygon))
-		entity.attach(new TransformPart(new DefaultTransform(position.z, polygon)), new TranslatePart(), new CollisionPart(CollisionType.METAL));
 
 		BodyDef def = new BodyDef();
 		def.type = BodyType.StaticBody;
@@ -83,9 +81,10 @@ public final class EntityFactory {
 		shape.setAsBox(size.x / 2, size.y / 2);
 		body.createFixture(shape, 0);
 		shape.dispose();
-		// Box2d position is its center
 		body.setTransform(position.x + size.x / 2, position.y + size.y / 2, 0);
 
+		// TODO: Create convenience method to shorten new TransformPart(new DefaultTransform(position.z, polygon))
+		entity.attach(new TransformPart(new Box2dTransform(position.z, body)), new CollisionPart(CollisionType.METAL));
 		entityManager.add(entity);
 	}
 
@@ -116,17 +115,35 @@ public final class EntityFactory {
 		createLimbEntity(rightLeg, startZ, zOrder, new Vector2(1, 0.1f), "objects/limb", 100, alliance);
 		Joint leftLegJoint = new Joint(leftLeg, new Vector2(), new Vector2(0, 0.05f), -110);
 		Joint rightLegJoint = new Joint(rightLeg, new Vector2(), new Vector2(0, 0.05f), -70);
-		Polygon polygon = PolygonFactory.createDefault();
-		polygon.setPosition(position.x, position.y);
-		Transform transform = new DefaultTransform(position.z, polygon);
-		TransformPart transformPart = new TransformPart(transform);
-		Limb root = new Limb(transform)
+		Entity entity = new Entity();
+
+		float halfHeight = 1.05f;
+		float halfWidth = 0.3f;
+		BodyDef def = new BodyDef();
+		def.type = BodyType.DynamicBody;
+		Body body = world.createBody(def);
+		CircleShape baseShape = new CircleShape();
+		baseShape.getPosition();
+		baseShape.setRadius(halfWidth);
+		baseShape.setPosition(new Vector2(0, -halfHeight));
+		body.createFixture(baseShape, 0);
+		baseShape.dispose();
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(halfWidth, halfHeight);
+		body.createFixture(shape, 1);
+		shape.dispose();
+		body.setBullet(true);
+		body.setFixedRotation(true);
+		body.setTransform(position.x, position.y, 0);
+		entity.attach(new BodyPart(body));
+
+		Limb root = new Limb()
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
 		LimbsPart limbsPart = new LimbsPart(root, leftForearm, rightForearm, leftLeg, rightLeg, torso, head);
-		Entity entity = new Entity();
-		entity.attach(transformPart, new CollisionPart(), new TranslatePart());
+		Transform transform = new Box2dTransform(position.z, body);
+		entity.attach(new TransformPart(transform), new CollisionPart());
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
 		animations.put("walk", walkAnimation);
@@ -140,25 +157,8 @@ public final class EntityFactory {
 		if (alliance == Alliance.ENEMY){
 			entity.attach(new AiPart());
 		}
+
 		entityManager.add(entity);
-
-		BodyDef def = new BodyDef();
-		def.type = BodyType.DynamicBody;
-		Body body = world.createBody(def);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(0.25f, 0.75f);
-		body.createFixture(shape, 1);
-		shape.dispose();
-		CircleShape baseShape = new CircleShape();
-		baseShape.setRadius(0.25f);
-		baseShape.setPosition(new Vector2(0, -0.75f));
-		body.createFixture(baseShape, 0);
-		baseShape.dispose();
-		body.setBullet(true);
-		body.setFixedRotation(true);
-		body.setTransform(position.x, position.y, 0);
-		entity.attach(new BodyPart(body));
-
 		return entity;
 	}
 
@@ -171,12 +171,12 @@ public final class EntityFactory {
 		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(1, alliance));
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bullet.get(TranslatePart.class).setVelocity(velocity);
-		Entity entity = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail");
-		entity.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
-		entityManager.add(entity);
-		Limb trail = new Limb(entity.get(TransformPart.class).getTransform());
+		Entity trail = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail");
+		trail.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
+		entityManager.add(trail);
+		Limb trailLimb = new Limb(trail.get(TransformPart.class).getTransform());
 		Transform transform = bullet.get(TransformPart.class).getTransform();
-		Limb root = new Limb(transform).addJoint(trail, 0.04f, 0.04f, 1.46f, 0.04f, 0);
+		Limb root = new Limb(transform).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
 		bullet.attach(limbsPart, new CollisionRemovePart(alliance));
 		entityManager.add(bullet);

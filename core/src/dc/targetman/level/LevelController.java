@@ -30,6 +30,7 @@ import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
+import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
@@ -69,7 +70,7 @@ public final class LevelController {
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
 		stickActions = new StickActions(world);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
-//		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		advancer = createAdvancer();
 		map = new TmxMapLoader().load("maps/test_level.tmx");
@@ -114,9 +115,9 @@ public final class LevelController {
 		.add(new ScaleSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new TranslateSystem(entityManager))
+		.add(getPhysicsUpdater())
 		.add(new MovementSystem(entityManager))
 		.add(new LimbsSystem(entityManager))
-		.add(getPhysicsUpdater())
 		.add(new TimedDeathSystem(entityManager))
 		.add(new WeaponSystem(entityManager, entityFactory))
 		.add(new VitalLimbsSystem(entityManager))
