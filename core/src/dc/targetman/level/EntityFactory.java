@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
@@ -42,9 +43,9 @@ import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.parts.TranslatePart;
 import dclib.geometry.Centrum;
-import dclib.geometry.DefaultTransform;
 import dclib.geometry.PolygonUtils;
 import dclib.geometry.Transform;
+import dclib.geometry.VertexUtils;
 import dclib.graphics.ConvexHullCache;
 import dclib.graphics.TextureCache;
 import dclib.limb.Joint;
@@ -53,6 +54,7 @@ import dclib.limb.LimbAnimation;
 import dclib.limb.Rotator;
 import dclib.physics.Box2dTransform;
 import dclib.util.FloatRange;
+import net.dermetfan.gdx.math.BayazitDecomposer;
 
 // TODO: Cleanup
 public final class EntityFactory {
@@ -208,12 +210,29 @@ public final class EntityFactory {
 	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
 		Entity entity = new Entity();
 		Polygon polygon = convexHullCache.create(regionName, size);
-		polygon.setPosition(position.x,  position.y);
-		entity.attach(new TransformPart(new DefaultTransform(position.z, polygon)), new TranslatePart(), new CollisionPart(collisionGroups));
+		Transform transform = createTransform(polygon, position.z);
+		transform.setPosition(new Vector2(position.x, position.y));
+		entity.attach(new TransformPart(transform), new TranslatePart(), new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);
 		return entity;
+	}
+
+	private final Transform createTransform(final Polygon polygon, final float z) {
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyType.DynamicBody;
+		Body body = world.createBody(bodyDef);
+		float[] vertices = polygon.getVertices();
+		Array<Vector2> vertexVectors = new Array<Vector2>(VertexUtils.toVectors(vertices));
+		for (Array<Vector2> partition : BayazitDecomposer.convexPartition(vertexVectors)) {
+			PolygonShape shape = new PolygonShape();
+			Vector2[] partitionVectors = partition.toArray(Vector2.class);
+			shape.set(VertexUtils.toFloats(partitionVectors));
+			body.createFixture(shape, 1).setSensor(true);
+			shape.dispose();
+		}
+		return new Box2dTransform(z, body);
 	}
 
 }
