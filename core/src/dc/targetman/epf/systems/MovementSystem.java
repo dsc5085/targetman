@@ -13,7 +13,6 @@ import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.EntitySystem;
-import dclib.geometry.RectangleUtils;
 import dclib.geometry.Transform;
 
 public final class MovementSystem extends EntitySystem {
@@ -39,6 +38,8 @@ public final class MovementSystem extends EntitySystem {
 
 	private void moveLimbsToTransform(final Entity entity) {
 		LimbsPart limbsPart = entity.get(LimbsPart.class);
+		// TODO: Shouldn't have to call this.  Find an alternative solution
+		limbsPart.update();
 		Rectangle limbBounds = getBounds(limbsPart.getCollisionTransforms());
 		Rectangle transformBounds = entity.get(TransformPart.class).getTransform().getBounds();
 		Vector2 global = new Vector2(transformBounds.getCenter(new Vector2()).x, transformBounds.y);
@@ -48,16 +49,11 @@ public final class MovementSystem extends EntitySystem {
 	}
 
 	private final Rectangle getBounds(final List<Transform> transforms) {
-		Vector2 min = new Vector2(Float.MAX_VALUE, Float.MAX_VALUE);
-		Vector2 max = new Vector2(-Float.MAX_VALUE, -Float.MAX_VALUE);
+		Rectangle bounds = transforms.get(0).getBounds();
 		for (Transform transform : transforms) {
-			Rectangle bounds = transform.getBounds();
-			min.x = Math.min(min.x, bounds.x);
-			min.y = Math.min(min.y, bounds.y);
-			max.x = Math.max(max.x, RectangleUtils.right(bounds));
-			max.y = Math.max(max.y, RectangleUtils.top(bounds));
+			bounds.merge(transform.getBounds());
 		}
-		return new Rectangle(min.x, min.y, max.x - min.x, max.y - min.y);
+		return bounds;
 	}
 
 }

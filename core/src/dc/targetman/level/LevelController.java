@@ -145,7 +145,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
+//		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

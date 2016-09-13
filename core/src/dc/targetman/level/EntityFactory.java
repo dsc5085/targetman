@@ -143,7 +143,7 @@ public final class EntityFactory {
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
 		.addJoint(leftLegJoint)
 		.addJoint(rightLegJoint);
-		LimbsPart limbsPart = new LimbsPart(root, leftForearm, rightForearm, leftLeg, rightLeg, torso, head);
+		LimbsPart limbsPart = new LimbsPart(root, leftLeg, rightLeg);
 		Transform transform = new Box2dTransform(position.z, body);
 		entity.attach(new TransformPart(transform), new CollisionPart());
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
