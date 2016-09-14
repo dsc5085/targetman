@@ -15,8 +15,10 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.MovementSystem;
@@ -28,15 +30,18 @@ import dc.targetman.level.models.Alliance;
 import dclib.epf.DefaultEntityManager;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
+import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.EntityTransformDrawer;
+import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
 import dclib.epf.systems.RemoveOnNoHealthEntityAddedListener;
 import dclib.epf.systems.TimedDeathSystem;
 import dclib.epf.systems.TranslateSystem;
+import dclib.geometry.Transform;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
 import dclib.graphics.ParticlesManager;
@@ -72,6 +77,7 @@ public final class LevelController {
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
+		entityManager.addEntityRemovedListener(entityRemoved());
 		advancer = createAdvancer();
 		map = new TmxMapLoader().load("maps/test_level.tmx");
 		MapUtils.spawn(map, entityFactory);
@@ -95,6 +101,26 @@ public final class LevelController {
 		mapRenderer.render();
 		renderEntities();
 		renderBox2D();
+	}
+
+	private EntityRemovedListener entityRemoved() {
+		return new EntityRemovedListener() {
+			@Override
+			public void removed(final Entity entity) {
+				TransformPart transformPart = entity.tryGet(TransformPart.class);
+				if (transformPart != null) {
+					Transform transform = transformPart.getTransform();
+					Array<Body> bodies = new Array<Body>();
+					world.getBodies(bodies);
+					for (Body body : bodies) {
+						if (body.getUserData() == transform) {
+							world.destroyBody(body);
+							break;
+						}
+					}
+				}
+			}
+		};
 	}
 
 	// TODO:

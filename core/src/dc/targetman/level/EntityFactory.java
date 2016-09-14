@@ -169,11 +169,13 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Entity bullet = createBaseEntity(size, position3, "objects/bullet", new Enum<?>[] { CollisionType.METAL });
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(1, alliance));
+		Body bulletBody = createBody("objects/bullet", size, false);
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
-		bullet.get(TranslatePart.class).setVelocity(velocity);
-		Entity trail = createBaseEntity(new Vector2(1.5f, 0.08f), new Vector3(), "objects/bullet_trail");
+		bulletBody.setLinearVelocity(velocity);
+		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { CollisionType.METAL });
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(1, alliance));
+		Body trailBody = createBody("objects/bullet_trail", new Vector2(1.5f, size.y), true);
+		Entity trail = createBaseEntity(trailBody, new Vector3(), "objects/bullet_trail");
 		trail.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
 		entityManager.add(trail);
 		Limb trailLimb = new Limb(trail.get(TransformPart.class).getTransform());
@@ -185,7 +187,8 @@ public final class EntityFactory {
 	}
 
 	public final void createBloodParticle(final float size, final Vector3 position, final Vector2 velocity) {
-		Entity entity = createBaseEntity(new Vector2(size, size), position, "objects/blood");
+		Body body = createBody("objects/blood", new Vector2(size, size), false);
+		Entity entity = createBaseEntity(body, position, "objects/blood");
 		entity.get(TranslatePart.class).setVelocity(velocity);
 		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3), new StickyPart());
 		entityManager.add(entity);
@@ -197,20 +200,20 @@ public final class EntityFactory {
 
 	private final void createLimbEntity(final Limb limb, final float startZ, final Limb[] zOrder, final Vector2 size, final String regionName, final float health, final Alliance alliance, final CollisionType collisionType) {
 		float z = startZ + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
-		Entity entity = createBaseEntity(size, new Vector3(0, 0, z), regionName, new Enum<?>[] { alliance, collisionType });
+		Body body = createBody(regionName, size, true);
+		Entity entity = createBaseEntity(body, new Vector3(0, 0, z), regionName, new Enum<?>[] { alliance, collisionType });
 		entity.attach(new HealthPart(health));
 		limb.setTransform(entity.get(TransformPart.class).getTransform());
 		entityManager.add(entity);
 	}
 
-	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName) {
-		return createBaseEntity(size, position, regionName, new Enum<?>[0]);
+	private final Entity createBaseEntity(final Body body, final Vector3 position, final String regionName) {
+		return createBaseEntity(body, position, regionName, new Enum<?>[0]);
 	}
 
-	private final Entity createBaseEntity(final Vector2 size, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
+	private final Entity createBaseEntity(final Body body, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
 		Entity entity = new Entity();
-		Polygon polygon = convexHullCache.create(regionName, size);
-		Transform transform = createTransform(polygon, position.z);
+		Transform transform = new Box2dTransform(position.z, body);
 		transform.setPosition(new Vector2(position.x, position.y));
 		entity.attach(new TransformPart(transform), new TranslatePart(), new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
@@ -219,20 +222,20 @@ public final class EntityFactory {
 		return entity;
 	}
 
-	private final Transform createTransform(final Polygon polygon, final float z) {
+	private final Body createBody(final String regionName, final Vector2 size, final boolean sensor) {
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
 		Body body = world.createBody(bodyDef);
-		float[] vertices = polygon.getVertices();
+		float[] vertices = convexHullCache.create(regionName, size).getVertices();
 		Array<Vector2> vertexVectors = new Array<Vector2>(VertexUtils.toVectors(vertices));
 		for (Array<Vector2> partition : BayazitDecomposer.convexPartition(vertexVectors)) {
 			PolygonShape shape = new PolygonShape();
 			Vector2[] partitionVectors = partition.toArray(Vector2.class);
 			shape.set(VertexUtils.toFloats(partitionVectors));
-			body.createFixture(shape, 1).setSensor(true);
+			body.createFixture(shape, 1).setSensor(sensor);
 			shape.dispose();
 		}
-		return new Box2dTransform(z, body);
+		return body;
 	}
 
 }
