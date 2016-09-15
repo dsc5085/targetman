@@ -79,6 +79,7 @@ public final class EntityFactory {
 		BodyDef def = new BodyDef();
 		def.type = BodyType.StaticBody;
 		Body body = world.createBody(def);
+		body.setUserData(entity);
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(size.x / 2, size.y / 2);
 		body.createFixture(shape, 0);
@@ -128,15 +129,16 @@ public final class EntityFactory {
 		baseShape.getPosition();
 		baseShape.setRadius(halfWidth);
 		baseShape.setPosition(new Vector2(0, -halfHeight));
-		body.createFixture(baseShape, 0);
+		body.createFixture(baseShape, 0).setFriction(0);
 		baseShape.dispose();
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(halfWidth, halfHeight);
-		body.createFixture(shape, 1);
+		body.createFixture(shape, 1).setFriction(0);
 		shape.dispose();
 		body.setBullet(true);
 		body.setFixedRotation(true);
 		body.setTransform(position.x, position.y, 0);
+		body.setUserData(entity);
 		entity.attach(new BodyPart(body));
 
 		Limb root = new Limb()
@@ -169,7 +171,7 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Body bulletBody = createBody("objects/bullet", size, false);
+		Body bulletBody = createBody("objects/bullet", size, true);
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bulletBody.setLinearVelocity(velocity);
 		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { CollisionType.METAL });
@@ -213,6 +215,7 @@ public final class EntityFactory {
 
 	private final Entity createBaseEntity(final Body body, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
 		Entity entity = new Entity();
+		body.setUserData(entity);
 		Transform transform = new Box2dTransform(position.z, body);
 		transform.setPosition(new Vector2(position.x, position.y));
 		entity.attach(new TransformPart(transform), new TranslatePart(), new CollisionPart(collisionGroups));

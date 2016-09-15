@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.MovementSystem;
+import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
 import dc.targetman.epf.systems.VitalLimbsSystem;
 import dc.targetman.epf.systems.WeaponSystem;
@@ -34,18 +35,18 @@ import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.EntityTransformDrawer;
-import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.AutoRotateSystem;
+import dclib.epf.systems.DamageCollidedListener;
 import dclib.epf.systems.DrawableSystem;
 import dclib.epf.systems.LimbsSystem;
 import dclib.epf.systems.RemoveOnNoHealthEntityAddedListener;
 import dclib.epf.systems.TimedDeathSystem;
 import dclib.epf.systems.TranslateSystem;
-import dclib.geometry.Transform;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
 import dclib.graphics.ParticlesManager;
 import dclib.graphics.TextureCache;
+import dclib.physics.CollisionChecker;
 import dclib.system.Advancer;
 import dclib.system.Updater;
 
@@ -92,7 +93,9 @@ public final class LevelController {
 
 	public final void update(final float delta) {
 		advancer.advance(delta);
-		CameraUtils.follow(targetman, unitConverter, camera);
+		if (targetman.isActive()) {
+			CameraUtils.follow(targetman, unitConverter, camera);
+		}
 		mapRenderer.setView(camera);
 	}
 
@@ -107,43 +110,28 @@ public final class LevelController {
 		return new EntityRemovedListener() {
 			@Override
 			public void removed(final Entity entity) {
-				TransformPart transformPart = entity.tryGet(TransformPart.class);
-				if (transformPart != null) {
-					Transform transform = transformPart.getTransform();
-					Array<Body> bodies = new Array<Body>();
-					world.getBodies(bodies);
-					for (Body body : bodies) {
-						if (body.getUserData() == transform) {
-							world.destroyBody(body);
-							break;
-						}
+				Array<Body> bodies = new Array<Body>();
+				world.getBodies(bodies);
+				for (Body body : bodies) {
+					if (body.getUserData() == entity) {
+						world.destroyBody(body);
 					}
 				}
 			}
 		};
 	}
 
-	// TODO:
-//	private CollisionSystem createCollisionSystem() {
-//		CollisionSystem collisionSystem = new CollisionSystem(entityManager);
-//		collisionSystem.addCollidedListener(new DamageCollidedListener());
-//		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
-//		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
-//		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
-//		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
-//		return collisionSystem;
-//	}
-
 	private Advancer createAdvancer() {
 		return new Advancer()
-		.add(getInputUpdater())
+		.add(createInputUpdater())
 		.add(new AiSystem(entityManager, stickActions)) // TODO: Don't update every frame
 		.add(new ScaleSystem(entityManager))
 		.add(new AutoRotateSystem(entityManager))
 		.add(new TranslateSystem(entityManager))
-		.add(getPhysicsUpdater())
+		.add(createPhysicsUpdater())
 		.add(new MovementSystem(entityManager))
 		.add(new LimbsSystem(entityManager))
+		.add(createCollisionChecker())
 		.add(new TimedDeathSystem(entityManager))
 		.add(new WeaponSystem(entityManager, entityFactory))
 		.add(new VitalLimbsSystem(entityManager))
@@ -151,7 +139,18 @@ public final class LevelController {
 		.add(particlesManager);
 	}
 
-	private Updater getInputUpdater() {
+	// TODO:
+	private CollisionChecker createCollisionChecker() {
+		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
+		collisionSystem.addCollidedListener(new DamageCollidedListener());
+//		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+//		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
+//		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
+		return collisionSystem;
+	}
+
+	private Updater createInputUpdater() {
 		return new Updater() {
 			@Override
 			public void update(final float delta) {
@@ -160,7 +159,7 @@ public final class LevelController {
 		};
 	}
 
-	private Updater getPhysicsUpdater() {
+	private Updater createPhysicsUpdater() {
 		return new Updater() {
 			@Override
 			public void update(final float delta) {
@@ -171,7 +170,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-//		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

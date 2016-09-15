@@ -1,17 +1,19 @@
 package dc.targetman.epf.systems;
 
+import dclib.epf.Entity;
+import dclib.epf.EntityManager;
+import dclib.physics.CollidedListener;
 
-public final class RemoveCollidedListener {
+public final class RemoveCollidedListener implements CollidedListener {
 
-	// TODO:
-//	private final EntityManager entityManager;
-//
-//	public RemoveCollidedListener(final EntityManager entityManager) {
-//		this.entityManager = entityManager;
-//	}
-//
-//	@Override
-//	public final void collided(final Entity collider, final Entity collidee, final Vector2 offsets) {
+	private final EntityManager entityManager;
+
+	public RemoveCollidedListener(final EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	@Override
+	public final void collided(final Entity collider, final Entity collidee) {
 //		CollisionRemovePart collisionRemovePart = collider.tryGet(CollisionRemovePart.class);
 //		PhysicsPart collideePhysicsPart = collidee.tryGet(PhysicsPart.class);
 //		if (collisionRemovePart != null && collideePhysicsPart != null) {
@@ -21,6 +23,6 @@ public final class RemoveCollidedListener {
 //				entityManager.remove(collider);
 //			}
 //		}
-//	}
+	}
 
 }

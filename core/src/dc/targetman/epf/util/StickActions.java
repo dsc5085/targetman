@@ -37,18 +37,11 @@ public final class StickActions {
 		body.applyLinearImpulse(acceleration * direction, 0, position.x, position.y, true);
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
 		if (moveVelocityX == 0) {
-			for (Fixture fixture : body.getFixtureList()) {
-				// TODO: should be 0 so it doesn't stick to walls
-				fixture.setFriction(100);
-			}
 			Vector2 velocity = body.getLinearVelocity();
 			float deceleration = 0.5f;
 			body.setLinearVelocity(velocity.x * deceleration, velocity.y);
 			walkAnimation.stop();
 		} else {
-			for (Fixture fixture : body.getFixtureList()) {
-				fixture.setFriction(0.2f);
-			}
 			walkAnimation.play();
 		}
 		if (moveVelocityX > 0) {
