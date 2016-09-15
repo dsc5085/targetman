@@ -23,7 +23,9 @@ import com.badlogic.gdx.utils.Array;
 import dc.targetman.epf.systems.AiSystem;
 import dc.targetman.epf.systems.MovementSystem;
 import dc.targetman.epf.systems.ParticlesCollidedListener;
+import dc.targetman.epf.systems.RemoveCollidedListener;
 import dc.targetman.epf.systems.ScaleSystem;
+import dc.targetman.epf.systems.StickyCollidedListener;
 import dc.targetman.epf.systems.VitalLimbsSystem;
 import dc.targetman.epf.systems.WeaponSystem;
 import dc.targetman.epf.util.StickActions;
@@ -103,7 +105,7 @@ public final class LevelController {
 		particlesManager.draw();
 		mapRenderer.render();
 		renderEntities();
-		renderBox2D();
+//		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
@@ -143,9 +145,9 @@ public final class LevelController {
 	private CollisionChecker createCollisionChecker() {
 		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
-//		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
 //		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
-//		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
 		return collisionSystem;
 	}

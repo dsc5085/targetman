@@ -41,7 +41,6 @@ import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
-import dclib.epf.parts.TranslatePart;
 import dclib.geometry.Centrum;
 import dclib.geometry.PolygonUtils;
 import dclib.geometry.Transform;
@@ -139,7 +138,7 @@ public final class EntityFactory {
 		body.setFixedRotation(true);
 		body.setTransform(position.x, position.y, 0);
 		body.setUserData(entity);
-		entity.attach(new BodyPart(body));
+		entity.attach(new BodyPart(body), new CollisionPart());
 
 		Limb root = new Limb()
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
@@ -147,7 +146,7 @@ public final class EntityFactory {
 		.addJoint(rightLegJoint);
 		LimbsPart limbsPart = new LimbsPart(root, leftLeg, rightLeg);
 		Transform transform = new Box2dTransform(position.z, body);
-		entity.attach(new TransformPart(transform), new CollisionPart());
+		entity.attach(new TransformPart(transform));
 		LimbAnimation walkAnimation = new WalkAnimation(leftLegJoint, rightLegJoint, new FloatRange(-110, -70));
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
 		animations.put("walk", walkAnimation);
@@ -155,8 +154,7 @@ public final class EntityFactory {
 		entity.attach(limbAnimationsPart);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		entity.attach(new MovementPart(5, 5, leftLeg, rightLeg));
-		Alliance targetAlliance = alliance == Alliance.PLAYER ? Alliance.ENEMY : Alliance.PLAYER;
-		entity.attach(new WeaponPart(targetAlliance.name(), new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
+		entity.attach(new WeaponPart(alliance.getTarget().name(), new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
 				limbsPart, new VitalLimbsPart(head, torso));
 		if (alliance == Alliance.ENEMY){
 			entity.attach(new AiPart());
@@ -167,15 +165,16 @@ public final class EntityFactory {
 	}
 
 	public final void createBullet(final Centrum centrum, final String type) {
-		Alliance alliance = Alliance.valueOf(type); // TODO: hacky...
+		Alliance targetAlliance = Alliance.valueOf(type); // TODO: hacky...
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Body bulletBody = createBody("objects/bullet", size, true);
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bulletBody.setLinearVelocity(velocity);
-		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { CollisionType.METAL });
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, alliance), new ForcePart(1, alliance));
+		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), CollisionType.METAL });
+		// TODO: Is target alliance necessary in CollisionDamagePart?  Should just calculate it based off of the bullet's alliance
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, targetAlliance), new ForcePart(1, targetAlliance));
 		Body trailBody = createBody("objects/bullet_trail", new Vector2(1.5f, size.y), true);
 		Entity trail = createBaseEntity(trailBody, new Vector3(), "objects/bullet_trail");
 		trail.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
@@ -184,14 +183,14 @@ public final class EntityFactory {
 		Transform transform = bullet.get(TransformPart.class).getTransform();
 		Limb root = new Limb(transform).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
-		bullet.attach(limbsPart, new CollisionRemovePart(alliance));
+		bullet.attach(limbsPart, new CollisionRemovePart(targetAlliance));
 		entityManager.add(bullet);
 	}
 
 	public final void createBloodParticle(final float size, final Vector3 position, final Vector2 velocity) {
-		Body body = createBody("objects/blood", new Vector2(size, size), false);
+		Body body = createBody("objects/blood", new Vector2(size, size), true);
+		body.setLinearVelocity(velocity);
 		Entity entity = createBaseEntity(body, position, "objects/blood");
-		entity.get(TranslatePart.class).setVelocity(velocity);
 		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3), new StickyPart());
 		entityManager.add(entity);
 	}
@@ -218,7 +217,7 @@ public final class EntityFactory {
 		body.setUserData(entity);
 		Transform transform = new Box2dTransform(position.z, body);
 		transform.setPosition(new Vector2(position.x, position.y));
-		entity.attach(new TransformPart(transform), new TranslatePart(), new CollisionPart(collisionGroups));
+		entity.attach(new TransformPart(transform), new CollisionPart(collisionGroups));
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);
