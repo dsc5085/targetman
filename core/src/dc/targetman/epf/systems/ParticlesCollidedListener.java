@@ -51,7 +51,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 		Alliance collideeAlliance = collideePart.getCollisionGroup(Alliance.class);
 		if (collideeAlliance != null && colliderPart.containsAny(collideeAlliance.getTarget())
 				&& collideePart.containsAny(CollisionType.FLESH)) {
-			final float numParticles = 1;
+			final float numParticles = 10;
 			final FloatRange sizeRange = new FloatRange(0.01f, 0.07f);
 			final FloatRange rotationDiffRange = new FloatRange(-10, 10);
 			final FloatRange velocityRatioRange = new FloatRange(0.1f, 0.5f);

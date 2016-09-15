@@ -105,7 +105,7 @@ public final class LevelController {
 		particlesManager.draw();
 		mapRenderer.render();
 		renderEntities();
-//		renderBox2D();
+		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
@@ -131,9 +131,9 @@ public final class LevelController {
 		.add(new AutoRotateSystem(entityManager))
 		.add(new TranslateSystem(entityManager))
 		.add(createPhysicsUpdater())
+		.add(createCollisionChecker())
 		.add(new MovementSystem(entityManager))
 		.add(new LimbsSystem(entityManager))
-		.add(createCollisionChecker())
 		.add(new TimedDeathSystem(entityManager))
 		.add(new WeaponSystem(entityManager, entityFactory))
 		.add(new VitalLimbsSystem(entityManager))
@@ -172,7 +172,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(4, 5, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(20, 20, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {
