@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.systems.AiSystem;
+import dc.targetman.epf.systems.ForceCollidedListener;
 import dc.targetman.epf.systems.MovementSystem;
 import dc.targetman.epf.systems.ParticlesCollidedListener;
 import dc.targetman.epf.systems.RemoveCollidedListener;
@@ -146,7 +147,7 @@ public final class LevelController {
 		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
 		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
-//		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
+		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
 		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
 		return collisionSystem;
