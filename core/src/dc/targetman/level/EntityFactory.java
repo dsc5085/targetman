@@ -85,7 +85,6 @@ public final class EntityFactory {
 		shape.dispose();
 		body.setTransform(position.x + size.x / 2, position.y + size.y / 2, 0);
 
-		// TODO: Create convenience method to shorten new TransformPart(new DefaultTransform(position.z, polygon))
 		entity.attach(new TransformPart(new Box2dTransform(position.z, body)), new CollisionPart(CollisionType.METAL));
 		entityManager.add(entity);
 	}

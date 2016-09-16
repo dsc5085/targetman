@@ -79,8 +79,8 @@ public final class LevelController {
 		stickActions = new StickActions(world);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
-		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
-		entityManager.addEntityRemovedListener(entityRemoved());
+		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
+		entityManager.listen(entityRemoved());
 		advancer = createAdvancer();
 		map = new TmxMapLoader().load("maps/test_level.tmx");
 		MapUtils.spawn(map, entityFactory);
@@ -124,32 +124,30 @@ public final class LevelController {
 	}
 
 	private Advancer createAdvancer() {
-		// TODO: Make .add take in a variable number of systems instead of chaining
-		return new Advancer()
-		.add(createInputUpdater())
-		.add(new AiSystem(entityManager, stickActions)) // TODO: Don't update every frame
-		.add(new ScaleSystem(entityManager))
-		.add(new AutoRotateSystem(entityManager))
-		.add(new TranslateSystem(entityManager))
-		.add(createPhysicsUpdater())
-		.add(createCollisionChecker())
-		.add(new MovementSystem(entityManager))
-		.add(new LimbsSystem(entityManager))
-		.add(new TimedDeathSystem(entityManager))
-		.add(new WeaponSystem(entityManager, entityFactory))
-		.add(new VitalLimbsSystem(entityManager))
-		.add(new DrawableSystem(entityManager, unitConverter))
-		.add(particlesManager);
+		return new Advancer(
+				createInputUpdater(),
+				new AiSystem(entityManager, stickActions),  // TODO: Don't update every frame
+				new ScaleSystem(entityManager),
+				new AutoRotateSystem(entityManager),
+				new TranslateSystem(entityManager),
+				createPhysicsUpdater(),
+				createCollisionChecker(),
+				new MovementSystem(entityManager),
+				new LimbsSystem(entityManager),
+				new TimedDeathSystem(entityManager),
+				new WeaponSystem(entityManager, entityFactory),
+				new VitalLimbsSystem(entityManager),
+				new DrawableSystem(entityManager, unitConverter),
+				particlesManager);
 	}
 
-	// TODO:
 	private CollisionChecker createCollisionChecker() {
 		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
-		collisionSystem.addCollidedListener(new DamageCollidedListener());
-		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
-		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
-		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
-		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
+		collisionSystem.listen(new DamageCollidedListener());
+		collisionSystem.listen(new StickyCollidedListener(entityManager));
+		collisionSystem.listen(new ForceCollidedListener(entityManager));
+		collisionSystem.listen(new ParticlesCollidedListener(particlesManager, entityFactory));
+		collisionSystem.listen(new RemoveCollidedListener(entityManager));
 		return collisionSystem;
 	}
 
