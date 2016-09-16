@@ -36,7 +36,6 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
-import dclib.epf.graphics.EntityTransformDrawer;
 import dclib.epf.systems.AutoRotateSystem;
 import dclib.epf.systems.DamageCollidedListener;
 import dclib.epf.systems.DrawableSystem;
@@ -78,7 +77,7 @@ public final class LevelController {
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
 		stickActions = new StickActions(world);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
-		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+//		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.addEntityAddedListener(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		entityManager.addEntityRemovedListener(entityRemoved());
 		advancer = createAdvancer();
@@ -105,7 +104,7 @@ public final class LevelController {
 		particlesManager.draw();
 		mapRenderer.render();
 		renderEntities();
-		renderBox2D();
+//		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
@@ -124,6 +123,7 @@ public final class LevelController {
 	}
 
 	private Advancer createAdvancer() {
+		// TODO: Make .add take in a variable number of systems instead of chaining
 		return new Advancer()
 		.add(createInputUpdater())
 		.add(new AiSystem(entityManager, stickActions)) // TODO: Don't update every frame
@@ -145,10 +145,10 @@ public final class LevelController {
 	private CollisionChecker createCollisionChecker() {
 		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
 		collisionSystem.addCollidedListener(new DamageCollidedListener());
-		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
-//		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new StickyCollidedListener(entityManager));
+//		collisionSystem.addCollidedListener(new ForceCollidedListener(entityManager));
 		collisionSystem.addCollidedListener(new ParticlesCollidedListener(particlesManager, entityFactory));
+		collisionSystem.addCollidedListener(new RemoveCollidedListener(entityManager));
 		return collisionSystem;
 	}
 
