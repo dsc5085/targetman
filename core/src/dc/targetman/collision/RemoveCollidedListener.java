@@ -1,12 +1,12 @@
-package dc.targetman.epf.systems;
+package dc.targetman.collision;
 
 import java.util.List;
 
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
 import dc.targetman.epf.parts.CollisionRemovePart;
+import dclib.collision.CollidedListener;
 import dclib.epf.EntityManager;
-import dclib.physics.CollidedListener;
 import dclib.physics.Contacter;
 
 public final class RemoveCollidedListener implements CollidedListener {

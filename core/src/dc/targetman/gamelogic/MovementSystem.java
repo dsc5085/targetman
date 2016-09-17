@@ -1,4 +1,4 @@
-package dc.targetman.epf.systems;
+package dc.targetman.gamelogic;
 
 import java.util.List;
 
@@ -9,10 +9,10 @@ import com.badlogic.gdx.physics.box2d.Body;
 import dc.targetman.epf.parts.MovementPart;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
+import dclib.epf.EntitySystem;
 import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
-import dclib.epf.systems.EntitySystem;
 import dclib.geometry.Transform;
 
 public final class MovementSystem extends EntitySystem {

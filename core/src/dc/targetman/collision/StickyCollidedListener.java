@@ -1,8 +1,8 @@
-package dc.targetman.epf.systems;
+package dc.targetman.collision;
 
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
-import dc.targetman.level.models.CollisionType;
+import dclib.collision.CollidedListener;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.DrawablePart;
@@ -10,7 +10,6 @@ import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.DefaultTransform;
 import dclib.geometry.Transform;
-import dclib.physics.CollidedListener;
 import dclib.physics.Contacter;
 import dclib.util.FloatRange;
 

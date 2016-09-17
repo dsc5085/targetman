@@ -1,7 +1,7 @@
-package dc.targetman.epf.systems;
+package dc.targetman.collision;
 
+import dclib.collision.CollidedListener;
 import dclib.epf.EntityManager;
-import dclib.physics.CollidedListener;
 import dclib.physics.Contacter;
 
 public final class ForceCollidedListener implements CollidedListener {

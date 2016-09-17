@@ -1,4 +1,4 @@
-package dc.targetman.epf.systems;
+package dc.targetman.ai;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -8,9 +8,9 @@ import dc.targetman.epf.util.StickActions;
 import dc.targetman.level.models.Alliance;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
+import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
-import dclib.epf.systems.EntitySystem;
 import dclib.geometry.Centrum;
 import dclib.geometry.VectorUtils;
 

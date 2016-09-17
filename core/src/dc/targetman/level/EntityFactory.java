@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
+import dc.targetman.collision.CollisionType;
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.ForcePart;
@@ -26,7 +27,6 @@ import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.Alliance;
-import dc.targetman.level.models.CollisionType;
 import dc.targetman.limb.WalkAnimation;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
