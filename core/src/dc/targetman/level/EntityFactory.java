@@ -40,7 +40,6 @@ import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
 import dclib.geometry.PolygonUtils;
-import dclib.geometry.VertexUtils;
 import dclib.graphics.ConvexHullCache;
 import dclib.graphics.TextureCache;
 import dclib.physics.Box2dTransform;
@@ -224,11 +223,11 @@ public final class EntityFactory {
 		bodyDef.type = BodyType.DynamicBody;
 		Body body = world.createBody(bodyDef);
 		float[] vertices = convexHullCache.create(regionName, size).getVertices();
-		Array<Vector2> vertexVectors = new Array<Vector2>(VertexUtils.toVectors(vertices));
+		Array<Vector2> vertexVectors = new Array<Vector2>(PolygonUtils.toVectors(vertices));
 		for (Array<Vector2> partition : BayazitDecomposer.convexPartition(vertexVectors)) {
 			PolygonShape shape = new PolygonShape();
 			Vector2[] partitionVectors = partition.toArray(Vector2.class);
-			shape.set(VertexUtils.toFloats(partitionVectors));
+			shape.set(PolygonUtils.toFloats(partitionVectors));
 			body.createFixture(shape, 1).setSensor(sensor);
 			shape.dispose();
 		}
