@@ -8,7 +8,6 @@ import dc.targetman.epf.util.StickActions;
 import dc.targetman.level.models.Alliance;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
-import dclib.epf.parts.CollisionPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.epf.systems.EntitySystem;
@@ -60,8 +59,7 @@ public final class AiSystem extends EntitySystem {
 
 	private Vector2 getTargetPosition(final Entity entity) {
 		for (Entity target : entityManager.getAll()) {
-			CollisionPart targetCollisionPart = target.tryGet(CollisionPart.class);
-			if (targetCollisionPart != null && targetCollisionPart.containsAny(Alliance.PLAYER)) {
+			if (target.is(Alliance.PLAYER)) {
 				return target.get(TransformPart.class).getTransform().getCenter();
 			}
 		}

@@ -34,7 +34,6 @@ import dclib.epf.EntityManager;
 import dclib.epf.parts.AutoRotatePart;
 import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.CollisionDamagePart;
-import dclib.epf.parts.CollisionPart;
 import dclib.epf.parts.DrawablePart;
 import dclib.epf.parts.HealthPart;
 import dclib.epf.parts.LimbAnimationsPart;
@@ -85,7 +84,8 @@ public final class EntityFactory {
 		shape.dispose();
 		body.setTransform(position.x + size.x / 2, position.y + size.y / 2, 0);
 
-		entity.attach(new TransformPart(new Box2dTransform(position.z, body)), new CollisionPart(CollisionType.METAL));
+		entity.attach(new TransformPart(new Box2dTransform(position.z, body)));
+		entity.attribute(CollisionType.METAL);
 		entityManager.add(entity);
 	}
 
@@ -136,7 +136,7 @@ public final class EntityFactory {
 		body.setFixedRotation(true);
 		body.setTransform(position.x, position.y, 0);
 		body.setUserData(entity);
-		entity.attach(new BodyPart(body), new CollisionPart());
+		entity.attach(new BodyPart(body));
 
 		Limb root = new Limb()
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
@@ -215,7 +215,8 @@ public final class EntityFactory {
 		body.setUserData(entity);
 		Transform transform = new Box2dTransform(position.z, body);
 		transform.setPosition(new Vector2(position.x, position.y));
-		entity.attach(new TransformPart(transform), new CollisionPart(collisionGroups));
+		entity.attach(new TransformPart(transform));
+		entity.attribute(collisionGroups);
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
 		DrawablePart drawablePart = new DrawablePart(region);
 		entity.attach(drawablePart);

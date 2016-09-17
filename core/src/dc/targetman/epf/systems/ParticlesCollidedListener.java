@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import dc.targetman.level.EntityFactory;
 import dc.targetman.level.models.Alliance;
 import dc.targetman.level.models.CollisionType;
-import dclib.epf.parts.CollisionPart;
+import dclib.epf.Entity;
 import dclib.epf.parts.TransformPart;
 import dclib.graphics.ParticlesManager;
 import dclib.physics.CollidedListener;
@@ -26,31 +26,27 @@ public final class ParticlesCollidedListener implements CollidedListener {
 
 	@Override
 	public final void collided(final Contacter collider, final Contacter collidee) {
-		CollisionPart colliderPart = collider.getEntity().tryGet(CollisionPart.class);
-		CollisionPart collideePart = collidee.getEntity().tryGet(CollisionPart.class);
-		if (colliderPart != null && collideePart != null) {
-			Vector3 position = collider.getEntity().get(TransformPart.class).getTransform().getPosition3();
-			Vector2 velocity = collider.getBody().getLinearVelocity();
-			if (colliderPart.containsAny(CollisionType.METAL) && velocity.len() > 0) {
-				createSparks(colliderPart, collideePart, position);
-				createBloodParticles(colliderPart, collideePart, position, velocity);
-			}
+		Entity colliderEntity = collider.getEntity();
+		Entity collideeEntity = collidee.getEntity();
+		Vector3 position = collider.getEntity().get(TransformPart.class).getTransform().getPosition3();
+		Vector2 velocity = collider.getBody().getLinearVelocity();
+		if (colliderEntity.is(CollisionType.METAL) && velocity.len() > 0) {
+			createSparks(colliderEntity, collideeEntity, position);
+			createBloodParticles(colliderEntity, collideeEntity, position, velocity);
 		}
 	}
 
-	private void createSparks(final CollisionPart colliderPart, final CollisionPart collideePart,
-			final Vector3 position) {
-		Alliance collideeAlliance = collideePart.getCollisionGroup(Alliance.class);
-		if (!colliderPart.containsAny(collideeAlliance) && collideePart.containsAny(CollisionType.METAL)) {
+	private void createSparks(final Entity collider, final Entity collidee, final Vector3 position) {
+		Alliance collideeAlliance = getAttribute(collidee, Alliance.class);
+		if (!collider.is(collideeAlliance) && collidee.is(CollisionType.METAL)) {
 			particlesManager.createEffect("spark", new Vector2(position.x, position.y));
 		}
 	}
 
-	private void createBloodParticles(final CollisionPart colliderPart, final CollisionPart collideePart,
-			final Vector3 position, final Vector2 velocity) {
-		Alliance collideeAlliance = collideePart.getCollisionGroup(Alliance.class);
-		if (collideeAlliance != null && colliderPart.containsAny(collideeAlliance.getTarget())
-				&& collideePart.containsAny(CollisionType.FLESH)) {
+	private void createBloodParticles(final Entity collider, final Entity collidee, final Vector3 position, 
+			final Vector2 velocity) {
+		Alliance collideeAlliance = getAttribute(collidee, Alliance.class);
+		if (collideeAlliance != null && collider.is(collideeAlliance.getTarget()) && collidee.is(CollisionType.FLESH)) {
 			final float numParticles = 10;
 			final FloatRange sizeRange = new FloatRange(0.01f, 0.07f);
 			final FloatRange rotationDiffRange = new FloatRange(-10, 10);
@@ -63,6 +59,16 @@ public final class ParticlesCollidedListener implements CollidedListener {
 				entityFactory.createBloodParticle(sizeRange.random(), position, randomizedVelocity);
 			}
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private final <T extends Enum<T>> T getAttribute(final Entity entity, final Class<T> attributeClass) {
+		for (Enum<?> attribute : entity.getAttributes()) {
+			if (attribute.getClass() == attributeClass) {
+				return (T)attribute;
+			}
+		}
+		return null;
 	}
 
 }

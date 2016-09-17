@@ -1,23 +1,15 @@
 package dc.targetman.epf.systems;
 
-import com.badlogic.gdx.math.Vector2;
-
-import dc.targetman.epf.parts.ForcePart;
-import dclib.epf.Entity;
 import dclib.epf.EntityManager;
-import dclib.epf.parts.TransformPart;
-import dclib.epf.parts.TranslatePart;
-import dclib.epf.util.LimbUtils;
-import dclib.geometry.Transform;
 import dclib.physics.CollidedListener;
 import dclib.physics.Contacter;
 
 public final class ForceCollidedListener implements CollidedListener {
 
-	private final EntityManager entityManager;
+//	private final EntityManager entityManager;
 
 	public ForceCollidedListener(final EntityManager entityManager) {
-		this.entityManager = entityManager;
+//		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -31,19 +23,19 @@ public final class ForceCollidedListener implements CollidedListener {
 //		}
 	}
 
-	private Vector2 getForce(final Entity collider) {
-		TranslatePart translatePart = collider.get(TranslatePart.class);
-		float force = collider.get(ForcePart.class).getForce();
-		return translatePart.getVelocity().setLength(force);
-	}
-
-	private void applyForce(final Entity collidee, final Vector2 force) {
-		Transform transform = collidee.tryGet(TransformPart.class).getTransform();
-		Entity actualCollidee = LimbUtils.findContainer(entityManager.getAll(), transform);
-		if (actualCollidee == null) {
-			actualCollidee = collidee;
-		}
-		actualCollidee.get(TranslatePart.class).addVelocity(force);
-	}
+//	private Vector2 getForce(final Entity collider) {
+//		TranslatePart translatePart = collider.get(TranslatePart.class);
+//		float force = collider.get(ForcePart.class).getForce();
+//		return translatePart.getVelocity().setLength(force);
+//	}
+//
+//	private void applyForce(final Entity collidee, final Vector2 force) {
+//		Transform transform = collidee.tryGet(TransformPart.class).getTransform();
+//		Entity actualCollidee = LimbUtils.findContainer(entityManager.getAll(), transform);
+//		if (actualCollidee == null) {
+//			actualCollidee = collidee;
+//		}
+//		actualCollidee.get(TranslatePart.class).addVelocity(force);
+//	}
 
 }
