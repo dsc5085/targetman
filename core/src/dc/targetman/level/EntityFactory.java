@@ -23,7 +23,6 @@ import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.ForcePart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
-import dc.targetman.epf.parts.StickyPart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.Alliance;
@@ -189,7 +188,8 @@ public final class EntityFactory {
 		Body body = createBody("objects/blood", new Vector2(size, size), true);
 		body.setLinearVelocity(velocity);
 		Entity entity = createBaseEntity(body, position, "objects/blood");
-		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3), new StickyPart());
+		entity.attribute(CollisionType.STICKY);
+		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3));
 		entityManager.add(entity);
 	}
 

@@ -2,7 +2,7 @@ package dc.targetman.epf.systems;
 
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
-import dc.targetman.epf.parts.StickyPart;
+import dc.targetman.level.models.CollisionType;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.DrawablePart;
@@ -26,7 +26,7 @@ public final class StickyCollidedListener implements CollidedListener {
 	public final void collided(final Contacter collider, final Contacter collidee) {
 		final FloatRange deathTimeRange = new FloatRange(10, 120);
 		Entity colliderEntity = collider.getEntity();
-		if (colliderEntity.has(StickyPart.class) && collidee.getBody().getType() == BodyType.StaticBody) {
+		if (colliderEntity.is(CollisionType.STICKY) && collidee.getBody().getType() == BodyType.StaticBody) {
 			Entity spawn = new Entity();
 			Transform transform = colliderEntity.get(TransformPart.class).getTransform();
 			Transform spawnTransform = new DefaultTransform(transform);
