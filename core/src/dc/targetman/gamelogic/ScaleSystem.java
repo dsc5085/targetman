@@ -7,7 +7,7 @@ import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.EntitySystem;
 import dclib.epf.parts.TransformPart;
-import dclib.geometry.Transform;
+import dclib.physics.Transform;
 import dclib.util.Timer;
 
 public final class ScaleSystem extends EntitySystem {

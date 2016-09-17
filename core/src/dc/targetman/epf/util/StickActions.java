@@ -5,41 +5,30 @@ import java.util.List;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.WorldManifold;
-import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dclib.epf.Entity;
-import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
+import dclib.epf.parts.TransformPart;
+import dclib.physics.Transform;
 import dclib.physics.limb.Limb;
 import dclib.physics.limb.LimbAnimation;
 
 public final class StickActions {
 
-	private final World world;
-
-	public StickActions(final World world) {
-		this.world = world;
-	}
-
 	public final void move(final Entity entity, final float direction) {
 		final float acceleration = 2;
 		MovementPart movementPart = entity.get(MovementPart.class);
 		float moveVelocityX = movementPart.getMoveSpeed() * getMoveRatio(entity) * direction;
-		Body body = entity.get(BodyPart.class).getBody();
-		Vector2 position = body.getPosition();
-		body.applyLinearImpulse(acceleration * direction, 0, position.x, position.y, true);
+		Transform transform = entity.get(TransformPart.class).getTransform();
+		transform.applyImpulse(new Vector2(acceleration * direction, 0));
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
 		if (moveVelocityX == 0) {
-			Vector2 velocity = body.getLinearVelocity();
+			Vector2 velocity = transform.getVelocity();
 			float deceleration = 0.5f;
-			body.setLinearVelocity(velocity.x * deceleration, velocity.y);
+			transform.setVelocity(new Vector2(velocity.x * deceleration, velocity.y));
 			walkAnimation.stop();
 		} else {
 			walkAnimation.play();
@@ -52,13 +41,13 @@ public final class StickActions {
 	}
 
 	public final void jump(final Entity entity) {
-		Body body = entity.get(BodyPart.class).getBody();
-		if (isGrounded(body)) {
-			Vector2 position = body.getPosition();
-			body.setLinearVelocity(body.getLinearVelocity().x, 0);
-			body.setTransform(position.x, position.y + MathUtils.FLOAT_ROUNDING_ERROR, 0);
+		Transform transform = entity.get(TransformPart.class).getTransform();
+		if (isGrounded(null)) {
+			Vector2 position = transform.getPosition();
+			transform.setVelocity(new Vector2(transform.getVelocity().x, 0));
+			transform.setPosition(new Vector2(position.x, position.y + MathUtils.FLOAT_ROUNDING_ERROR));
 			float jumpSpeed = entity.get(MovementPart.class).getJumpSpeed();
-			body.applyLinearImpulse(0, jumpSpeed, position.x, position.y, true);
+			transform.applyImpulse(new Vector2(0, jumpSpeed));
 		}
 	}
 
@@ -82,25 +71,27 @@ public final class StickActions {
 	}
 
 	private boolean isGrounded(final Body body) {
-		final float height = 0.8f;
-		for (Contact contact : world.getContactList()) {
-			if (contact.isTouching() && isInContact(body, contact)) {
-				Vector2 position = body.getPosition();
-				WorldManifold manifold = contact.getWorldManifold();
-				for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
-					if (manifold.getPoints()[i].y >= position.y - height) {
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-		return false;
+		return true;
+		// TODO:
+//		final float height = 0.8f;
+//		for (Contact contact : world.getContactList()) {
+//			if (contact.isTouching() && isInContact(body, contact)) {
+//				Vector2 position = body.getPosition();
+//				WorldManifold manifold = contact.getWorldManifold();
+//				for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
+//					if (manifold.getPoints()[i].y >= position.y - height) {
+//						return false;
+//					}
+//				}
+//				return true;
+//			}
+//		}
+//		return false;
 	}
 
-	private boolean isInContact(final Body body, final Contact contact) {
-		Array<Fixture> fixtures = body.getFixtureList();
-		return fixtures.contains(contact.getFixtureA(), true) || fixtures.contains(contact.getFixtureB(), true);
-	}
+//	private boolean isInContact(final Body body, final Contact contact) {
+//		Array<Fixture> fixtures = body.getFixtureList();
+//		return fixtures.contains(contact.getFixtureA(), true) || fixtures.contains(contact.getFixtureB(), true);
+//	}
 
 }

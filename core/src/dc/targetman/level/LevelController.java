@@ -35,9 +35,9 @@ import dclib.epf.DefaultEntityManager;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.EntityRemovedListener;
-import dclib.epf.graphics.DrawableSystem;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
+import dclib.epf.graphics.SpriteSyncSystem;
 import dclib.gamelogic.DamageCollidedListener;
 import dclib.gamelogic.RemoveOnNoHealthEntityAddedListener;
 import dclib.gamelogic.TimedDeathSystem;
@@ -76,7 +76,7 @@ public final class LevelController {
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
-		stickActions = new StickActions(world);
+		stickActions = new StickActions();
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
@@ -137,7 +137,7 @@ public final class LevelController {
 				new TimedDeathSystem(entityManager),
 				new WeaponSystem(entityManager, entityFactory),
 				new VitalLimbsSystem(entityManager),
-				new DrawableSystem(entityManager, unitConverter),
+				new SpriteSyncSystem(entityManager, unitConverter),
 				particlesManager);
 	}
 

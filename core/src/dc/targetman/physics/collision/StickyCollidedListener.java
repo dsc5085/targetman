@@ -4,12 +4,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
-import dclib.epf.parts.DrawablePart;
+import dclib.epf.parts.SpritePart;
 import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
-import dclib.geometry.DefaultTransform;
-import dclib.geometry.Transform;
 import dclib.physics.Contacter;
+import dclib.physics.DefaultTransform;
+import dclib.physics.Transform;
 import dclib.physics.collision.CollidedListener;
 import dclib.util.FloatRange;
 
@@ -36,7 +36,7 @@ public final class StickyCollidedListener implements CollidedListener {
 //				transform.translate(stickOffset);
 //			}
 			TimedDeathPart timedDeathPart = new TimedDeathPart(deathTimeRange.random());
-			spawn.attach(new TransformPart(spawnTransform), colliderEntity.get(DrawablePart.class), timedDeathPart);
+			spawn.attach(new TransformPart(spawnTransform), colliderEntity.get(SpritePart.class), timedDeathPart);
 			entityManager.add(spawn);
 		}
 	}

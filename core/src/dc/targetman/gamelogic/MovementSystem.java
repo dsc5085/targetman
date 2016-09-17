@@ -4,16 +4,14 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 
 import dc.targetman.epf.parts.MovementPart;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.EntitySystem;
-import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
-import dclib.geometry.Transform;
+import dclib.physics.Transform;
 
 public final class MovementSystem extends EntitySystem {
 
@@ -25,12 +23,12 @@ public final class MovementSystem extends EntitySystem {
 	protected final void update(final float delta, final Entity entity) {
 		MovementPart movementPart = entity.tryGet(MovementPart.class);
 		if (movementPart != null) {
-			Body body = entity.get(BodyPart.class).getBody();
-			Vector2 velocity = body.getLinearVelocity();
+			Transform transform = entity.get(TransformPart.class).getTransform();
+			Vector2 velocity = transform.getVelocity();
 			float maxSpeed = movementPart.getMoveSpeed();
 			if (Math.abs(velocity.x) > maxSpeed) {
 				velocity.x = Math.signum(velocity.x) * maxSpeed;
-				body.setLinearVelocity(velocity);
+				transform.setVelocity(velocity);
 			}
 			moveLimbsToTransform(entity);
 		}

@@ -31,21 +31,20 @@ import dc.targetman.physics.limb.WalkAnimation;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.AutoRotatePart;
-import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.CollisionDamagePart;
-import dclib.epf.parts.DrawablePart;
 import dclib.epf.parts.HealthPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
+import dclib.epf.parts.SpritePart;
 import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
 import dclib.geometry.PolygonUtils;
-import dclib.geometry.Transform;
 import dclib.geometry.VertexUtils;
 import dclib.graphics.ConvexHullCache;
 import dclib.graphics.TextureCache;
 import dclib.physics.Box2dTransform;
+import dclib.physics.Transform;
 import dclib.physics.limb.Joint;
 import dclib.physics.limb.Limb;
 import dclib.physics.limb.LimbAnimation;
@@ -135,7 +134,6 @@ public final class EntityFactory {
 		body.setFixedRotation(true);
 		body.setTransform(position.x, position.y, 0);
 		body.setUserData(entity);
-		entity.attach(new BodyPart(body));
 
 		Limb root = new Limb()
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
@@ -212,14 +210,12 @@ public final class EntityFactory {
 
 	private final Entity createBaseEntity(final Body body, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
 		Entity entity = new Entity();
+		entity.attribute(collisionGroups);
 		body.setUserData(entity);
 		Transform transform = new Box2dTransform(position.z, body);
 		transform.setPosition(new Vector2(position.x, position.y));
-		entity.attach(new TransformPart(transform));
-		entity.attribute(collisionGroups);
 		PolygonRegion region = textureCache.getPolygonRegion(regionName);
-		DrawablePart drawablePart = new DrawablePart(region);
-		entity.attach(drawablePart);
+		entity.attach(new TransformPart(transform), new SpritePart(region));
 		return entity;
 	}
 
