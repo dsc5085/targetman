@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
 
-import dclib.limb.Limb;
+import dclib.physics.limb.Limb;
 
 public final class MovementPart {
 

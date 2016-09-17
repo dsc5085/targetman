@@ -1,4 +1,4 @@
-package dc.targetman.collision;
+package dc.targetman.physics.collision;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -6,11 +6,11 @@ import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.level.EntityFactory;
 import dc.targetman.level.models.Alliance;
-import dclib.collision.CollidedListener;
 import dclib.epf.Entity;
 import dclib.epf.parts.TransformPart;
 import dclib.physics.Contacter;
 import dclib.physics.ParticlesManager;
+import dclib.physics.collision.CollidedListener;
 import dclib.util.FloatRange;
 
 public final class ParticlesCollidedListener implements CollidedListener {

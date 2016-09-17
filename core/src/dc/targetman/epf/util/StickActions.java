@@ -17,8 +17,8 @@ import dclib.epf.Entity;
 import dclib.epf.parts.BodyPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
-import dclib.limb.Limb;
-import dclib.limb.LimbAnimation;
+import dclib.physics.limb.Limb;
+import dclib.physics.limb.LimbAnimation;
 
 public final class StickActions {
 

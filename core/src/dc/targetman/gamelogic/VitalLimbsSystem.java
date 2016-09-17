@@ -6,8 +6,8 @@ import dc.targetman.epf.parts.VitalLimbsPart;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.EntitySystem;
-import dclib.limb.Limb;
-import dclib.limb.LimbUtils;
+import dclib.physics.limb.Limb;
+import dclib.physics.limb.LimbUtils;
 
 public final class VitalLimbsSystem extends EntitySystem {
 

@@ -1,4 +1,4 @@
-package dc.targetman.collision;
+package dc.targetman.physics.collision;
 
 public enum CollisionType {
 

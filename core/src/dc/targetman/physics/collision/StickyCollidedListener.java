@@ -1,8 +1,7 @@
-package dc.targetman.collision;
+package dc.targetman.physics.collision;
 
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
-import dclib.collision.CollidedListener;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.DrawablePart;
@@ -11,6 +10,7 @@ import dclib.epf.parts.TransformPart;
 import dclib.geometry.DefaultTransform;
 import dclib.geometry.Transform;
 import dclib.physics.Contacter;
+import dclib.physics.collision.CollidedListener;
 import dclib.util.FloatRange;
 
 public final class StickyCollidedListener implements CollidedListener {

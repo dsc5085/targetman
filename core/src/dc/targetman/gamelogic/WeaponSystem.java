@@ -8,7 +8,7 @@ import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
-import dclib.limb.Limb;
+import dclib.physics.limb.Limb;
 import dclib.util.CollectionUtils;
 
 public final class WeaponSystem extends EntitySystem {

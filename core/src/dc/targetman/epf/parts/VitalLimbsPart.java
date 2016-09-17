@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dclib.limb.Limb;
+import dclib.physics.limb.Limb;
 
 public final class VitalLimbsPart {
 
