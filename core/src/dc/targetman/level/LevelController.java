@@ -18,7 +18,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.ai.AiSystem;
 import dc.targetman.epf.util.StickActions;
@@ -45,6 +44,7 @@ import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
 import dclib.graphics.TextureCache;
 import dclib.physics.AutoRotateSystem;
+import dclib.physics.Box2dUtils;
 import dclib.physics.ParticlesManager;
 import dclib.physics.TranslateSystem;
 import dclib.physics.collision.CollisionChecker;
@@ -76,7 +76,7 @@ public final class LevelController {
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
-		stickActions = new StickActions();
+		stickActions = new StickActions(world);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
@@ -112,13 +112,8 @@ public final class LevelController {
 		return new EntityRemovedListener() {
 			@Override
 			public void removed(final Entity entity) {
-				Array<Body> bodies = new Array<Body>();
-				world.getBodies(bodies);
-				for (Body body : bodies) {
-					if (body.getUserData() == entity) {
-						world.destroyBody(body);
-					}
-				}
+				Body body = Box2dUtils.findBody(world, entity);
+				world.destroyBody(body);
 			}
 		};
 	}
