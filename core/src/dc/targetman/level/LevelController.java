@@ -113,7 +113,9 @@ public final class LevelController {
 			@Override
 			public void removed(final Entity entity) {
 				Body body = Box2dUtils.findBody(world, entity);
-				world.destroyBody(body);
+				if (body != null) {
+					world.destroyBody(body);
+				}
 			}
 		};
 	}

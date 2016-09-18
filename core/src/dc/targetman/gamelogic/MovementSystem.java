@@ -1,7 +1,5 @@
 package dc.targetman.gamelogic;
 
-import java.util.List;
-
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -12,6 +10,8 @@ import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.physics.Transform;
+import dclib.physics.limb.Limb;
+import dclib.util.Maths;
 
 public final class MovementSystem extends EntitySystem {
 
@@ -38,20 +38,20 @@ public final class MovementSystem extends EntitySystem {
 		LimbsPart limbsPart = entity.get(LimbsPart.class);
 		// TODO: Shouldn't have to call this.  Find an alternative solution, such as making the box2d transform a root
 		limbsPart.update();
-		Rectangle limbBounds = getBounds(limbsPart.getCollisionTransforms());
 		Rectangle transformBounds = entity.get(TransformPart.class).getTransform().getBounds();
 		Vector2 global = new Vector2(transformBounds.getCenter(new Vector2()).x, transformBounds.y);
 		Transform rootTransform = limbsPart.getRoot().getTransform();
-		float localY = limbBounds.y - rootTransform.getPosition().y;
+		float localY = getY(limbsPart) - rootTransform.getPosition().y;
 		rootTransform.setGlobal(new Vector2(0, localY), global);
 	}
 
-	private final Rectangle getBounds(final List<Transform> transforms) {
-		Rectangle bounds = transforms.get(0).getBounds();
-		for (Transform transform : transforms) {
-			bounds.merge(transform.getBounds());
+	private final float getY(final LimbsPart limbsPart) {
+		float y = Float.NaN;
+		for (Limb descendant : limbsPart.getRoot().getDescendants()) {
+			float newY = descendant.getTransform().getBounds().y;
+			y = Maths.min(y, newY);
 		}
-		return bounds;
+		return y;
 	}
 
 }
