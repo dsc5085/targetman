@@ -76,7 +76,7 @@ public final class StickActions {
 	private float getMoveRatio(final Entity entity) {
 		int numMovementLimbs = 0;
 		List<Limb> movementLimbs = entity.get(MovementPart.class).getLimbs();
-		for (Limb limb : entity.get(LimbsPart.class).getRoot().getDescendants()) {
+		for (Limb limb : entity.get(LimbsPart.class).getAll()) {
 			if (movementLimbs.contains(limb)) {
 				numMovementLimbs++;
 			}
@@ -85,14 +85,14 @@ public final class StickActions {
 	}
 
 	private boolean isGrounded(final Body body) {
-		// TODO: Figure out correct height.  This is just a guess
-		float height = Box2DUtils.height(body) / 2;
+		// TODO: Figure out correct value to use.  This is just a guess
+		float halfHeight = Box2DUtils.height(body) / 2;
 		for (Contact contact : world.getContactList()) {
 			if (contact.isTouching() && isGroundedContact(body, contact)) {
 				Vector2 position = body.getPosition();
 				WorldManifold manifold = contact.getWorldManifold();
 				for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
-					if (manifold.getPoints()[i].y >= position.y - height) {
+					if (manifold.getPoints()[i].y >= position.y - halfHeight) {
 						return false;
 					}
 				}

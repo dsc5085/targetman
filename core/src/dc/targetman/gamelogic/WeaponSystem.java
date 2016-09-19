@@ -32,7 +32,7 @@ public final class WeaponSystem extends EntitySystem {
 
 	private boolean hasFiringLimbs(final Entity entity) {
 		WeaponPart weaponPart = entity.tryGet(WeaponPart.class);
-		List<Limb> limbs = entity.get(LimbsPart.class).getRoot().getDescendants();
+		List<Limb> limbs = entity.get(LimbsPart.class).getAll();
 		// TODO: Bug.  Doesn't work with ancestor limbs of the weapon limb
 		List<Limb> firingLimbs = weaponPart.getRotatorLimb().getDescendants();
 		return CollectionUtils.containsAll(limbs, firingLimbs);
