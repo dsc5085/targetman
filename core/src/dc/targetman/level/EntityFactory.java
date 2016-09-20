@@ -26,7 +26,7 @@ import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.level.models.Alliance;
-import dc.targetman.physics.collision.CollisionType;
+import dc.targetman.physics.collision.Material;
 import dc.targetman.physics.limb.WalkAnimation;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
@@ -82,7 +82,7 @@ public final class EntityFactory {
 		body.setTransform(position.x + size.x / 2, position.y + size.y / 2, 0);
 
 		entity.attach(new TransformPart(new Box2dTransform(position.z, body)));
-		entity.attribute(CollisionType.METAL);
+		entity.attribute(Material.METAL);
 		entityManager.add(entity);
 	}
 
@@ -101,15 +101,15 @@ public final class EntityFactory {
 		Limb leftLeg = new Limb();
 		Limb rightLeg = new Limb();
 		Limb[] zOrder = new Limb[] { leftForearm, leftBicep, leftLeg, torso, head, rightLeg, rightBicep, rightForearm };
-		createLimbEntity(leftForearm, zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance);
-		createLimbEntity(leftBicep, zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance);
-		createLimbEntity(gun, zOrder, new Vector2(0.4f, 0.3f), position, "objects/gun", 500, alliance, CollisionType.METAL);
-		createLimbEntity(rightForearm,  zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance);
-		createLimbEntity(rightBicep,  zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance);
-		createLimbEntity(head,  zOrder, new Vector2(0.5f, 0.5f), position, "objects/head", 100, alliance);
-		createLimbEntity(torso, zOrder, new Vector2(1, 0.1f), position, "objects/limb", 200, alliance);
-		createLimbEntity(leftLeg, zOrder, new Vector2(1, 0.1f), position, "objects/limb", 100, alliance);
-		createLimbEntity(rightLeg, zOrder, new Vector2(1, 0.1f), position, "objects/limb", 100, alliance);
+		createLimbEntity(leftForearm, zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance, Material.FLESH);
+		createLimbEntity(leftBicep, zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance, Material.FLESH);
+		createLimbEntity(gun, zOrder, new Vector2(0.4f, 0.3f), position, "objects/gun", 500, Material.METAL);
+		createLimbEntity(rightForearm,  zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance, Material.FLESH);
+		createLimbEntity(rightBicep,  zOrder, new Vector2(0.4f, 0.1f), position, "objects/limb", 100, alliance, Material.FLESH);
+		createLimbEntity(head,  zOrder, new Vector2(0.5f, 0.5f), position, "objects/head", 100, alliance, Material.FLESH);
+		createLimbEntity(torso, zOrder, new Vector2(1, 0.1f), position, "objects/limb", 200, alliance, Material.FLESH);
+		createLimbEntity(leftLeg, zOrder, new Vector2(1, 0.1f), position, "objects/limb", 100, alliance, Material.FLESH);
+		createLimbEntity(rightLeg, zOrder, new Vector2(1, 0.1f), position, "objects/limb", 100, alliance, Material.FLESH);
 		Joint leftLegJoint = new Joint(leftLeg, new Vector2(), new Vector2(0, 0.05f), -110);
 		Joint rightLegJoint = new Joint(rightLeg, new Vector2(), new Vector2(0, 0.05f), -70);
 		Entity entity = new Entity();
@@ -123,11 +123,11 @@ public final class EntityFactory {
 		baseShape.getPosition();
 		baseShape.setRadius(halfWidth);
 		baseShape.setPosition(new Vector2(0, -halfHeight));
-		body.createFixture(baseShape, 0).setFriction(0);
+		body.createFixture(baseShape, 0).setFriction(50f);
 		baseShape.dispose();
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(halfWidth, halfHeight);
-		body.createFixture(shape, 1).setFriction(0);
+		body.createFixture(shape, 1).setFriction(50f);
 		shape.dispose();
 		body.setBullet(true);
 		body.setFixedRotation(true);
@@ -144,10 +144,11 @@ public final class EntityFactory {
 		Map<String, LimbAnimation> animations = new HashMap<String, LimbAnimation>();
 		animations.put("walk", walkAnimation);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
+		Centrum weaponCentrum = new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f));
 		entity.attach(
 				new LimbAnimationsPart(animations),
-				new MovementPart(5, 5, leftLeg, rightLeg),
-				new WeaponPart(alliance.getTarget().name(), new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f)), 0.3f, rotator),
+				new MovementPart(5, 15, leftLeg, rightLeg),
+				new WeaponPart(alliance.getTarget().name(), weaponCentrum, 0.3f, rotator),
 				new LimbsPart(root, leftLeg, rightLeg),
 				new VitalLimbsPart(head, torso));
 		if (alliance == Alliance.ENEMY){
@@ -167,9 +168,8 @@ public final class EntityFactory {
 		bulletBody.setGravityScale(0.1f);
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bulletBody.setLinearVelocity(velocity);
-		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), CollisionType.METAL });
-		// TODO: Is target alliance necessary in CollisionDamagePart?  Should just calculate it based off of the bullet's alliance
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, targetAlliance), new ForcePart(1, targetAlliance));
+		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), Material.METAL });
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, targetAlliance), new ForcePart(10, targetAlliance));
 		Body trailBody = createBody("objects/bullet_trail", new Vector2(1.5f, size.y), true);
 		Entity trail = createBaseEntity(trailBody, new Vector3(), "objects/bullet_trail");
 		trail.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
@@ -186,19 +186,15 @@ public final class EntityFactory {
 		Body body = createBody("objects/blood", new Vector2(size, size), true);
 		body.setLinearVelocity(velocity);
 		Entity entity = createBaseEntity(body, position, "objects/blood");
-		entity.attribute(CollisionType.STICKY);
+		entity.attribute(Material.STICKY);
 		entity.attach(new CollisionRemovePart(), new TimedDeathPart(3));
 		entityManager.add(entity);
 	}
 
-	private final void createLimbEntity(final Limb limb, final Limb[] zOrder, final Vector2 size, final Vector3 position, final String regionName, final float health, final Alliance alliance) {
-		createLimbEntity(limb, zOrder, size, position, regionName, health, alliance, CollisionType.FLESH);
-	}
-
-	private final void createLimbEntity(final Limb limb, final Limb[] zOrder, final Vector2 size, final Vector3 position, final String regionName, final float health, final Alliance alliance, final CollisionType collisionType) {
+	private final void createLimbEntity(final Limb limb, final Limb[] zOrder, final Vector2 size, final Vector3 position, final String regionName, final float health, final Enum<?>...attributes) {
 		float z = position.z + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
 		Body body = createBody(regionName, size, true);
-		Entity entity = createBaseEntity(body, new Vector3(position.x, position.y, z), regionName, new Enum<?>[] { alliance, collisionType });
+		Entity entity = createBaseEntity(body, new Vector3(position.x, position.y, z), regionName, attributes);
 		entity.attach(new HealthPart(health));
 		limb.setTransform(entity.get(TransformPart.class).getTransform());
 		entityManager.add(entity);

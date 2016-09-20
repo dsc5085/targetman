@@ -1,6 +1,6 @@
 package dc.targetman.physics.collision;
 
-public enum CollisionType {
+public enum Material {
 
 	METAL, FLESH, STICKY
 

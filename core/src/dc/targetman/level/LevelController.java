@@ -20,9 +20,9 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
 import dc.targetman.ai.AiSystem;
-import dc.targetman.epf.util.StickActions;
 import dc.targetman.gamelogic.MovementSystem;
 import dc.targetman.gamelogic.ScaleSystem;
+import dc.targetman.gamelogic.StickActions;
 import dc.targetman.gamelogic.VitalLimbsSystem;
 import dc.targetman.gamelogic.WeaponSystem;
 import dc.targetman.level.models.Alliance;
@@ -168,7 +168,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(20, 20, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(15, 5, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

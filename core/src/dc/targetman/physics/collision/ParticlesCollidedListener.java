@@ -29,23 +29,24 @@ public final class ParticlesCollidedListener implements CollidedListener {
 		Entity collideeEntity = collidee.getEntity();
 		Vector3 position = collider.getEntity().get(TransformPart.class).getTransform().getPosition3();
 		Vector2 velocity = collider.getBody().getLinearVelocity();
-		if (colliderEntity.is(CollisionType.METAL) && velocity.len() > 0) {
-			createSparks(colliderEntity, collideeEntity, position);
+		if (colliderEntity.is(Material.METAL) && velocity.len() > 0) {
+			createSparks(colliderEntity, collidee, position);
 			createBloodParticles(colliderEntity, collideeEntity, position, velocity);
 		}
 	}
 
-	private void createSparks(final Entity collider, final Entity collidee, final Vector3 position) {
-		Alliance collideeAlliance = getAttribute(collidee, Alliance.class);
-		if (!collider.is(collideeAlliance) && collidee.is(CollisionType.METAL)) {
+	private void createSparks(final Entity collider, final Contacter collidee, final Vector3 position) {
+		Alliance collideeAlliance = getAttribute(collidee.getEntity(), Alliance.class);
+		if (!collider.is(collideeAlliance) && !collidee.getFixture().isSensor()
+				&& collidee.getEntity().is(Material.METAL)) {
 			particlesManager.createEffect("spark", new Vector2(position.x, position.y));
 		}
 	}
 
-	private void createBloodParticles(final Entity collider, final Entity collidee, final Vector3 position, 
+	private void createBloodParticles(final Entity collider, final Entity collidee, final Vector3 position,
 			final Vector2 velocity) {
 		Alliance collideeAlliance = getAttribute(collidee, Alliance.class);
-		if (collideeAlliance != null && collider.is(collideeAlliance.getTarget()) && collidee.is(CollisionType.FLESH)) {
+		if (collideeAlliance != null && collider.is(collideeAlliance.getTarget()) && collidee.is(Material.FLESH)) {
 			final float numParticles = 10;
 			final FloatRange sizeRange = new FloatRange(0.01f, 0.07f);
 			final FloatRange rotationDiffRange = new FloatRange(-10, 10);
@@ -59,7 +60,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private final <T extends Enum<T>> T getAttribute(final Entity entity, final Class<T> attributeClass) {
 		for (Enum<?> attribute : entity.getAttributes()) {

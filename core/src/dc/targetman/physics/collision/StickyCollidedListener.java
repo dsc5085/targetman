@@ -25,7 +25,7 @@ public final class StickyCollidedListener implements CollidedListener {
 	public final void collided(final Contacter collider, final Contacter collidee) {
 		final FloatRange deathTimeRange = new FloatRange(10, 120);
 		Entity colliderEntity = collider.getEntity();
-		if (colliderEntity.is(CollisionType.STICKY) && collidee.getBody().getType() == BodyType.StaticBody) {
+		if (colliderEntity.is(Material.STICKY) && collidee.getBody().getType() == BodyType.StaticBody) {
 			Entity spawn = new Entity();
 			Transform transform = colliderEntity.get(TransformPart.class).getTransform();
 			Transform spawnTransform = new DefaultTransform(transform);

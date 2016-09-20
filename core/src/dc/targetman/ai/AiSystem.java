@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
-import dc.targetman.epf.util.StickActions;
+import dc.targetman.gamelogic.StickActions;
 import dc.targetman.level.models.Alliance;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;

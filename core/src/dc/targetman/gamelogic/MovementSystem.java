@@ -1,5 +1,7 @@
 package dc.targetman.gamelogic;
 
+import java.util.List;
+
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -7,10 +9,12 @@ import dc.targetman.epf.parts.MovementPart;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.EntitySystem;
+import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.physics.Transform;
 import dclib.physics.limb.Limb;
+import dclib.physics.limb.LimbAnimation;
 import dclib.util.Maths;
 
 public final class MovementSystem extends EntitySystem {
@@ -21,17 +25,45 @@ public final class MovementSystem extends EntitySystem {
 
 	@Override
 	protected final void update(final float delta, final Entity entity) {
-		MovementPart movementPart = entity.tryGet(MovementPart.class);
-		if (movementPart != null) {
-			Transform transform = entity.get(TransformPart.class).getTransform();
-			Vector2 velocity = transform.getVelocity();
-			float maxSpeed = movementPart.getMoveSpeed();
-			if (Math.abs(velocity.x) > maxSpeed) {
-				velocity.x = Math.signum(velocity.x) * maxSpeed;
-				transform.setVelocity(velocity);
-			}
+		if (entity.has(MovementPart.class)) {
+			move(entity);
 			moveLimbsToTransform(entity);
 		}
+	}
+
+	private void move(final Entity entity) {
+		MovementPart movementPart = entity.get(MovementPart.class);
+		float direction = movementPart.getDirection();
+		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
+		if (direction == 0) {
+			walkAnimation.stop();
+		} else {
+			walkAnimation.play();
+			entity.get(LimbsPart.class).setFlipX(direction < 0);
+			applyMoveForce(entity, movementPart);
+		}
+	}
+
+	private void applyMoveForce(final Entity entity, final MovementPart movementPart) {
+		Transform transform = entity.get(TransformPart.class).getTransform();
+		float moveRatio = getMoveRatio(entity);
+		float maxSpeedX = movementPart.getMoveSpeed() * moveRatio;
+		float velocityX = transform.getVelocity().x;
+		float direction = movementPart.getDirection();
+		if (Math.signum(velocityX) != direction || Math.abs(velocityX) < maxSpeedX) {
+			transform.applyImpulse(new Vector2(direction * moveRatio, 0));
+		}
+	}
+
+	private float getMoveRatio(final Entity entity) {
+		int numMovementLimbs = 0;
+		List<Limb> movementLimbs = entity.get(MovementPart.class).getLimbs();
+		for (Limb limb : entity.get(LimbsPart.class).getAll()) {
+			if (movementLimbs.contains(limb)) {
+				numMovementLimbs++;
+			}
+		}
+		return (float)numMovementLimbs / movementLimbs.size();
 	}
 
 	private void moveLimbsToTransform(final Entity entity) {
