@@ -17,12 +17,10 @@ import dclib.geometry.VectorUtils;
 public final class AiSystem extends EntitySystem {
 
 	private final EntityManager entityManager;
-	private final StickActions stickActions;
 
-	public AiSystem(final EntityManager entityManager, final StickActions stickActions) {
+	public AiSystem(final EntityManager entityManager) {
 		super(entityManager);
 		this.entityManager = entityManager;
-		this.stickActions = stickActions;
 	}
 
 	@Override
@@ -46,15 +44,15 @@ public final class AiSystem extends EntitySystem {
 		} else if (targetOffset.x < 0 && !flipX) {
 			moveDirection = -1;
 		}
-		stickActions.move(entity, moveDirection);
+		StickActions.move(entity, moveDirection);
 	}
 
 	private void fire(final Entity entity, final Vector2 targetPosition) {
 		Centrum centrum = entity.get(WeaponPart.class).getCentrum();
 		boolean flipX = entity.get(LimbsPart.class).getFlipX();
 		float direction = getRotateDirection(centrum, targetPosition, flipX);
-		stickActions.aim(entity, direction);
-		stickActions.trigger(entity);
+		StickActions.aim(entity, direction);
+		StickActions.trigger(entity);
 	}
 
 	private Vector2 getTargetPosition(final Entity entity) {

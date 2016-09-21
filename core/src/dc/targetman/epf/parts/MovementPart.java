@@ -9,13 +9,14 @@ import dclib.physics.limb.Limb;
 public final class MovementPart {
 
 	private final float moveSpeed;
-	private final float jumpSpeed;
+	private final float jumpForce;
 	private final List<Limb> limbs;
 	private float direction = 0;
+	private boolean jumping = false;
 
-	public MovementPart(final float moveSpeed, final float jumpSpeed, final Limb... limbs) {
+	public MovementPart(final float moveSpeed, final float jumpForce, final Limb... limbs) {
 		this.moveSpeed = moveSpeed;
-		this.jumpSpeed = jumpSpeed;
+		this.jumpForce = jumpForce;
 		this.limbs = Arrays.asList(limbs);
 	}
 
@@ -23,8 +24,8 @@ public final class MovementPart {
 		return moveSpeed;
 	}
 
-	public final float getJumpSpeed() {
-		return jumpSpeed;
+	public final float getJumpForce() {
+		return jumpForce;
 	}
 
 	public final List<Limb> getLimbs() {
@@ -37,6 +38,14 @@ public final class MovementPart {
 
 	public final void setDirection(final float direction) {
 		this.direction = direction;
+	}
+
+	public final boolean jumping() {
+		return jumping;
+	}
+
+	public final void setJumping(final boolean jumping) {
+		this.jumping = jumping;
 	}
 
 }

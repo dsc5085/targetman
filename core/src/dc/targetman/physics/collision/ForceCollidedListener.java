@@ -35,8 +35,7 @@ public final class ForceCollidedListener implements CollidedListener {
 	}
 
 	private void applyForce(final Entity collidee, final Vector2 force) {
-		Transform transform = collidee.tryGet(TransformPart.class).getTransform();
-		Entity actualCollidee = LimbUtils.findContainer(entityManager.getAll(), transform);
+		Entity actualCollidee = LimbUtils.findContainer(entityManager.getAll(), collidee);
 		if (actualCollidee == null) {
 			actualCollidee = collidee;
 		}

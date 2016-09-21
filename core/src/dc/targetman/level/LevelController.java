@@ -60,7 +60,6 @@ public final class LevelController {
 	private final EntityManager entityManager = new DefaultEntityManager();
 	private final World world = new World(new Vector2(0, -10), true);
 	private final Box2DDebugRenderer box2DRenderer = new Box2DDebugRenderer();
-	private final StickActions stickActions;
 	private final Advancer advancer;
 	private final OrthographicCamera camera;
 	private final MapRenderer mapRenderer;
@@ -76,7 +75,6 @@ public final class LevelController {
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
-		stickActions = new StickActions(world);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 //		entityDrawers.add(new EntityTransformDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
@@ -125,13 +123,13 @@ public final class LevelController {
 	private Advancer createAdvancer() {
 		return new Advancer(
 				createInputUpdater(),
-				new AiSystem(entityManager, stickActions),  // TODO: Don't update every frame
+				new AiSystem(entityManager),  // TODO: Don't update every frame
 				new ScaleSystem(entityManager),
 				new AutoRotateSystem(entityManager),
 				new TranslateSystem(entityManager),
 				createPhysicsUpdater(),
 				createCollisionChecker(),
-				new MovementSystem(entityManager),
+				new MovementSystem(entityManager, world),
 				new LimbsSystem(entityManager),
 				new TimedDeathSystem(entityManager),
 				new WeaponSystem(entityManager, entityFactory),
@@ -180,19 +178,19 @@ public final class LevelController {
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			moveDirection = 1;
 		}
-		stickActions.move(targetman, moveDirection);
+		StickActions.move(targetman, moveDirection);
 		float aimDirection = 0;
 		if (Gdx.input.isKeyPressed(Keys.W)){
 			aimDirection = 1;
 		} else if (Gdx.input.isKeyPressed(Keys.S)) {
 			aimDirection = -1;
 		}
-		stickActions.aim(targetman, aimDirection);
+		StickActions.aim(targetman, aimDirection);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-			stickActions.jump(targetman);
+			StickActions.jump(targetman);
 		}
 		if (Gdx.input.isKeyPressed(Keys.J)){
-			stickActions.trigger(targetman);
+			StickActions.trigger(targetman);
 		}
 	}
 
