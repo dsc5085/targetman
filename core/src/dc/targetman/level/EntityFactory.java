@@ -123,11 +123,11 @@ public final class EntityFactory {
 		baseShape.getPosition();
 		baseShape.setRadius(halfWidth);
 		baseShape.setPosition(new Vector2(0, -halfHeight));
-		body.createFixture(baseShape, 0).setFriction(50f);
+		body.createFixture(baseShape, 0).setFriction(100);
 		baseShape.dispose();
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(halfWidth, halfHeight);
-		body.createFixture(shape, 1).setFriction(50f);
+		body.createFixture(shape, 1).setFriction(0);
 		shape.dispose();
 		body.setBullet(true);
 		body.setFixedRotation(true);
@@ -147,7 +147,7 @@ public final class EntityFactory {
 		Centrum weaponCentrum = new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f));
 		entity.attach(
 				new LimbAnimationsPart(animations),
-				new MovementPart(5, 15, leftLeg, rightLeg),
+				new MovementPart(10, 10, leftLeg, rightLeg),
 				new WeaponPart(alliance.getTarget().name(), weaponCentrum, 0.3f, rotator),
 				new LimbsPart(root, leftLeg, rightLeg),
 				new VitalLimbsPart(head, torso));
@@ -194,6 +194,7 @@ public final class EntityFactory {
 	private final void createLimbEntity(final Limb limb, final Limb[] zOrder, final Vector2 size, final Vector3 position, final String regionName, final float health, final Enum<?>...attributes) {
 		float z = position.z + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
 		Body body = createBody(regionName, size, true);
+		body.setGravityScale(0);
 		Entity entity = createBaseEntity(body, new Vector3(position.x, position.y, z), regionName, attributes);
 		entity.attach(new HealthPart(health));
 		limb.setTransform(entity.get(TransformPart.class).getTransform());

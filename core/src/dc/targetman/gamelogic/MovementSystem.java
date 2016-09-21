@@ -68,8 +68,6 @@ public final class MovementSystem extends EntitySystem {
 
 	private void moveLimbsToTransform(final Entity entity) {
 		LimbsPart limbsPart = entity.get(LimbsPart.class);
-		// TODO: Shouldn't have to call this.  Find an alternative solution, such as making the box2d transform a root
-		limbsPart.update();
 		Rectangle transformBounds = entity.get(TransformPart.class).getTransform().getBounds();
 		Vector2 global = new Vector2(transformBounds.getCenter(new Vector2()).x, transformBounds.y);
 		Transform rootTransform = limbsPart.getRoot().getTransform();

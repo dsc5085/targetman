@@ -94,6 +94,8 @@ public final class LevelController {
 	}
 
 	public final void update(final float delta) {
+//		Body body = Box2dUtils.findBody(world, EntityFactory.GUN);
+//		body.setLinearVelocity(0.1f, 0.1f);
 		advancer.advance(delta);
 		if (targetman.isActive()) {
 			CameraUtils.follow(targetman, unitConverter, camera);
@@ -103,9 +105,9 @@ public final class LevelController {
 
 	public final void draw() {
 		particlesManager.draw();
-		mapRenderer.render();
+//		mapRenderer.render();
 		renderEntities();
-//		renderBox2D();
+		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
