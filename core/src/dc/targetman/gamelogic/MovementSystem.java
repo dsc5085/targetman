@@ -86,16 +86,18 @@ public final class MovementSystem extends EntitySystem {
 	private boolean isGrounded(final Body body) {
 		// TODO: Figure out correct value to use.  This is just a guess
 		float halfHeight = Box2DUtils.height(body) / 2;
-		for (Contact contact : world.getContactList()) {
-			if (contact.isTouching() && isGroundedContact(body, contact)) {
-				Vector2 position = body.getPosition();
-				WorldManifold manifold = contact.getWorldManifold();
-				for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
-					if (manifold.getPoints()[i].y >= position.y - halfHeight) {
-						return false;
+		if (body.getLinearVelocity().y == 0) {
+			for (Contact contact : world.getContactList()) {
+				if (isGroundedContact(body, contact)) {
+					Vector2 position = body.getPosition();
+					WorldManifold manifold = contact.getWorldManifold();
+					for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
+						if (manifold.getPoints()[i].y >= position.y - halfHeight) {
+							return false;
+						}
 					}
+					return true;
 				}
-				return true;
 			}
 		}
 		return false;
@@ -105,7 +107,7 @@ public final class MovementSystem extends EntitySystem {
 		Array<Fixture> fixtures = body.getFixtureList();
 		Fixture fixtureA = contact.getFixtureA();
 		Fixture fixtureB = contact.getFixtureB();
-		return (fixtures.contains(fixtureA, true) && !fixtureB.isSensor())
+		return contact.isTouching() && (fixtures.contains(fixtureA, true) && !fixtureB.isSensor())
 				|| (fixtures.contains(fixtureB, true) && !fixtureA.isSensor());
 	}
 
