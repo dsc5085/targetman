@@ -91,8 +91,12 @@ public final class PathCreator {
 
 		private float getCost(final DefaultNode node) {
 			// TODO: inaccurate
-			return Maths.distance(node.x(), position.x) + Maths.distance(node.right(), position.x)
-			+ Maths.distance(node.top(), position.y);
+			if (node.at(position)) {
+				return 0;
+			} else {
+				return Maths.distance(node.x(), position.x) + Maths.distance(node.right(), position.x)
+				+ Maths.distance(node.top(), position.y);
+			}
 		}
 
 	}

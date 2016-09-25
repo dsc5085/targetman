@@ -24,7 +24,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
 	@Override
 	public final Array<Connection<DefaultNode>> getConnections(final DefaultNode fromNode) {
-		return nodeConnections.get(fromNode);
+		return CollectionUtils.get(nodeConnections, fromNode, new Array<Connection<DefaultNode>>());
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		float yOffset = node2.top() - node1.top();
 		if (yOffset < 5 && canCrossGap(leftGap) && canCrossGap(rightGap)) {
 			Connection<DefaultNode> connection = new DefaultConnection<DefaultNode>(node1, node2);
-			CollectionUtils.get(nodeConnections, node1, new Array<Connection<DefaultNode>>()).add(connection);
+			getConnections(node1).add(connection);
 		}
 	}
 

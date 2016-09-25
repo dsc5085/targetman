@@ -39,13 +39,26 @@ public final class AiSystem extends EntitySystem {
 		}
 	}
 
+	private Vector2 getTargetPosition(final Entity entity) {
+		for (Entity target : entityManager.getAll()) {
+			if (target.is(Alliance.PLAYER)) {
+				return target.get(TransformPart.class).getTransform().getCenter();
+			}
+		}
+		return null;
+	}
+
 	private void move(final Entity entity, final Vector2 targetPosition) {
-		Vector2 position = entity.get(TransformPart.class).getTransform().getCenter();
+		Vector2 position = entity.get(TransformPart.class).getTransform().getBounds().getPosition(new Vector2());
 		GraphPath<DefaultNode> path = pathCreator.createPath(position, targetPosition);
-		if (path.getCount() > 0) {
-			DefaultNode currentNode = path.get(0);
-			float moveDirection = currentNode.x() > position.x ? 1 : -1;
-			StickActions.move(entity, moveDirection);
+		for (int i = 0; i < path.getCount(); i++) {
+			DefaultNode currentNode = path.get(i);
+			if (!currentNode.at(position)) {
+				float moveDirection = currentNode.x() > position.x ? 1 : -1;
+				StickActions.move(entity, moveDirection);
+				System.out.println(currentNode);
+				break;
+			}
 		}
 		// TODO:
 //		Vector2 targetOffset = VectorUtils.offset(position, targetPosition);
@@ -65,15 +78,6 @@ public final class AiSystem extends EntitySystem {
 		float direction = getRotateDirection(centrum, targetPosition, flipX);
 		StickActions.aim(entity, direction);
 		StickActions.trigger(entity);
-	}
-
-	private Vector2 getTargetPosition(final Entity entity) {
-		for (Entity target : entityManager.getAll()) {
-			if (target.is(Alliance.PLAYER)) {
-				return target.get(TransformPart.class).getTransform().getCenter();
-			}
-		}
-		return null;
 	}
 
 	/**

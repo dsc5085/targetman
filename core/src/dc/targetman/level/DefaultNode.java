@@ -1,8 +1,11 @@
 package dc.targetman.level;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 import dclib.geometry.RectangleUtils;
+import dclib.util.Maths;
 
 public final class DefaultNode {
 
@@ -10,11 +13,6 @@ public final class DefaultNode {
 
 	public DefaultNode(final Rectangle bounds) {
 		this.bounds = bounds;
-	}
-
-	// TODO: just return bounds?
-	public final float height() {
-		return bounds.height;
 	}
 
 	public final float x() {
@@ -27,6 +25,16 @@ public final class DefaultNode {
 
 	public final float top() {
 		return RectangleUtils.top(bounds);
+	}
+
+	public final boolean at(final Vector2 position) {
+		float yDistance = Maths.distance(position.y, top());
+		return position.x >= x() && position.x <= right() && yDistance < MathUtils.FLOAT_ROUNDING_ERROR;
+	}
+
+	@Override
+	public final String toString() {
+		return bounds.toString();
 	}
 
 }
