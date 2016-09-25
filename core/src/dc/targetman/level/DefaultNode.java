@@ -1,31 +1,32 @@
 package dc.targetman.level;
 
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Rectangle;
+
+import dclib.geometry.RectangleUtils;
 
 public final class DefaultNode {
 
-	private final Vector2 position;
-	private final int length;
+	private final Rectangle bounds;
 
-	public DefaultNode(final Vector2 position, final int length) {
-		this.position = position;
-		this.length = length;
+	public DefaultNode(final Rectangle bounds) {
+		this.bounds = bounds;
 	}
 
-	public final float getLeft() {
-		return position.x;
+	// TODO: just return bounds?
+	public final float height() {
+		return bounds.height;
 	}
 
-	public final float getRight() {
-		return position.x + length;
+	public final float x() {
+		return bounds.x;
 	}
 
-	public final float getY() {
-		return position.y;
+	public final float right() {
+		return RectangleUtils.right(bounds);
 	}
 
-	public final float getLength() {
-		return length;
+	public final float top() {
+		return RectangleUtils.top(bounds);
 	}
 
 }

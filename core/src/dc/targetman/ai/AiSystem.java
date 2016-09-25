@@ -1,10 +1,12 @@
 package dc.targetman.ai;
 
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.gamelogic.StickActions;
+import dc.targetman.level.DefaultNode;
 import dc.targetman.level.models.Alliance;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
@@ -17,10 +19,13 @@ import dclib.geometry.VectorUtils;
 public final class AiSystem extends EntitySystem {
 
 	private final EntityManager entityManager;
+	private final PathCreator pathCreator;
 
-	public AiSystem(final EntityManager entityManager) {
+	// TODO: Don't update every frame
+	public AiSystem(final EntityManager entityManager, final PathCreator pathCreator) {
 		super(entityManager);
 		this.entityManager = entityManager;
+		this.pathCreator = pathCreator;
 	}
 
 	@Override
@@ -36,15 +41,22 @@ public final class AiSystem extends EntitySystem {
 
 	private void move(final Entity entity, final Vector2 targetPosition) {
 		Vector2 position = entity.get(TransformPart.class).getTransform().getCenter();
-		Vector2 targetOffset = VectorUtils.offset(position, targetPosition);
-		boolean flipX = entity.get(LimbsPart.class).getFlipX();
-		float moveDirection = 0;
-		if (targetOffset.x > 0 && flipX) {
-			moveDirection = 1;
-		} else if (targetOffset.x < 0 && !flipX) {
-			moveDirection = -1;
+		GraphPath<DefaultNode> path = pathCreator.createPath(position, targetPosition);
+		if (path.getCount() > 0) {
+			DefaultNode currentNode = path.get(0);
+			float moveDirection = currentNode.x() > position.x ? 1 : -1;
+			StickActions.move(entity, moveDirection);
 		}
-		StickActions.move(entity, moveDirection);
+		// TODO:
+//		Vector2 targetOffset = VectorUtils.offset(position, targetPosition);
+//		boolean flipX = entity.get(LimbsPart.class).getFlipX();
+//		float moveDirection = 0;
+//		if (targetOffset.x > 0 && flipX) {
+//			moveDirection = 1;
+//		} else if (targetOffset.x < 0 && !flipX) {
+//			moveDirection = -1;
+//		}
+//		StickActions.move(entity, moveDirection);
 	}
 
 	private void fire(final Entity entity, final Vector2 targetPosition) {
