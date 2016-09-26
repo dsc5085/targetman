@@ -113,6 +113,7 @@ public final class EntityFactory {
 		Joint leftLegJoint = new Joint(leftLeg, new Vector2(), new Vector2(0, 0.05f), -110);
 		Joint rightLegJoint = new Joint(rightLeg, new Vector2(), new Vector2(0, 0.05f), -70);
 		Entity entity = new Entity();
+		entity.attribute(alliance);
 
 		float halfHeight = 1.05f;
 		float halfWidth = 0.3f;

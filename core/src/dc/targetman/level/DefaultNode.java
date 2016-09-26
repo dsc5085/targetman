@@ -1,6 +1,5 @@
 package dc.targetman.level;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -29,7 +28,7 @@ public final class DefaultNode {
 
 	public final boolean at(final Vector2 position) {
 		float yDistance = Maths.distance(position.y, top());
-		return position.x >= x() && position.x <= right() && yDistance < MathUtils.FLOAT_ROUNDING_ERROR;
+		return position.x >= x() && position.x <= right() && yDistance < bounds.height;
 	}
 
 	@Override

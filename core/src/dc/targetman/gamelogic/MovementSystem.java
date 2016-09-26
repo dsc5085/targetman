@@ -3,7 +3,6 @@ package dc.targetman.gamelogic;
 import java.util.List;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -124,10 +123,9 @@ public final class MovementSystem extends EntitySystem {
 
 	private void moveLimbsToTransform(final Entity entity) {
 		LimbsPart limbsPart = entity.get(LimbsPart.class);
-		Rectangle transformBounds = entity.get(TransformPart.class).getTransform().getBounds();
-		Vector2 global = new Vector2(transformBounds.getCenter(new Vector2()).x, transformBounds.y);
 		Transform rootTransform = limbsPart.getRoot().getTransform();
 		float localY = getY(limbsPart) - rootTransform.getPosition().y;
+		Vector2 global = EntityUtils.getBase(entity);
 		rootTransform.setGlobal(new Vector2(0, localY), global);
 	}
 

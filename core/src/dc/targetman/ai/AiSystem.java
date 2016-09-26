@@ -1,10 +1,12 @@
 package dc.targetman.ai;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
+import dc.targetman.gamelogic.EntityUtils;
 import dc.targetman.gamelogic.StickActions;
 import dc.targetman.level.DefaultNode;
 import dc.targetman.level.models.Alliance;
@@ -14,6 +16,7 @@ import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
+import dclib.geometry.RectangleUtils;
 import dclib.geometry.VectorUtils;
 
 public final class AiSystem extends EntitySystem {
@@ -31,51 +34,57 @@ public final class AiSystem extends EntitySystem {
 	@Override
 	protected final void update(final float delta, final Entity entity) {
 		if (entity.has(AiPart.class)) {
-			Vector2 targetPosition = getTargetPosition(entity);
-			if (targetPosition != null) {
-				move(entity, targetPosition);
-				fire(entity, targetPosition);
+			Entity target = getTarget(entity);
+			if (target != null) {
+				move(entity, target);
+				fire(entity, target);
 			}
 		}
 	}
 
-	private Vector2 getTargetPosition(final Entity entity) {
+	private Entity getTarget(final Entity entity) {
 		for (Entity target : entityManager.getAll()) {
-			if (target.is(Alliance.PLAYER)) {
-				return target.get(TransformPart.class).getTransform().getCenter();
+			if (target.is(Alliance.PLAYER) && target.has(LimbsPart.class)) {
+				return target;
 			}
 		}
 		return null;
 	}
 
-	private void move(final Entity entity, final Vector2 targetPosition) {
-		Vector2 position = entity.get(TransformPart.class).getTransform().getBounds().getPosition(new Vector2());
-		GraphPath<DefaultNode> path = pathCreator.createPath(position, targetPosition);
+	private void move(final Entity entity, final Entity target) {
+		Vector2 base = EntityUtils.getBase(entity);
+		Vector2 targetBase = EntityUtils.getBase(target);
+		GraphPath<DefaultNode> path = pathCreator.createPath(base, targetBase);
+		DefaultNode currentNode = null;
 		for (int i = 0; i < path.getCount(); i++) {
-			DefaultNode currentNode = path.get(i);
-			if (!currentNode.at(position)) {
-				float moveDirection = currentNode.x() > position.x ? 1 : -1;
+			DefaultNode node = path.get(i);
+			if (node.at(base)) {
+				currentNode = node;
+			} else {
+				int moveDirection = node.x() > base.x ? 1 : -1;
 				StickActions.move(entity, moveDirection);
-				System.out.println(currentNode);
+				jump(entity, currentNode, moveDirection);
 				break;
 			}
 		}
-		// TODO:
-//		Vector2 targetOffset = VectorUtils.offset(position, targetPosition);
-//		boolean flipX = entity.get(LimbsPart.class).getFlipX();
-//		float moveDirection = 0;
-//		if (targetOffset.x > 0 && flipX) {
-//			moveDirection = 1;
-//		} else if (targetOffset.x < 0 && !flipX) {
-//			moveDirection = -1;
-//		}
-//		StickActions.move(entity, moveDirection);
 	}
 
-	private void fire(final Entity entity, final Vector2 targetPosition) {
+	private void jump(final Entity entity, final DefaultNode currentNode, final int moveDirection) {
+		final float edgeThreshold = 0.1f;
+		if (currentNode != null) {
+			Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
+			float edgeX = moveDirection > 0 ? currentNode.right() : currentNode.x();
+			if (edgeX >= bounds.x - edgeThreshold && edgeX <= RectangleUtils.right(bounds) + edgeThreshold) {
+				StickActions.jump(entity);
+			}
+		}
+	}
+
+	private void fire(final Entity entity, final Entity target) {
 		Centrum centrum = entity.get(WeaponPart.class).getCentrum();
 		boolean flipX = entity.get(LimbsPart.class).getFlipX();
-		float direction = getRotateDirection(centrum, targetPosition, flipX);
+		Vector2 targetCenter = target.get(TransformPart.class).getTransform().getCenter();
+		float direction = getRotateDirection(centrum, targetCenter, flipX);
 		StickActions.aim(entity, direction);
 		StickActions.trigger(entity);
 	}

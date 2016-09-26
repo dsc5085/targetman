@@ -43,8 +43,8 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
 	private void setupConnections() {
 		for (int i = 0; i < nodes.size() - 1; i++) {
-			for (int j = i; j < nodes.size(); j++) {
-				DefaultNode node1 = nodes.get(i);
+			DefaultNode node1 = nodes.get(i);
+			for (int j = i + 1; j < nodes.size(); j++) {
 				DefaultNode node2 = nodes.get(j);
 				connect(node1, node2);
 				connect(node2, node1);
@@ -56,7 +56,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		float leftGap = node1.x() - node2.right();
 		float rightGap = node1.right() - node2.x();
 		float yOffset = node2.top() - node1.top();
-		if (yOffset < 5 && canCrossGap(leftGap) && canCrossGap(rightGap)) {
+		if (yOffset < 5 && (canCrossGap(leftGap) || canCrossGap(rightGap))) {
 			Connection<DefaultNode> connection = new DefaultConnection<DefaultNode>(node1, node2);
 			getConnections(node1).add(connection);
 		}
