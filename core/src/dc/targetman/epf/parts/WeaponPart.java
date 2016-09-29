@@ -17,8 +17,7 @@ public final class WeaponPart {
 			final Rotator aimRotator) {
 		this.entityType = entityType;
 		this.centrum = centrum;
-		fireTimer = new Timer(fireTime);
-		fireTimer.elapse();
+		fireTimer = new Timer(fireTime, fireTime);
 		this.aimRotator = aimRotator;
 	}
 

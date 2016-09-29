@@ -14,27 +14,35 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.collect.Lists;
 
-import dc.targetman.level.DefaultIndexedGraph;
-import dc.targetman.level.DefaultNode;
 import dc.targetman.level.MapUtils;
 import dclib.geometry.UnitConverter;
 import dclib.util.Maths;
 
-public final class PathCreator {
+public final class GraphHelper {
 
 	private final DefaultIndexedGraph graph;
 	private final PathFinder<DefaultNode> pathFinder;
 
-	public PathCreator(final TiledMap map, final UnitConverter unitConverter) {
+	public GraphHelper(final TiledMap map, final UnitConverter unitConverter) {
 		graph = createGraph(map, unitConverter);
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
-	public GraphPath<DefaultNode> createPath(final Vector2 start, final Vector2 end) {
+	public DefaultNode getNode(final Vector2 position) {
+		for (DefaultNode node : graph.getNodes()) {
+			if (node.at(position)) {
+				return node;
+			}
+		}
+		return null;
+	}
+
+	public List<DefaultNode> createPath(final Vector2 start, final Vector2 end) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode startNode = getNode(start);
-		DefaultNode endNode = getNode(end);
+		DefaultNode startNode = getNearestNode(start);
+		DefaultNode endNode = getNearestNode(end);
 		pathFinder.searchNodePath(startNode, endNode, new Heuristic<DefaultNode>() {
 			@Override
 			public float estimate(final DefaultNode node, final DefaultNode endNode) {
@@ -43,7 +51,7 @@ public final class PathCreator {
 				return xOffset + yOffset;
 			}
 		}, path);
-		return path;
+		return Lists.newArrayList(path.iterator());
 	}
 
 	private DefaultIndexedGraph createGraph(final TiledMap map, final UnitConverter unitConverter) {
@@ -71,7 +79,7 @@ public final class PathCreator {
 		return floorLength;
 	}
 
-	private DefaultNode getNode(final Vector2 position) {
+	private DefaultNode getNearestNode(final Vector2 position) {
 		NodeDistanceComparator comparator = new NodeDistanceComparator(position);
 		return Collections.min(graph.getNodes(), comparator);
 	}

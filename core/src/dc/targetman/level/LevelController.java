@@ -20,7 +20,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
 import dc.targetman.ai.AiSystem;
-import dc.targetman.ai.PathCreator;
+import dc.targetman.ai.GraphHelper;
 import dc.targetman.gamelogic.MovementSystem;
 import dc.targetman.gamelogic.ScaleSystem;
 import dc.targetman.gamelogic.StickActions;
@@ -73,7 +73,7 @@ public final class LevelController {
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
 			final ShapeRenderer shapeRenderer) {
 		camera = new OrthographicCamera(640, 480);
-		map = new TmxMapLoader().load("maps/test_level.tmx");
+		map = new TmxMapLoader().load("maps/pathfinding.tmx");
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
@@ -119,10 +119,10 @@ public final class LevelController {
 	}
 
 	private Advancer createAdvancer() {
-		PathCreator pathCreator = new PathCreator(map, unitConverter);
+		GraphHelper graphHelper = new GraphHelper(map, unitConverter);
 		return new Advancer(
 				createInputUpdater(),
-				new AiSystem(entityManager, pathCreator),
+				new AiSystem(entityManager, graphHelper),
 				new ScaleSystem(entityManager),
 				new AutoRotateSystem(entityManager),
 				new TranslateSystem(entityManager),
@@ -167,7 +167,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(29, 29, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(29, 5, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

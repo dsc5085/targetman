@@ -1,4 +1,4 @@
-package dc.targetman.level;
+package dc.targetman.ai;
 
 import java.util.HashMap;
 import java.util.List;

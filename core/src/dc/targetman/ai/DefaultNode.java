@@ -1,4 +1,4 @@
-package dc.targetman.level;
+package dc.targetman.ai;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -29,6 +29,11 @@ public final class DefaultNode {
 	public final boolean at(final Vector2 position) {
 		float yDistance = Maths.distance(position.y, top());
 		return position.x >= x() && position.x <= right() && yDistance < bounds.height;
+	}
+
+	@Override
+	public final boolean equals(final Object o) {
+		return o instanceof DefaultNode && ((DefaultNode)o).bounds.equals(bounds);
 	}
 
 	@Override

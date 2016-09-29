@@ -1,14 +1,15 @@
 package dc.targetman.ai;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
+import java.util.List;
+
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.collect.Iterables;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.gamelogic.EntityUtils;
 import dc.targetman.gamelogic.StickActions;
-import dc.targetman.level.DefaultNode;
 import dc.targetman.level.models.Alliance;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
@@ -22,21 +23,23 @@ import dclib.geometry.VectorUtils;
 public final class AiSystem extends EntitySystem {
 
 	private final EntityManager entityManager;
-	private final PathCreator pathCreator;
+	private final GraphHelper graphHelper;
 
 	// TODO: Don't update every frame
-	public AiSystem(final EntityManager entityManager, final PathCreator pathCreator) {
+	public AiSystem(final EntityManager entityManager, final GraphHelper graphHelper) {
 		super(entityManager);
 		this.entityManager = entityManager;
-		this.pathCreator = pathCreator;
+		this.graphHelper = graphHelper;
 	}
 
 	@Override
 	protected final void update(final float delta, final Entity entity) {
-		if (entity.has(AiPart.class)) {
+		AiPart aiPart = entity.tryGet(AiPart.class);
+		if (aiPart != null) {
+			aiPart.tick(delta);
 			Entity target = getTarget(entity);
 			if (target != null) {
-				move(entity, target);
+				navigate(entity, target);
 				fire(entity, target);
 			}
 		}
@@ -51,21 +54,32 @@ public final class AiSystem extends EntitySystem {
 		return null;
 	}
 
-	private void move(final Entity entity, final Entity target) {
+	private void navigate(final Entity entity, final Entity target) {
+		if (entity.get(AiPart.class).think()) {
+			updatePath(entity, target);
+		}
+		Vector2 base = EntityUtils.getBase(entity);
+		List<DefaultNode> path = entity.get(AiPart.class).getPath();
+		DefaultNode currentNode = graphHelper.getNode(base);
+		if (path.size() > 0 && path.get(0).equals(currentNode)) {
+			path.remove(currentNode);
+		}
+		if (path.size() > 0) {
+			DefaultNode nextNode = path.get(0);
+			int moveDirection = nextNode.x() > base.x ? 1 : -1;
+			StickActions.move(entity, moveDirection);
+			jump(entity, currentNode, moveDirection);
+		}
+	}
+
+	private void updatePath(final Entity entity, final Entity target) {
 		Vector2 base = EntityUtils.getBase(entity);
 		Vector2 targetBase = EntityUtils.getBase(target);
-		GraphPath<DefaultNode> path = pathCreator.createPath(base, targetBase);
-		DefaultNode currentNode = null;
-		for (int i = 0; i < path.getCount(); i++) {
-			DefaultNode node = path.get(i);
-			if (node.at(base)) {
-				currentNode = node;
-			} else {
-				int moveDirection = node.x() > base.x ? 1 : -1;
-				StickActions.move(entity, moveDirection);
-				jump(entity, currentNode, moveDirection);
-				break;
-			}
+		List<DefaultNode> newPath = graphHelper.createPath(base, targetBase);
+		List<DefaultNode> path = entity.get(AiPart.class).getPath();
+		if (newPath.size() <= 0 || path.size() <= 0
+				|| !Iterables.getLast(newPath).equals(Iterables.getLast(path))) {
+			entity.get(AiPart.class).setPath(newPath);
 		}
 	}
 
