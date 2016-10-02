@@ -61,10 +61,10 @@ public final class AiSystem extends EntitySystem {
 		Vector2 base = EntityUtils.getBase(entity);
 		List<DefaultNode> path = entity.get(AiPart.class).getPath();
 		DefaultNode currentNode = graphHelper.getNode(base);
-		if (path.size() > 0 && path.get(0).equals(currentNode)) {
+		if (!path.isEmpty() && path.get(0).equals(currentNode)) {
 			path.remove(currentNode);
 		}
-		if (path.size() > 0) {
+		if (!path.isEmpty()) {
 			DefaultNode nextNode = path.get(0);
 			int moveDirection = nextNode.x() > base.x ? 1 : -1;
 			StickActions.move(entity, moveDirection);
@@ -77,9 +77,9 @@ public final class AiSystem extends EntitySystem {
 		Vector2 targetBase = EntityUtils.getBase(target);
 		List<DefaultNode> newPath = graphHelper.createPath(base, targetBase);
 		List<DefaultNode> path = entity.get(AiPart.class).getPath();
-		if (newPath.size() <= 0 || path.size() <= 0
-				|| !Iterables.getLast(newPath).equals(Iterables.getLast(path))) {
+		if (newPath.isEmpty() || path.isEmpty() || !Iterables.getLast(newPath).equals(Iterables.getLast(path))) {
 			entity.get(AiPart.class).setPath(newPath);
+			System.out.println(newPath.get(0));
 		}
 	}
 

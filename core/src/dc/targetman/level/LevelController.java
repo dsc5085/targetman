@@ -73,7 +73,7 @@ public final class LevelController {
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
 			final ShapeRenderer shapeRenderer) {
 		camera = new OrthographicCamera(640, 480);
-		map = new TmxMapLoader().load("maps/pathfinding.tmx");
+		map = new TmxMapLoader().load("maps/test_level.tmx");
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
@@ -167,7 +167,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(29, 5, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(29, 29, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

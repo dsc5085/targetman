@@ -166,6 +166,7 @@ public final class EntityFactory {
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
 		Body bulletBody = createBody("objects/bullet", size, true);
+		bulletBody.setBullet(true);
 		bulletBody.setGravityScale(0.1f);
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
 		bulletBody.setLinearVelocity(velocity);
