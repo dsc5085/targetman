@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.google.common.collect.Iterables;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
@@ -76,10 +75,8 @@ public final class AiSystem extends EntitySystem {
 		Vector2 base = EntityUtils.getBase(entity);
 		Vector2 targetBase = EntityUtils.getBase(target);
 		List<DefaultNode> newPath = graphHelper.createPath(base, targetBase);
-		List<DefaultNode> path = entity.get(AiPart.class).getPath();
-		if (newPath.isEmpty() || path.isEmpty() || !Iterables.getLast(newPath).equals(Iterables.getLast(path))) {
+		if (!newPath.isEmpty()) {
 			entity.get(AiPart.class).setPath(newPath);
-			System.out.println(newPath.get(0));
 		}
 	}
 

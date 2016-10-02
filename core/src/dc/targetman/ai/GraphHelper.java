@@ -41,16 +41,11 @@ public final class GraphHelper {
 
 	public List<DefaultNode> createPath(final Vector2 start, final Vector2 end) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode startNode = getNearestNode(start);
+		DefaultNode startNode = getNode(start);
 		DefaultNode endNode = getNearestNode(end);
-		pathFinder.searchNodePath(startNode, endNode, new Heuristic<DefaultNode>() {
-			@Override
-			public float estimate(final DefaultNode node, final DefaultNode endNode) {
-				float xOffset = Maths.distance(node.x(), endNode.x());
-				float yOffset = Maths.distance(endNode.top(), node.top());
-				return xOffset + yOffset;
-			}
-		}, path);
+		if (startNode != null && endNode != null) {
+			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
+		}
 		return Lists.newArrayList(path.iterator());
 	}
 
@@ -82,6 +77,17 @@ public final class GraphHelper {
 	private DefaultNode getNearestNode(final Vector2 position) {
 		NodeDistanceComparator comparator = new NodeDistanceComparator(position);
 		return Collections.min(graph.getNodes(), comparator);
+	}
+
+	private Heuristic<DefaultNode> getHeuristic() {
+		return new Heuristic<DefaultNode>() {
+			@Override
+			public float estimate(final DefaultNode node, final DefaultNode endNode) {
+				float xOffset = Maths.distance(node.x(), endNode.x());
+				float yOffset = Maths.distance(endNode.top(), node.top());
+				return xOffset + yOffset;
+			}
+		};
 	}
 
 	private class NodeDistanceComparator implements Comparator<DefaultNode> {

@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.WorldManifold;
 import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.parts.MovementPart;
@@ -23,7 +22,6 @@ import dclib.physics.Transform;
 import dclib.physics.limb.Limb;
 import dclib.physics.limb.LimbAnimation;
 import dclib.util.Maths;
-import net.dermetfan.gdx.physics.box2d.Box2DUtils;
 
 public final class MovementSystem extends EntitySystem {
 
@@ -83,18 +81,9 @@ public final class MovementSystem extends EntitySystem {
 	}
 
 	private boolean isGrounded(final Body body) {
-		// TODO: Figure out correct value to use.  This is just a guess
-		float halfHeight = Box2DUtils.height(body) / 2;
 		if (body.getLinearVelocity().y == 0) {
 			for (Contact contact : world.getContactList()) {
 				if (isGroundedContact(body, contact)) {
-					Vector2 position = body.getPosition();
-					WorldManifold manifold = contact.getWorldManifold();
-					for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
-						if (manifold.getPoints()[i].y >= position.y - halfHeight) {
-							return false;
-						}
-					}
 					return true;
 				}
 			}
