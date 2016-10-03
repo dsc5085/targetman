@@ -160,7 +160,7 @@ public final class LevelController {
 		return new Updater() {
 			@Override
 			public void update(final float delta) {
-				world.step(delta, 1, 1);
+				world.step(delta, 8, 3);
 			}
 		};
 	}
