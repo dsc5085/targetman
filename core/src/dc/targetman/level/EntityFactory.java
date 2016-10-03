@@ -19,7 +19,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.parts.AiPart;
-import dc.targetman.epf.parts.CollisionRemovePart;
 import dc.targetman.epf.parts.ForcePart;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
@@ -32,6 +31,7 @@ import dclib.epf.Entity;
 import dclib.epf.EntityManager;
 import dclib.epf.parts.AutoRotatePart;
 import dclib.epf.parts.CollisionDamagePart;
+import dclib.epf.parts.CollisionRemovePart;
 import dclib.epf.parts.HealthPart;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
@@ -124,7 +124,7 @@ public final class EntityFactory {
 		baseShape.getPosition();
 		baseShape.setRadius(halfWidth);
 		baseShape.setPosition(new Vector2(0, -halfHeight));
-		body.createFixture(baseShape, 0).setFriction(100);
+		body.createFixture(baseShape, 0).setFriction(50);
 		baseShape.dispose();
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(halfWidth, halfHeight);
@@ -180,6 +180,7 @@ public final class EntityFactory {
 		Transform transform = bullet.get(TransformPart.class).getTransform();
 		Limb root = new Limb(transform).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
+		// TODO: Bug - the bullet gets removed when hitting the target's bounding box
 		bullet.attach(limbsPart, new CollisionRemovePart(targetAlliance));
 		entityManager.add(bullet);
 	}

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import dclib.geometry.RectangleUtils;
+import dclib.physics.Box2dUtils;
 import dclib.util.Maths;
 
 public final class DefaultNode {
@@ -28,7 +29,7 @@ public final class DefaultNode {
 
 	public final boolean at(final Vector2 position) {
 		float yDistance = Maths.distance(position.y, top());
-		return position.x >= x() && position.x <= right() && yDistance < bounds.height;
+		return position.x >= x() && position.x <= right() && yDistance < Box2dUtils.ROUNDING_ERROR;
 	}
 
 	@Override
