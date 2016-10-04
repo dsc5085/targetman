@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 
 import dclib.geometry.RectangleUtils;
 import dclib.physics.Box2dUtils;
-import dclib.util.Maths;
 
 public final class DefaultNode {
 
@@ -28,8 +27,17 @@ public final class DefaultNode {
 	}
 
 	public final boolean at(final Vector2 position) {
-		float yDistance = Maths.distance(position.y, top());
-		return position.x >= x() && position.x <= right() && yDistance < Box2dUtils.ROUNDING_ERROR;
+		float yOffset = position.y - top();
+		return position.x >= x() && position.x <= right() && yOffset >= 0 && yOffset < Box2dUtils.ROUNDING_ERROR;
+	}
+
+	public final boolean canJumpTo(final float x, final float right, final float y) {
+		// TODO: Replace these constants with calculations
+		final float jumpHeight = 5;
+		float leftGap = x() - right;
+		float rightGap = right() - x;
+		float yOffset = y - top();
+		return yOffset < jumpHeight && (canCrossGap(leftGap) || canCrossGap(rightGap));
 	}
 
 	@Override
@@ -40,6 +48,12 @@ public final class DefaultNode {
 	@Override
 	public final String toString() {
 		return bounds.toString();
+	}
+
+	private boolean canCrossGap(final float gap) {
+		final float jumpDistance = 5;
+		float gapDistance = Math.abs(gap);
+		return gapDistance > 0 && gapDistance < jumpDistance;
 	}
 
 }

@@ -39,7 +39,7 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public List<DefaultNode> createPath(final Vector2 start, final Vector2 end) {
+	public final List<DefaultNode> createPath(final Vector2 start, final Vector2 end) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
 		DefaultNode startNode = getNode(start);
 		DefaultNode endNode = getNearestNode(end);

@@ -51,6 +51,7 @@ public final class MovementSystem extends EntitySystem {
 			walkAnimation.play();
 			entity.get(LimbsPart.class).setFlipX(direction < 0);
 			applyMoveForce(entity, movementPart);
+			movementPart.setDirection(0);
 		}
 	}
 

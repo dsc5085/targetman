@@ -53,19 +53,10 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 	}
 
 	private void connect(final DefaultNode node1, final DefaultNode node2) {
-		float leftGap = node1.x() - node2.right();
-		float rightGap = node1.right() - node2.x();
-		float yOffset = node2.top() - node1.top();
-		if (yOffset < 5 && (canCrossGap(leftGap) || canCrossGap(rightGap))) {
+		if (node1.canJumpTo(node2.x(), node2.right(), node2.top())) {
 			Connection<DefaultNode> connection = new DefaultConnection<DefaultNode>(node1, node2);
 			getConnections(node1).add(connection);
 		}
-	}
-
-	private boolean canCrossGap(final float gap) {
-		// TODO: Replace literals with calculations
-		float gapDistance = Math.abs(gap);
-		return gapDistance > 0 && gapDistance < 5;
 	}
 
 }

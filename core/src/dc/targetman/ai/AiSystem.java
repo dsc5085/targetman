@@ -67,7 +67,7 @@ public final class AiSystem extends EntitySystem {
 			DefaultNode nextNode = path.get(0);
 			int moveDirection = nextNode.x() > base.x ? 1 : -1;
 			StickActions.move(entity, moveDirection);
-			jump(entity, currentNode, moveDirection);
+			jump(entity, moveDirection, nextNode);
 		}
 	}
 
@@ -80,14 +80,10 @@ public final class AiSystem extends EntitySystem {
 		}
 	}
 
-	private void jump(final Entity entity, final DefaultNode currentNode, final int moveDirection) {
-		final float edgeThreshold = 0.1f;
-		if (currentNode != null) {
-			Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			float edgeX = moveDirection > 0 ? currentNode.right() : currentNode.x();
-			if (edgeX >= bounds.x - edgeThreshold && edgeX <= RectangleUtils.right(bounds) + edgeThreshold) {
-				StickActions.jump(entity);
-			}
+	private void jump(final Entity entity, final int moveDirection, final DefaultNode nextNode) {
+		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
+		if (nextNode.canJumpTo(bounds.x, RectangleUtils.right(bounds), bounds.y)) {
+			StickActions.jump(entity);
 		}
 	}
 
