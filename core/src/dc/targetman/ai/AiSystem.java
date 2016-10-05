@@ -65,7 +65,7 @@ public final class AiSystem extends EntitySystem {
 		}
 		if (!path.isEmpty()) {
 			DefaultNode nextNode = path.get(0);
-			int moveDirection = nextNode.x() > base.x ? 1 : -1;
+			int moveDirection = getNextX(path) > base.x ? 1 : -1;
 			StickActions.move(entity, moveDirection);
 			jump(entity, moveDirection, nextNode);
 		}
@@ -75,9 +75,20 @@ public final class AiSystem extends EntitySystem {
 		Vector2 base = EntityUtils.getBase(entity);
 		Vector2 targetBase = EntityUtils.getBase(target);
 		List<DefaultNode> newPath = graphHelper.createPath(base, targetBase);
-		if (!newPath.isEmpty()) {
-			entity.get(AiPart.class).setPath(newPath);
+		entity.get(AiPart.class).setPath(newPath);
+	}
+
+	private float getNextX(final List<DefaultNode> path) {
+		// TODO: Doesn't handle if nextnextnode x is in middle of nextNode
+		DefaultNode nextNode = path.get(0);
+		float nextX = nextNode.x();
+		if (path.size() > 1) {
+			DefaultNode nextNextNode = path.get(1);
+			if (nextNextNode.x() > nextNode.x()) {
+				nextX = nextNode.right();
+			}
 		}
+		return nextX;
 	}
 
 	private void jump(final Entity entity, final int moveDirection, final DefaultNode nextNode) {
