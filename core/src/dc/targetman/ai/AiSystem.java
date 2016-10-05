@@ -54,28 +54,28 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void navigate(final Entity entity, final Entity target) {
-		if (entity.get(AiPart.class).think()) {
-			updatePath(entity, target);
-		}
-		Vector2 base = EntityUtils.getBase(entity);
+		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
+		think(entity, bounds, target);
 		List<DefaultNode> path = entity.get(AiPart.class).getPath();
-		DefaultNode currentNode = graphHelper.getNode(base);
+		DefaultNode currentNode = graphHelper.getNode(bounds);
 		if (!path.isEmpty() && path.get(0).equals(currentNode)) {
 			path.remove(currentNode);
 		}
 		if (!path.isEmpty()) {
 			DefaultNode nextNode = path.get(0);
-			int moveDirection = getNextX(path) > base.x ? 1 : -1;
+			float nextX = getNextX(path);
+			int moveDirection = nextX > bounds.getCenter(new Vector2()).x ? 1 : -1;
 			StickActions.move(entity, moveDirection);
 			jump(entity, moveDirection, nextNode);
 		}
 	}
 
-	private void updatePath(final Entity entity, final Entity target) {
-		Vector2 base = EntityUtils.getBase(entity);
-		Vector2 targetBase = EntityUtils.getBase(target);
-		List<DefaultNode> newPath = graphHelper.createPath(base, targetBase);
-		entity.get(AiPart.class).setPath(newPath);
+	private void think(final Entity entity, final Rectangle entityBounds, final Entity target) {
+		if (entity.get(AiPart.class).think()) {
+			Vector2 targetBase = EntityUtils.getBase(target);
+			List<DefaultNode> newPath = graphHelper.createPath(entityBounds, targetBase);
+			entity.get(AiPart.class).setPath(newPath);
+		}
 	}
 
 	private float getNextX(final List<DefaultNode> path) {

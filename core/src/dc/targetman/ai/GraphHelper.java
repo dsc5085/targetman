@@ -30,18 +30,18 @@ public final class GraphHelper {
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
-	public DefaultNode getNode(final Vector2 position) {
+	public DefaultNode getNode(final Rectangle bounds) {
 		for (DefaultNode node : graph.getNodes()) {
-			if (node.at(position)) {
+			if (node.isTouching(bounds)) {
 				return node;
 			}
 		}
 		return null;
 	}
 
-	public final List<DefaultNode> createPath(final Vector2 start, final Vector2 end) {
+	public final List<DefaultNode> createPath(final Rectangle startBounds, final Vector2 end) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode startNode = getNode(start);
+		DefaultNode startNode = getNode(startBounds);
 		DefaultNode endNode = getNearestNode(end);
 		if (startNode != null && endNode != null) {
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
@@ -105,12 +105,8 @@ public final class GraphHelper {
 
 		private float getCost(final DefaultNode node) {
 			// TODO: inaccurate
-			if (node.at(position)) {
-				return 0;
-			} else {
-				return Maths.distance(node.x(), position.x) + Maths.distance(node.right(), position.x)
-				+ Maths.distance(node.top(), position.y);
-			}
+			return Maths.distance(node.x(), position.x) + Maths.distance(node.right(), position.x)
+			+ Maths.distance(node.top(), position.y);
 		}
 
 	}

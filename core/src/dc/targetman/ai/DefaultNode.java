@@ -1,7 +1,6 @@
 package dc.targetman.ai;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 
 import dclib.geometry.RectangleUtils;
 import dclib.physics.Box2dUtils;
@@ -26,18 +25,21 @@ public final class DefaultNode {
 		return RectangleUtils.top(bounds);
 	}
 
-	public final boolean at(final Vector2 position) {
-		float yOffset = position.y - top();
-		return position.x >= x() && position.x <= right() && yOffset >= 0 && yOffset < Box2dUtils.ROUNDING_ERROR;
+	public final boolean isTouching(final Rectangle bounds) {
+		Rectangle collisionBounds = new Rectangle(
+				bounds.x - Box2dUtils.ROUNDING_ERROR, bounds.y - Box2dUtils.ROUNDING_ERROR,
+				bounds.width + Box2dUtils.ROUNDING_ERROR * 2, bounds.height + Box2dUtils.ROUNDING_ERROR * 2);
+		return collisionBounds.overlaps(this.bounds);
 	}
 
 	public final boolean canJumpTo(final float x, final float right, final float y) {
 		// TODO: Replace these constants with calculations
 		final float jumpHeight = 5;
+		// TODO: Doesn't work if nextNode is overlapping with currentNode
 		float leftGap = x() - right;
 		float rightGap = right() - x;
 		float yOffset = y - top();
-		return yOffset < jumpHeight && (canCrossGap(leftGap) || canCrossGap(rightGap));
+		return yOffset < jumpHeight && (canJumpGap(leftGap) || canJumpGap(rightGap));
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public final class DefaultNode {
 		return bounds.toString();
 	}
 
-	private boolean canCrossGap(final float gap) {
+	private boolean canJumpGap(final float gap) {
 		final float jumpDistance = 5;
 		float gapDistance = Math.abs(gap);
 		return gapDistance > 0 && gapDistance < jumpDistance;
