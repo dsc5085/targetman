@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
-import dc.targetman.gamelogic.EntityUtils;
 import dc.targetman.gamelogic.StickActions;
 import dc.targetman.level.models.Alliance;
 import dclib.epf.Entity;
@@ -70,11 +69,13 @@ public final class AiSystem extends EntitySystem {
 		}
 	}
 
-	private void think(final Entity entity, final Rectangle entityBounds, final Entity target) {
+	private void think(final Entity entity, final Rectangle bounds, final Entity target) {
+		Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 		if (entity.get(AiPart.class).think()) {
-			Vector2 targetBase = EntityUtils.getBase(target);
-			List<DefaultNode> newPath = graphHelper.createPath(entityBounds, targetBase);
-			entity.get(AiPart.class).setPath(newPath);
+			List<DefaultNode> newPath = graphHelper.createPath(bounds, targetBounds);
+			if (!newPath.isEmpty()) {
+				entity.get(AiPart.class).setPath(newPath);
+			}
 		}
 	}
 

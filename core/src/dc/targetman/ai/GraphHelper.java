@@ -39,10 +39,10 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final List<DefaultNode> createPath(final Rectangle startBounds, final Vector2 end) {
+	public final List<DefaultNode> createPath(final Rectangle startBounds, final Rectangle endBounds) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
 		DefaultNode startNode = getNode(startBounds);
-		DefaultNode endNode = getNearestNode(end);
+		DefaultNode endNode = getNearestNode(endBounds);
 		if (startNode != null && endNode != null) {
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
 		}
@@ -74,8 +74,8 @@ public final class GraphHelper {
 		return floorLength;
 	}
 
-	private DefaultNode getNearestNode(final Vector2 position) {
-		NodeDistanceComparator comparator = new NodeDistanceComparator(position);
+	private DefaultNode getNearestNode(final Rectangle bounds) {
+		NodeDistanceComparator comparator = new NodeDistanceComparator(bounds);
 		return Collections.min(graph.getNodes(), comparator);
 	}
 
@@ -92,10 +92,10 @@ public final class GraphHelper {
 
 	private class NodeDistanceComparator implements Comparator<DefaultNode> {
 
-		private final Vector2 position;
+		private final Rectangle bounds;
 
-		public NodeDistanceComparator(final Vector2 position) {
-			this.position = position;
+		public NodeDistanceComparator(final Rectangle bounds) {
+			this.bounds = bounds;
 		}
 
 		@Override
@@ -104,9 +104,14 @@ public final class GraphHelper {
 		}
 
 		private float getCost(final DefaultNode node) {
-			// TODO: inaccurate
-			return Maths.distance(node.x(), position.x) + Maths.distance(node.right(), position.x)
-			+ Maths.distance(node.top(), position.y);
+			if (node.isTouching(bounds)) {
+				return 0;
+			} else {
+				// TODO: inaccurate
+				Vector2 center = bounds.getCenter(new Vector2());
+				return Maths.distance(node.x(), center.x) + Maths.distance(node.right(), center.x)
+				+ Maths.distance(node.top(), center.y);
+			}
 		}
 
 	}
