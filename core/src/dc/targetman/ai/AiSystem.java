@@ -73,7 +73,7 @@ public final class AiSystem extends EntitySystem {
 		if (currentNode == graphHelper.getNearestNode(targetBounds)) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (!path.isEmpty()) {
-			nextX = getNextX(path);
+			nextX = getNextX(bounds, path);
 		}
 		if (!Float.isNaN(nextX)) {
 			moveDirection = nextX > bounds.getCenter(new Vector2()).x ? 1 : -1;
@@ -93,14 +93,15 @@ public final class AiSystem extends EntitySystem {
 		}
 	}
 
-	private float getNextX(final List<DefaultNode> path) {
+	private float getNextX(final Rectangle bounds, final List<DefaultNode> path) {
 		// TODO: Doesn't handle if nextnextnode x is in middle of nextNode
 		DefaultNode nextNode = path.get(0);
-		float nextX = nextNode.x();
+		float edgeBuffer = bounds.width * 1.5f;
+		float nextX = nextNode.x() + edgeBuffer;
 		if (path.size() > 1) {
 			DefaultNode nextNextNode = path.get(1);
 			if (nextNextNode.x() > nextNode.x()) {
-				nextX = nextNode.right();
+				nextX = nextNode.right() - edgeBuffer;
 			}
 		}
 		return nextX;

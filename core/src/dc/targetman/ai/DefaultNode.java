@@ -53,7 +53,7 @@ public final class DefaultNode {
 	}
 
 	private boolean canJumpGap(final float gap) {
-		final float jumpDistance = 5;
+		final float jumpDistance = 8;
 		float gapDistance = Math.abs(gap);
 		return gapDistance > 0 && gapDistance < jumpDistance;
 	}
