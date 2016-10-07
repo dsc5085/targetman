@@ -30,7 +30,7 @@ public final class GraphHelper {
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
-	public DefaultNode getNode(final Rectangle bounds) {
+	public final DefaultNode getNode(final Rectangle bounds) {
 		for (DefaultNode node : graph.getNodes()) {
 			if (node.isTouching(bounds)) {
 				return node;
@@ -39,9 +39,14 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final List<DefaultNode> createPath(final Rectangle startBounds, final Rectangle endBounds) {
+	public final DefaultNode getNearestNode(final Rectangle bounds) {
+		NodeDistanceComparator comparator = new NodeDistanceComparator(bounds);
+		return Collections.min(graph.getNodes(), comparator);
+	}
+
+	// TODO: Pass in node instead of endBounds
+	public final List<DefaultNode> createPath(final DefaultNode startNode, final Rectangle endBounds) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode startNode = getNode(startBounds);
 		DefaultNode endNode = getNearestNode(endBounds);
 		if (startNode != null && endNode != null) {
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
@@ -72,11 +77,6 @@ public final class GraphHelper {
 			floorLength++;
 		}
 		return floorLength;
-	}
-
-	private DefaultNode getNearestNode(final Rectangle bounds) {
-		NodeDistanceComparator comparator = new NodeDistanceComparator(bounds);
-		return Collections.min(graph.getNodes(), comparator);
 	}
 
 	private Heuristic<DefaultNode> getHeuristic() {
