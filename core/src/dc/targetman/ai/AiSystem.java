@@ -15,7 +15,6 @@ import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
-import dclib.geometry.RectangleUtils;
 import dclib.geometry.VectorUtils;
 
 public final class AiSystem extends EntitySystem {
@@ -97,10 +96,10 @@ public final class AiSystem extends EntitySystem {
 		// TODO: Doesn't handle if nextnextnode x is in middle of nextNode
 		DefaultNode nextNode = path.get(0);
 		float edgeBuffer = bounds.width * 1.5f;
-		float nextX = nextNode.x() + edgeBuffer;
+		float nextX = nextNode.left() + edgeBuffer;
 		if (path.size() > 1) {
 			DefaultNode nextNextNode = path.get(1);
-			if (nextNextNode.x() > nextNode.x()) {
+			if (nextNextNode.left() > nextNode.left()) {
 				nextX = nextNode.right() - edgeBuffer;
 			}
 		}
@@ -110,7 +109,7 @@ public final class AiSystem extends EntitySystem {
 	private void jump(final Entity entity, final DefaultNode nextNode) {
 		if (nextNode != null) {
 			Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			if (nextNode.canJumpTo(bounds.x, RectangleUtils.right(bounds), bounds.y)) {
+			if (nextNode.canJumpTo(bounds.x, bounds.y)) {
 				StickActions.jump(entity);
 			}
 		}

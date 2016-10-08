@@ -83,7 +83,7 @@ public final class GraphHelper {
 		return new Heuristic<DefaultNode>() {
 			@Override
 			public float estimate(final DefaultNode node, final DefaultNode endNode) {
-				float xOffset = Maths.distance(node.x(), endNode.x());
+				float xOffset = Maths.distance(node.left(), endNode.left());
 				float yOffset = Maths.distance(endNode.top(), node.top());
 				return xOffset + yOffset;
 			}
@@ -109,7 +109,7 @@ public final class GraphHelper {
 			} else {
 				// TODO: inaccurate
 				Vector2 center = bounds.getCenter(new Vector2());
-				return Maths.distance(node.x(), center.x) + Maths.distance(node.right(), center.x)
+				return Maths.distance(node.left(), center.x) + Maths.distance(node.right(), center.x)
 				+ Maths.distance(node.top(), center.y);
 			}
 		}

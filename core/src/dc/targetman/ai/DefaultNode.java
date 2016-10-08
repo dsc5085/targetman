@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 import dclib.geometry.RectangleUtils;
 import dclib.physics.Box2dUtils;
+import dclib.util.Maths;
 
 public final class DefaultNode {
 
@@ -13,7 +14,7 @@ public final class DefaultNode {
 		this.bounds = bounds;
 	}
 
-	public final float x() {
+	public final float left() {
 		return bounds.x;
 	}
 
@@ -32,14 +33,11 @@ public final class DefaultNode {
 		return collisionBounds.overlaps(this.bounds);
 	}
 
-	public final boolean canJumpTo(final float x, final float right, final float y) {
+	public final boolean canJumpTo(final float startX, final float startY) {
 		// TODO: Replace these constants with calculations
-		final float jumpHeight = 5;
-		// TODO: Doesn't work if nextNode is overlapping with currentNode
-		float leftGap = x() - right;
-		float rightGap = right() - x;
-		float yOffset = y - top();
-		return yOffset < jumpHeight && (canJumpGap(leftGap) || canJumpGap(rightGap));
+		final float jumpHeight = 2;
+		float yOffset = startY - top();
+		return yOffset < jumpHeight && canJumpToHorizontally(startX);
 	}
 
 	@Override
@@ -52,10 +50,10 @@ public final class DefaultNode {
 		return bounds.toString();
 	}
 
-	private boolean canJumpGap(final float gap) {
-		final float jumpDistance = 8;
-		float gapDistance = Math.abs(gap);
-		return gapDistance > 0 && gapDistance < jumpDistance;
+	private boolean canJumpToHorizontally(final float startX) {
+		final float jumpWidth = 8;
+		float gapWidth = Maths.min(Maths.distance(startX, left()), Maths.distance(startX, right()));
+		return Maths.between(startX, left(), right()) || gapWidth < jumpWidth;
 	}
 
 }

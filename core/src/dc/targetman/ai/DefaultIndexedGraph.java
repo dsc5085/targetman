@@ -53,7 +53,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 	}
 
 	private void connect(final DefaultNode node1, final DefaultNode node2) {
-		if (node1.canJumpTo(node2.x(), node2.right(), node2.top())) {
+		if (node1.canJumpTo(node2.left(), node2.top()) || node1.canJumpTo(node2.right(), node2.top())) {
 			Connection<DefaultNode> connection = new DefaultConnection<DefaultNode>(node1, node2);
 			getConnections(node1).add(connection);
 		}
