@@ -53,7 +53,7 @@ public final class AiSystem extends EntitySystem {
 	private void navigate(final Entity entity, final Entity target) {
 		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
 		List<DefaultNode> path = entity.get(AiPart.class).getPath();
-		DefaultNode currentNode = graphHelper.getNode(bounds);
+		DefaultNode currentNode = graphHelper.getTouchingNode(bounds);
 		if (!path.isEmpty() && path.get(0).equals(currentNode)) {
 			path.remove(currentNode);
 		}
@@ -69,7 +69,7 @@ public final class AiSystem extends EntitySystem {
 		int moveDirection = 0;
 		Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 		float nextX = Float.NaN;
-		if (currentNode == graphHelper.getNearestNode(targetBounds)) {
+		if (currentNode == graphHelper.getTargetNode(targetBounds)) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (!path.isEmpty()) {
 			nextX = getNextX(bounds, path);
@@ -83,7 +83,7 @@ public final class AiSystem extends EntitySystem {
 	private void think(final Entity entity, final Rectangle bounds, final Entity target, final DefaultNode nextNode) {
 		if (entity.get(AiPart.class).think()) {
 			entity.get(AiPart.class).getPath();
-			DefaultNode startNode = nextNode == null ? graphHelper.getNode(bounds) : nextNode;
+			DefaultNode startNode = nextNode == null ? graphHelper.getTouchingNode(bounds) : nextNode;
 			Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 			List<DefaultNode> newPath = graphHelper.createPath(startNode, targetBounds);
 			if (!newPath.isEmpty()) {

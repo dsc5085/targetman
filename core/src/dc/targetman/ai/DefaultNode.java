@@ -14,6 +14,10 @@ public final class DefaultNode {
 		this.bounds = bounds;
 	}
 
+	public final Rectangle getBounds() {
+		return new Rectangle(bounds);
+	}
+
 	public final float left() {
 		return bounds.x;
 	}
@@ -53,7 +57,7 @@ public final class DefaultNode {
 	private boolean canJumpToHorizontally(final float startX) {
 		final float jumpWidth = 8;
 		float gapWidth = Maths.min(Maths.distance(startX, left()), Maths.distance(startX, right()));
-		return Maths.between(startX, left(), right()) || gapWidth < jumpWidth;
+		return RectangleUtils.containsX(bounds, startX) || gapWidth < jumpWidth;
 	}
 
 }

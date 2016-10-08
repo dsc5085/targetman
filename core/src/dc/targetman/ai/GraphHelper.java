@@ -1,8 +1,6 @@
 package dc.targetman.ai;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
@@ -17,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.common.collect.Lists;
 
 import dc.targetman.level.MapUtils;
+import dclib.geometry.RectangleUtils;
 import dclib.geometry.UnitConverter;
 import dclib.util.Maths;
 
@@ -30,7 +29,7 @@ public final class GraphHelper {
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
-	public final DefaultNode getNode(final Rectangle bounds) {
+	public final DefaultNode getTouchingNode(final Rectangle bounds) {
 		for (DefaultNode node : graph.getNodes()) {
 			if (node.isTouching(bounds)) {
 				return node;
@@ -39,15 +38,24 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final DefaultNode getNearestNode(final Rectangle bounds) {
-		NodeDistanceComparator comparator = new NodeDistanceComparator(bounds);
-		return Collections.min(graph.getNodes(), comparator);
+	public final DefaultNode getTargetNode(final Rectangle bounds) {
+		DefaultNode nearestNode = null;
+		Vector2 center = bounds.getCenter(new Vector2());
+		for (DefaultNode node : graph.getNodes()) {
+			if (node.isTouching(bounds)) {
+				return node;
+			} else if (RectangleUtils.containsX(node.getBounds(), center.x)
+					&& (nearestNode == null || Maths.between(node.top(), nearestNode.top(), center.y))) {
+				nearestNode = node;
+			}
+		}
+		return nearestNode;
 	}
 
 	// TODO: Pass in node instead of endBounds
 	public final List<DefaultNode> createPath(final DefaultNode startNode, final Rectangle endBounds) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode endNode = getNearestNode(endBounds);
+		DefaultNode endNode = getTargetNode(endBounds);
 		if (startNode != null && endNode != null) {
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
 		}
@@ -88,32 +96,6 @@ public final class GraphHelper {
 				return xOffset + yOffset;
 			}
 		};
-	}
-
-	private class NodeDistanceComparator implements Comparator<DefaultNode> {
-
-		private final Rectangle bounds;
-
-		public NodeDistanceComparator(final Rectangle bounds) {
-			this.bounds = bounds;
-		}
-
-		@Override
-		public int compare(final DefaultNode node1, final DefaultNode node2) {
-			return Float.compare(getCost(node1), getCost(node2));
-		}
-
-		private float getCost(final DefaultNode node) {
-			if (node.isTouching(bounds)) {
-				return 0;
-			} else {
-				// TODO: inaccurate
-				Vector2 center = bounds.getCenter(new Vector2());
-				return Maths.distance(node.left(), center.x) + Maths.distance(node.right(), center.x)
-				+ Maths.distance(node.top(), center.y);
-			}
-		}
-
 	}
 
 }
