@@ -38,7 +38,7 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final DefaultNode getTargetNode(final Rectangle bounds) {
+	public final DefaultNode getNearestNode(final Rectangle bounds) {
 		DefaultNode nearestNode = null;
 		Vector2 center = bounds.getCenter(new Vector2());
 		for (DefaultNode node : graph.getNodes()) {
@@ -55,7 +55,7 @@ public final class GraphHelper {
 	// TODO: Pass in node instead of endBounds
 	public final List<DefaultNode> createPath(final DefaultNode startNode, final Rectangle endBounds) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode endNode = getTargetNode(endBounds);
+		DefaultNode endNode = getNearestNode(endBounds);
 		if (startNode != null && endNode != null) {
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
 		}

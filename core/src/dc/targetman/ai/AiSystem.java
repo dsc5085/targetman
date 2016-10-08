@@ -16,6 +16,7 @@ import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
 import dclib.geometry.VectorUtils;
+import dclib.physics.Box2dUtils;
 
 public final class AiSystem extends EntitySystem {
 
@@ -54,13 +55,11 @@ public final class AiSystem extends EntitySystem {
 		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
 		List<DefaultNode> path = entity.get(AiPart.class).getPath();
 		DefaultNode currentNode = graphHelper.getTouchingNode(bounds);
-		if (!path.isEmpty() && path.get(0).equals(currentNode)) {
-			path.remove(currentNode);
-		}
+		path.remove(currentNode);
 		float moveDirection = getMoveDirection(target, bounds, path, currentNode);
 		StickActions.move(entity, moveDirection);
 		DefaultNode nextNode = path.isEmpty() ? null : path.get(0);
-		jump(entity, nextNode);
+		jump(entity, currentNode, nextNode);
 		think(entity, bounds, target, nextNode);
 	}
 
@@ -69,7 +68,7 @@ public final class AiSystem extends EntitySystem {
 		int moveDirection = 0;
 		Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 		float nextX = Float.NaN;
-		if (currentNode == graphHelper.getTargetNode(targetBounds)) {
+		if (currentNode == graphHelper.getNearestNode(targetBounds)) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (!path.isEmpty()) {
 			nextX = getNextX(bounds, path);
@@ -82,13 +81,10 @@ public final class AiSystem extends EntitySystem {
 
 	private void think(final Entity entity, final Rectangle bounds, final Entity target, final DefaultNode nextNode) {
 		if (entity.get(AiPart.class).think()) {
-			entity.get(AiPart.class).getPath();
 			DefaultNode startNode = nextNode == null ? graphHelper.getTouchingNode(bounds) : nextNode;
 			Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 			List<DefaultNode> newPath = graphHelper.createPath(startNode, targetBounds);
-			if (!newPath.isEmpty()) {
-				entity.get(AiPart.class).setPath(newPath);
-			}
+			entity.get(AiPart.class).setPath(newPath);
 		}
 	}
 
@@ -106,12 +102,12 @@ public final class AiSystem extends EntitySystem {
 		return nextX;
 	}
 
-	private void jump(final Entity entity, final DefaultNode nextNode) {
-		if (nextNode != null) {
-			Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			if (nextNode.canJumpTo(bounds.x, bounds.y)) {
-				StickActions.jump(entity);
-			}
+	private void jump(final Entity entity, final DefaultNode currentNode, final DefaultNode nextNode) {
+		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
+		boolean jumpToNextNode = nextNode != null && nextNode.canJumpTo(bounds.x, bounds.y);
+		boolean jumpToCurrentNode = currentNode != null && bounds.y + Box2dUtils.ROUNDING_ERROR < currentNode.top();
+		if (jumpToNextNode || jumpToCurrentNode) {
+			StickActions.jump(entity);
 		}
 	}
 
@@ -133,14 +129,9 @@ public final class AiSystem extends EntitySystem {
 	 * @return 1 if angle should be increased, -1 if angle should be decreased, or 0 if angle shouldn't change
 	 */
 	private float getRotateDirection(final Centrum fromCentrum, final Vector2 to, final boolean flipX) {
-		float direction = 0;
 		Vector2 offset = VectorUtils.offset(fromCentrum.getPosition(), to);
 		Vector2 fireDirection = new Vector2(1, 0).setAngle(fromCentrum.getRotation());
-		if (offset.y * fireDirection.x > offset.x * fireDirection.y) {
-			direction = 1;
-		} else {
-			direction = -1;
-		}
+		float direction = offset.y * fireDirection.x > offset.x * fireDirection.y ? 1 : -1;
 		if (flipX) {
 			direction *= -1;
 		}
