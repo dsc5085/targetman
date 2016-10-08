@@ -1,4 +1,4 @@
-package dc.targetman.gamelogic;
+package dc.targetman.mechanics;
 
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;

@@ -21,12 +21,12 @@ import com.badlogic.gdx.physics.box2d.World;
 
 import dc.targetman.ai.AiSystem;
 import dc.targetman.ai.GraphHelper;
-import dc.targetman.gamelogic.MovementSystem;
-import dc.targetman.gamelogic.ScaleSystem;
-import dc.targetman.gamelogic.StickActions;
-import dc.targetman.gamelogic.VitalLimbsSystem;
-import dc.targetman.gamelogic.WeaponSystem;
 import dc.targetman.level.models.Alliance;
+import dc.targetman.mechanics.MovementSystem;
+import dc.targetman.mechanics.ScaleSystem;
+import dc.targetman.mechanics.StickActions;
+import dc.targetman.mechanics.VitalLimbsSystem;
+import dc.targetman.mechanics.WeaponSystem;
 import dc.targetman.physics.collision.ForceCollidedListener;
 import dc.targetman.physics.collision.ParticlesCollidedListener;
 import dc.targetman.physics.collision.StickyCollidedListener;
@@ -37,13 +37,13 @@ import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.SpriteSyncSystem;
-import dclib.gamelogic.DamageCollidedListener;
-import dclib.gamelogic.RemoveCollidedListener;
-import dclib.gamelogic.RemoveOnNoHealthEntityAddedListener;
-import dclib.gamelogic.TimedDeathSystem;
 import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
 import dclib.graphics.TextureCache;
+import dclib.mechanics.DamageCollidedListener;
+import dclib.mechanics.RemoveCollidedListener;
+import dclib.mechanics.RemoveOnNoHealthEntityAddedListener;
+import dclib.mechanics.TimedDeathSystem;
 import dclib.physics.AutoRotateSystem;
 import dclib.physics.Box2dUtils;
 import dclib.physics.ParticlesManager;
@@ -167,7 +167,7 @@ public final class LevelController {
 
 	private void spawnInitialEntities() {
 		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(29, 3, 0), Alliance.ENEMY);
+		entityFactory.createStickman(new Vector3(29, 10, 0), Alliance.ENEMY);
 	}
 
 	private void processInput() {

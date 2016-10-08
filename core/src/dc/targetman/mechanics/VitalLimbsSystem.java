@@ -1,4 +1,4 @@
-package dc.targetman.gamelogic;
+package dc.targetman.mechanics;
 
 import java.util.List;
 
