@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.epf.parts.MovementPart;
 import dclib.epf.Entity;
@@ -93,11 +92,12 @@ public final class MovementSystem extends EntitySystem {
 	}
 
 	private boolean isGroundedContact(final Body body, final Contact contact) {
-		Array<Fixture> fixtures = body.getFixtureList();
+		// TODO: Don't use get(0) because its hardcoded
+		Fixture legsFixture = body.getFixtureList().get(0);
 		Fixture fixtureA = contact.getFixtureA();
 		Fixture fixtureB = contact.getFixtureB();
-		return contact.isTouching() && (fixtures.contains(fixtureA, true) && !fixtureB.isSensor())
-				|| (fixtures.contains(fixtureB, true) && !fixtureA.isSensor());
+		return contact.isTouching() && (legsFixture == fixtureA && !fixtureB.isSensor())
+				|| (legsFixture == fixtureB && !fixtureA.isSensor());
 	}
 
 	private float getMoveStrength(final Entity entity) {
