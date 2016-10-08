@@ -1,4 +1,4 @@
-package dc.targetman.level.models;
+package dc.targetman.mechanics;
 
 public enum Alliance {
 

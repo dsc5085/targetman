@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.level.EntityFactory;
-import dc.targetman.level.models.Alliance;
+import dc.targetman.mechanics.Alliance;
 import dclib.epf.Entity;
 import dclib.epf.parts.TransformPart;
 import dclib.physics.Contacter;

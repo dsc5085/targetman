@@ -14,14 +14,16 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import dc.targetman.ai.AiSystem;
 import dc.targetman.ai.GraphHelper;
-import dc.targetman.level.models.Alliance;
+import dc.targetman.epf.parts.MovementPart;
+import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.MovementSystem;
 import dc.targetman.mechanics.ScaleSystem;
 import dc.targetman.mechanics.StickActions;
@@ -68,7 +70,6 @@ public final class LevelController {
 	private final ParticlesManager particlesManager;
 	private final List<EntityDrawer> entityDrawers = new ArrayList<EntityDrawer>();
 	private final TiledMap map;
-	private Entity targetman;
 
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
 			final ShapeRenderer shapeRenderer) {
@@ -81,9 +82,8 @@ public final class LevelController {
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		entityManager.listen(entityRemoved());
 		advancer = createAdvancer();
-		MapUtils.spawn(map, entityFactory);
+		new MapLoader(map, unitConverter, entityFactory).createObjects();
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1, spriteBatch);
-		spawnInitialEntities();
 	}
 
 	public final void dispose() {
@@ -93,17 +93,15 @@ public final class LevelController {
 
 	public final void update(final float delta) {
 		advancer.advance(delta);
-		if (targetman.isActive()) {
-			CameraUtils.follow(targetman, unitConverter, camera);
-		}
+		CameraUtils.follow(findPlayer(), unitConverter, camera);
 		mapRenderer.setView(camera);
 	}
 
 	public final void draw() {
 		particlesManager.draw();
-//		mapRenderer.render();
+		mapRenderer.render();
 		renderEntities();
-		renderBox2D();
+//		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
@@ -165,32 +163,37 @@ public final class LevelController {
 		};
 	}
 
-	private void spawnInitialEntities() {
-		targetman = entityFactory.createStickman(new Vector3(1, 5, 0), Alliance.PLAYER);
-		entityFactory.createStickman(new Vector3(29, 10, 0), Alliance.ENEMY);
-	}
-
 	private void processInput() {
+		Entity player = findPlayer();
 		float moveDirection = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			moveDirection = -1;
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			moveDirection = 1;
 		}
-		StickActions.move(targetman, moveDirection);
+		StickActions.move(player, moveDirection);
 		float aimDirection = 0;
 		if (Gdx.input.isKeyPressed(Keys.W)){
 			aimDirection = 1;
 		} else if (Gdx.input.isKeyPressed(Keys.S)) {
 			aimDirection = -1;
 		}
-		StickActions.aim(targetman, aimDirection);
+		StickActions.aim(player, aimDirection);
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-			StickActions.jump(targetman);
+			StickActions.jump(player);
 		}
 		if (Gdx.input.isKeyPressed(Keys.J)){
-			StickActions.trigger(targetman);
+			StickActions.trigger(player);
 		}
+	}
+
+	private Entity findPlayer() {
+		return Iterables.find(entityManager.getAll(), new Predicate<Entity>() {
+			@Override
+			public boolean apply(final Entity input) {
+				return input.has(MovementPart.class) && input.is(Alliance.PLAYER);
+			}
+		});
 	}
 
 	private void renderEntities() {

@@ -24,7 +24,7 @@ import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
-import dc.targetman.level.models.Alliance;
+import dc.targetman.mechanics.Alliance;
 import dc.targetman.physics.collision.Material;
 import dc.targetman.physics.limb.WalkAnimation;
 import dclib.epf.Entity;
