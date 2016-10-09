@@ -60,7 +60,7 @@ public final class AiSystem extends EntitySystem {
 		StickActions.move(entity, moveDirection);
 		DefaultNode nextNode = path.isEmpty() ? null : path.get(0);
 		jump(entity, currentNode, nextNode);
-		think(entity, bounds, target, nextNode);
+		think(entity, bounds, target, currentNode);
 	}
 
 	private float getMoveDirection(final Entity target, final Rectangle bounds, final List<DefaultNode> path,
@@ -79,17 +79,15 @@ public final class AiSystem extends EntitySystem {
 		return moveDirection;
 	}
 
-	private void think(final Entity entity, final Rectangle bounds, final Entity target, final DefaultNode nextNode) {
-		if (entity.get(AiPart.class).think()) {
-			DefaultNode startNode = nextNode == null ? graphHelper.getTouchingNode(bounds) : nextNode;
+	private void think(final Entity entity, final Rectangle bounds, final Entity target, final DefaultNode currentNode) {
+		if (currentNode != null && entity.get(AiPart.class).think()) {
 			Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
-			List<DefaultNode> newPath = graphHelper.createPath(startNode, targetBounds);
+			List<DefaultNode> newPath = graphHelper.createPath(currentNode, targetBounds);
 			entity.get(AiPart.class).setPath(newPath);
 		}
 	}
 
 	private float getNextX(final Rectangle bounds, final List<DefaultNode> path) {
-		// TODO: Doesn't handle if nextnextnode x is in middle of nextNode
 		DefaultNode nextNode = path.get(0);
 		float edgeBuffer = bounds.width * 1.5f;
 		float nextX = nextNode.left() + edgeBuffer;
@@ -104,10 +102,12 @@ public final class AiSystem extends EntitySystem {
 
 	private void jump(final Entity entity, final DefaultNode currentNode, final DefaultNode nextNode) {
 		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
-		boolean jumpToNextNode = nextNode != null && nextNode.canJumpTo(bounds.x, bounds.y);
-		boolean jumpToCurrentNode = currentNode != null && bounds.y + Box2dUtils.ROUNDING_ERROR < currentNode.top();
-		if (jumpToNextNode || jumpToCurrentNode) {
-			StickActions.jump(entity);
+		if (currentNode != null) {
+			boolean jumpToNextNode = nextNode != null && nextNode.canJumpTo(bounds.x, bounds.y);
+			boolean jumpToCurrentNode = bounds.y + Box2dUtils.ROUNDING_ERROR < currentNode.top();
+			if (jumpToNextNode || jumpToCurrentNode) {
+				StickActions.jump(entity);
+			}
 		}
 	}
 
