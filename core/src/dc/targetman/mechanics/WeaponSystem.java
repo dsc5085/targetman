@@ -10,6 +10,7 @@ import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.physics.limb.Limb;
 import dclib.util.CollectionUtils;
+import dclib.util.FloatRange;
 
 public final class WeaponSystem extends EntitySystem {
 
@@ -40,7 +41,14 @@ public final class WeaponSystem extends EntitySystem {
 
 	private void fire(final WeaponPart weaponPart) {
 		if (weaponPart.shouldFire()) {
-			entityFactory.createBullet(weaponPart.getCentrum(), weaponPart.getEntityType());
+			Weapon weapon = weaponPart.getWeapon();
+			float halfSpread = weapon.getSpread() / 2;
+			FloatRange spreadRange = new FloatRange(-halfSpread, halfSpread);
+			int numBullets = weapon.getNumBullets();
+			for (int i = 0; i < numBullets; i++) {
+				float angleOffset = spreadRange.interpolate((float)i / (numBullets - 1));
+				entityFactory.createBullet(weaponPart.getCentrum(), angleOffset, weapon.getBulletType());
+			}
 			weaponPart.reset();
 		}
 	}

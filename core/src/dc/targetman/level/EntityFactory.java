@@ -25,6 +25,7 @@ import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.mechanics.Alliance;
+import dc.targetman.mechanics.Weapon;
 import dc.targetman.physics.collision.Material;
 import dc.targetman.physics.limb.WalkAnimation;
 import dclib.epf.Entity;
@@ -146,10 +147,11 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		Centrum weaponCentrum = new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f));
+		Weapon weapon = new Weapon(0.5f, 7, 35, alliance.getTarget().name());
 		entity.attach(
 				new LimbAnimationsPart(animations),
 				new MovementPart(10, 10, leftLeg, rightLeg),
-				new WeaponPart(alliance.getTarget().name(), weaponCentrum, 0.3f, rotator),
+				new WeaponPart(weaponCentrum, weapon, rotator),
 				new LimbsPart(root, leftLeg, rightLeg),
 				new VitalLimbsPart(head, torso));
 		if (alliance == Alliance.ENEMY){
@@ -160,7 +162,7 @@ public final class EntityFactory {
 		return entity;
 	}
 
-	public final void createBullet(final Centrum centrum, final String type) {
+	public final void createBullet(final Centrum centrum, final float angleOffset, final String type) {
 		Alliance targetAlliance = Alliance.valueOf(type); // TODO: hacky...
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
@@ -168,7 +170,7 @@ public final class EntityFactory {
 		Body bulletBody = createBody("objects/bullet", size, true);
 		bulletBody.setBullet(true);
 		bulletBody.setGravityScale(0.1f);
-		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation());
+		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation() + angleOffset);
 		bulletBody.setLinearVelocity(velocity);
 		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), Material.METAL });
 		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, targetAlliance), new ForcePart(10, targetAlliance));

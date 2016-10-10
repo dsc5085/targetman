@@ -101,10 +101,11 @@ public final class MovementSystem extends EntitySystem {
 		// TODO: Don't use get(0) because its hardcoded
 		Fixture legsFixture = body.getFixtureList().get(0);
 		WorldManifold manifold = contact.getWorldManifold();
+		float halfLegsSize = Box2DUtils.height(legsFixture) / 2;
 		if (legsFixture == fixture1 && !fixture2.isSensor()) {
 			float legsMinY = Box2DUtils.minYWorld(legsFixture);
 			for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
-				if (manifold.getPoints()[i].y - Box2dUtils.ROUNDING_ERROR < legsMinY) {
+				if (manifold.getPoints()[i].y < legsMinY + halfLegsSize) {
 					return true;
 				}
 			}
