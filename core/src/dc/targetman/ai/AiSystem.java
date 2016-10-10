@@ -117,7 +117,7 @@ public final class AiSystem extends EntitySystem {
 		Vector2 targetCenter = target.get(TransformPart.class).getTransform().getCenter();
 		float direction = getRotateDirection(centrum, targetCenter, flipX);
 		StickActions.aim(entity, direction);
-		StickActions.trigger(entity);
+//		StickActions.trigger(entity);
 	}
 
 	/**

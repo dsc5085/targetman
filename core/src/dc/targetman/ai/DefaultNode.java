@@ -39,7 +39,7 @@ public final class DefaultNode {
 
 	public final boolean canJumpTo(final float startX, final float startY) {
 		// TODO: Replace these constants with calculations
-		final float jumpHeight = 2;
+		final float jumpHeight = 3;
 		float yOffset = startY - top();
 		return yOffset < jumpHeight && canJumpToHorizontally(startX);
 	}

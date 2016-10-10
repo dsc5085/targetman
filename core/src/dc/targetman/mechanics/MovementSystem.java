@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.WorldManifold;
 
 import dc.targetman.epf.parts.MovementPart;
 import dclib.epf.Entity;
@@ -21,6 +22,7 @@ import dclib.physics.Transform;
 import dclib.physics.limb.Limb;
 import dclib.physics.limb.LimbAnimation;
 import dclib.util.Maths;
+import net.dermetfan.gdx.physics.box2d.Box2DUtils;
 
 public final class MovementSystem extends EntitySystem {
 
@@ -83,7 +85,10 @@ public final class MovementSystem extends EntitySystem {
 	private boolean isGrounded(final Body body) {
 		if (body.getLinearVelocity().y == 0) {
 			for (Contact contact : world.getContactList()) {
-				if (isGroundedContact(body, contact)) {
+				Fixture fixtureA = contact.getFixtureA();
+				Fixture fixtureB = contact.getFixtureB();
+				if (contact.isTouching() && (isGroundedContact(body, fixtureA, fixtureB, contact)
+						|| isGroundedContact(body, fixtureB, fixtureA, contact))) {
 					return true;
 				}
 			}
@@ -91,13 +96,20 @@ public final class MovementSystem extends EntitySystem {
 		return false;
 	}
 
-	private boolean isGroundedContact(final Body body, final Contact contact) {
+	private boolean isGroundedContact(final Body body, final Fixture fixture1, final Fixture fixture2,
+			final Contact contact) {
 		// TODO: Don't use get(0) because its hardcoded
 		Fixture legsFixture = body.getFixtureList().get(0);
-		Fixture fixtureA = contact.getFixtureA();
-		Fixture fixtureB = contact.getFixtureB();
-		return contact.isTouching() && (legsFixture == fixtureA && !fixtureB.isSensor())
-				|| (legsFixture == fixtureB && !fixtureA.isSensor());
+		WorldManifold manifold = contact.getWorldManifold();
+		if (legsFixture == fixture1 && !fixture2.isSensor()) {
+			float legsMinY = Box2DUtils.minYWorld(legsFixture);
+			for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
+				if (manifold.getPoints()[i].y - Box2dUtils.ROUNDING_ERROR < legsMinY) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private float getMoveStrength(final Entity entity) {
