@@ -7,9 +7,9 @@ import dclib.epf.EntityManager;
 import dclib.epf.parts.SpritePart;
 import dclib.epf.parts.TimedDeathPart;
 import dclib.epf.parts.TransformPart;
-import dclib.physics.Contacter;
 import dclib.physics.DefaultTransform;
 import dclib.physics.Transform;
+import dclib.physics.collision.CollidedEvent;
 import dclib.physics.collision.CollidedListener;
 import dclib.util.FloatRange;
 
@@ -22,12 +22,13 @@ public final class StickyCollidedListener implements CollidedListener {
 	}
 
 	@Override
-	public final void collided(final Contacter collider, final Contacter collidee) {
+	public final void collided(final CollidedEvent event) {
 		final FloatRange deathTimeRange = new FloatRange(10, 120);
-		Entity colliderEntity = collider.getEntity();
-		if (colliderEntity.is(Material.STICKY) && collidee.getBody().getType() == BodyType.StaticBody) {
+		Entity sourceEntity = event.getSource().getEntity();
+		BodyType targetBodyType = event.getTarget().getBody().getType();
+		if (sourceEntity.is(Material.STICKY) && targetBodyType == BodyType.StaticBody) {
 			Entity spawn = new Entity();
-			Transform transform = colliderEntity.get(TransformPart.class).getTransform();
+			Transform transform = sourceEntity.get(TransformPart.class).getTransform();
 			Transform spawnTransform = new DefaultTransform(transform);
 			// TODO:
 //			Vector2 size = transform.getSize();
@@ -36,7 +37,7 @@ public final class StickyCollidedListener implements CollidedListener {
 //				transform.translate(stickOffset);
 //			}
 			TimedDeathPart timedDeathPart = new TimedDeathPart(deathTimeRange.random());
-			spawn.attach(new TransformPart(spawnTransform), colliderEntity.get(SpritePart.class), timedDeathPart);
+			spawn.attach(new TransformPart(spawnTransform), sourceEntity.get(SpritePart.class), timedDeathPart);
 			entityManager.add(spawn);
 		}
 	}

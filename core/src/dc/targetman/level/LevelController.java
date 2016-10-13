@@ -50,6 +50,7 @@ import dclib.physics.AutoRotateSystem;
 import dclib.physics.Box2dUtils;
 import dclib.physics.ParticlesManager;
 import dclib.physics.TranslateSystem;
+import dclib.physics.collision.CollidedEvent;
 import dclib.physics.collision.CollisionChecker;
 import dclib.physics.limb.LimbsSystem;
 import dclib.system.Advancer;
@@ -137,12 +138,31 @@ public final class LevelController {
 
 	private CollisionChecker createCollisionChecker() {
 		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
-		collisionSystem.listen(new DamageCollidedListener());
+		Predicate<CollidedEvent> filter = getCollisionFilter();
+		collisionSystem.listen(new DamageCollidedListener(filter));
 		collisionSystem.listen(new StickyCollidedListener(entityManager));
-		collisionSystem.listen(new ForceCollidedListener(entityManager));
+		collisionSystem.listen(new ForceCollidedListener(entityManager, filter));
 		collisionSystem.listen(new ParticlesCollidedListener(particlesManager, entityFactory));
-		collisionSystem.listen(new RemoveCollidedListener(entityManager));
+		collisionSystem.listen(new RemoveCollidedListener(entityManager, filter));
 		return collisionSystem;
+	}
+
+	private Predicate<CollidedEvent> getCollisionFilter() {
+		return new Predicate<CollidedEvent>() {
+			@Override
+			public boolean apply(final CollidedEvent event) {
+				Entity targetEntity = event.getTarget().getEntity();
+				Alliance targetAlliance = getAlliance(targetEntity);
+				Alliance sourceAlliance = getAlliance(event.getSource().getEntity());
+				return sourceAlliance != null && sourceAlliance.getTarget() == targetAlliance
+						&& !targetEntity.has(MovementPart.class);
+			}
+		};
+	}
+
+	private Alliance getAlliance(final Entity entity) {
+		Iterable<Alliance> alliances = Iterables.filter(entity.getAttributes(), Alliance.class);
+		return Iterables.getFirst(alliances, null);
 	}
 
 	private Updater createInputUpdater() {

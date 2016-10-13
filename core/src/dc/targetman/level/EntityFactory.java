@@ -173,7 +173,7 @@ public final class EntityFactory {
 		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation() + angleOffset);
 		bulletBody.setLinearVelocity(velocity);
 		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), Material.METAL });
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10, targetAlliance), new ForcePart(10, targetAlliance));
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10), new ForcePart(10));
 		Body trailBody = createBody("objects/bullet_trail", new Vector2(1.5f, size.y), true);
 		Entity trail = createBaseEntity(trailBody, new Vector3(), "objects/bullet_trail");
 		trail.attach(new ScalePart(new FloatRange(0, 1), 0.2f));
@@ -182,8 +182,7 @@ public final class EntityFactory {
 		Transform transform = bullet.get(TransformPart.class).getTransform();
 		Limb root = new Limb(transform).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0);
 		LimbsPart limbsPart = new LimbsPart(root, root);
-		// TODO: Bug - the bullet gets removed when hitting the target's bounding box
-		bullet.attach(limbsPart, new CollisionRemovePart(targetAlliance));
+		bullet.attach(limbsPart, new CollisionRemovePart());
 		entityManager.add(bullet);
 	}
 
