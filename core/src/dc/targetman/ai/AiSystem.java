@@ -74,7 +74,10 @@ public final class AiSystem extends EntitySystem {
 			nextX = getNextX(bounds, path);
 		}
 		if (!Float.isNaN(nextX)) {
-			moveDirection = nextX > bounds.getCenter(new Vector2()).x ? 1 : -1;
+			float offsetX = nextX - bounds.getCenter(new Vector2()).x;
+			if (Math.abs(offsetX) > bounds.width / 2) {
+				moveDirection = offsetX > 0 ? 1 : -1;
+			}
 		}
 		return moveDirection;
 	}
