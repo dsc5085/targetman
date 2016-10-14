@@ -60,6 +60,7 @@ public final class LevelController {
 
 	private static final float PIXELS_PER_UNIT = 32f;
 
+	private boolean isRunning = true;
 	private final EntityFactory entityFactory;
 	private final EntityManager entityManager = new DefaultEntityManager();
 	private final World world = new World(new Vector2(0, -10), true);
@@ -87,15 +88,21 @@ public final class LevelController {
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1, spriteBatch);
 	}
 
+	public final void toggleRunning() {
+		isRunning = !isRunning;
+	}
+
 	public final void dispose() {
 		map.dispose();
 		entityManager.dispose();
 	}
 
 	public final void update(final float delta) {
-		advancer.advance(delta);
-		CameraUtils.follow(findPlayer(), unitConverter, camera);
-		mapRenderer.setView(camera);
+		if (isRunning) {
+			advancer.advance(delta);
+			CameraUtils.follow(findPlayer(), unitConverter, camera);
+			mapRenderer.setView(camera);
+		}
 	}
 
 	public final void draw() {
