@@ -46,21 +46,24 @@ public final class MovementSystem extends EntitySystem {
 		MovementPart movementPart = entity.get(MovementPart.class);
 		float direction = movementPart.getDirection();
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
+		float moveSpeed = movementPart.getMoveSpeed();
 		if (direction == 0) {
 			walkAnimation.stop();
+			Vector2 velocity = entity.get(TransformPart.class).getTransform().getVelocity();
+			float forceDirection = -Math.signum(velocity.x);
+			applyMoveForce(entity, moveSpeed, forceDirection);
 		} else {
 			walkAnimation.play();
 			entity.get(LimbsPart.class).setFlipX(direction < 0);
-			applyMoveForce(entity, movementPart);
+			applyMoveForce(entity, moveSpeed, direction);
 			movementPart.setDirection(0);
 		}
 	}
 
-	private void applyMoveForce(final Entity entity, final MovementPart movementPart) {
+	private void applyMoveForce(final Entity entity, final float speed, final float direction) {
 		Transform transform = entity.get(TransformPart.class).getTransform();
-		float maxSpeedX = movementPart.getMoveSpeed() * getMoveStrength(entity);
+		float maxSpeedX = speed * getMoveStrength(entity);
 		float velocityX = transform.getVelocity().x;
-		float direction = movementPart.getDirection();
 		if (Math.signum(velocityX) != direction || Math.abs(velocityX) < maxSpeedX) {
 			transform.applyImpulse(new Vector2(direction, 0));
 		}
