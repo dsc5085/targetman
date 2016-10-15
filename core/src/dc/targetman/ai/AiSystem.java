@@ -63,12 +63,7 @@ public final class AiSystem extends EntitySystem {
 
 	private void move(final Ai ai, final Rectangle targetBounds) {
 		int moveDirection = 0;
-		float nextX = Float.NaN;
-		if (ai.currentNode == graphHelper.getNearestNode(targetBounds)) {
-			nextX = targetBounds.getCenter(new Vector2()).x;
-		} else if (!ai.path.isEmpty()) {
-			nextX = getNextX(ai.bounds, ai.path);
-		}
+		float nextX = getNextX(ai, targetBounds);
 		if (!Float.isNaN(nextX)) {
 			float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
 			if (Math.abs(offsetX) > ai.bounds.width / 2) {
@@ -76,21 +71,6 @@ public final class AiSystem extends EntitySystem {
 			}
 		}
 		StickActions.move(ai.entity, moveDirection);
-	}
-
-	private float getNextX(final Rectangle bounds, final List<DefaultNode> path) {
-		float nextX = Float.NaN;
-		DefaultNode nextNode = path.get(0);
-		float edgeOffset = bounds.width  * 1.5f;
-		if (bounds.y < nextNode.top()) {
-			edgeOffset *= -1;
-		}
-		if (path.size() > 1 && path.get(1).left() > nextNode.left()) {
-			nextX = nextNode.right() - edgeOffset;
-		} else {
-			nextX = nextNode.left() + edgeOffset;
-		}
-		return nextX;
 	}
 
 	private void jump(final Ai ai) {
@@ -101,6 +81,25 @@ public final class AiSystem extends EntitySystem {
 				StickActions.jump(ai.entity);
 			}
 		}
+	}
+
+	private float getNextX(final Ai ai, final Rectangle targetBounds) {
+		float nextX = Float.NaN;
+		if (ai.currentNode == graphHelper.getNearestNode(targetBounds)) {
+			nextX = targetBounds.getCenter(new Vector2()).x;
+		} else if (!ai.path.isEmpty()) {
+			DefaultNode nextNode = ai.path.get(0);
+			float edgeOffset = ai.bounds.width  * 1.5f;
+			if (ai.bounds.y < nextNode.top()) {
+				edgeOffset *= -1;
+			}
+			if (ai.path.size() > 1 && ai.path.get(1).left() > nextNode.left()) {
+				nextX = nextNode.right() - edgeOffset;
+			} else {
+				nextX = nextNode.left() + edgeOffset;
+			}
+		}
+		return nextX;
 	}
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
