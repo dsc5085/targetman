@@ -18,6 +18,7 @@ import dclib.geometry.Centrum;
 import dclib.geometry.VectorUtils;
 import dclib.physics.Box2dUtils;
 
+// TODO: cleanup.  create helper inner class to represent AI entities
 public final class AiSystem extends EntitySystem {
 
 	private final EntityManager entityManager;
@@ -82,7 +83,8 @@ public final class AiSystem extends EntitySystem {
 		return moveDirection;
 	}
 
-	private void think(final Entity entity, final Rectangle bounds, final Entity target, final DefaultNode currentNode) {
+	private void think(final Entity entity, final Rectangle bounds, final Entity target,
+			final DefaultNode currentNode) {
 		if (currentNode != null && entity.get(AiPart.class).think()) {
 			Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 			List<DefaultNode> newPath = graphHelper.createPath(currentNode, targetBounds);
@@ -91,14 +93,16 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private float getNextX(final Rectangle bounds, final List<DefaultNode> path) {
+		float nextX = Float.NaN;
 		DefaultNode nextNode = path.get(0);
-		float edgeBuffer = bounds.width * 1.5f;
-		float nextX = nextNode.left() + edgeBuffer;
-		if (path.size() > 1) {
-			DefaultNode nextNextNode = path.get(1);
-			if (nextNextNode.left() > nextNode.left()) {
-				nextX = nextNode.right() - edgeBuffer;
-			}
+		float edgeOffset = bounds.width  * 1.5f;
+		if (bounds.y < nextNode.top()) {
+			edgeOffset *= -1;
+		}
+		if (path.size() > 1 && path.get(1).left() > nextNode.left()) {
+			nextX = nextNode.right() - edgeOffset;
+		} else {
+			nextX = nextNode.left() + edgeOffset;
 		}
 		return nextX;
 	}

@@ -150,7 +150,7 @@ public final class EntityFactory {
 		Weapon weapon = new Weapon(0.5f, 7, 35, alliance.getTarget().name());
 		entity.attach(
 				new LimbAnimationsPart(animations),
-				new MovementPart(10, 10, leftLeg, rightLeg),
+				new MovementPart(10, 12, leftLeg, rightLeg),
 				new WeaponPart(weaponCentrum, weapon, rotator),
 				new LimbsPart(root, leftLeg, rightLeg),
 				new VitalLimbsPart(head, torso));
