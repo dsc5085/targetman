@@ -3,6 +3,7 @@ package dc.targetman.mechanics;
 import java.util.List;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -17,6 +18,7 @@ import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbAnimationsPart;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
+import dclib.geometry.RectangleUtils;
 import dclib.physics.Box2dUtils;
 import dclib.physics.Transform;
 import dclib.physics.limb.Limb;
@@ -133,7 +135,8 @@ public final class MovementSystem extends EntitySystem {
 		LimbsPart limbsPart = entity.get(LimbsPart.class);
 		Transform rootTransform = limbsPart.getRoot().getTransform();
 		float localY = getY(limbsPart) - rootTransform.getPosition().y;
-		Vector2 global = EntityUtils.getBase(entity);
+		Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
+		Vector2 global = RectangleUtils.base(bounds);
 		rootTransform.setGlobal(new Vector2(0, localY), global);
 	}
 

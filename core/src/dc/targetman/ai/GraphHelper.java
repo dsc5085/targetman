@@ -38,18 +38,16 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final DefaultNode getNearestNode(final Rectangle bounds) {
-		DefaultNode nearestNode = null;
-		Vector2 center = bounds.getCenter(new Vector2());
-		for (DefaultNode node : graph.getNodes()) {
-			if (node.isTouching(bounds)) {
-				return node;
-			} else if (RectangleUtils.containsX(bounds, node.x())
-					&& (nearestNode == null || Maths.between(node.y(), nearestNode.y(), center.y))) {
-				nearestNode = node;
+	public final Segment getNearestSegment(final Rectangle bounds) {
+		Segment nearestSegment = null;
+		Vector2 base = RectangleUtils.base(bounds);
+		for (Segment segment : graph.getSegments()) {
+			boolean isNearerY = nearestSegment == null || Maths.between(segment.y, nearestSegment.y, base.y);
+			if (segment.containsX(base.x) && isNearerY) {
+				nearestSegment = segment;
 			}
 		}
-		return nearestNode;
+		return nearestSegment;
 	}
 
 	public final List<DefaultNode> createPath(final DefaultNode startNode, final DefaultNode endNode) {

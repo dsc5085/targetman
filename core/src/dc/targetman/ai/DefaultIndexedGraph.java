@@ -1,28 +1,26 @@
 package dc.targetman.ai;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.ai.pfa.DefaultConnection;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-import dclib.geometry.RectangleUtils;
-import dclib.util.CollectionUtils;
+import dc.targetman.util.ArrayUtils;
 import dclib.util.Maths;
 
 public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
+	private final List<Segment> segments;
+	// TODO: Hold nodes variable or calculate on the fly from segments?
 	private final List<DefaultNode> nodes = new ArrayList<DefaultNode>();
-	private final Map<DefaultNode, Array<Connection<DefaultNode>>> nodeConnections
-	= new HashMap<DefaultNode, Array<Connection<DefaultNode>>>();
 
 	public DefaultIndexedGraph(final List<Rectangle> boundsList) {
-		List<Segment> segments = createSegments(boundsList);
+		segments = createSegments(boundsList);
 		connect(segments);
 		for (Segment segment : segments) {
 			nodes.addAll(segment.nodes);
@@ -31,7 +29,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
 	@Override
 	public final Array<Connection<DefaultNode>> getConnections(final DefaultNode fromNode) {
-		return CollectionUtils.get(nodeConnections, fromNode, new Array<Connection<DefaultNode>>());
+		return ArrayUtils.toArray(fromNode.getConnections());
 	}
 
 	@Override
@@ -44,6 +42,10 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		return nodes.indexOf(node);
 	}
 
+	public final List<Segment> getSegments() {
+		return new ArrayList<Segment>(segments);
+	}
+
 	public final List<DefaultNode> getNodes() {
 		return new ArrayList<DefaultNode>(nodes);
 	}
@@ -52,16 +54,9 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		List<Segment> segments = new ArrayList<Segment>();
 		for (Rectangle bounds : boundsList) {
 			Segment segment = new Segment(bounds);
-			addConnection(segment.leftNode, segment.rightNode);
-			addConnection(segment.rightNode, segment.leftNode);
 			segments.add(segment);
 		}
 		return segments;
-	}
-
-	private void addConnection(final DefaultNode startNode, final DefaultNode endNode) {
-		Connection<DefaultNode> connection = new DefaultConnection<DefaultNode>(startNode, endNode);
-		getConnections(startNode).add(connection);
 	}
 
 	private void connect(final List<Segment> segments) {
@@ -71,6 +66,9 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 				Segment segment2 = segments.get(j);
 				connect(segment1, segment2);
 			}
+		}
+		for (Segment segment : segments) {
+			connectWithin(segment);
 		}
 	}
 
@@ -83,9 +81,25 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		connectMiddle(segment2, segment1);
 	}
 
+	private void connectMiddle(final Segment topSegment, final Segment bottomSegment) {
+		if (topSegment.y > bottomSegment.y) {
+			connectMiddle(topSegment.leftNode, bottomSegment);
+			connectMiddle(topSegment.rightNode, bottomSegment);
+		}
+	}
+
+	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment) {
+		if (bottomSegment.containsX(topNode.x())) {
+			DefaultNode bottomNode = new DefaultNode(topNode.x(), bottomSegment.y);
+			bottomSegment.nodes.add(bottomNode);
+			connect(topNode, bottomNode);
+			connect(bottomNode, topNode);
+		}
+	}
+
 	private void connect(final DefaultNode startNode, final DefaultNode endNode) {
 		if (canJumpTo(startNode, endNode)) {
-			addConnection(startNode, endNode);
+			startNode.addConnection(endNode);
 		}
 	}
 
@@ -100,39 +114,19 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		return canJumpToHorizontally && canJumpToVertically;
 	}
 
-	private void connectMiddle(final Segment topSegment, final Segment bottomSegment) {
-		if (topSegment.y > bottomSegment.y) {
-			connectMiddle(topSegment.leftNode, bottomSegment);
-			connectMiddle(topSegment.rightNode, bottomSegment);
+	private void connectWithin(final Segment segment) {
+		List<DefaultNode> nodes = new ArrayList<DefaultNode>(segment.nodes);
+		Collections.sort(nodes, new Comparator<DefaultNode>() {
+			@Override
+			public int compare(final DefaultNode n1, final DefaultNode n2) {
+				return Float.compare(n1.x(), n2.x());
+			}
+		});
+		for (int i = 1; i < nodes.size() - 1; i++) {
+			DefaultNode startNode = nodes.get(i);
+			startNode.addConnection(nodes.get(i - 1));
+			startNode.addConnection(nodes.get(i + 1));
 		}
-	}
-
-	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment) {
-		float bottomLeft = bottomSegment.leftNode.x();
-		float bottomRight = bottomSegment.rightNode.x();
-		if (Maths.between(topNode.x(), bottomLeft, bottomRight)) {
-			DefaultNode bottomNode = new DefaultNode(topNode.x(), bottomSegment.y);
-			bottomSegment.nodes.add(bottomNode);
-			connect(topNode, bottomNode);
-			connect(bottomNode, topNode);
-		}
-	}
-
-	private class Segment {
-
-		public final DefaultNode leftNode;
-		public final DefaultNode rightNode;
-		public final List<DefaultNode> nodes = new ArrayList<DefaultNode>();
-		public final float y;
-
-		public Segment(final Rectangle bounds) {
-			y = RectangleUtils.top(bounds);
-			leftNode = new DefaultNode(bounds.x, y);
-			nodes.add(leftNode);
-			rightNode = new DefaultNode(RectangleUtils.right(bounds), y);
-			nodes.add(rightNode);
-		}
-
 	}
 
 }

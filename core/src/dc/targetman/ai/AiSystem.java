@@ -73,7 +73,8 @@ public final class AiSystem extends EntitySystem {
 
 	private float getNextX(final Ai ai, final Rectangle targetBounds) {
 		float nextX = Float.NaN;
-		if (ai.currentNode == graphHelper.getNearestNode(targetBounds)) {
+		Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
+		if (targetSegment != null && targetSegment.nodes.contains(ai.currentNode)) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (ai.nextNode != null) {
 			nextX = ai.nextNode.x();
@@ -89,8 +90,8 @@ public final class AiSystem extends EntitySystem {
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
 		if (ai.thinking && ai.currentNode != null) {
-			DefaultNode endNode = graphHelper.getNearestNode(targetBounds);
-			List<DefaultNode> newPath = graphHelper.createPath(ai.currentNode, endNode);
+			Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
+			List<DefaultNode> newPath = graphHelper.createPath(ai.currentNode, targetSegment.leftNode);
 			ai.setPath(newPath);
 		}
 	}
