@@ -44,18 +44,16 @@ public final class GraphHelper {
 		for (DefaultNode node : graph.getNodes()) {
 			if (node.isTouching(bounds)) {
 				return node;
-			} else if (RectangleUtils.containsX(node.getBounds(), center.x)
-					&& (nearestNode == null || Maths.between(node.top(), nearestNode.top(), center.y))) {
+			} else if (RectangleUtils.containsX(bounds, node.x())
+					&& (nearestNode == null || Maths.between(node.y(), nearestNode.y(), center.y))) {
 				nearestNode = node;
 			}
 		}
 		return nearestNode;
 	}
 
-	// TODO: Pass in node instead of endBounds
-	public final List<DefaultNode> createPath(final DefaultNode startNode, final Rectangle endBounds) {
+	public final List<DefaultNode> createPath(final DefaultNode startNode, final DefaultNode endNode) {
 		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		DefaultNode endNode = getNearestNode(endBounds);
 		if (startNode != null && endNode != null) {
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
 		}
@@ -64,19 +62,19 @@ public final class GraphHelper {
 
 	private DefaultIndexedGraph createGraph(final TiledMap map, final UnitConverter unitConverter) {
 		TiledMapTileLayer collisionLayer = MapUtils.getCollisionLayer(map);
-		List<DefaultNode> nodes = new ArrayList<DefaultNode>();
+		List<Rectangle> boundsList = new ArrayList<Rectangle>();
 		Vector2 size = unitConverter.toWorldUnits(collisionLayer.getTileWidth(), collisionLayer.getTileHeight());
 		for (int y = 0; y < collisionLayer.getHeight() - 1; y++) {
 			for (int x = 0; x < collisionLayer.getWidth(); x++) {
 				int floorLength = getFloorLength(collisionLayer, x, y);
 				if (floorLength > 0) {
 					Rectangle bounds = new Rectangle(x, y, floorLength * size.x, size.y);
-					nodes.add(new DefaultNode(bounds));
+					boundsList.add(bounds);
 					x += floorLength;
 				}
 			}
 		}
-		return new DefaultIndexedGraph(nodes);
+		return new DefaultIndexedGraph(boundsList);
 	}
 
 	private int getFloorLength(final TiledMapTileLayer layer, final int x, final int y) {
@@ -91,8 +89,8 @@ public final class GraphHelper {
 		return new Heuristic<DefaultNode>() {
 			@Override
 			public float estimate(final DefaultNode node, final DefaultNode endNode) {
-				float xOffset = Maths.distance(node.left(), endNode.left());
-				float yOffset = Maths.distance(endNode.top(), node.top());
+				float xOffset = Maths.distance(node.x(), endNode.x());
+				float yOffset = Maths.distance(endNode.y(), node.y());
 				return xOffset + yOffset;
 			}
 		};

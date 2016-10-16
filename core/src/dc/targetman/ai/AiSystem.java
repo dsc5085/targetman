@@ -16,9 +16,7 @@ import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
 import dclib.geometry.VectorUtils;
-import dclib.physics.Box2dUtils;
 
-// TODO: cleanup.  create helper inner class to represent AI entities
 public final class AiSystem extends EntitySystem {
 
 	private final EntityManager entityManager;
@@ -41,7 +39,7 @@ public final class AiSystem extends EntitySystem {
 				Ai ai = new Ai(entity, thinking);
 				Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 				navigate(ai, targetBounds);
-				fire(entity, targetBounds);
+				aim(entity, targetBounds);
 			}
 		}
 	}
@@ -73,49 +71,36 @@ public final class AiSystem extends EntitySystem {
 		StickActions.move(ai.entity, moveDirection);
 	}
 
-	private void jump(final Ai ai) {
-		if (ai.currentNode != null) {
-			boolean jumpToNextNode = ai.nextNode != null && ai.nextNode.canJumpTo(ai.bounds.x, ai.bounds.y);
-			boolean jumpToCurrentNode = ai.bounds.y + Box2dUtils.ROUNDING_ERROR < ai.currentNode.top();
-			if (jumpToNextNode || jumpToCurrentNode) {
-				StickActions.jump(ai.entity);
-			}
-		}
-	}
-
 	private float getNextX(final Ai ai, final Rectangle targetBounds) {
 		float nextX = Float.NaN;
 		if (ai.currentNode == graphHelper.getNearestNode(targetBounds)) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
-		} else if (!ai.path.isEmpty()) {
-			DefaultNode nextNode = ai.path.get(0);
-			float edgeOffset = ai.bounds.width  * 1.5f;
-			if (ai.bounds.y < nextNode.top()) {
-				edgeOffset *= -1;
-			}
-			if (ai.path.size() > 1 && ai.path.get(1).left() > nextNode.left()) {
-				nextX = nextNode.right() - edgeOffset;
-			} else {
-				nextX = nextNode.left() + edgeOffset;
-			}
+		} else if (ai.nextNode != null) {
+			nextX = ai.nextNode.x();
 		}
 		return nextX;
 	}
 
+	private void jump(final Ai ai) {
+		if (ai.currentNode != null) {
+			StickActions.jump(ai.entity);
+		}
+	}
+
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
 		if (ai.thinking && ai.currentNode != null) {
-			List<DefaultNode> newPath = graphHelper.createPath(ai.currentNode, targetBounds);
+			DefaultNode endNode = graphHelper.getNearestNode(targetBounds);
+			List<DefaultNode> newPath = graphHelper.createPath(ai.currentNode, endNode);
 			ai.setPath(newPath);
 		}
 	}
 
-	private void fire(final Entity entity, final Rectangle targetBounds) {
+	private void aim(final Entity entity, final Rectangle targetBounds) {
 		Centrum centrum = entity.get(WeaponPart.class).getCentrum();
 		boolean flipX = entity.get(LimbsPart.class).getFlipX();
 		Vector2 targetCenter = targetBounds.getCenter(new Vector2());
 		float direction = getRotateDirection(centrum, targetCenter, flipX);
 		StickActions.aim(entity, direction);
-//		StickActions.trigger(entity);
 	}
 
 	/**
@@ -142,6 +127,7 @@ public final class AiSystem extends EntitySystem {
 		public final boolean thinking;
 		public final Rectangle bounds;
 		public final List<DefaultNode> path;
+		// TODO: currentNode logic not right
 		public final DefaultNode currentNode;
 		public final DefaultNode nextNode;
 
