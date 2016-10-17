@@ -10,12 +10,15 @@ import dclib.util.Maths;
 
 class Segment {
 
+	// TODO: Don't need left, right node
+	final Rectangle bounds;
+	final float y;
 	final DefaultNode leftNode;
 	final DefaultNode rightNode;
 	final List<DefaultNode> nodes = new ArrayList<DefaultNode>();
-	final float y;
 
 	Segment(final Rectangle bounds) {
+		this.bounds = bounds;
 		y = RectangleUtils.top(bounds);
 		leftNode = new DefaultNode(bounds.x, y);
 		nodes.add(leftNode);

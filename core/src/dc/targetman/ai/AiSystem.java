@@ -35,8 +35,7 @@ public final class AiSystem extends EntitySystem {
 			aiPart.tick(delta);
 			Entity target = findTarget(entity);
 			if (target != null) {
-				boolean thinking = entity.get(AiPart.class).think();
-				Ai ai = new Ai(entity, thinking);
+				Ai ai = new Ai(entity);
 				Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 				navigate(ai, targetBounds);
 				aim(entity, targetBounds);
@@ -74,7 +73,8 @@ public final class AiSystem extends EntitySystem {
 	private float getNextX(final Ai ai, final Rectangle targetBounds) {
 		float nextX = Float.NaN;
 		Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
-		if (targetSegment != null && targetSegment.nodes.contains(ai.currentNode)) {
+		Segment nearestSegment = graphHelper.getNearestSegment(ai.bounds);
+		if (targetSegment != null && targetSegment == nearestSegment) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (ai.nextNode != null) {
 			nextX = ai.nextNode.x();
@@ -89,10 +89,16 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
-		if (ai.thinking && ai.currentNode != null) {
+		Segment touchingSegment = graphHelper.getTouchingSegment(ai.bounds);
+		if (touchingSegment != null && ai.entity.get(AiPart.class).checkUpdatePath()) {
+			DefaultNode startNode = touchingSegment.nodes.contains(ai.nextNode)
+					? ai.nextNode : touchingSegment.leftNode;
+			// TODO: method to get arbitrary node
 			Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
-			List<DefaultNode> newPath = graphHelper.createPath(ai.currentNode, targetSegment.leftNode);
-			ai.setPath(newPath);
+			if (targetSegment != null) {
+				List<DefaultNode> newPath = graphHelper.createPath(startNode, targetSegment.leftNode);
+				ai.setPath(newPath);
+			}
 		}
 	}
 
@@ -125,19 +131,15 @@ public final class AiSystem extends EntitySystem {
 	private class Ai {
 
 		public final Entity entity;
-		public final boolean thinking;
 		public final Rectangle bounds;
-		public final List<DefaultNode> path;
-		// TODO: currentNode logic not right
 		public final DefaultNode currentNode;
 		public final DefaultNode nextNode;
 
-		public Ai(final Entity entity, final boolean thinking) {
+		public Ai(final Entity entity) {
 			this.entity = entity;
-			this.thinking = thinking;
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
 			currentNode = graphHelper.getTouchingNode(bounds);
-			path = entity.get(AiPart.class).getPath();
+			List<DefaultNode> path = entity.get(AiPart.class).getPath();
 			path.remove(currentNode);
 			nextNode = path.isEmpty() ? null : path.get(0);
 		}

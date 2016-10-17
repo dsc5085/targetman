@@ -37,10 +37,7 @@ public final class DefaultNode {
 	}
 
 	public final boolean isTouching(final Rectangle bounds) {
-		Rectangle collisionBounds = new Rectangle(
-				bounds.x - Box2dUtils.ROUNDING_ERROR, bounds.y - Box2dUtils.ROUNDING_ERROR,
-				bounds.width + Box2dUtils.ROUNDING_ERROR * 2, bounds.height + Box2dUtils.ROUNDING_ERROR * 2);
-		return collisionBounds.contains(position);
+		return Box2dUtils.collisionBounds(bounds).contains(position);
 	}
 
 	@Override

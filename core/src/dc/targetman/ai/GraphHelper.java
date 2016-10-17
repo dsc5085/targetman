@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import dc.targetman.level.MapUtils;
 import dclib.geometry.RectangleUtils;
 import dclib.geometry.UnitConverter;
+import dclib.physics.Box2dUtils;
 import dclib.util.Maths;
 
 public final class GraphHelper {
@@ -48,6 +49,16 @@ public final class GraphHelper {
 			}
 		}
 		return nearestSegment;
+	}
+
+	public final Segment getTouchingSegment(final Rectangle bounds) {
+		Rectangle collisionBounds = Box2dUtils.collisionBounds(bounds);
+		for (Segment segment : graph.getSegments()) {
+			if (collisionBounds.overlaps(segment.bounds)) {
+				return segment;
+			}
+		}
+		return null;
 	}
 
 	public final List<DefaultNode> createPath(final DefaultNode startNode, final DefaultNode endNode) {

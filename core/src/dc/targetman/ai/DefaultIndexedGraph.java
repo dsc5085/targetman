@@ -122,6 +122,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 				return Float.compare(n1.x(), n2.x());
 			}
 		});
+		// TODO: left and right node don't get connected
 		for (int i = 1; i < nodes.size() - 1; i++) {
 			DefaultNode startNode = nodes.get(i);
 			startNode.addConnection(nodes.get(i - 1));

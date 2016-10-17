@@ -10,7 +10,7 @@ public final class AiPart {
 
 	private static final float THINK_TIME = 0.1f;
 
-	private final Timer thinkTimer = new Timer(THINK_TIME, THINK_TIME);
+	private final Timer updatePathTimer = new Timer(THINK_TIME, THINK_TIME);
 	private List<DefaultNode> path = new ArrayList<DefaultNode>();
 
 	public final List<DefaultNode> getPath() {
@@ -21,12 +21,12 @@ public final class AiPart {
 		this.path = path;
 	}
 
-	public final boolean think() {
-		return thinkTimer.check();
+	public final boolean checkUpdatePath() {
+		return updatePathTimer.check();
 	}
 
 	public final void tick(final float delta) {
-		thinkTimer.tick(delta);
+		updatePathTimer.tick(delta);
 	}
 
 }
