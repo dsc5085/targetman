@@ -83,7 +83,7 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void jump(final Ai ai) {
-		if (ai.currentNode != null) {
+		if (ai.touchingNode != null) {
 			StickActions.jump(ai.entity);
 		}
 	}
@@ -92,11 +92,11 @@ public final class AiSystem extends EntitySystem {
 		Segment touchingSegment = graphHelper.getTouchingSegment(ai.bounds);
 		if (touchingSegment != null && ai.entity.get(AiPart.class).checkUpdatePath()) {
 			DefaultNode startNode = touchingSegment.nodes.contains(ai.nextNode)
-					? ai.nextNode : touchingSegment.leftNode;
-			// TODO: method to get arbitrary node
+					? ai.nextNode : touchingSegment.nodes.get(0);
 			Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
 			if (targetSegment != null) {
-				List<DefaultNode> newPath = graphHelper.createPath(startNode, targetSegment.leftNode);
+				List<DefaultNode> newPath = graphHelper.createPath(startNode, targetSegment.nodes.get(0));
+				newPath.remove(ai.touchingNode);
 				ai.setPath(newPath);
 			}
 		}
@@ -132,15 +132,14 @@ public final class AiSystem extends EntitySystem {
 
 		public final Entity entity;
 		public final Rectangle bounds;
-		public final DefaultNode currentNode;
+		public final DefaultNode touchingNode;
 		public final DefaultNode nextNode;
 
 		public Ai(final Entity entity) {
 			this.entity = entity;
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			currentNode = graphHelper.getTouchingNode(bounds);
+			touchingNode = graphHelper.getTouchingNode(bounds);
 			List<DefaultNode> path = entity.get(AiPart.class).getPath();
-			path.remove(currentNode);
 			nextNode = path.isEmpty() ? null : path.get(0);
 		}
 
