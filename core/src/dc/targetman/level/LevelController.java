@@ -107,9 +107,9 @@ public final class LevelController {
 
 	public final void draw() {
 		particlesManager.draw();
-		mapRenderer.render();
+//		mapRenderer.render();
 		renderEntities();
-//		renderBox2D();
+		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {

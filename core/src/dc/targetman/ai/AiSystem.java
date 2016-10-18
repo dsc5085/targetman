@@ -91,11 +91,10 @@ public final class AiSystem extends EntitySystem {
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
 		Segment touchingSegment = graphHelper.getTouchingSegment(ai.bounds);
 		if (touchingSegment != null && ai.entity.get(AiPart.class).checkUpdatePath()) {
-			DefaultNode startNode = touchingSegment.nodes.contains(ai.nextNode)
-					? ai.nextNode : touchingSegment.nodes.get(0);
 			Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
 			if (targetSegment != null) {
-				List<DefaultNode> newPath = graphHelper.createPath(startNode, targetSegment.nodes.get(0));
+				DefaultNode endNode = targetSegment.nodes.get(0);
+				List<DefaultNode> newPath = graphHelper.createPath(touchingSegment, endNode);
 				newPath.remove(ai.touchingNode);
 				ai.setPath(newPath);
 			}

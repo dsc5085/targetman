@@ -61,11 +61,12 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final List<DefaultNode> createPath(final DefaultNode startNode, final DefaultNode endNode) {
-		GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
-		if (startNode != null && endNode != null) {
-			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
-		}
+	public final List<DefaultNode> createPath(final Segment startSegment, final DefaultNode endNode) {
+		GraphPath<DefaultNode> leftPath = new DefaultGraphPath<DefaultNode>();
+		pathFinder.searchNodePath(startSegment.leftNode, endNode, getHeuristic(), leftPath);
+		GraphPath<DefaultNode> rightPath = new DefaultGraphPath<DefaultNode>();
+		pathFinder.searchNodePath(startSegment.rightNode, endNode, getHeuristic(), rightPath);
+		GraphPath<DefaultNode> path = getCost(leftPath) < getCost(rightPath) ? leftPath : rightPath;
 		return Lists.newArrayList(path.iterator());
 	}
 
@@ -92,6 +93,17 @@ public final class GraphHelper {
 			floorLength++;
 		}
 		return floorLength;
+	}
+
+	private float getCost(final GraphPath<DefaultNode> path) {
+		float cost = 0;
+		Heuristic<DefaultNode> heuristic = getHeuristic();
+		for (int i = 0; i < path.getCount() - 1; i++) {
+			DefaultNode startNode = path.get(i);
+			DefaultNode endNode = path.get(i + 1);
+			cost += heuristic.estimate(startNode, endNode);
+		}
+		return cost;
 	}
 
 	private Heuristic<DefaultNode> getHeuristic() {
