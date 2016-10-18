@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.collect.Iterables;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
@@ -93,9 +94,8 @@ public final class AiSystem extends EntitySystem {
 		if (touchingSegment != null && ai.entity.get(AiPart.class).checkUpdatePath()) {
 			Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
 			if (targetSegment != null) {
-				DefaultNode endNode = targetSegment.nodes.get(0);
+				DefaultNode endNode = Iterables.getLast(targetSegment.nodes);
 				List<DefaultNode> newPath = graphHelper.createPath(touchingSegment, endNode);
-				newPath.remove(ai.touchingNode);
 				ai.setPath(newPath);
 			}
 		}
@@ -139,6 +139,7 @@ public final class AiSystem extends EntitySystem {
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
 			touchingNode = graphHelper.getTouchingNode(bounds);
 			List<DefaultNode> path = entity.get(AiPart.class).getPath();
+			path.remove(touchingNode);
 			nextNode = path.isEmpty() ? null : path.get(0);
 		}
 

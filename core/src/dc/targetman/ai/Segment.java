@@ -1,7 +1,7 @@
 package dc.targetman.ai;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.badlogic.gdx.math.Rectangle;
 
@@ -15,7 +15,7 @@ class Segment {
 	final float y;
 	final DefaultNode leftNode;
 	final DefaultNode rightNode;
-	final List<DefaultNode> nodes = new ArrayList<DefaultNode>();
+	final Set<DefaultNode> nodes = new HashSet<DefaultNode>();
 
 	Segment(final Rectangle bounds) {
 		this.bounds = bounds;
