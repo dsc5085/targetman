@@ -109,7 +109,7 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		final float jumpHeight = 5;
 		float gapWidth = Maths.distance(startNode.x(), endNode.x());
 		boolean canJumpToHorizontally = gapWidth < jumpWidth;
-		float yOffset = startNode.y() - endNode.y();
+		float yOffset = endNode.y() - startNode.y();
 		boolean canJumpToVertically = yOffset < jumpHeight;
 		return canJumpToHorizontally && canJumpToVertically;
 	}

@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import dc.targetman.level.MapUtils;
@@ -62,12 +63,15 @@ public final class GraphHelper {
 	}
 
 	public final List<DefaultNode> createPath(final Segment startSegment, final DefaultNode endNode) {
-		GraphPath<DefaultNode> leftPath = new DefaultGraphPath<DefaultNode>();
-		pathFinder.searchNodePath(startSegment.leftNode, endNode, getHeuristic(), leftPath);
-		GraphPath<DefaultNode> rightPath = new DefaultGraphPath<DefaultNode>();
-		pathFinder.searchNodePath(startSegment.rightNode, endNode, getHeuristic(), rightPath);
-		GraphPath<DefaultNode> path = getCost(leftPath) < getCost(rightPath) ? leftPath : rightPath;
-		return Lists.newArrayList(path.iterator());
+		GraphPath<DefaultNode> lowestCostPath = new DefaultGraphPath<DefaultNode>();
+		for (DefaultNode startNode : startSegment.nodes) {
+			GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
+			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
+			if (Iterables.isEmpty(lowestCostPath) || getCost(path) < getCost(lowestCostPath)) {
+				lowestCostPath = path;
+			}
+		}
+		return Lists.newArrayList(lowestCostPath);
 	}
 
 	private DefaultIndexedGraph createGraph(final TiledMap map, final UnitConverter unitConverter) {
