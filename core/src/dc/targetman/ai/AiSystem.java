@@ -19,6 +19,7 @@ import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
 import dclib.geometry.RectangleUtils;
 import dclib.geometry.VectorUtils;
+import dclib.util.Maths;
 
 public final class AiSystem extends EntitySystem {
 
@@ -121,12 +122,17 @@ public final class AiSystem extends EntitySystem {
 	 * @param flipX flipX
 	 * @return 1 if angle should be increased, -1 if angle should be decreased, or 0 if angle shouldn't change
 	 */
-	private float getRotateDirection(final Centrum fromCentrum, final Vector2 to, final boolean flipX) {
-		Vector2 offset = VectorUtils.offset(fromCentrum.getPosition(), to);
-		Vector2 fireDirection = new Vector2(1, 0).setAngle(fromCentrum.getRotation());
-		float direction = offset.y * fireDirection.x > offset.x * fireDirection.y ? 1 : -1;
-		if (flipX) {
-			direction *= -1;
+	private float getRotateDirection(final Centrum centrum, final Vector2 to, final boolean flipX) {
+		final float minAngleOffset = 2;
+		float direction = 0;
+		Vector2 offset = VectorUtils.offset(centrum.getPosition(), to);
+		float angleOffset = Maths.degDistance(offset.angle(), centrum.getRotation());
+		if (angleOffset > minAngleOffset) {
+			Vector2 fireDirection = new Vector2(1, 0).setAngle(centrum.getRotation());
+			direction = offset.y * fireDirection.x > offset.x * fireDirection.y ? 1 : -1;
+			if (flipX) {
+				direction *= -1;
+			}
 		}
 		return direction;
 	}
