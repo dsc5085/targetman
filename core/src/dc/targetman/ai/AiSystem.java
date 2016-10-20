@@ -1,7 +1,6 @@
 package dc.targetman.ai;
 
 import java.util.List;
-import java.util.Set;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -17,7 +16,6 @@ import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.epf.parts.TransformPart;
 import dclib.geometry.Centrum;
-import dclib.geometry.RectangleUtils;
 import dclib.geometry.VectorUtils;
 import dclib.util.Maths;
 
@@ -65,19 +63,21 @@ public final class AiSystem extends EntitySystem {
 	private void move(final Ai ai, final Rectangle targetBounds) {
 		int moveDirection = 0;
 		float nextX = getNextX(ai, targetBounds);
-		if (nextX > ai.bounds.x) {
-			moveDirection = 1;
-		} else if (nextX < RectangleUtils.right(ai.bounds)) {
-			moveDirection = -1;
+		if (!Float.isNaN(nextX)) {
+			float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
+			if (Math.abs(offsetX) > ai.bounds.width / 2) {
+				moveDirection = offsetX > 0 ? 1 : -1;
+			}
 		}
 		StickActions.move(ai.entity, moveDirection);
 	}
 
 	private float getNextX(final Ai ai, final Rectangle targetBounds) {
 		float nextX = Float.NaN;
-		Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
-		Segment nearestSegment = graphHelper.getNearestSegment(ai.bounds);
-		if (targetSegment != null && targetSegment == nearestSegment) {
+		Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
+		Segment belowSegment = graphHelper.getBelowSegment(ai.bounds);
+		boolean onTargetSegment = targetSegment != null && targetSegment == belowSegment;
+		if (onTargetSegment) {
 			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (ai.nextNode != null) {
 			nextX = ai.nextNode.x();
@@ -86,18 +86,18 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void jump(final Ai ai) {
-		if (ai.touchingSegment != null && ai.touchingNode != null && ai.nextNode != null) {
-			Set<DefaultNode> nodes = ai.touchingSegment.nodes;
-			boolean doesGapExist = ai.nextNode.y() >= ai.touchingNode.y() || ai.nextNode.x() != ai.touchingNode.x();
-			if (nodes.contains(ai.touchingNode) && !nodes.contains(ai.nextNode) && doesGapExist) {
-				StickActions.jump(ai.entity);
-			}
+		Segment nextSegment = graphHelper.getSegment(ai.nextNode);
+		boolean isNextSegmentDifferent = ai.touchingSegment != null && nextSegment != null
+				&& ai.touchingSegment != nextSegment;
+		// TODO: also check if ai NEEDS to jump, e.g. segment is below
+		if (isNextSegmentDifferent) {
+			StickActions.jump(ai.entity);
 		}
 	}
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
 		if (ai.touchingSegment != null && ai.entity.get(AiPart.class).checkUpdatePath()) {
-			Segment targetSegment = graphHelper.getNearestSegment(targetBounds);
+			Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
 			if (targetSegment != null) {
 				DefaultNode endNode = Iterables.getLast(targetSegment.nodes);
 				List<DefaultNode> newPath = graphHelper.createPath(ai.touchingSegment, endNode);
@@ -148,8 +148,8 @@ public final class AiSystem extends EntitySystem {
 		public Ai(final Entity entity) {
 			this.entity = entity;
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			touchingSegment = graphHelper.getTouchingSegment(bounds);
 			touchingNode = graphHelper.getTouchingNode(bounds);
+			touchingSegment = graphHelper.getTouchingSegment(bounds);
 			List<DefaultNode> path = entity.get(AiPart.class).getPath();
 			path.remove(touchingNode);
 			nextNode = path.isEmpty() ? null : path.get(0);

@@ -10,6 +10,7 @@ import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.collect.Iterables;
@@ -40,12 +41,11 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final Segment getNearestSegment(final Rectangle bounds) {
+	public final Segment getBelowSegment(final Rectangle bounds) {
 		Segment nearestSegment = null;
-		Vector2 base = RectangleUtils.base(bounds);
 		for (Segment segment : graph.getSegments()) {
-			boolean isNearerY = nearestSegment == null || Maths.between(segment.y, nearestSegment.y, base.y);
-			if (segment.containsX(base.x) && isNearerY) {
+			boolean isNearerY = nearestSegment == null || Maths.between(segment.y, nearestSegment.y, bounds.y);
+			if (isNearerY && overlapsX(segment, bounds)) {
 				nearestSegment = segment;
 			}
 		}
@@ -56,6 +56,15 @@ public final class GraphHelper {
 		Rectangle collisionBounds = Box2dUtils.collisionBounds(bounds);
 		for (Segment segment : graph.getSegments()) {
 			if (collisionBounds.overlaps(segment.bounds)) {
+				return segment;
+			}
+		}
+		return null;
+	}
+
+	public final Segment getSegment(final DefaultNode node) {
+		for (Segment segment : graph.getSegments()) {
+			if (segment.nodes.contains(node)) {
 				return segment;
 			}
 		}
@@ -119,6 +128,11 @@ public final class GraphHelper {
 				return xOffset + yOffset;
 			}
 		};
+	}
+
+	private boolean overlapsX(final Segment segment, final Rectangle bounds) {
+		return Intersector.intersectLines(bounds.x, segment.y, RectangleUtils.right(bounds), segment.y,
+				segment.leftNode.x(), segment.y, segment.leftNode.x(), segment.y, null);
 	}
 
 }

@@ -10,7 +10,7 @@ import dclib.util.Maths;
 
 class Segment {
 
-	// TODO: Don't need left, right node
+	// TODO: Don't need left, right node.  Use x and right
 	final Rectangle bounds;
 	final float y;
 	final DefaultNode leftNode;
