@@ -10,7 +10,6 @@ import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.collect.Iterables;
@@ -131,8 +130,13 @@ public final class GraphHelper {
 	}
 
 	private boolean overlapsX(final Segment segment, final Rectangle bounds) {
-		return Intersector.intersectLines(bounds.x, segment.y, RectangleUtils.right(bounds), segment.y,
-				segment.leftNode.x(), segment.y, segment.leftNode.x(), segment.y, null);
+		float segmentLeft = segment.leftNode.x();
+		float segmentRight = segment.rightNode.x();
+		float boundsRight = RectangleUtils.right(bounds);
+		return Maths.between(segmentLeft, bounds.x, boundsRight)
+				|| Maths.between(segmentRight, bounds.x, boundsRight)
+				|| Maths.between(bounds.x, segmentLeft, segmentRight)
+				|| Maths.between(boundsRight, segmentLeft, segmentRight);
 	}
 
 }
