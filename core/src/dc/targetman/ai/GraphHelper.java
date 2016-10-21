@@ -26,8 +26,8 @@ public final class GraphHelper {
 	private final DefaultIndexedGraph graph;
 	private final PathFinder<DefaultNode> pathFinder;
 
-	public GraphHelper(final TiledMap map, final UnitConverter unitConverter) {
-		graph = createGraph(map, unitConverter);
+	public GraphHelper(final TiledMap map, final UnitConverter unitConverter, final Vector2 actorSize) {
+		graph = createGraph(map, unitConverter, actorSize);
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
@@ -41,14 +41,14 @@ public final class GraphHelper {
 	}
 
 	public final Segment getBelowSegment(final Rectangle bounds) {
-		Segment nearestSegment = null;
+		Segment belowSegment = null;
 		for (Segment segment : graph.getSegments()) {
-			boolean isNearerY = nearestSegment == null || Maths.between(segment.y, nearestSegment.y, bounds.y);
+			boolean isNearerY = belowSegment == null || Maths.between(segment.y, belowSegment.y, bounds.y);
 			if (isNearerY && overlapsX(segment, bounds)) {
-				nearestSegment = segment;
+				belowSegment = segment;
 			}
 		}
-		return nearestSegment;
+		return belowSegment;
 	}
 
 	public final Segment getTouchingSegment(final Rectangle bounds) {
@@ -82,7 +82,8 @@ public final class GraphHelper {
 		return Lists.newArrayList(lowestCostPath);
 	}
 
-	private DefaultIndexedGraph createGraph(final TiledMap map, final UnitConverter unitConverter) {
+	private DefaultIndexedGraph createGraph(final TiledMap map, final UnitConverter unitConverter,
+			final Vector2 actorSize) {
 		TiledMapTileLayer collisionLayer = MapUtils.getCollisionLayer(map);
 		List<Rectangle> boundsList = new ArrayList<Rectangle>();
 		Vector2 size = unitConverter.toWorldUnits(collisionLayer.getTileWidth(), collisionLayer.getTileHeight());
@@ -96,7 +97,7 @@ public final class GraphHelper {
 				}
 			}
 		}
-		return new DefaultIndexedGraph(boundsList);
+		return new DefaultIndexedGraph(boundsList, actorSize);
 	}
 
 	private int getFloorLength(final TiledMapTileLayer layer, final int x, final int y) {

@@ -64,10 +64,7 @@ public final class AiSystem extends EntitySystem {
 		int moveDirection = 0;
 		float nextX = getNextX(ai, targetBounds);
 		if (!Float.isNaN(nextX)) {
-			float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
-			if (Math.abs(offsetX) > ai.bounds.width / 2) {
-				moveDirection = offsetX > 0 ? 1 : -1;
-			}
+			moveDirection = getX(ai.bounds) > nextX ? -1 : 1;
 		}
 		StickActions.move(ai.entity, moveDirection);
 	}
@@ -78,7 +75,7 @@ public final class AiSystem extends EntitySystem {
 		Segment belowSegment = graphHelper.getBelowSegment(ai.bounds);
 		boolean onTargetSegment = targetSegment != null && targetSegment == belowSegment;
 		if (onTargetSegment) {
-			nextX = targetBounds.getCenter(new Vector2()).x;
+			nextX = getX(targetBounds);
 		} else if (ai.nextNode != null) {
 			nextX = ai.nextNode.x();
 		}
@@ -135,6 +132,10 @@ public final class AiSystem extends EntitySystem {
 			}
 		}
 		return direction;
+	}
+
+	private float getX(final Rectangle bounds) {
+		return bounds.getCenter(new Vector2()).x;
 	}
 
 	private class Ai {

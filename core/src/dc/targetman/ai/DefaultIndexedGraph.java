@@ -8,6 +8,7 @@ import java.util.List;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.util.ArrayUtils;
@@ -15,11 +16,13 @@ import dclib.util.Maths;
 
 public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
+	private final Vector2 actorSize;
 	private final List<Segment> segments;
 	// TODO: Hold nodes variable or calculate on the fly from segments?
 	private final List<DefaultNode> nodes = new ArrayList<DefaultNode>();
 
-	public DefaultIndexedGraph(final List<Rectangle> boundsList) {
+	public DefaultIndexedGraph(final List<Rectangle> boundsList, final Vector2 actorSize) {
+		this.actorSize = actorSize;
 		segments = createSegments(boundsList);
 		connect(segments);
 		for (Segment segment : segments) {
@@ -83,14 +86,15 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
 	private void connectMiddle(final Segment topSegment, final Segment bottomSegment) {
 		if (topSegment.y > bottomSegment.y) {
-			connectMiddle(topSegment.leftNode, bottomSegment);
-			connectMiddle(topSegment.rightNode, bottomSegment);
+			connectMiddle(topSegment.leftNode, bottomSegment, -actorSize.x);
+			connectMiddle(topSegment.rightNode, bottomSegment, actorSize.x);
 		}
 	}
 
-	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment) {
-		if (bottomSegment.containsX(topNode.x())) {
-			DefaultNode bottomNode = new DefaultNode(topNode.x(), bottomSegment.y);
+	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment, final float landingOffsetX) {
+		float landingX = topNode.x() + landingOffsetX;
+		if (bottomSegment.containsX(landingX)) {
+			DefaultNode bottomNode = new DefaultNode(landingX, bottomSegment.y);
 			bottomSegment.nodes.add(bottomNode);
 			connect(topNode, bottomNode);
 			connect(bottomNode, topNode);

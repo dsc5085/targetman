@@ -125,7 +125,8 @@ public final class LevelController {
 	}
 
 	private Advancer createAdvancer() {
-		GraphHelper graphHelper = new GraphHelper(map, unitConverter);
+		// TODO: Calculate actor size
+		GraphHelper graphHelper = new GraphHelper(map, unitConverter, new Vector2(1, 2));
 		return new Advancer(
 				createInputUpdater(),
 				new AiSystem(entityManager, graphHelper),
