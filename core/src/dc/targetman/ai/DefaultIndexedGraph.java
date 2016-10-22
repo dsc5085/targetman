@@ -8,7 +8,6 @@ import java.util.List;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import dc.targetman.util.ArrayUtils;
@@ -16,13 +15,11 @@ import dclib.util.Maths;
 
 public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
-	private final Vector2 actorSize;
 	private final List<Segment> segments;
 	// TODO: Hold nodes variable or calculate on the fly from segments?
 	private final List<DefaultNode> nodes = new ArrayList<DefaultNode>();
 
-	public DefaultIndexedGraph(final List<Rectangle> boundsList, final Vector2 actorSize) {
-		this.actorSize = actorSize;
+	public DefaultIndexedGraph(final List<Rectangle> boundsList) {
 		segments = createSegments(boundsList);
 		connect(segments);
 		for (Segment segment : segments) {

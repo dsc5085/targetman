@@ -30,6 +30,10 @@ public final class DefaultNode {
 		return position.y;
 	}
 
+	public final Vector2 getPosition() {
+		return position.cpy();
+	}
+
 	public final List<Connection<DefaultNode>> getConnections() {
 		List<Connection<DefaultNode>> connections = new ArrayList<Connection<DefaultNode>>();
 		for (DefaultNode node : connectedNodes) {

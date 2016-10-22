@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 
 import dc.targetman.ai.AiSystem;
 import dc.targetman.ai.GraphHelper;
+import dc.targetman.epf.graphics.EntityGraphDrawer;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.MovementSystem;
@@ -81,6 +82,7 @@ public final class LevelController {
 		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
+		entityDrawers.add(new EntityGraphDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		entityManager.listen(entityRemoved());
 		advancer = createAdvancer();
@@ -126,7 +128,7 @@ public final class LevelController {
 
 	private Advancer createAdvancer() {
 		// TODO: Calculate actor size
-		GraphHelper graphHelper = new GraphHelper(map, unitConverter, new Vector2(1, 2));
+		GraphHelper graphHelper = new GraphHelper(map, unitConverter);
 		return new Advancer(
 				createInputUpdater(),
 				new AiSystem(entityManager, graphHelper),
