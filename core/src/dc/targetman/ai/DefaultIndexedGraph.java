@@ -86,13 +86,13 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
 	private void connectMiddle(final Segment topSegment, final Segment bottomSegment) {
 		if (topSegment.y > bottomSegment.y) {
-			connectMiddle(topSegment.leftNode, bottomSegment, -actorSize.x);
-			connectMiddle(topSegment.rightNode, bottomSegment, actorSize.x);
+			connectMiddle(topSegment.leftNode, bottomSegment);
+			connectMiddle(topSegment.rightNode, bottomSegment);
 		}
 	}
 
-	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment, final float landingOffsetX) {
-		float landingX = topNode.x() + landingOffsetX;
+	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment) {
+		float landingX = topNode.x();
 		if (bottomSegment.containsX(landingX)) {
 			DefaultNode bottomNode = new DefaultNode(landingX, bottomSegment.y);
 			bottomSegment.nodes.add(bottomNode);

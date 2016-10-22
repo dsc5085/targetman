@@ -30,4 +30,14 @@ class Segment {
 		return Maths.between(x, leftNode.x(), rightNode.x());
 	}
 
+	boolean overlapsX(final Rectangle bounds) {
+		float left = leftNode.x();
+		float right = rightNode.x();
+		float boundsRight = RectangleUtils.right(bounds);
+		return Maths.between(left, bounds.x, boundsRight)
+				|| Maths.between(right, bounds.x, boundsRight)
+				|| Maths.between(bounds.x, left, right)
+				|| Maths.between(boundsRight, left, right);
+	}
+
 }

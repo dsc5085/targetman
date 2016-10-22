@@ -64,7 +64,10 @@ public final class AiSystem extends EntitySystem {
 		int moveDirection = 0;
 		float nextX = getNextX(ai, targetBounds);
 		if (!Float.isNaN(nextX)) {
-			moveDirection = getX(ai.bounds) > nextX ? -1 : 1;
+			float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
+			if (Math.abs(offsetX) > ai.bounds.width / 2) {
+				moveDirection = offsetX > 0 ? 1 : -1;
+			}
 		}
 		StickActions.move(ai.entity, moveDirection);
 	}
@@ -75,20 +78,45 @@ public final class AiSystem extends EntitySystem {
 		Segment belowSegment = graphHelper.getBelowSegment(ai.bounds);
 		boolean onTargetSegment = targetSegment != null && targetSegment == belowSegment;
 		if (onTargetSegment) {
-			nextX = getX(targetBounds);
+			nextX = targetBounds.getCenter(new Vector2()).x;
 		} else if (ai.nextNode != null) {
-			nextX = ai.nextNode.x();
+			nextX = getNextX(ai.bounds, ai.nextNode, belowSegment);
 		}
 		return nextX;
+	}
+
+	private float getNextX(final Rectangle bounds, final DefaultNode node, final Segment belowSegment) {
+		float paddingX = 0;
+		Segment betweenSegment = getBetweenSegment(bounds, node, belowSegment);
+		if (betweenSegment != null) {
+			if (betweenSegment.rightNode.x() == node.x()) {
+				paddingX = bounds.width;
+			} else if (betweenSegment.leftNode.x() == node.x()) {
+				paddingX = -bounds.width;
+			}
+		}
+		return node.x() + paddingX;
+	}
+
+	private Segment getBetweenSegment(final Rectangle bounds, final DefaultNode node, final Segment belowSegment) {
+		Segment betweenSegment = null;
+		if (bounds.y < node.y()) {
+			betweenSegment = graphHelper.getSegment(node);
+		} else if (bounds.y > node.y()) {
+			betweenSegment = belowSegment;
+		}
+		return betweenSegment;
 	}
 
 	private void jump(final Ai ai) {
 		Segment nextSegment = graphHelper.getSegment(ai.nextNode);
 		boolean isNextSegmentDifferent = ai.touchingSegment != null && nextSegment != null
 				&& ai.touchingSegment != nextSegment;
-		// TODO: also check if ai NEEDS to jump, e.g. segment is below
 		if (isNextSegmentDifferent) {
-			StickActions.jump(ai.entity);
+			boolean doesGapExist = ai.nextNode.y() > ai.bounds.y || !nextSegment.overlapsX(ai.bounds);
+			if (doesGapExist) {
+				StickActions.jump(ai.entity);
+			}
 		}
 	}
 
@@ -132,10 +160,6 @@ public final class AiSystem extends EntitySystem {
 			}
 		}
 		return direction;
-	}
-
-	private float getX(final Rectangle bounds) {
-		return bounds.getCenter(new Vector2()).x;
 	}
 
 	private class Ai {

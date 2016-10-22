@@ -16,7 +16,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import dc.targetman.level.MapUtils;
-import dclib.geometry.RectangleUtils;
 import dclib.geometry.UnitConverter;
 import dclib.physics.Box2dUtils;
 import dclib.util.Maths;
@@ -44,7 +43,7 @@ public final class GraphHelper {
 		Segment belowSegment = null;
 		for (Segment segment : graph.getSegments()) {
 			boolean isNearerY = belowSegment == null || Maths.between(segment.y, belowSegment.y, bounds.y);
-			if (isNearerY && overlapsX(segment, bounds)) {
+			if (isNearerY && segment.overlapsX(bounds)) {
 				belowSegment = segment;
 			}
 		}
@@ -128,16 +127,6 @@ public final class GraphHelper {
 				return xOffset + yOffset;
 			}
 		};
-	}
-
-	private boolean overlapsX(final Segment segment, final Rectangle bounds) {
-		float segmentLeft = segment.leftNode.x();
-		float segmentRight = segment.rightNode.x();
-		float boundsRight = RectangleUtils.right(bounds);
-		return Maths.between(segmentLeft, bounds.x, boundsRight)
-				|| Maths.between(segmentRight, bounds.x, boundsRight)
-				|| Maths.between(bounds.x, segmentLeft, segmentRight)
-				|| Maths.between(boundsRight, segmentLeft, segmentRight);
 	}
 
 }
