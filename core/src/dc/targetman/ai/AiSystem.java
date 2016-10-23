@@ -68,7 +68,7 @@ public final class AiSystem extends EntitySystem {
 		int moveDirection = 0;
 		if (!Float.isNaN(nextX)) {
 			float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
-			if (Math.abs(offsetX) > ai.bounds.width / 2) {
+			if (Math.abs(offsetX) > getCheckBounds(ai.bounds).width / 2) {
 				moveDirection = offsetX > 0 ? 1 : -1;
 			}
 		}
@@ -112,14 +112,14 @@ public final class AiSystem extends EntitySystem {
 
 	private void jump(final Ai ai, final float moveDirection) {
 		if (ai.belowSegment != null) {
-			Rectangle checkBounds = RectangleUtils.grow(ai.bounds, 1);
+			Rectangle checkBounds = getCheckBounds(ai.bounds);
 			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.leftNode.x());
 			boolean atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.rightNode.x());
 			boolean approachingEdge = (atLeftEdge && moveDirection < 0) || (atRightEdge && moveDirection > 0);
 			Segment nextSegment = graphHelper.getSegment(ai.nextNode);
 			boolean notOnNextSegment = nextSegment != null && ai.belowSegment != nextSegment;
 			if (approachingEdge || notOnNextSegment) {
-				if (ai.nextNode == null || ai.bounds.y < ai.nextNode.y()) {
+				if (ai.nextNode == null || checkBounds.y < ai.nextNode.y()) {
 					StickActions.jump(ai.entity);
 				}
 			}
@@ -135,6 +135,10 @@ public final class AiSystem extends EntitySystem {
 				ai.entity.get(AiPart.class).setPath(newPath);
 			}
 		}
+	}
+
+	private Rectangle getCheckBounds(final Rectangle bounds) {
+		return RectangleUtils.grow(bounds, bounds.width / 2);
 	}
 
 	private void aim(final Entity entity, final Rectangle targetBounds) {
