@@ -121,11 +121,12 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
-		if (ai.touchingSegment != null && ai.entity.get(AiPart.class).checkUpdatePath()) {
+		if (ai.entity.get(AiPart.class).checkUpdatePath()) {
+			Segment belowSegment = graphHelper.getBelowSegment(ai.bounds);
 			Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
-			if (targetSegment != null) {
+			if (belowSegment != null && targetSegment != null) {
 				DefaultNode endNode = Iterables.getLast(targetSegment.nodes);
-				List<DefaultNode> newPath = graphHelper.createPath(ai.touchingSegment, endNode);
+				List<DefaultNode> newPath = graphHelper.createPath(belowSegment, endNode);
 				ai.entity.get(AiPart.class).setPath(newPath);
 			}
 		}
@@ -166,14 +167,14 @@ public final class AiSystem extends EntitySystem {
 
 		public final Entity entity;
 		public final Rectangle bounds;
+		// TODO: Delete.  only used once
 		public final Segment touchingSegment;
-		public final DefaultNode touchingNode;
 		public final DefaultNode nextNode;
 
 		public Ai(final Entity entity) {
 			this.entity = entity;
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			touchingNode = graphHelper.getTouchingNode(bounds);
+			DefaultNode touchingNode = graphHelper.getTouchingNode(bounds);
 			touchingSegment = graphHelper.getTouchingSegment(bounds);
 			List<DefaultNode> path = entity.get(AiPart.class).getPath();
 			path.remove(touchingNode);

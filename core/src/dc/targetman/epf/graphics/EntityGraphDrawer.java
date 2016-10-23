@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
@@ -34,6 +35,7 @@ public final class EntityGraphDrawer implements EntityDrawer {
 		Matrix4 renderMatrix = new Matrix4(camera.combined);
 		renderMatrix.scale(pixelsPerUnit, pixelsPerUnit, 1);
 		shapeRenderer.setProjectionMatrix(renderMatrix);
+		shapeRenderer.setColor(Color.CYAN);
 		shapeRenderer.begin(ShapeType.Line);
 		for (Entity entity : entities) {
 			draw(entity);
