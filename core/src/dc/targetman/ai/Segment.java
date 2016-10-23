@@ -11,11 +11,11 @@ import dclib.util.Maths;
 class Segment {
 
 	// TODO: Don't need left, right node.  Use x and right
-	final Rectangle bounds;
-	final float y;
-	final DefaultNode leftNode;
-	final DefaultNode rightNode;
-	final Set<DefaultNode> nodes = new HashSet<DefaultNode>();
+	Rectangle bounds;
+	float y;
+	DefaultNode leftNode;
+	DefaultNode rightNode;
+	Set<DefaultNode> nodes = new HashSet<DefaultNode>();
 
 	Segment(final Rectangle bounds) {
 		this.bounds = bounds;
@@ -26,7 +26,7 @@ class Segment {
 		nodes.add(rightNode);
 	}
 
-	final boolean containsX(final float x) {
+	boolean containsX(final float x) {
 		return Maths.between(x, leftNode.x(), rightNode.x());
 	}
 

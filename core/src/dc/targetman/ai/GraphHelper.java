@@ -16,8 +16,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import dc.targetman.level.MapUtils;
+import dclib.geometry.RectangleUtils;
 import dclib.geometry.UnitConverter;
-import dclib.physics.Box2dUtils;
 import dclib.util.Maths;
 
 public final class GraphHelper {
@@ -30,13 +30,14 @@ public final class GraphHelper {
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
-	public final DefaultNode getTouchingNode(final Rectangle bounds) {
-		for (DefaultNode node : graph.getNodes()) {
-			if (node.isTouching(bounds)) {
-				return node;
+	public final List<DefaultNode> getBelowNodes(final Rectangle bounds, final Segment belowSegment) {
+		List<DefaultNode> belowNodes = new ArrayList<DefaultNode>();
+		for (DefaultNode node : belowSegment.nodes) {
+			if (RectangleUtils.containsX(bounds, node.x())) {
+				belowNodes.add(node);
 			}
 		}
-		return null;
+		return belowNodes;
 	}
 
 	public final Segment getBelowSegment(final Rectangle bounds) {
@@ -48,16 +49,6 @@ public final class GraphHelper {
 			}
 		}
 		return belowSegment;
-	}
-
-	public final Segment getTouchingSegment(final Rectangle bounds) {
-		Rectangle collisionBounds = Box2dUtils.collisionBounds(bounds);
-		for (Segment segment : graph.getSegments()) {
-			if (collisionBounds.overlaps(segment.bounds)) {
-				return segment;
-			}
-		}
-		return null;
 	}
 
 	public final Segment getSegment(final DefaultNode node) {

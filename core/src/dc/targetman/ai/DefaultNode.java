@@ -7,11 +7,8 @@ import java.util.Set;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultConnection;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Objects;
-
-import dclib.physics.Box2dUtils;
 
 public final class DefaultNode {
 
@@ -45,10 +42,6 @@ public final class DefaultNode {
 
 	public final void addConnection(final DefaultNode endNode) {
 		connectedNodes.add(endNode);
-	}
-
-	public final boolean isTouching(final Rectangle bounds) {
-		return Box2dUtils.collisionBounds(bounds).contains(position);
 	}
 
 	@Override
