@@ -195,14 +195,14 @@ public final class LevelController {
 
 	private void processInput() {
 		Entity player = findPlayer();
-		float moveDirection = 0;
+		int moveDirection = 0;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			moveDirection = -1;
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			moveDirection = 1;
 		}
 		StickActions.move(player, moveDirection);
-		float aimDirection = 0;
+		int aimDirection = 0;
 		if (Gdx.input.isKeyPressed(Keys.W)){
 			aimDirection = 1;
 		} else if (Gdx.input.isKeyPressed(Keys.S)) {

@@ -9,7 +9,7 @@ public final class StickActions {
 	private StickActions() {
 	}
 
-	public static final void move(final Entity entity, final float direction) {
+	public static final void move(final Entity entity, final int direction) {
 		entity.get(MovementPart.class).setDirection(direction);
 	}
 
@@ -17,7 +17,7 @@ public final class StickActions {
 		entity.get(MovementPart.class).setJumping(true);
 	}
 
-	public static final void aim(final Entity entity, final float direction) {
+	public static final void aim(final Entity entity, final int direction) {
 		entity.get(WeaponPart.class).setAimDirection(direction);
 	}
 

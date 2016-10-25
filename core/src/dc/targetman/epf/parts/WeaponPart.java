@@ -37,7 +37,7 @@ public final class WeaponPart {
 		return triggered && reloadTimer.isElapsed();
 	}
 
-	public final void setAimDirection(final float aimDirection) {
+	public final void setAimDirection(final int aimDirection) {
 		aimRotator.setRotateMultiplier(aimDirection);
 	}
 

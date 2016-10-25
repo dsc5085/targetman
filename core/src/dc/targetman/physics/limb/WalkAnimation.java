@@ -11,7 +11,7 @@ public final class WalkAnimation extends LimbAnimation {
 	private final Joint leftLegJoint;
 	private final Joint rightLegJoint;
 	private final FloatRange rotationRange;
-	private float direction = 1;
+	private int direction = 1;
 
 	public WalkAnimation(final Joint leftLegJoint, final Joint rightLegJoint, final FloatRange rotationRange) {
 		this.leftLegJoint = leftLegJoint;

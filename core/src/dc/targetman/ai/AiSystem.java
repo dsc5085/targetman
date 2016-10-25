@@ -1,5 +1,6 @@
 package dc.targetman.ai;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.math.Rectangle;
@@ -7,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.common.collect.Iterables;
 
 import dc.targetman.epf.parts.AiPart;
+import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.StickActions;
@@ -56,13 +58,13 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void navigate(final Ai ai, final Rectangle targetBounds) {
-		float moveDirection = getMoveDirection(ai, targetBounds);
+		int moveDirection = getMoveDirection(ai, targetBounds);
 		StickActions.move(ai.entity, moveDirection);
 		jump(ai, moveDirection);
 		updatePath(ai, targetBounds);
 	}
 
-	private float getMoveDirection(final Ai ai, final Rectangle targetBounds) {
+	private int getMoveDirection(final Ai ai, final Rectangle targetBounds) {
 		// TODO: Create enum for moveDirection
 		float nextX = getNextX(ai, targetBounds);
 		int moveDirection = 0;
@@ -71,6 +73,8 @@ public final class AiSystem extends EntitySystem {
 			if (Math.abs(offsetX) > getCheckBounds(ai.bounds).width / 2) {
 				moveDirection = offsetX > 0 ? 1 : -1;
 			}
+		} else if (ai.belowSegment == null) {
+			moveDirection = ai.entity.get(MovementPart.class).getDirection();
 		}
 		return moveDirection;
 	}
@@ -110,7 +114,7 @@ public final class AiSystem extends EntitySystem {
 		return betweenSegment;
 	}
 
-	private void jump(final Ai ai, final float moveDirection) {
+	private void jump(final Ai ai, final int moveDirection) {
 		if (ai.belowSegment != null) {
 			Rectangle checkBounds = getCheckBounds(ai.bounds);
 			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.leftNode.x());
@@ -129,11 +133,12 @@ public final class AiSystem extends EntitySystem {
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
 		if (ai.entity.get(AiPart.class).checkUpdatePath()) {
 			Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
+			List<DefaultNode> newPath = new ArrayList<DefaultNode>();
 			if (ai.belowSegment != null && targetSegment != null) {
 				DefaultNode endNode = Iterables.getLast(targetSegment.nodes);
-				List<DefaultNode> newPath = graphHelper.createPath(ai.belowSegment, endNode);
-				ai.entity.get(AiPart.class).setPath(newPath);
+				newPath = graphHelper.createPath(ai.belowSegment, endNode);
 			}
+			ai.entity.get(AiPart.class).setPath(newPath);
 		}
 	}
 
@@ -145,7 +150,7 @@ public final class AiSystem extends EntitySystem {
 		Centrum centrum = entity.get(WeaponPart.class).getCentrum();
 		boolean flipX = entity.get(LimbsPart.class).getFlipX();
 		Vector2 targetCenter = targetBounds.getCenter(new Vector2());
-		float direction = getRotateDirection(centrum, targetCenter, flipX);
+		int direction = getRotateDirection(centrum, targetCenter, flipX);
 		StickActions.aim(entity, direction);
 	}
 
@@ -157,9 +162,9 @@ public final class AiSystem extends EntitySystem {
 	 * @param flipX flipX
 	 * @return 1 if angle should be increased, -1 if angle should be decreased, or 0 if angle shouldn't change
 	 */
-	private float getRotateDirection(final Centrum centrum, final Vector2 to, final boolean flipX) {
+	private int getRotateDirection(final Centrum centrum, final Vector2 to, final boolean flipX) {
 		final float minAngleOffset = 2;
-		float direction = 0;
+		int direction = 0;
 		Vector2 offset = VectorUtils.offset(centrum.getPosition(), to);
 		float angleOffset = Maths.degDistance(offset.angle(), centrum.getRotation());
 		if (angleOffset > minAngleOffset) {

@@ -11,7 +11,7 @@ public final class MovementPart {
 	private final float moveSpeed;
 	private final float jumpForce;
 	private final List<Limb> limbs;
-	private float direction = 0;
+	private int direction = 0;
 	private boolean jumping = false;
 
 	public MovementPart(final float moveSpeed, final float jumpForce, final Limb... limbs) {
@@ -32,11 +32,11 @@ public final class MovementPart {
 		return new ArrayList<Limb>(limbs);
 	}
 
-	public final float getDirection() {
+	public final int getDirection() {
 		return direction;
 	}
 
-	public final void setDirection(final float direction) {
+	public final void setDirection(final int direction) {
 		this.direction = direction;
 	}
 
