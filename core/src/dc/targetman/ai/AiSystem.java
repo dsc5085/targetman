@@ -127,18 +127,12 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
-		if (ai.entity.get(AiPart.class).checkUpdatePath()) {
-			AiPart aiPart = ai.entity.get(AiPart.class);
-			List<DefaultNode> path = aiPart.getPath();
-			Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
+		Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
+		if (ai.entity.get(AiPart.class).checkUpdatePath() && ai.belowSegment != null && targetSegment != null) {
 			List<DefaultNode> newPath = new ArrayList<DefaultNode>();
-			if (ai.belowSegment != null && targetSegment != null) {
-				float targetX = RectangleUtils.base(targetBounds).x;
-				DefaultNode endNode = graphHelper.getNearestNode(targetX, targetSegment);
-				newPath = graphHelper.createPath(ai.position.x, ai.belowSegment, endNode);
-			} else if (!path.isEmpty()) {
-				newPath.add(path.get(0));
-			}
+			float targetX = RectangleUtils.base(targetBounds).x;
+			DefaultNode endNode = graphHelper.getNearestNode(targetX, targetSegment);
+			newPath = graphHelper.createPath(ai.position.x, ai.belowSegment, endNode);
 			ai.entity.get(AiPart.class).setPath(newPath);
 		}
 	}
