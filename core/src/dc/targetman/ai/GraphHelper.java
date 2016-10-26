@@ -1,6 +1,8 @@
 package dc.targetman.ai;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
@@ -28,6 +30,15 @@ public final class GraphHelper {
 	public GraphHelper(final TiledMap map, final UnitConverter unitConverter) {
 		graph = createGraph(map, unitConverter);
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
+	}
+
+	public final DefaultNode getNearestNode(final float x, final Segment segment) {
+		return Collections.min(segment.nodes, new Comparator<DefaultNode>() {
+			@Override
+			public int compare(final DefaultNode n1, final DefaultNode n2) {
+				return Float.compare(getCost(x, n1), getCost(x, n2));
+			}
+		});
 	}
 
 	public final List<DefaultNode> getBelowNodes(final Rectangle bounds, final Segment belowSegment) {
@@ -60,12 +71,13 @@ public final class GraphHelper {
 		return null;
 	}
 
-	public final List<DefaultNode> createPath(final Segment startSegment, final DefaultNode endNode) {
+	public final List<DefaultNode> createPath(final float x, final Segment startSegment, final DefaultNode endNode) {
 		GraphPath<DefaultNode> lowestCostPath = new DefaultGraphPath<DefaultNode>();
+		// TODO: Use Collections.min here and in other places as well
 		for (DefaultNode startNode : startSegment.nodes) {
 			GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
-			if (Iterables.isEmpty(lowestCostPath) || getCost(path) < getCost(lowestCostPath)) {
+			if (Iterables.isEmpty(lowestCostPath) || getCost(x, path) < getCost(x, lowestCostPath)) {
 				lowestCostPath = path;
 			}
 		}
@@ -97,8 +109,8 @@ public final class GraphHelper {
 		return floorLength;
 	}
 
-	private float getCost(final GraphPath<DefaultNode> path) {
-		float cost = 0;
+	private float getCost(final float x, final GraphPath<DefaultNode> path) {
+		float cost = path.getCount() > 0 ? getCost(x, path.get(0)) : 0;
 		Heuristic<DefaultNode> heuristic = getHeuristic();
 		for (int i = 0; i < path.getCount() - 1; i++) {
 			DefaultNode startNode = path.get(i);
@@ -106,6 +118,10 @@ public final class GraphHelper {
 			cost += heuristic.estimate(startNode, endNode);
 		}
 		return cost;
+	}
+
+	private float getCost(final float x, final DefaultNode node) {
+		return Maths.distance(x, node.x());
 	}
 
 	private Heuristic<DefaultNode> getHeuristic() {

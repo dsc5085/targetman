@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.google.common.collect.Iterables;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
@@ -69,7 +68,7 @@ public final class AiSystem extends EntitySystem {
 		int moveDirection = 0;
 		if (!Float.isNaN(nextX)) {
 			if (!RectangleUtils.containsX(ai.bounds, nextX)) {
-				float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
+				float offsetX = nextX - ai.position.x;
 				moveDirection = offsetX > 0 ? 1 : -1;
 			}
 		}
@@ -81,7 +80,7 @@ public final class AiSystem extends EntitySystem {
 		Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
 		boolean onTargetSegment = targetSegment != null && targetSegment == ai.belowSegment;
 		if (onTargetSegment) {
-			nextX = targetBounds.getCenter(new Vector2()).x;
+			nextX = RectangleUtils.base(targetBounds).x;
 		} else if (ai.nextNode != null) {
 			nextX = getNextX(ai.bounds, ai.nextNode, ai.belowSegment);
 		}
@@ -134,8 +133,9 @@ public final class AiSystem extends EntitySystem {
 			Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
 			List<DefaultNode> newPath = new ArrayList<DefaultNode>();
 			if (ai.belowSegment != null && targetSegment != null) {
-				DefaultNode endNode = Iterables.getLast(targetSegment.nodes);
-				newPath = graphHelper.createPath(ai.belowSegment, endNode);
+				float targetX = RectangleUtils.base(targetBounds).x;
+				DefaultNode endNode = graphHelper.getNearestNode(targetX, targetSegment);
+				newPath = graphHelper.createPath(ai.position.x, ai.belowSegment, endNode);
 			} else if (!path.isEmpty()) {
 				newPath.add(path.get(0));
 			}
@@ -178,12 +178,14 @@ public final class AiSystem extends EntitySystem {
 
 		Entity entity;
 		Rectangle bounds;
+		Vector2 position;
 		Segment belowSegment;
 		DefaultNode nextNode;
 
 		Ai(final Entity entity) {
 			this.entity = entity;
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
+			position = RectangleUtils.base(bounds);
 			belowSegment = graphHelper.getBelowSegment(bounds);
 			List<DefaultNode> path = entity.get(AiPart.class).getPath();
 			if (belowSegment != null) {
