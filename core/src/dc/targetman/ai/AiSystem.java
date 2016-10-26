@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.common.collect.Iterables;
 
 import dc.targetman.epf.parts.AiPart;
-import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.StickActions;
@@ -69,12 +68,10 @@ public final class AiSystem extends EntitySystem {
 		float nextX = getNextX(ai, targetBounds);
 		int moveDirection = 0;
 		if (!Float.isNaN(nextX)) {
-			float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
-			if (Math.abs(offsetX) > getCheckBounds(ai.bounds).width / 2) {
+			if (!RectangleUtils.containsX(ai.bounds, nextX)) {
+				float offsetX = nextX - ai.bounds.getCenter(new Vector2()).x;
 				moveDirection = offsetX > 0 ? 1 : -1;
 			}
-		} else if (ai.belowSegment == null) {
-			moveDirection = ai.entity.get(MovementPart.class).getDirection();
 		}
 		return moveDirection;
 	}
@@ -116,7 +113,7 @@ public final class AiSystem extends EntitySystem {
 
 	private void jump(final Ai ai, final int moveDirection) {
 		if (ai.belowSegment != null) {
-			Rectangle checkBounds = getCheckBounds(ai.bounds);
+			Rectangle checkBounds = RectangleUtils.grow(ai.bounds, ai.bounds.width / 2);
 			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.leftNode.x());
 			boolean atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.rightNode.x());
 			boolean approachingEdge = (atLeftEdge && moveDirection < 0) || (atRightEdge && moveDirection > 0);
@@ -132,18 +129,18 @@ public final class AiSystem extends EntitySystem {
 
 	private void updatePath(final Ai ai, final Rectangle targetBounds) {
 		if (ai.entity.get(AiPart.class).checkUpdatePath()) {
+			AiPart aiPart = ai.entity.get(AiPart.class);
+			List<DefaultNode> path = aiPart.getPath();
 			Segment targetSegment = graphHelper.getBelowSegment(targetBounds);
 			List<DefaultNode> newPath = new ArrayList<DefaultNode>();
 			if (ai.belowSegment != null && targetSegment != null) {
 				DefaultNode endNode = Iterables.getLast(targetSegment.nodes);
 				newPath = graphHelper.createPath(ai.belowSegment, endNode);
+			} else if (!path.isEmpty()) {
+				newPath.add(path.get(0));
 			}
 			ai.entity.get(AiPart.class).setPath(newPath);
 		}
-	}
-
-	private Rectangle getCheckBounds(final Rectangle bounds) {
-		return RectangleUtils.grow(bounds, bounds.width / 2);
 	}
 
 	private void aim(final Entity entity, final Rectangle targetBounds) {
@@ -186,11 +183,11 @@ public final class AiSystem extends EntitySystem {
 
 		Ai(final Entity entity) {
 			this.entity = entity;
-			Rectangle bounds = entity.get(TransformPart.class).getTransform().getBounds();
-			this.bounds = bounds;
+			bounds = entity.get(TransformPart.class).getTransform().getBounds();
 			belowSegment = graphHelper.getBelowSegment(bounds);
 			List<DefaultNode> path = entity.get(AiPart.class).getPath();
 			if (belowSegment != null) {
+				// TODO: Since this is just a helper class, it shouldn't modify the ai's state by removing nodes
 				List<DefaultNode> belowNodes = graphHelper.getBelowNodes(bounds, belowSegment);
 				path.removeAll(belowNodes);
 			}
