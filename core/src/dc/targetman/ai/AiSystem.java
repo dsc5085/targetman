@@ -56,10 +56,19 @@ public final class AiSystem extends EntitySystem {
 	}
 
 	private void navigate(final Ai ai, final Rectangle targetBounds) {
+		removeReachedNodes(ai);
 		int moveDirection = getMoveDirection(ai, targetBounds);
 		StickActions.move(ai.entity, moveDirection);
 		jump(ai, moveDirection);
 		updatePath(ai, targetBounds);
+	}
+
+	private void removeReachedNodes(final Ai ai) {
+		if (ai.belowSegment != null) {
+			if (graphHelper.isBelow(ai.nextNode, ai.bounds, ai.belowSegment)) {
+				ai.path.remove(ai.nextNode);
+			}
+		}
 	}
 
 	private int getMoveDirection(final Ai ai, final Rectangle targetBounds) {
@@ -82,32 +91,33 @@ public final class AiSystem extends EntitySystem {
 		if (onTargetSegment) {
 			nextX = RectangleUtils.base(targetBounds).x;
 		} else if (ai.nextNode != null) {
-			nextX = getNextX(ai.bounds, ai.nextNode, ai.belowSegment);
+			nextX = getNextX(ai);
 		}
 		return nextX;
 	}
 
-	private float getNextX(final Rectangle bounds, final DefaultNode node, final Segment belowSegment) {
-		float paddingX = 0;
-		Segment betweenSegment = getBetweenSegment(bounds, node, belowSegment);
-		if (betweenSegment != null) {
-			if (betweenSegment.rightNode.x() == node.x()) {
-				paddingX = bounds.width;
-			} else if (betweenSegment.leftNode.x() == node.x()) {
-				paddingX = -bounds.width;
+	private float getNextX(final Ai ai) {
+		Segment blockingSegment = getBlockingSegment(ai.bounds, ai.nextNode, ai.belowSegment);
+		float nextX = ai.nextNode.x();
+		float paddingToCircumventBlockingSegment = 0;
+		if (blockingSegment != null) {
+			if (blockingSegment.rightNode.x() == nextX) {
+				paddingToCircumventBlockingSegment = ai.bounds.width;
+			} else if (blockingSegment.leftNode.x() == nextX) {
+				paddingToCircumventBlockingSegment = -ai.bounds.width;
 			}
 		}
-		return node.x() + paddingX;
+		return nextX + paddingToCircumventBlockingSegment;
 	}
 
-	private Segment getBetweenSegment(final Rectangle bounds, final DefaultNode node, final Segment belowSegment) {
-		Segment betweenSegment = null;
-		if (bounds.y < node.y()) {
-			betweenSegment = graphHelper.getSegment(node);
-		} else if (bounds.y > node.y()) {
-			betweenSegment = belowSegment;
+	private Segment getBlockingSegment(final Rectangle bounds, final DefaultNode nextNode, final Segment belowSegment) {
+		Segment blockingSegment = null;
+		if (bounds.y < nextNode.y()) {
+			blockingSegment = graphHelper.getSegment(nextNode);
+		} else if (bounds.y > nextNode.y()) {
+			blockingSegment = belowSegment;
 		}
-		return betweenSegment;
+		return blockingSegment;
 	}
 
 	private void jump(final Ai ai, final int moveDirection) {
@@ -174,6 +184,7 @@ public final class AiSystem extends EntitySystem {
 		Rectangle bounds;
 		Vector2 position;
 		Segment belowSegment;
+		List<DefaultNode> path;
 		DefaultNode nextNode;
 
 		Ai(final Entity entity) {
@@ -181,12 +192,7 @@ public final class AiSystem extends EntitySystem {
 			bounds = entity.get(TransformPart.class).getTransform().getBounds();
 			position = RectangleUtils.base(bounds);
 			belowSegment = graphHelper.getBelowSegment(bounds);
-			List<DefaultNode> path = entity.get(AiPart.class).getPath();
-			if (belowSegment != null) {
-				// TODO: Since this is just a helper class, it shouldn't modify the ai's state by removing nodes
-				List<DefaultNode> belowNodes = graphHelper.getBelowNodes(bounds, belowSegment);
-				path.removeAll(belowNodes);
-			}
+			path = entity.get(AiPart.class).getPath();
 			nextNode = path.isEmpty() ? null : path.get(0);
 		}
 

@@ -41,14 +41,8 @@ public final class GraphHelper {
 		});
 	}
 
-	public final List<DefaultNode> getBelowNodes(final Rectangle bounds, final Segment belowSegment) {
-		List<DefaultNode> belowNodes = new ArrayList<DefaultNode>();
-		for (DefaultNode node : belowSegment.nodes) {
-			if (RectangleUtils.containsX(bounds, node.x())) {
-				belowNodes.add(node);
-			}
-		}
-		return belowNodes;
+	public final boolean isBelow(final DefaultNode node, final Rectangle bounds, final Segment belowSegment) {
+		return belowSegment.nodes.contains(node) && RectangleUtils.containsX(bounds, node.x());
 	}
 
 	public final Segment getBelowSegment(final Rectangle bounds) {
