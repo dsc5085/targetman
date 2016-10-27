@@ -91,33 +91,9 @@ public final class AiSystem extends EntitySystem {
 		if (onTargetSegment) {
 			nextX = RectangleUtils.base(targetBounds).x;
 		} else if (ai.nextNode != null) {
-			nextX = getNextX(ai);
+			nextX = ai.nextNode.x();
 		}
 		return nextX;
-	}
-
-	private float getNextX(final Ai ai) {
-		Segment blockingSegment = getBlockingSegment(ai.bounds, ai.nextNode, ai.belowSegment);
-		float nextX = ai.nextNode.x();
-		float paddingToCircumventBlockingSegment = 0;
-		if (blockingSegment != null) {
-			if (blockingSegment.rightNode.x() == nextX) {
-				paddingToCircumventBlockingSegment = ai.bounds.width;
-			} else if (blockingSegment.leftNode.x() == nextX) {
-				paddingToCircumventBlockingSegment = -ai.bounds.width;
-			}
-		}
-		return nextX + paddingToCircumventBlockingSegment;
-	}
-
-	private Segment getBlockingSegment(final Rectangle bounds, final DefaultNode nextNode, final Segment belowSegment) {
-		Segment blockingSegment = null;
-		if (bounds.y < nextNode.y()) {
-			blockingSegment = graphHelper.getSegment(nextNode);
-		} else if (bounds.y > nextNode.y()) {
-			blockingSegment = belowSegment;
-		}
-		return blockingSegment;
 	}
 
 	private void jump(final Ai ai, final int moveDirection) {
