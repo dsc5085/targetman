@@ -98,7 +98,7 @@ public final class AiSystem extends EntitySystem {
 
 	private void jump(final Ai ai, final int moveDirection) {
 		if (ai.belowSegment != null) {
-			Rectangle checkBounds = RectangleUtils.grow(ai.bounds, ai.bounds.width / 2);
+			Rectangle checkBounds = RectangleUtils.grow(ai.bounds, ai.bounds.width / 2, 0);
 			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.leftNode.x());
 			boolean atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.rightNode.x());
 			boolean approachingEdge = (atLeftEdge && moveDirection < 0) || (atRightEdge && moveDirection > 0);
