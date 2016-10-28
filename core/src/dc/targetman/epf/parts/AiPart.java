@@ -14,8 +14,7 @@ public final class AiPart {
 	private List<DefaultNode> path = new ArrayList<DefaultNode>();
 
 	public final List<DefaultNode> getPath() {
-		// TODO: return a defensive copy
-		return path;
+		return new ArrayList<DefaultNode>(path);
 	}
 
 	public final void setPath(final List<DefaultNode> path) {

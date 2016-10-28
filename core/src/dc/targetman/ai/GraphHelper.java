@@ -48,7 +48,7 @@ public final class GraphHelper {
 	public final Segment getBelowSegment(final Rectangle bounds) {
 		Segment belowSegment = null;
 		for (Segment segment : graph.getSegments()) {
-			boolean isNearerY = belowSegment == null || Maths.between(segment.y, belowSegment.y, bounds.y);
+			boolean isNearerY = belowSegment == null || Maths.between(segment.y(), belowSegment.y(), bounds.y);
 			if (isNearerY && segment.overlapsX(bounds)) {
 				belowSegment = segment;
 			}

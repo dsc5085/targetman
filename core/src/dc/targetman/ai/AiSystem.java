@@ -68,6 +68,7 @@ public final class AiSystem extends EntitySystem {
 		if (ai.belowSegment != null) {
 			if (graphHelper.isBelow(ai.nextNode, ai.bounds, ai.belowSegment)) {
 				ai.path.remove(ai.nextNode);
+				ai.entity.get(AiPart.class).setPath(ai.path);
 			}
 		}
 	}
@@ -99,8 +100,8 @@ public final class AiSystem extends EntitySystem {
 	private void jump(final Ai ai, final Direction moveDirection) {
 		if (ai.belowSegment != null) {
 			Rectangle checkBounds = RectangleUtils.grow(ai.bounds, ai.bounds.width / 2, 0);
-			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.leftNode.x());
-			boolean atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.rightNode.x());
+			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.left());
+			boolean atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.right());
 			boolean approachingEdge = (atLeftEdge && moveDirection == Direction.LEFT)
 					|| (atRightEdge && moveDirection == Direction.RIGHT);
 			Segment nextSegment = graphHelper.getSegment(ai.nextNode);
