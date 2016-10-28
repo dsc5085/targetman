@@ -80,7 +80,7 @@ public final class LevelController {
 		camera = new OrthographicCamera(1280, 960);
 		map = new TmxMapLoader().load("maps/test_level.tmx");
 		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
-		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter);
+		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter, world);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
 		entityDrawers.add(new EntityGraphDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
@@ -148,7 +148,7 @@ public final class LevelController {
 	}
 
 	private CollisionChecker createCollisionChecker() {
-		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
+		CollisionChecker collisionSystem = new CollisionChecker(world);
 		Predicate<CollidedEvent> filter = getCollisionFilter();
 		collisionSystem.listen(new DamageCollidedListener(filter));
 		collisionSystem.listen(new StickyCollidedListener(entityManager));

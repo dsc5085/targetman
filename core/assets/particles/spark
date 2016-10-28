@@ -2,8 +2,8 @@ Untitled
 - Delay -
 active: false
 - Duration - 
-lowMin: 50.0
-lowMax: 50.0
+lowMin: 500.0
+lowMax: 500.0
 - Count - 
 min: 0
 max: 200
@@ -20,8 +20,8 @@ timeline0: 0.0
 - Life - 
 lowMin: 0.0
 lowMax: 0.0
-highMin: 100.0
-highMax: 250.0
+highMin: 1000.0
+highMax: 2500.0
 relative: false
 scalingCount: 3
 scaling0: 1.0
@@ -62,8 +62,8 @@ timeline0: 0.0
 - Scale - 
 lowMin: 0.0
 lowMax: 0.0
-highMin: 0.05
-highMax: 0.05
+highMin: 0.1
+highMax: 0.1
 relative: false
 scalingCount: 1
 scaling0: 1.0
@@ -141,4 +141,4 @@ additive: false
 behind: false
 premultipliedAlpha: false
 - Image Path -
-D:\Programming\git\targetman\core\assets\textures\objects\white.png
+/C:/Users/dave1/Programming/git/targetman/core/assets/textures/objects/white.png
