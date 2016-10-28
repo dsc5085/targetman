@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import dc.targetman.mechanics.Direction;
 import dclib.physics.limb.Limb;
 
 public final class MovementPart {
@@ -11,7 +12,7 @@ public final class MovementPart {
 	private final float moveSpeed;
 	private final float jumpForce;
 	private final List<Limb> limbs;
-	private int direction = 0;
+	private Direction direction = Direction.NONE;
 	private boolean jumping = false;
 
 	public MovementPart(final float moveSpeed, final float jumpForce, final Limb... limbs) {
@@ -32,11 +33,11 @@ public final class MovementPart {
 		return new ArrayList<Limb>(limbs);
 	}
 
-	public final int getDirection() {
+	public final Direction getDirection() {
 		return direction;
 	}
 
-	public final void setDirection(final int direction) {
+	public final void setDirection(final Direction direction) {
 		this.direction = direction;
 	}
 

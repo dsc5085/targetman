@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.mechanics.Alliance;
+import dc.targetman.mechanics.Direction;
 import dc.targetman.mechanics.StickActions;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
@@ -57,7 +58,7 @@ public final class AiSystem extends EntitySystem {
 
 	private void navigate(final Ai ai, final Rectangle targetBounds) {
 		removeReachedNodes(ai);
-		int moveDirection = getMoveDirection(ai, targetBounds);
+		Direction moveDirection = getMoveDirection(ai, targetBounds);
 		StickActions.move(ai.entity, moveDirection);
 		jump(ai, moveDirection);
 		updatePath(ai, targetBounds);
@@ -71,14 +72,13 @@ public final class AiSystem extends EntitySystem {
 		}
 	}
 
-	private int getMoveDirection(final Ai ai, final Rectangle targetBounds) {
-		// TODO: Create enum for moveDirection
+	private Direction getMoveDirection(final Ai ai, final Rectangle targetBounds) {
 		float nextX = getNextX(ai, targetBounds);
-		int moveDirection = 0;
+		Direction moveDirection = Direction.NONE;
 		if (!Float.isNaN(nextX)) {
 			if (!RectangleUtils.containsX(ai.bounds, nextX)) {
 				float offsetX = nextX - ai.position.x;
-				moveDirection = offsetX > 0 ? 1 : -1;
+				moveDirection = offsetX > 0 ? Direction.RIGHT : Direction.LEFT;
 			}
 		}
 		return moveDirection;
@@ -96,12 +96,13 @@ public final class AiSystem extends EntitySystem {
 		return nextX;
 	}
 
-	private void jump(final Ai ai, final int moveDirection) {
+	private void jump(final Ai ai, final Direction moveDirection) {
 		if (ai.belowSegment != null) {
 			Rectangle checkBounds = RectangleUtils.grow(ai.bounds, ai.bounds.width / 2, 0);
 			boolean atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.leftNode.x());
 			boolean atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.rightNode.x());
-			boolean approachingEdge = (atLeftEdge && moveDirection < 0) || (atRightEdge && moveDirection > 0);
+			boolean approachingEdge = (atLeftEdge && moveDirection == Direction.LEFT)
+					|| (atRightEdge && moveDirection == Direction.RIGHT);
 			Segment nextSegment = graphHelper.getSegment(ai.nextNode);
 			boolean notOnNextSegment = nextSegment != null && ai.belowSegment != nextSegment;
 			if (approachingEdge || notOnNextSegment) {

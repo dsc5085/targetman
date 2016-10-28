@@ -147,7 +147,7 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		Centrum weaponCentrum = new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f));
-		Weapon weapon = new Weapon(0.5f, 7, 35, alliance.getTarget().name());
+		Weapon weapon = new Weapon(0.5f, 15, 35, 14, 16, alliance.getTarget().name());
 		entity.attach(
 				new LimbAnimationsPart(animations),
 				new MovementPart(10, 12, leftLeg, rightLeg),
@@ -162,7 +162,7 @@ public final class EntityFactory {
 		return entity;
 	}
 
-	public final void createBullet(final Centrum centrum, final float angleOffset, final String type) {
+	public final void createBullet(final Centrum centrum, final float angleOffset, final float speed, final String type) {
 		Alliance targetAlliance = Alliance.valueOf(type); // TODO: hacky...
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
@@ -170,10 +170,10 @@ public final class EntityFactory {
 		Body bulletBody = createBody("objects/bullet", size, true);
 		bulletBody.setBullet(true);
 		bulletBody.setGravityScale(0.1f);
-		Vector2 velocity = new Vector2(15, 0).setAngle(centrum.getRotation() + angleOffset);
+		Vector2 velocity = new Vector2(speed, 0).setAngle(centrum.getRotation() + angleOffset);
 		bulletBody.setLinearVelocity(velocity);
 		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), Material.METAL });
-		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10), new ForcePart(10));
+		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10), new ForcePart(5));
 		Body trailBody = createBody("objects/bullet_trail", new Vector2(1.5f, size.y), true);
 		Entity trail = createBaseEntity(trailBody, new Vector3(), "objects/bullet_trail");
 		trail.attach(new ScalePart(new FloatRange(0, 1), 0.2f));

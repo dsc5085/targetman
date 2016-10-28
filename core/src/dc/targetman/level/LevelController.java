@@ -25,6 +25,7 @@ import dc.targetman.ai.GraphHelper;
 import dc.targetman.epf.graphics.EntityGraphDrawer;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.mechanics.Alliance;
+import dc.targetman.mechanics.Direction;
 import dc.targetman.mechanics.MovementSystem;
 import dc.targetman.mechanics.ScaleSystem;
 import dc.targetman.mechanics.StickActions;
@@ -195,11 +196,11 @@ public final class LevelController {
 
 	private void processInput() {
 		Entity player = findPlayer();
-		int moveDirection = 0;
+		Direction moveDirection = Direction.NONE;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
-			moveDirection = -1;
+			moveDirection = Direction.LEFT;
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-			moveDirection = 1;
+			moveDirection = Direction.RIGHT;
 		}
 		StickActions.move(player, moveDirection);
 		int aimDirection = 0;

@@ -46,8 +46,9 @@ public final class WeaponSystem extends EntitySystem {
 			FloatRange spreadRange = new FloatRange(-halfSpread, halfSpread);
 			int numBullets = weapon.getNumBullets();
 			for (int i = 0; i < numBullets; i++) {
-				float angleOffset = spreadRange.interpolate((float)i / (numBullets - 1));
-				entityFactory.createBullet(weaponPart.getCentrum(), angleOffset, weapon.getBulletType());
+				float angleOffset = spreadRange.random();
+				float speed = weapon.getSpeedRange().random();
+				entityFactory.createBullet(weaponPart.getCentrum(), angleOffset, speed, weapon.getBulletType());
 			}
 			weaponPart.reset();
 		}

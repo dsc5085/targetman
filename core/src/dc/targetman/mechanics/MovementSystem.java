@@ -47,28 +47,28 @@ public final class MovementSystem extends EntitySystem {
 	private void move(final Entity entity) {
 		final float minSpeedToAdjust = 0.5f;
 		MovementPart movementPart = entity.get(MovementPart.class);
-		int direction = movementPart.getDirection();
+		Direction direction = movementPart.getDirection();
 		LimbAnimation walkAnimation = entity.get(LimbAnimationsPart.class).get("walk");
-		int forceDirection = direction;
-		if (direction == 0) {
+		Direction forceDirection = direction;
+		if (direction == Direction.NONE) {
 			walkAnimation.stop();
 			Vector2 velocity = entity.get(TransformPart.class).getTransform().getVelocity();
 			if (Math.abs(velocity.x) > minSpeedToAdjust) {
-				forceDirection = (int)-Math.signum(velocity.x);
+				forceDirection = Direction.from(-velocity.x);
 			}
 		} else {
 			walkAnimation.play();
-			entity.get(LimbsPart.class).setFlipX(direction < 0);
+			entity.get(LimbsPart.class).setFlipX(direction == Direction.LEFT);
 		}
 		applyMoveForce(entity, movementPart.getMoveSpeed(), forceDirection);
 	}
 
-	private void applyMoveForce(final Entity entity, final float speed, final int direction) {
+	private void applyMoveForce(final Entity entity, final float speed, final Direction direction) {
 		Transform transform = entity.get(TransformPart.class).getTransform();
 		float maxSpeedX = speed * getMoveStrength(entity);
 		float velocityX = transform.getVelocity().x;
-		if (Math.signum(velocityX) != direction || Math.abs(velocityX) < maxSpeedX) {
-			transform.applyImpulse(new Vector2(direction, 0));
+		if (Direction.from(velocityX) != direction || Math.abs(velocityX) < maxSpeedX) {
+			transform.applyImpulse(new Vector2(direction.toFloat(), 0));
 		}
 	}
 

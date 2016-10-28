@@ -9,7 +9,7 @@ public final class StickActions {
 	private StickActions() {
 	}
 
-	public static final void move(final Entity entity, final int direction) {
+	public static final void move(final Entity entity, final Direction direction) {
 		entity.get(MovementPart.class).setDirection(direction);
 	}
 
