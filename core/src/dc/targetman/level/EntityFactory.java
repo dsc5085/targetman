@@ -14,6 +14,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -25,6 +27,7 @@ import dc.targetman.epf.parts.ScalePart;
 import dc.targetman.epf.parts.VitalLimbsPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.mechanics.Alliance;
+import dc.targetman.mechanics.CollisionCategory;
 import dc.targetman.mechanics.Weapon;
 import dc.targetman.physics.collision.Material;
 import dc.targetman.physics.limb.WalkAnimation;
@@ -135,6 +138,7 @@ public final class EntityFactory {
 		body.setFixedRotation(true);
 		body.setTransform(position.x, position.y, 0);
 		body.setUserData(entity);
+		setFilter(body, CollisionCategory.BOUNDS, (short)~CollisionCategory.PROJECTILE);
 
 		Limb root = new Limb()
 		.addJoint(torso, 0, 0, 0.05f, 0.05f, 90)
@@ -147,7 +151,7 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		Centrum weaponCentrum = new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f));
-		Weapon weapon = new Weapon(0.5f, 1, 35, 14, 16, alliance.getTarget().name());
+		Weapon weapon = new Weapon(0.03f, 1, 35, 14, 16, alliance.getTarget().name());
 		entity.attach(
 				new LimbAnimationsPart(animations),
 				new MovementPart(10, 12, leftLeg, rightLeg),
@@ -172,6 +176,7 @@ public final class EntityFactory {
 		bulletBody.setGravityScale(0.1f);
 		Vector2 velocity = new Vector2(speed, 0).setAngle(centrum.getRotation() + angleOffset);
 		bulletBody.setLinearVelocity(velocity);
+		setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL);
 		Entity bullet = createBaseEntity(bulletBody, position3, "objects/bullet", new Enum<?>[] { targetAlliance.getTarget(), Material.METAL });
 		bullet.attach(new AutoRotatePart(), new TimedDeathPart(3), new CollisionDamagePart(10), new ForcePart(5));
 		Body trailBody = createBody("objects/bullet_trail", new Vector2(1.5f, size.y), true);
@@ -195,7 +200,7 @@ public final class EntityFactory {
 		entityManager.add(entity);
 	}
 
-	private final void createLimbEntity(final Limb limb, final Limb[] zOrder, final Vector2 size, final Vector3 position, final String regionName, final float health, final Enum<?>...attributes) {
+	private void createLimbEntity(final Limb limb, final Limb[] zOrder, final Vector2 size, final Vector3 position, final String regionName, final float health, final Enum<?>...attributes) {
 		float z = position.z + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR;
 		Body body = createBody(regionName, size, true);
 		body.setGravityScale(0);
@@ -205,11 +210,11 @@ public final class EntityFactory {
 		entityManager.add(entity);
 	}
 
-	private final Entity createBaseEntity(final Body body, final Vector3 position, final String regionName) {
+	private Entity createBaseEntity(final Body body, final Vector3 position, final String regionName) {
 		return createBaseEntity(body, position, regionName, new Enum<?>[0]);
 	}
 
-	private final Entity createBaseEntity(final Body body, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
+	private Entity createBaseEntity(final Body body, final Vector3 position, final String regionName, final Enum<?>[] collisionGroups) {
 		Entity entity = new Entity();
 		entity.attribute(collisionGroups);
 		body.setUserData(entity);
@@ -220,7 +225,7 @@ public final class EntityFactory {
 		return entity;
 	}
 
-	private final Body createBody(final String regionName, final Vector2 size, final boolean sensor) {
+	private Body createBody(final String regionName, final Vector2 size, final boolean sensor) {
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
 		Body body = world.createBody(bodyDef);
@@ -230,10 +235,20 @@ public final class EntityFactory {
 			PolygonShape shape = new PolygonShape();
 			Vector2[] partitionVectors = partition.toArray(Vector2.class);
 			shape.set(PolygonUtils.toFloats(partitionVectors));
-			body.createFixture(shape, 1).setSensor(sensor);
+			Fixture fixture = body.createFixture(shape, 1);
+			fixture.setSensor(sensor);
 			shape.dispose();
 		}
 		return body;
+	}
+
+	private void setFilter(final Body body, final short category, final short mask) {
+		Filter filter = new Filter();
+		filter.categoryBits = category;
+		filter.maskBits = mask;
+		for (Fixture fixture : body.getFixtureList()) {
+			fixture.setFilterData(filter);
+		}
 	}
 
 }

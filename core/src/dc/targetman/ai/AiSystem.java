@@ -8,8 +8,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
-import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.Direction;
+import dc.targetman.mechanics.EntityFinder;
 import dc.targetman.mechanics.StickActions;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;
@@ -37,7 +37,7 @@ public final class AiSystem extends EntitySystem {
 		AiPart aiPart = entity.tryGet(AiPart.class);
 		if (aiPart != null) {
 			aiPart.tick(delta);
-			Entity target = findTarget(entity);
+			Entity target = EntityFinder.findPlayer(entityManager);
 			if (target != null) {
 				Ai ai = new Ai(entity);
 				Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
@@ -45,15 +45,6 @@ public final class AiSystem extends EntitySystem {
 				aim(entity, targetBounds);
 			}
 		}
-	}
-
-	private Entity findTarget(final Entity entity) {
-		for (Entity target : entityManager.getAll()) {
-			if (target.is(Alliance.PLAYER) && target.has(LimbsPart.class)) {
-				return target;
-			}
-		}
-		return null;
 	}
 
 	private void navigate(final Ai ai, final Rectangle targetBounds) {

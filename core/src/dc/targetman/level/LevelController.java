@@ -26,6 +26,7 @@ import dc.targetman.epf.graphics.EntityGraphDrawer;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.Direction;
+import dc.targetman.mechanics.EntityFinder;
 import dc.targetman.mechanics.MovementSystem;
 import dc.targetman.mechanics.ScaleSystem;
 import dc.targetman.mechanics.StickActions;
@@ -103,7 +104,8 @@ public final class LevelController {
 	public final void update(final float delta) {
 		if (isRunning) {
 			advancer.advance(delta);
-			CameraUtils.follow(findPlayer(), unitConverter, camera);
+			Entity player = EntityFinder.findPlayer(entityManager);
+			CameraUtils.follow(player, unitConverter, camera);
 			mapRenderer.setView(camera);
 		}
 	}
@@ -195,7 +197,7 @@ public final class LevelController {
 	}
 
 	private void processInput() {
-		Entity player = findPlayer();
+		Entity player = EntityFinder.findPlayer(entityManager);
 		Direction moveDirection = Direction.NONE;
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			moveDirection = Direction.LEFT;
@@ -216,15 +218,6 @@ public final class LevelController {
 		if (Gdx.input.isKeyPressed(Keys.J)){
 			StickActions.trigger(player);
 		}
-	}
-
-	private Entity findPlayer() {
-		return Iterables.find(entityManager.getAll(), new Predicate<Entity>() {
-			@Override
-			public boolean apply(final Entity input) {
-				return input.has(MovementPart.class) && input.is(Alliance.PLAYER);
-			}
-		});
 	}
 
 	private void renderEntities() {
