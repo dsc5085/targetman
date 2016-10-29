@@ -42,8 +42,8 @@ import dclib.epf.EntityRemovedListener;
 import dclib.epf.graphics.EntityDrawer;
 import dclib.epf.graphics.EntitySpriteDrawer;
 import dclib.epf.graphics.SpriteSyncSystem;
-import dclib.geometry.UnitConverter;
 import dclib.graphics.CameraUtils;
+import dclib.graphics.ScreenHelper;
 import dclib.graphics.TextureCache;
 import dclib.mechanics.DamageCollidedListener;
 import dclib.mechanics.RemoveCollidedListener;
@@ -71,7 +71,7 @@ public final class LevelController {
 	private final Advancer advancer;
 	private final OrthographicCamera camera;
 	private final MapRenderer mapRenderer;
-	private final UnitConverter unitConverter;
+	private final ScreenHelper screenHelper;
 	private final ParticlesManager particlesManager;
 	private final List<EntityDrawer> entityDrawers = new ArrayList<EntityDrawer>();
 	private final TiledMap map;
@@ -80,15 +80,15 @@ public final class LevelController {
 			final ShapeRenderer shapeRenderer) {
 		camera = new OrthographicCamera(1280, 960);
 		map = new TmxMapLoader().load("maps/test_level.tmx");
-		unitConverter = new UnitConverter(PIXELS_PER_UNIT, camera);
-		particlesManager = new ParticlesManager(textureCache, camera, spriteBatch, unitConverter, world);
+		screenHelper = new ScreenHelper(PIXELS_PER_UNIT, camera);
+		particlesManager = new ParticlesManager(textureCache, spriteBatch, screenHelper, world);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
-		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, camera, entityManager));
-		entityDrawers.add(new EntityGraphDrawer(shapeRenderer, camera, PIXELS_PER_UNIT));
+		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, screenHelper, entityManager));
+		entityDrawers.add(new EntityGraphDrawer(shapeRenderer, screenHelper));
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
 		entityManager.listen(entityRemoved());
 		advancer = createAdvancer();
-		new MapLoader(map, unitConverter, entityFactory).createObjects();
+		new MapLoader(map, screenHelper, entityFactory).createObjects();
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1, spriteBatch);
 	}
 
@@ -105,16 +105,17 @@ public final class LevelController {
 		if (isRunning) {
 			advancer.advance(delta);
 			Entity player = EntityFinder.findPlayer(entityManager);
-			CameraUtils.follow(player, unitConverter, camera);
+			CameraUtils.follow(player, screenHelper, camera);
 			mapRenderer.setView(camera);
 		}
 	}
 
 	public final void draw() {
 		particlesManager.draw();
-//		mapRenderer.render();
+		mapRenderer.setView(camera);
+		mapRenderer.render();
 		renderEntities();
-		renderBox2D();
+//		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
@@ -131,7 +132,7 @@ public final class LevelController {
 
 	private Advancer createAdvancer() {
 		// TODO: Calculate actor size
-		GraphHelper graphHelper = new GraphHelper(map, unitConverter, new Vector2(1, 2));
+		GraphHelper graphHelper = new GraphHelper(map, screenHelper, new Vector2(1, 2));
 		return new Advancer(
 				createInputUpdater(),
 				new AiSystem(entityManager, graphHelper),
@@ -145,7 +146,7 @@ public final class LevelController {
 				new TimedDeathSystem(entityManager),
 				new WeaponSystem(entityManager, entityFactory),
 				new VitalLimbsSystem(entityManager),
-				new SpriteSyncSystem(entityManager, unitConverter),
+				new SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager);
 	}
 

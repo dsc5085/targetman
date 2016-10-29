@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import dc.targetman.level.LevelController;
 import dc.targetman.screens.LevelScreen;
-import dclib.graphics.ScreenUtils;
+import dclib.graphics.RenderUtils;
 import dclib.graphics.TextureCache;
 import dclib.system.ScreenManager;
 
@@ -28,7 +28,7 @@ public class TargetmanGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		ScreenUtils.clear();
+		RenderUtils.clear();
 		screenManager.render();
 	}
 

@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
 
 import dc.targetman.level.MapUtils;
 import dclib.geometry.RectangleUtils;
-import dclib.geometry.UnitConverter;
+import dclib.graphics.ScreenHelper;
 import dclib.util.Maths;
 
 public final class GraphHelper {
@@ -27,8 +27,8 @@ public final class GraphHelper {
 	private final DefaultIndexedGraph graph;
 	private final PathFinder<DefaultNode> pathFinder;
 
-	public GraphHelper(final TiledMap map, final UnitConverter unitConverter, final Vector2 actorSize) {
-		graph = createGraph(map, unitConverter, actorSize);
+	public GraphHelper(final TiledMap map, final ScreenHelper screenHelper, final Vector2 actorSize) {
+		graph = createGraph(map, screenHelper, actorSize);
 		pathFinder = new IndexedAStarPathFinder<DefaultNode>(graph, true);
 	}
 
@@ -78,11 +78,11 @@ public final class GraphHelper {
 		return Lists.newArrayList(lowestCostPath);
 	}
 
-	private DefaultIndexedGraph createGraph(final TiledMap map, final UnitConverter unitConverter,
+	private DefaultIndexedGraph createGraph(final TiledMap map, final ScreenHelper screenHelper,
 			final Vector2 actorSize) {
 		TiledMapTileLayer collisionLayer = MapUtils.getCollisionLayer(map);
 		List<Rectangle> boundsList = new ArrayList<Rectangle>();
-		Vector2 size = unitConverter.toWorldUnits(collisionLayer.getTileWidth(), collisionLayer.getTileHeight());
+		Vector2 size = screenHelper.toWorldUnits(collisionLayer.getTileWidth(), collisionLayer.getTileHeight());
 		for (int y = 0; y < collisionLayer.getHeight() - 1; y++) {
 			for (int x = 0; x < collisionLayer.getWidth(); x++) {
 				int floorLength = getFloorLength(collisionLayer, x, y);

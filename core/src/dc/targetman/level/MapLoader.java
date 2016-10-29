@@ -9,17 +9,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import dc.targetman.mechanics.Alliance;
-import dclib.geometry.UnitConverter;
+import dclib.graphics.ScreenHelper;
 
 public final class MapLoader {
 
 	private final TiledMap map;
-	private final UnitConverter unitConverter;
+	private final ScreenHelper screenHelper;
 	private final EntityFactory entityFactory;
 
-	public MapLoader(final TiledMap map, final UnitConverter unitConverter, final EntityFactory entityFactory) {
+	public MapLoader(final TiledMap map, final ScreenHelper screenHelper, final EntityFactory entityFactory) {
 		this.map = map;
-		this.unitConverter = unitConverter;
+		this.screenHelper = screenHelper;
 		this.entityFactory = entityFactory;
 	}
 
@@ -50,7 +50,7 @@ public final class MapLoader {
 	}
 
 	private Vector3 getWorldPosition(final TiledMapTileMapObject object, final float z) {
-		Vector2 worldPosition = unitConverter.toWorldUnits(object.getX(), object.getY());
+		Vector2 worldPosition = screenHelper.toWorldUnits(object.getX(), object.getY());
 		return new Vector3(worldPosition.x, worldPosition.y, 0);
 	}
 
