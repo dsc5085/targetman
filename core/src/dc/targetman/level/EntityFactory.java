@@ -147,7 +147,7 @@ public final class EntityFactory {
 		animations.put("walk", walkAnimation);
 		Rotator rotator = new Rotator(rightBicepJoint, new FloatRange(-180, -45), 135);
 		Centrum weaponCentrum = new Centrum(gun.getTransform(), new Vector2(0.4f, 0.25f));
-		Weapon weapon = new Weapon(0.5f, 15, 35, 14, 16, alliance.getTarget().name());
+		Weapon weapon = new Weapon(0.5f, 1, 35, 14, 16, alliance.getTarget().name());
 		entity.attach(
 				new LimbAnimationsPart(animations),
 				new MovementPart(10, 12, leftLeg, rightLeg),
@@ -167,7 +167,7 @@ public final class EntityFactory {
 		Vector2 size = new Vector2(0.08f, 0.08f);
 		Vector2 relativeCenter = PolygonUtils.relativeCenter(centrum.getPosition(), size);
 		Vector3 position3 = new Vector3(relativeCenter.x, relativeCenter.y, 0);
-		Body bulletBody = createBody("objects/bullet", size, true);
+		Body bulletBody = createBody("objects/bullet", size, false);
 		bulletBody.setBullet(true);
 		bulletBody.setGravityScale(0.1f);
 		Vector2 velocity = new Vector2(speed, 0).setAngle(centrum.getRotation() + angleOffset);
