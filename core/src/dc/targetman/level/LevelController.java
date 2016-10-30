@@ -79,7 +79,7 @@ public final class LevelController {
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
 			final ShapeRenderer shapeRenderer) {
 		camera = new OrthographicCamera(1280, 960);
-		map = new TmxMapLoader().load("maps/test_level.tmx");
+		map = new TmxMapLoader().load("maps/geometry.tmx");
 		screenHelper = new ScreenHelper(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, spriteBatch, screenHelper, world);
 		entityFactory = new EntityFactory(entityManager, world, textureCache);
@@ -115,7 +115,7 @@ public final class LevelController {
 		mapRenderer.setView(camera);
 		mapRenderer.render();
 		renderEntities();
-//		renderBox2D();
+		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {

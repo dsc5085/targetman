@@ -1,13 +1,13 @@
 package dc.targetman.level;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -19,6 +19,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.ForcePart;
@@ -70,22 +72,15 @@ public final class EntityFactory {
 		convexHullCache = new ConvexHullCache(textureCache);
 	}
 
-	public final void createWall(final Vector2 size, final Vector3 position) {
+	public final void createWall(final List<Vector2> vertices) {
 		Entity entity = new Entity();
-		Polygon polygon = convexHullCache.create("objects/white", size);
-		polygon.setPosition(position.x,  position.y);
 
 		BodyDef def = new BodyDef();
 		def.type = BodyType.StaticBody;
-		Body body = world.createBody(def);
+		Body body = createBody(def, PolygonUtils.toFloats(vertices), false);
 		body.setUserData(entity);
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(size.x / 2, size.y / 2);
-		body.createFixture(shape, 0);
-		shape.dispose();
-		body.setTransform(position.x + size.x / 2, position.y + size.y / 2, 0);
 
-		entity.attach(new TransformPart(new Box2dTransform(position.z, body)));
+		entity.attach(new TransformPart(new Box2dTransform(0, body)));
 		entity.attribute(Material.METAL);
 		entityManager.add(entity);
 	}
@@ -228,12 +223,16 @@ public final class EntityFactory {
 	private Body createBody(final String regionName, final Vector2 size, final boolean sensor) {
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
-		Body body = world.createBody(bodyDef);
 		float[] vertices = convexHullCache.create(regionName, size).getVertices();
-		Array<Vector2> vertexVectors = new Array<Vector2>(PolygonUtils.toVectors(vertices));
+		return createBody(bodyDef, vertices, sensor);
+	}
+
+	private Body createBody(final BodyDef bodyDef, final float[] vertices, final boolean sensor) {
+		Body body = world.createBody(bodyDef);
+		Array<Vector2> vertexVectors = new Array<Vector2>(Iterables.toArray(PolygonUtils.toVectors(vertices), Vector2.class));
 		for (Array<Vector2> partition : BayazitDecomposer.convexPartition(vertexVectors)) {
 			PolygonShape shape = new PolygonShape();
-			Vector2[] partitionVectors = partition.toArray(Vector2.class);
+			List<Vector2> partitionVectors = Lists.newArrayList(partition.iterator());
 			shape.set(PolygonUtils.toFloats(partitionVectors));
 			Fixture fixture = body.createFixture(shape, 1);
 			fixture.setSensor(sensor);
