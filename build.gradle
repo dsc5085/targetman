@@ -1,4 +1,6 @@
 buildscript {
+    ext.kotlinVersion = '1.0.4'
+    
     repositories {
         mavenLocal()
         mavenCentral()
@@ -6,6 +8,7 @@ buildscript {
         jcenter()
     }
     dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
     }
 }
@@ -33,7 +36,7 @@ allprojects {
 }
 
 project(":desktop") {
-    apply plugin: "java"
+    apply plugin: "kotlin"
 
 
     dependencies {
@@ -46,10 +49,12 @@ project(":desktop") {
 }
 
 project(":core") {
-    apply plugin: "java"
+    apply plugin: "kotlin"
 
 
     dependencies {
+    	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    	compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
