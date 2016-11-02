@@ -111,7 +111,8 @@ public final class MovementSystem extends EntitySystem {
 		if (legsFixture == fixture1 && !fixture2.isSensor()) {
 			float legsMinY = Box2DUtils.minYWorld(legsFixture);
 			for (int i = 0; i < manifold.getNumberOfContactPoints(); i++) {
-				if (manifold.getPoints()[i].y < legsMinY + halfLegsSize) {
+				float maxYForGrounded = legsMinY + halfLegsSize;
+				if (manifold.getPoints()[i].y < maxYForGrounded) {
 					return true;
 				}
 			}

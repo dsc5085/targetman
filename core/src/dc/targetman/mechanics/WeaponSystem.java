@@ -9,7 +9,6 @@ import dclib.epf.EntityManager;
 import dclib.epf.EntitySystem;
 import dclib.epf.parts.LimbsPart;
 import dclib.physics.limb.Limb;
-import dclib.util.CollectionUtils;
 import dclib.util.FloatRange;
 
 public final class WeaponSystem extends EntitySystem {
@@ -36,7 +35,7 @@ public final class WeaponSystem extends EntitySystem {
 		List<Limb> limbs = entity.get(LimbsPart.class).getAll();
 		// TODO: Bug.  Doesn't work with ancestor limbs of the weapon limb
 		List<Limb> firingLimbs = weaponPart.getRotatorLimb().getDescendants();
-		return CollectionUtils.containsAll(limbs, firingLimbs);
+		return limbs.containsAll(firingLimbs);
 	}
 
 	private void fire(final WeaponPart weaponPart) {

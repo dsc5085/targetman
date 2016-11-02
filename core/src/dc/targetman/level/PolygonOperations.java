@@ -1,58 +1,57 @@
 package dc.targetman.level;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.collect.Iterables;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 
 public final class PolygonOperations {
 
-	public static void union(final List<Vector2> parentVertices, final List<Vector2> newVertices) {
-		for (int parentIndex = 0; parentIndex < parentVertices.size() - 1; parentIndex++) {
-			int newVertexIndex = newVertices.indexOf(parentVertices.get(parentIndex));
-			if (newVertexIndex >= 0) {
-				List<Vector2> vertexChainToAdd = getVertexChain(parentVertices, newVertices, newVertexIndex + 1);
-				parentVertices.addAll(parentIndex, vertexChainToAdd);
-				parentIndex += vertexChainToAdd.size();
-				removeVertexChain(parentVertices, newVertices, parentIndex);
-				parentIndex--;
-			}
+	public static List<List<Vector2>> union(final List<List<Vector2>> verticesList) {
+		List<List<Vector2>> unionVertices = new ArrayList<List<Vector2>>();
+		GeometryFactory factory = new GeometryFactory();
+		List<Geometry> geometries = toGeometries(verticesList, factory);
+		Geometry[] geometriesArray = GeometryFactory.toGeometryArray(geometries);
+		Geometry union = factory.createGeometryCollection(geometriesArray).union();
+		for (int i = 0; i < union.getNumGeometries(); i++) {
+			Geometry geometry = union.getGeometryN(i);
+			unionVertices.add(toVectors(geometry));
 		}
+		return unionVertices;
 	}
 
-	private static List<Vector2> getVertexChain(final List<Vector2> parentVertices,
-			final List<Vector2> newVertices, final int start) {
-		List<Vector2> vertexChain = new ArrayList<Vector2>();
-		int newVertexIndex = start;
-		boolean adding = true;
-		while (adding) {
-			newVertexIndex = wrapIndex(newVertexIndex, newVertices);
-			Vector2 newVertex = newVertices.get(newVertexIndex);
-			if (parentVertices.contains(newVertex) || vertexChain.contains(newVertex)) {
-				adding = false;
-			} else {
-				vertexChain.add(newVertex);
-				newVertexIndex++;
-			}
+	private static List<Geometry> toGeometries(final List<List<Vector2>> verticesList, GeometryFactory factory) {
+		List<Geometry> geometries = new ArrayList<Geometry>();
+		for (List<Vector2> vertices : verticesList) {
+			Polygon polygon = factory.createPolygon(toCoordinates(vertices));
+			geometries.add(polygon);
 		}
-		return vertexChain;
+		return geometries;
 	}
 
-	private static void removeVertexChain(final List<Vector2> parentVertices, final List<Vector2> newVertices,
-			final int start) {
-		while (start < parentVertices.size() && newVertices.contains(parentVertices.get(start))) {
-			parentVertices.remove(start);
+	private static Coordinate[] toCoordinates(final List<Vector2> vectors) {
+		List<Coordinate> coordinates = new ArrayList<Coordinate>();
+		for (Vector2 vector : vectors) {
+			coordinates.add(new Coordinate(vector.x, vector.y));
 		}
+		coordinates.add(coordinates.get(0));
+		return Iterables.toArray(coordinates, Coordinate.class);
 	}
 
-	private static int wrapIndex(final int index, final List<Vector2> vertices) {
-		int wrappedIndex = index;
-		if (index < 0) {
-			wrappedIndex = vertices.size() - 1;
-		} else if (index >= vertices.size()) {
-			wrappedIndex = 0;
+	private static List<Vector2> toVectors(final Geometry geometry) {
+		List<Vector2> vectors = new ArrayList<Vector2>();
+		for (Coordinate coordinate : geometry.getCoordinates()) {
+			vectors.add(new Vector2((float)coordinate.x, (float)coordinate.y));
 		}
-		return wrappedIndex;
+		vectors.remove(vectors.size() - 1);
+		Collections.reverse(vectors);
+		return vectors;
 	}
 
 }

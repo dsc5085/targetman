@@ -1,9 +1,7 @@
 package dc.targetman.level;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -12,10 +10,8 @@ import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.google.common.collect.ImmutableSet;
 
 import dc.targetman.mechanics.Alliance;
-import dclib.geometry.Point;
 import dclib.geometry.PolygonUtils;
 import dclib.graphics.ScreenHelper;
 
@@ -37,37 +33,24 @@ public final class MapLoader {
 	}
 
 	public final void createStaticObjects() {
-		Map<Point, List<Vector2>> pointToWallVertices = new HashMap<Point, List<Vector2>>();
+		List<List<Vector2>> tilesVertices = new ArrayList<List<Vector2>>();
 		TiledMapTileLayer collisionLayer = MapUtils.getCollisionLayer(map);
 		for (int x = 0; x < collisionLayer.getWidth(); x++) {
 			for (int y = 0; y < collisionLayer.getHeight(); y++) {
 				if (collisionLayer.getCell(x, y) != null) {
-					addTileVertices(pointToWallVertices, x, y);
+					tilesVertices.add(createTileVertices(x, y));
 				}
 			}
 		}
-		Set<List<Vector2>> wallsVertices = ImmutableSet.copyOf(pointToWallVertices.values());
-		for (List<Vector2> wallVertices : wallsVertices) {
-			entityFactory.createWall(wallVertices);
+		List<List<Vector2>> unionTileVertices = PolygonOperations.union(tilesVertices);
+		for (List<Vector2> tileVertices : unionTileVertices) {
+			entityFactory.createWall(tileVertices);
 		}
 	}
 
-	private void addTileVertices(final Map<Point, List<Vector2>> pointToWallVertices, final int x, final int y) {
+	private List<Vector2> createTileVertices(final int x, final int y) {
 		float[] vertices = PolygonUtils.createRectangleVertices(new Rectangle(x, y, 1, 1));
-		List<Vector2> newVertices = PolygonUtils.toVectors(vertices);
-		List<Vector2> wallVertices = newVertices;
-		Point point = new Point(x, y);
-		// due to the order at which tiles are iterated, current neighbors can only exist at left or bottom
-		Point left = new Point(x - 1, y);
-		Point bottom = new Point(x, y - 1);
-		if (pointToWallVertices.containsKey(left)) {
-			wallVertices = pointToWallVertices.get(left);
-			PolygonOperations.union(wallVertices, newVertices);
-		} else if (pointToWallVertices.containsKey(bottom)) {
-			wallVertices = pointToWallVertices.get(bottom);
-			PolygonOperations.union(wallVertices, newVertices);
-		}
-		pointToWallVertices.put(point, wallVertices);
+		return PolygonUtils.toVectors(vertices);
 	}
 
 	private void createActors() {
