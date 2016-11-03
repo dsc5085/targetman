@@ -39,7 +39,7 @@ public final class ForceCollidedListener implements CollidedListener {
 	}
 
 	private void applyForce(final Entity target, final Vector2 force) {
-		Entity actualTarget = LimbUtils.findContainer(entityManager.getAll(), target);
+		Entity actualTarget = LimbUtils.INSTANCE.findContainer(entityManager.getAll(), target);
 		if (actualTarget == null) {
 			actualTarget = target;
 		}

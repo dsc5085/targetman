@@ -151,7 +151,7 @@ public final class EntityFactory {
 				new LimbAnimationsPart(animations),
 				new MovementPart(10, 12, leftLeg, rightLeg),
 				new WeaponPart(weaponCentrum, weapon, rotator),
-				new LimbsPart(root, leftLeg, rightLeg),
+				new LimbsPart(root),
 				new VitalLimbsPart(head, torso));
 		if (alliance == Alliance.ENEMY){
 			entity.attach(new AiPart());
@@ -181,7 +181,7 @@ public final class EntityFactory {
 		Limb trailLimb = new Limb(trail.get(TransformPart.class).getTransform());
 		Transform transform = bullet.get(TransformPart.class).getTransform();
 		Limb root = new Limb(transform).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0);
-		LimbsPart limbsPart = new LimbsPart(root, root);
+		LimbsPart limbsPart = new LimbsPart(root);
 		bullet.attach(limbsPart, new CollisionRemovePart());
 		entityManager.add(bullet);
 	}
