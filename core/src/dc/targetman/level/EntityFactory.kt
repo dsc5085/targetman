@@ -1,6 +1,5 @@
 package dc.targetman.level
 
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Body
@@ -46,7 +45,6 @@ import dclib.physics.limb.LimbAnimation
 import dclib.physics.limb.Rotator
 import dclib.util.FloatRange
 import net.dermetfan.gdx.math.BayazitDecomposer
-import org.apache.commons.lang3.ArrayUtils
 import java.util.HashMap
 
 // TODO: Cleanup
@@ -72,30 +70,23 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 	}
 
 	fun createStickman(position: Vector3, alliance: Alliance): Entity {
-		val leftForearm = Limb()
-		val leftBicep = Limb().addJoint(leftForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
-		val gun = Limb()
-		val rightForearm = Limb().addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0f)
-		val rightBicep = Limb().addJoint(rightForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
-		val head = Limb()
+		val leftForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val leftBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+			.addJoint(leftForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
+		val gun = createLimbEntity(Vector2(0.4f, 0.3f), position, "objects/gun", 500f, Material.METAL)
+		val rightForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+			.addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0f)
+		val rightBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+			.addJoint(rightForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
 		val rightBicepJoint = Joint(rightBicep, Vector2(0.8f, 0.05f), Vector2(0f, 0.05f), -135f)
-		val torso = Limb()
-				.addJoint(leftBicep, 0.8f, 0.05f, 0f, 0.05f, -225f)
-				.addJoint(rightBicepJoint)
-				.addJoint(head, 1f, 0.05f, 0.05f, 0.25f, 0f)
-		val leftLeg = Limb()
-		val rightLeg = Limb()
-		val zOrder = arrayOf<Limb>(leftForearm, leftBicep, leftLeg, torso, head, rightLeg, rightBicep, rightForearm)
-		createLimbEntity(leftForearm, zOrder, Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
-		createLimbEntity(leftBicep, zOrder, Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
-		createLimbEntity(gun, zOrder, Vector2(0.4f, 0.3f), position, "objects/gun", 500f, Material.METAL)
-		createLimbEntity(rightForearm, zOrder, Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
-		createLimbEntity(rightBicep, zOrder, Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
-		createLimbEntity(head, zOrder, Vector2(0.5f, 0.5f), position, "objects/head", 100f, alliance, Material.FLESH)
-		createLimbEntity(torso, zOrder, Vector2(1f, 0.1f), position, "objects/limb", 200f, alliance, Material.FLESH)
-		createLimbEntity(leftLeg, zOrder, Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
-		createLimbEntity(rightLeg, zOrder, Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val head = createLimbEntity(Vector2(0.5f, 0.5f), position, "objects/head", 100f, alliance, Material.FLESH)
+		val torso = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 200f, alliance, Material.FLESH)
+			.addJoint(leftBicep, 0.8f, 0.05f, 0f, 0.05f, -225f)
+			.addJoint(rightBicepJoint)
+			.addJoint(head, 1f, 0.05f, 0.05f, 0.25f, 0f)
+		val leftLeg = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 		val leftLegJoint = Joint(leftLeg, Vector2(), Vector2(0f, 0.05f), -110f)
+		val rightLeg = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 		val rightLegJoint = Joint(rightLeg, Vector2(), Vector2(0f, 0.05f), -70f)
 		val entity = Entity()
 		entity.attribute(alliance)
@@ -157,9 +148,8 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
 		trail.attach(ScalePart(FloatRange(0f, 1f), 0.2f))
 		entityManager.add(trail)
-		val trailLimb = Limb(trail[TransformPart::class.java].transform)
-		val transform = bullet[TransformPart::class.java].transform
-		val root = Limb(transform).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0f)
+		val trailLimb = Limb(trail)
+		val root = Limb(bullet).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0f)
 		val limbsPart = LimbsPart(root)
 		bullet.attach(limbsPart, CollisionRemovePart())
 		entityManager.add(bullet)
@@ -174,14 +164,13 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		entityManager.add(entity)
 	}
 
-	private fun createLimbEntity(limb: Limb, zOrder: Array<Limb>, size: Vector2, position: Vector3, regionName: String, health: Float, vararg attributes: Enum<*>) {
-		val z = position.z + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR
+	private fun createLimbEntity(size: Vector2, position: Vector3, regionName: String, health: Float, vararg attributes: Enum<*>): Limb {
 		val body = createBody(regionName, size, true)
 		body.gravityScale = 0f
-		val entity = createBaseEntity(body, Vector3(position.x, position.y, z), regionName, *attributes, DeathForm.CORPSE)
+		val entity = createBaseEntity(body, Vector3(position.x, position.y, 0f), regionName, *attributes, DeathForm.CORPSE)
 		entity.attach(HealthPart(health))
-		limb.setTransform(entity[TransformPart::class.java].transform)
 		entityManager.add(entity)
+		return Limb(entity)
 	}
 
 	private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {

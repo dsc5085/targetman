@@ -31,8 +31,8 @@ class ForceCollidedListener(entityManager: EntityManager, filter: Predicate<Coll
 	}
 
 	private fun applyForce(target: Entity, force: Vector2) {
-		val actualTarget = LimbUtils.findContainer(entityManager.getAll(), target) ?: target
-		val actualTransform = actualTarget[TransformPart::class.java].getTransform()
+		val actualTarget = LimbUtils.findContainer(entityManager.all, target) ?: target
+		val actualTransform = actualTarget[TransformPart::class.java].transform
 		actualTransform.applyImpulse(force)
 	}
 }
