@@ -25,6 +25,7 @@ import dc.targetman.ai.GraphHelper;
 import dc.targetman.epf.graphics.EntityGraphDrawer;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.mechanics.Alliance;
+import dc.targetman.mechanics.CorpseSystem;
 import dc.targetman.mechanics.Direction;
 import dc.targetman.mechanics.EntityFinder;
 import dc.targetman.mechanics.MovementSystem;
@@ -78,7 +79,7 @@ public final class LevelController {
 
 	public LevelController(final TextureCache textureCache, final PolygonSpriteBatch spriteBatch,
 			final ShapeRenderer shapeRenderer) {
-		camera = new OrthographicCamera(1280, 960);
+		camera = new OrthographicCamera(640, 480);
 		map = new TmxMapLoader().load("maps/geometry.tmx");
 		screenHelper = new ScreenHelper(PIXELS_PER_UNIT, camera);
 		particlesManager = new ParticlesManager(textureCache, spriteBatch, screenHelper, world);
@@ -86,8 +87,9 @@ public final class LevelController {
 		entityDrawers.add(new EntitySpriteDrawer(spriteBatch, screenHelper, entityManager));
 		entityDrawers.add(new EntityGraphDrawer(shapeRenderer, screenHelper));
 		entityManager.listen(new RemoveOnNoHealthEntityAddedListener(entityManager));
-		entityManager.listen(entityRemoved());
 		advancer = createAdvancer();
+		// TODO: Need to elegantly control bodies being removed from world as last step.  This should be above createAdvancer, but unfortunately that would cause bodies to be removed prematurely and mess up the logic
+		entityManager.listen(entityRemoved());
 		new MapLoader(map, screenHelper, entityFactory).createObjects();
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1, spriteBatch);
 	}
@@ -115,7 +117,7 @@ public final class LevelController {
 		mapRenderer.setView(camera);
 		mapRenderer.render();
 		renderEntities();
-//		renderBox2D();
+		renderBox2D();
 	}
 
 	private EntityRemovedListener entityRemoved() {
@@ -146,6 +148,7 @@ public final class LevelController {
 				new TimedDeathSystem(entityManager),
 				new WeaponSystem(entityManager, entityFactory),
 				new VitalLimbsSystem(entityManager),
+				new CorpseSystem(entityManager),
 				new SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager);
 	}

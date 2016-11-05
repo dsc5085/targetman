@@ -30,7 +30,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 		Entity targetEntity = event.getTarget().getEntity();
 		Vector3 position = sourceEntity.get(TransformPart.class).getTransform().getPosition3();
 		Vector2 velocity = event.getSource().getBody().getLinearVelocity();
-		if (sourceEntity.is(Material.METAL) && velocity.len() > 0) {
+		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
 			createSparks(sourceEntity, event.getTarget(), position);
 			createBloodParticles(sourceEntity, targetEntity, position, velocity);
 		}
@@ -38,8 +38,8 @@ public final class ParticlesCollidedListener implements CollidedListener {
 
 	private void createSparks(final Entity sourceEntity, final Contacter target, final Vector3 position) {
 		Alliance targetAlliance = getAttribute(target.getEntity(), Alliance.class);
-		if (!sourceEntity.is(targetAlliance) && !target.getFixture().isSensor()
-				&& target.getEntity().is(Material.METAL)) {
+		if (!sourceEntity.of(targetAlliance) && !target.getFixture().isSensor()
+				&& target.getEntity().of(Material.METAL)) {
 			particlesManager.createEffect("spark", new Vector2(position.x, position.y));
 		}
 	}
@@ -47,7 +47,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 	private void createBloodParticles(final Entity sourceEntity, final Entity targetEntity, final Vector3 position,
 			final Vector2 velocity) {
 		Alliance targetAlliance = getAttribute(targetEntity, Alliance.class);
-		if (targetAlliance != null && sourceEntity.is(targetAlliance.getTarget()) && targetEntity.is(Material.FLESH)) {
+		if (targetAlliance != null && sourceEntity.of(targetAlliance.getTarget()) && targetEntity.of(Material.FLESH)) {
 			final float numParticles = 10;
 			final FloatRange sizeRange = new FloatRange(0.01f, 0.07f);
 			final FloatRange rotationDiffRange = new FloatRange(-10, 10);

@@ -12,9 +12,9 @@ import dclib.system.ScreenManager
 
 class TargetmanGame : ApplicationAdapter() {
 	private val screenManager = ScreenManager()
-	private var textureCache: TextureCache? = null
-	private var spriteBatch: PolygonSpriteBatch? = null
-	private var shapeRenderer: ShapeRenderer? = null
+	private lateinit var textureCache: TextureCache
+	private lateinit var spriteBatch: PolygonSpriteBatch
+	private lateinit var shapeRenderer: ShapeRenderer
 	
 	override fun create() {
 		textureCache = createTextureCache()
@@ -29,9 +29,9 @@ class TargetmanGame : ApplicationAdapter() {
 	}
 
 	override fun dispose() {
-		textureCache!!.dispose()
-		spriteBatch!!.dispose()
-		shapeRenderer!!.dispose()
+		textureCache.dispose()
+		spriteBatch.dispose()
+		shapeRenderer.dispose()
 	}
 
 	private fun createLevelScreen(): Screen? {
@@ -39,9 +39,9 @@ class TargetmanGame : ApplicationAdapter() {
 		return LevelScreen(controller)
 	}
 
-	private fun createTextureCache(): TextureCache? {
+	private fun createTextureCache(): TextureCache {
 		val textureCache = TextureCache()
-		textureCache!!.addTexturesAsAtlas("textures/objects/", "objects")
+		textureCache.addTexturesAsAtlas("textures/objects/", "objects")
 		return textureCache
 	}
 }

@@ -1,8 +1,5 @@
 package dc.targetman.level
 
-import java.util.HashMap
-import org.apache.commons.lang3.ArrayUtils
-import com.badlogic.gdx.graphics.g2d.PolygonRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -11,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.CircleShape
 import com.badlogic.gdx.physics.box2d.Filter
-import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.physics.box2d.World
 import com.google.common.collect.Iterables
@@ -23,8 +19,9 @@ import dc.targetman.epf.parts.ScalePart
 import dc.targetman.epf.parts.VitalLimbsPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.mechanics.Alliance
-import dc.targetman.mechanics.CollisionCategory
+import dc.targetman.mechanics.DeathForm
 import dc.targetman.mechanics.Weapon
+import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dc.targetman.physics.limb.WalkAnimation
 import dclib.epf.Entity
@@ -43,13 +40,14 @@ import dclib.geometry.PolygonUtils
 import dclib.graphics.ConvexHullCache
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
-import dclib.physics.Transform
 import dclib.physics.limb.Joint
 import dclib.physics.limb.Limb
 import dclib.physics.limb.LimbAnimation
 import dclib.physics.limb.Rotator
 import dclib.util.FloatRange
 import net.dermetfan.gdx.math.BayazitDecomposer
+import org.apache.commons.lang3.ArrayUtils
+import java.util.HashMap
 
 // TODO: Cleanup
 class EntityFactory(entityManager: EntityManager, world: World, textureCache: TextureCache) {
@@ -153,7 +151,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val velocity = Vector2(speed, 0f).setAngle(centrum.getRotation() + angleOffset)
 		bulletBody.linearVelocity = velocity
 		setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
-		val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", arrayOf<Enum<*>>(targetAlliance.target, Material.METAL))
+		val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
 		bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(5f))
 		val trailBody = createBody("objects/bullet_trail", Vector2(1.5f, size.y), true)
 		val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
@@ -180,18 +178,15 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val z = position.z + ArrayUtils.indexOf(zOrder, limb) * MathUtils.FLOAT_ROUNDING_ERROR
 		val body = createBody(regionName, size, true)
 		body.gravityScale = 0f
-		val entity = createBaseEntity(body, Vector3(position.x, position.y, z), regionName, attributes)
+		val entity = createBaseEntity(body, Vector3(position.x, position.y, z), regionName, *attributes, DeathForm.CORPSE)
 		entity.attach(HealthPart(health))
 		limb.setTransform(entity[TransformPart::class.java].transform)
 		entityManager.add(entity)
 	}
 
-	private fun createBaseEntity(body: Body, position: Vector3, regionName: String, attributes: Array<out Enum<*>> = arrayOf<Enum<*>>()): Entity {
+	private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
 		val entity = Entity()
-		// TODO: need to figure out how to pass in a Enum<*> array as a vararg instead of looping through each value
-		for (attribute in attributes) {
-			entity.attribute(attribute)
-		}
+		entity.attribute(*attributes)
 		body.setUserData(entity)
 		val transform = Box2dTransform(position.z, body)
 		transform.setPosition(Vector2(position.x, position.y))

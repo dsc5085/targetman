@@ -1,4 +1,4 @@
-package dc.targetman.mechanics;
+package dc.targetman.physics.collision;
 
 /**
  * Box2d collision categories, each differentiated by a power of 2.

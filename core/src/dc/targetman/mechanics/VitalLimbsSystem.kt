@@ -10,6 +10,7 @@ import dclib.physics.limb.LimbUtils
 class VitalLimbsSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
 	private val entityManager: EntityManager = entityManager
 
+	// TODO: Subscribe to entity removed event instead of polling
 	override fun update(delta: Float, entity: Entity) {
 		val vitalLimbsPart = entity.tryGet(VitalLimbsPart::class.java)
 		val entities = entityManager.all

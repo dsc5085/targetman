@@ -26,7 +26,7 @@ public final class StickyCollidedListener implements CollidedListener {
 		final FloatRange deathTimeRange = new FloatRange(10, 120);
 		Entity sourceEntity = event.getSource().getEntity();
 		BodyType targetBodyType = event.getTarget().getBody().getType();
-		if (sourceEntity.is(Material.STICKY) && targetBodyType == BodyType.StaticBody) {
+		if (sourceEntity.of(Material.STICKY) && targetBodyType == BodyType.StaticBody) {
 			Entity spawn = new Entity();
 			Transform transform = sourceEntity.get(TransformPart.class).getTransform();
 			Transform spawnTransform = new DefaultTransform(transform);

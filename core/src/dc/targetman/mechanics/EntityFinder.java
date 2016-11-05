@@ -16,7 +16,7 @@ public final class EntityFinder {
 		return Iterables.find(entityManager.getAll(), new Predicate<Entity>() {
 			@Override
 			public boolean apply(final Entity input) {
-				return input.has(MovementPart.class) && input.is(Alliance.PLAYER);
+				return input.has(MovementPart.class) && input.of(Alliance.PLAYER);
 			}
 		});
 	}
