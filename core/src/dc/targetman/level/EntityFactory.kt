@@ -39,6 +39,7 @@ import dclib.geometry.PolygonUtils
 import dclib.graphics.ConvexHullCache
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
+import dclib.physics.Box2dUtils
 import dclib.physics.limb.Joint
 import dclib.physics.limb.Limb
 import dclib.physics.limb.LimbAnimation
@@ -79,7 +80,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val rightBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 			.addJoint(rightForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
 		val rightBicepJoint = Joint(rightBicep, Vector2(0.8f, 0.05f), Vector2(0f, 0.05f), -135f)
-		val head = createLimbEntity(Vector2(0.5f, 0.5f), position, "objects/head", 100f, alliance, Material.FLESH)
+		val head = createLimbEntity(Vector2(0.5f, 0.5f), position, "objects/head", 1f, alliance, Material.FLESH)
 		val torso = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 200f, alliance, Material.FLESH)
 			.addJoint(leftBicep, 0.8f, 0.05f, 0f, 0.05f, -225f)
 			.addJoint(rightBicepJoint)
@@ -109,7 +110,12 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		body.setTransform(position.x, position.y, 0f)
 		body.setUserData(entity)
 		setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.toInt().inv().toShort() /* TODO: create a custom method for short inv() */)
-		val root = Limb().addJoint(torso, 0f, 0f, 0.05f, 0.05f, 90f).addJoint(leftLegJoint).addJoint(rightLegJoint)
+		val rootEntity = Entity()
+		val rootBody = createBody("objects/limb", Vector2(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR), true)
+		rootBody.gravityScale = 0f
+		rootEntity.attach(TransformPart(Box2dTransform(0f, rootBody)))
+		rootEntity.attribute(DeathForm.CORPSE)
+		val root = Limb(rootEntity).addJoint(torso, 0f, 0f, 0.05f, 0.05f, 90f).addJoint(leftLegJoint).addJoint(rightLegJoint)
 		val transform = Box2dTransform(position.z, body)
 		entity.attach(TransformPart(transform))
 		val walkAnimation = WalkAnimation(leftLegJoint, rightLegJoint, FloatRange(-110f, -70f))
@@ -125,7 +131,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 				LimbsPart(root),
 				VitalLimbsPart(head, torso))
 		if (alliance === Alliance.ENEMY) {
-			entity.attach(AiPart())
+//			entity.attach(AiPart())
 		}
 		entityManager.add(entity)
 		return entity

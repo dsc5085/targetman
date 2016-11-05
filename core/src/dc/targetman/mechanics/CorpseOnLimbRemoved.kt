@@ -24,16 +24,19 @@ class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
 	private fun createCorpse(limb: Limb): Body? {
 		val corpseLiveTime = 30f
 		var corpseBody: Body? = null
-		val transform = limb.entity.tryGet(TransformPart::class.java)?.transform
-		val spritePart = limb.entity.tryGet(SpritePart::class.java)
-		if (transform is Box2dTransform && spritePart != null && limb.entity.of(DeathForm.CORPSE)) {
+		val transform = limb.entity[TransformPart::class.java].transform
+		if (transform is Box2dTransform && limb.entity.of(DeathForm.CORPSE)) {
 			corpseBody = createCorpseBody(transform)
 			for (joint in limb.joints) {
 				createChildCorpse(corpseBody, joint)
 			}
 			val transformPart = TransformPart(Box2dTransform(transform.z, corpseBody))
 			val timedDeathPart = TimedDeathPart(corpseLiveTime)
-			val corpseEntity = Entity(transformPart, spritePart, timedDeathPart)
+			val corpseEntity = Entity(transformPart, timedDeathPart)
+			val spritePart = limb.entity.tryGet(SpritePart::class.java)
+			if (spritePart != null) {
+				corpseEntity.attach(spritePart)
+			}
 			entityManager.add(corpseEntity)
 		}
 		return corpseBody
@@ -43,7 +46,7 @@ class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
 		val childCorpseBody = createCorpse(joint.limb)
 		if (childCorpseBody != null) {
 			val jointDef = RevoluteJointDef()
-			jointDef.collideConnected = false
+			jointDef.collideConnected = true
 			jointDef.bodyA = corpseBody
 			jointDef.localAnchorA.set(joint.parentLocal)
 			jointDef.bodyB = childCorpseBody
