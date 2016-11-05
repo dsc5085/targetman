@@ -25,7 +25,7 @@ import dc.targetman.ai.GraphHelper;
 import dc.targetman.epf.graphics.EntityGraphDrawer;
 import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.mechanics.Alliance;
-import dc.targetman.mechanics.CorpseSystem;
+import dc.targetman.mechanics.CorpseOnLimbRemoved;
 import dc.targetman.mechanics.Direction;
 import dc.targetman.mechanics.EntityFinder;
 import dc.targetman.mechanics.MovementSystem;
@@ -135,6 +135,8 @@ public final class LevelController {
 	private Advancer createAdvancer() {
 		// TODO: Calculate actor size
 		GraphHelper graphHelper = new GraphHelper(map, screenHelper, new Vector2(1, 2));
+		LimbsSystem limbsSystem = new LimbsSystem(entityManager);
+		limbsSystem.listen(new CorpseOnLimbRemoved(entityManager));
 		return new Advancer(
 				createInputUpdater(),
 				new AiSystem(entityManager, graphHelper),
@@ -144,11 +146,10 @@ public final class LevelController {
 				createPhysicsUpdater(),
 				createCollisionChecker(),
 				new MovementSystem(entityManager, world),
-				new LimbsSystem(entityManager),
+				limbsSystem,
 				new TimedDeathSystem(entityManager),
 				new WeaponSystem(entityManager, entityFactory),
 				new VitalLimbsSystem(entityManager),
-				new CorpseSystem(entityManager),
 				new SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager);
 	}
