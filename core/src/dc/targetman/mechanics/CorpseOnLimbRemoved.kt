@@ -2,15 +2,18 @@ package dc.targetman.mechanics
 
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
+import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
+import dclib.physics.Box2dUtils
 import dclib.physics.limb.Joint
 import dclib.physics.limb.Limb
 import dclib.physics.limb.LimbRemovedListener
+import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
 class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
 	private val entityManager: EntityManager = entityManager
@@ -26,7 +29,7 @@ class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
 		if (transform is Box2dTransform && limb.entity.of(DeathForm.CORPSE)) {
 			corpseTransform = createCorpseBody(transform)
 			for (joint in limb.joints) {
-				createChildCorpse(corpseTransform.body, joint)
+				createChildCorpse(corpseTransform, joint)
 			}
 			val transformPart = TransformPart(corpseTransform)
 			val timedDeathPart = TimedDeathPart(corpseLiveTime)
@@ -40,16 +43,18 @@ class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
 		return corpseTransform
 	}
 	
-	private fun createChildCorpse(corpseBody: Body, joint: Joint) {
+	private fun createChildCorpse(corpseTransform: Box2dTransform, joint: Joint) {
 		val childCorpseTransform = createCorpse(joint.limb)
 		if (childCorpseTransform != null) {
 			val jointDef = RevoluteJointDef()
 			jointDef.collideConnected = true
-			jointDef.bodyA = corpseBody
-			jointDef.localAnchorA.set(joint.parentLocal)
+			jointDef.bodyA = corpseTransform.body
+			val localAnchorA = joint.parentLocal.scl(corpseTransform.scale)
+			jointDef.localAnchorA.set(localAnchorA)
 			jointDef.bodyB = childCorpseTransform.body
-			jointDef.localAnchorB.set(joint.childLocal)
-			corpseBody.world.createJoint(jointDef)
+			val localAnchorB = joint.childLocal.scl(childCorpseTransform.scale)
+			jointDef.localAnchorB.set(localAnchorB)
+			corpseTransform.body.world.createJoint(jointDef)
 		}
 	}
 	
@@ -57,6 +62,7 @@ class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
 		val corpseTransform = Box2dTransform(transform)
 		val corpseBody = corpseTransform.body
 		corpseBody.gravityScale = 1f
+		Box2dUtils.setFilter(corpseBody, CollisionCategory.ALL, CollisionCategory.STATIC)
 		for (fixture in corpseBody.fixtureList) {
 			fixture.isSensor = false
 		}

@@ -64,29 +64,30 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val def = BodyDef()
 		def.type = BodyType.StaticBody
 		val body = createBody(def, PolygonUtils.toFloats(vertices), false)
+		Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
 		entity.attach(TransformPart(Box2dTransform(0f, body)))
 		entity.attribute(Material.METAL)
 		entityManager.add(entity)
 	}
 
 	fun createStickman(position: Vector3, alliance: Alliance): Entity {
-		val leftForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
-		val leftBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val leftForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
+		val leftBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
 			.addJoint(leftForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
-		val gun = createLimbEntity(Vector2(0.4f, 0.3f), position, "objects/gun", 500f, alliance, Material.METAL)
-		val rightForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val gun = createLimbEntity(Vector2(0.4f, 0.3f), position, "objects/gun", 250f, alliance, Material.METAL)
+		val rightForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
 			.addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0f)
-		val rightBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val rightBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
 			.addJoint(rightForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
 		val rightBicepJoint = Joint(rightBicep, Vector2(0.8f, 0.05f), Vector2(0f, 0.05f), -135f)
-		val head = createLimbEntity(Vector2(0.5f, 0.5f), position, "objects/head", 1f, alliance, Material.FLESH)
-		val torso = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 200f, alliance, Material.FLESH)
+		val head = createLimbEntity(Vector2(0.5f, 0.5f), position, "objects/head", 50f, alliance, Material.FLESH)
+		val torso = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 			.addJoint(leftBicep, 0.8f, 0.05f, 0f, 0.05f, -225f)
 			.addJoint(rightBicepJoint)
 			.addJoint(head, 1f, 0.05f, 0.05f, 0.25f, 0f)
-		val leftLeg = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val leftLeg = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 75f, alliance, Material.FLESH)
 		val leftLegJoint = Joint(leftLeg, Vector2(), Vector2(0f, 0.05f), -110f)
-		val rightLeg = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
+		val rightLeg = createLimbEntity(Vector2(1f, 0.1f), position, "objects/limb", 75f, alliance, Material.FLESH)
 		val rightLegJoint = Joint(rightLeg, Vector2(), Vector2(0f, 0.05f), -70f)
 		val entity = Entity()
 		entity.attribute(alliance)
@@ -107,7 +108,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		body.setBullet(true)
 		body.setFixedRotation(true)
 		body.setTransform(position.x, position.y, 0f)
-		setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.toInt().inv().toShort() /* TODO: create a custom method for short inv() */)
+		Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.toInt().inv().toShort() /* TODO: create a custom method for short inv() */)
 		val rootEntity = Entity()
 		val rootBody = createBody("objects/limb", Vector2(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR), true)
 		rootBody.gravityScale = 0f
@@ -145,7 +146,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		bulletBody.gravityScale = 0.1f
 		val velocity = Vector2(speed, 0f).setAngle(centrum.getRotation() + angleOffset)
 		bulletBody.linearVelocity = velocity
-		setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
+		Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
 		val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
 		bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(5f))
 		val trailBody = createBody("objects/bullet_trail", Vector2(1.5f, size.y), true)
@@ -206,14 +207,5 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 			shape.dispose()
 		}
 		return body
-	}
-
-	private fun setFilter(body: Body, category: Short, mask: Short) {
-		val filter = Filter()
-		filter.categoryBits = category
-		filter.maskBits = mask
-		for (fixture in body.fixtureList) {
-			fixture.filterData = filter
-		}
 	}
 }
