@@ -124,7 +124,7 @@ public final class LevelController {
 		return new EntityRemovedListener() {
 			@Override
 			public void removed(final Entity entity) {
-				Body body = Box2dUtils.findBody(world, entity);
+				Body body = Box2dUtils.INSTANCE.getBody(entity);
 				if (body != null) {
 					world.destroyBody(body);
 				}

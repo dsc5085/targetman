@@ -76,7 +76,7 @@ public final class MovementSystem extends EntitySystem {
 		MovementPart movementPart = entity.get(MovementPart.class);
 		if (movementPart.jumping()) {
 			Transform transform = entity.get(TransformPart.class).getTransform();
-			Body body = Box2dUtils.findBody(world, entity);
+			Body body = Box2dUtils.INSTANCE.getBody(entity);
 			if (isGrounded(body)) {
 				Vector2 position = transform.getPosition();
 				transform.setVelocity(new Vector2(transform.getVelocity().x, 0));
