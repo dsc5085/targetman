@@ -13,7 +13,7 @@ public final class MovementPart {
 	private final float jumpForce;
 	private final List<Limb> limbs;
 	private Direction direction = Direction.NONE;
-	private boolean jumping = false;
+	private boolean isJumping = false;
 
 	public MovementPart(final float moveSpeed, final float jumpForce, final Limb... limbs) {
 		this.moveSpeed = moveSpeed;
@@ -41,12 +41,12 @@ public final class MovementPart {
 		this.direction = direction;
 	}
 
-	public final boolean jumping() {
-		return jumping;
+	public final boolean isJumping() {
+		return isJumping;
 	}
 
-	public final void setJumping(final boolean jumping) {
-		this.jumping = jumping;
+	public final void setJumping(final boolean isJumping) {
+		this.isJumping = isJumping;
 	}
 
 }

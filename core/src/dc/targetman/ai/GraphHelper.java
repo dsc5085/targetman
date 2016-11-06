@@ -67,7 +67,6 @@ public final class GraphHelper {
 
 	public final List<DefaultNode> createPath(final float x, final Segment startSegment, final DefaultNode endNode) {
 		GraphPath<DefaultNode> lowestCostPath = new DefaultGraphPath<DefaultNode>();
-		// TODO: Use Collections.min here and in other places as well
 		for (DefaultNode startNode : startSegment.nodes) {
 			GraphPath<DefaultNode> path = new DefaultGraphPath<DefaultNode>();
 			pathFinder.searchNodePath(startNode, endNode, getHeuristic(), path);
