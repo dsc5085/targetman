@@ -23,7 +23,6 @@ import com.google.common.collect.Iterables;
 import dc.targetman.ai.AiSystem;
 import dc.targetman.ai.GraphHelper;
 import dc.targetman.epf.graphics.EntityGraphDrawer;
-import dc.targetman.epf.parts.MovementPart;
 import dc.targetman.mechanics.Alliance;
 import dc.targetman.mechanics.CorpseOnLimbRemoved;
 import dc.targetman.mechanics.Direction;
@@ -155,7 +154,7 @@ public final class LevelController {
 	}
 
 	private CollisionChecker createCollisionChecker() {
-		CollisionChecker collisionSystem = new CollisionChecker(world);
+		CollisionChecker collisionSystem = new CollisionChecker(entityManager, world);
 		Predicate<CollidedEvent> filter = getCollisionFilter();
 		collisionSystem.listen(new DamageCollidedListener(filter));
 		collisionSystem.listen(new StickyCollidedListener(entityManager));
@@ -172,8 +171,7 @@ public final class LevelController {
 				Entity targetEntity = event.getTarget().getEntity();
 				Alliance targetAlliance = getAlliance(targetEntity);
 				Alliance sourceAlliance = getAlliance(event.getSource().getEntity());
-				return sourceAlliance != null && sourceAlliance.getTarget() == targetAlliance
-						&& !targetEntity.has(MovementPart.class);
+				return sourceAlliance != null && sourceAlliance.getTarget() == targetAlliance;
 			}
 		};
 	}

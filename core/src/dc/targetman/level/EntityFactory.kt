@@ -64,7 +64,6 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val def = BodyDef()
 		def.type = BodyType.StaticBody
 		val body = createBody(def, PolygonUtils.toFloats(vertices), false)
-		body.setUserData(entity)
 		entity.attach(TransformPart(Box2dTransform(0f, body)))
 		entity.attribute(Material.METAL)
 		entityManager.add(entity)
@@ -74,7 +73,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		val leftForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 		val leftBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 			.addJoint(leftForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
-		val gun = createLimbEntity(Vector2(0.4f, 0.3f), position, "objects/gun", 500f, Material.METAL)
+		val gun = createLimbEntity(Vector2(0.4f, 0.3f), position, "objects/gun", 500f, alliance, Material.METAL)
 		val rightForearm = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
 			.addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0f)
 		val rightBicep = createLimbEntity(Vector2(0.4f, 0.1f), position, "objects/limb", 100f, alliance, Material.FLESH)
@@ -108,7 +107,6 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		body.setBullet(true)
 		body.setFixedRotation(true)
 		body.setTransform(position.x, position.y, 0f)
-		body.setUserData(entity)
 		setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.toInt().inv().toShort() /* TODO: create a custom method for short inv() */)
 		val rootEntity = Entity()
 		val rootBody = createBody("objects/limb", Vector2(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR), true)
@@ -123,7 +121,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 		animations.put("walk", walkAnimation)
 		val rotator = Rotator(rightBicepJoint, FloatRange(-180f, -45f), 135f)
 		val weaponCentrum = Centrum(gun.getTransform(), Vector2(0.4f, 0.25f))
-		val weapon = Weapon(0.03f, 1, 35f, 14f, 16f, alliance.target.name)
+		val weapon = Weapon(0.1f, 1, 35f, 14f, 16f, alliance.target.name)
 		entity.attach(
 				LimbAnimationsPart(animations),
 				MovementPart(10f, 12f, leftLeg, rightLeg),
@@ -182,7 +180,6 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 	private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
 		val entity = Entity()
 		entity.attribute(*attributes)
-		body.setUserData(entity)
 		val transform = Box2dTransform(position.z, body)
 		transform.setPosition(Vector2(position.x, position.y))
 		val region = textureCache.getPolygonRegion(regionName)

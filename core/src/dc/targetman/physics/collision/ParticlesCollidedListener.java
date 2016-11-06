@@ -29,6 +29,7 @@ public final class ParticlesCollidedListener implements CollidedListener {
 		Entity sourceEntity = event.getSource().getEntity();
 		Entity targetEntity = event.getTarget().getEntity();
 		Vector3 position = sourceEntity.get(TransformPart.class).getTransform().getPosition3();
+		position.z += MathUtils.FLOAT_ROUNDING_ERROR;
 		Vector2 velocity = event.getSource().getBody().getLinearVelocity();
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
 			createSparks(sourceEntity, event.getTarget(), position);
@@ -56,7 +57,6 @@ public final class ParticlesCollidedListener implements CollidedListener {
 				Vector2 randomizedVelocity = velocity.cpy();
 				randomizedVelocity.setAngle(randomizedVelocity.angle() + rotationDiffRange.random());
 				randomizedVelocity.scl(velocityRatioRange.random());
-				position.z += MathUtils.FLOAT_ROUNDING_ERROR;
 				entityFactory.createBloodParticle(sizeRange.random(), position, randomizedVelocity);
 			}
 		}
