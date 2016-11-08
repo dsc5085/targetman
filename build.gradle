@@ -64,6 +64,7 @@ project(":core") {
         runtime files("lib/commons-lang3-3.3.2.jar")
         compile group: 'com.google.guava', name: 'guava', version: '19.0'
         compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+        compile project(':dclib-core')
     }
 }
 

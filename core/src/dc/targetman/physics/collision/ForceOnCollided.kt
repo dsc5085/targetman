@@ -6,16 +6,12 @@ import dc.targetman.epf.parts.ForcePart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.TransformPart
-import dclib.physics.Transform
 import dclib.physics.collision.CollidedEvent
-import dclib.physics.collision.CollidedListener
 import dclib.physics.limb.LimbUtils
 
-class ForceCollidedListener(entityManager: EntityManager, filter: Predicate<CollidedEvent>) : CollidedListener {
-	private val entityManager: EntityManager = entityManager
-	private val filter: Predicate<CollidedEvent> = filter
-
-	override fun collided(event: CollidedEvent) {
+class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<CollidedEvent>)
+ : (CollidedEvent) -> Unit {
+	override fun invoke(event: CollidedEvent) {
 		val sourceEntity = event.source.entity
 		val forcePart = sourceEntity.tryGet(ForcePart::class.java)
 		if (forcePart != null && filter.apply(event)) {

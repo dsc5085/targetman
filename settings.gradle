@@ -1,1 +1,2 @@
-include 'desktop', 'core'
+include 'desktop', 'core', ':dclib-core'
+project(':dclib-core').projectDir = new File(settingsDir, '../dclib/dclib/core')

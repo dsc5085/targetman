@@ -1,6 +1,5 @@
 package dc.targetman.mechanics
 
-import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
 import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
@@ -12,14 +11,11 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.limb.Joint
 import dclib.physics.limb.Limb
-import dclib.physics.limb.LimbRemovedListener
-import net.dermetfan.gdx.physics.box2d.Box2DUtils
+import dclib.physics.limb.LimbRemovedEvent
 
-class CorpseOnLimbRemoved(entityManager: EntityManager): LimbRemovedListener {
-	private val entityManager: EntityManager = entityManager
-	
-	override fun removed(limb: Limb) {
-		createCorpse(limb)
+class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent) -> Unit {
+	override fun invoke(event: LimbRemovedEvent) {
+		createCorpse(event.limb)
 	}
 	
 	private fun createCorpse(limb: Limb): Box2dTransform? {
