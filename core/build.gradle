@@ -1,6 +1,5 @@
 apply plugin: "kotlin"
 
-sourceCompatibility = 1.6
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
@@ -8,4 +7,19 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 
 eclipse.project {
     name = appName + "-core"
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+    compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
+    compile "net.dermetfan.libgdx-utils:libgdx-utils:$gdxUtilsVersion"
+    compile "net.dermetfan.libgdx-utils:libgdx-utils-box2d:$gdxUtilsVersion"
+    runtime files("lib/commons-lang3-3.3.2.jar")
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
+    compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
+    compile project(':dclib-core')
 }
