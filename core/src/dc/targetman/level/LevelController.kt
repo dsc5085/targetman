@@ -125,6 +125,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 				createPhysicsUpdater(),
 				createCollisionChecker(),
 				MovementSystem(entityManager, world),
+                BoundsSyncSystem(entityManager),
 				limbsSystem,
 				TimedDeathSystem(entityManager),
                 WeaponSystem(entityManager, entityFactory),

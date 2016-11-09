@@ -58,7 +58,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val leftForearm = createLimb(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
         val leftBicep = createLimb(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
                 .addJoint(leftForearm, 0.4f, 0.05f, 0f, 0.05f, 45f)
-        val gun = createLimb(Vector2(0.4f, 0.3f), position, "objects/gun", 250f, alliance, Material.METAL)
+        val gun = createLimb(Vector2(0.4f, 0.3f), position, "objects/gun", 250f, alliance)
         val rightForearm = createLimb(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
                 .addJoint(gun, 0.4f, 0.05f, 0.1f, 0.05f, 0f)
         val rightBicep = createLimb(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)

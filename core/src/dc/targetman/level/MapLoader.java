@@ -1,8 +1,5 @@
 package dc.targetman.level;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -10,10 +7,13 @@ import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-
+import dc.targetman.geometry.PolygonOperations;
 import dc.targetman.mechanics.Alliance;
 import dclib.geometry.PolygonUtils;
 import dclib.graphics.ScreenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class MapLoader {
 
