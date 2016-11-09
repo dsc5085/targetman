@@ -127,7 +127,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         bulletBody.linearVelocity = velocity
         Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
         val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
-        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(8f))
+        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(50f), ForcePart(80f))
         val trailBody = createBody("objects/bullet_trail", Vector2(1.5f, size.y), true)
         val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
         trail.attach(ScalePart(FloatRange(0f, 1f), 0.2f))

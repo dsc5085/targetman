@@ -15,7 +15,10 @@ import dclib.physics.limb.LimbRemovedEvent
 
 class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent) -> Unit {
 	override fun invoke(event: LimbRemovedEvent) {
-		createCorpse(event.limb)
+        val corpseTransform = createCorpse(event.limb)
+        if (corpseTransform != null) {
+            corpseTransform.velocity = event.container[TransformPart::class.java].transform.velocity
+        }
 	}
 	
 	private fun createCorpse(limb: Limb): Box2dTransform? {

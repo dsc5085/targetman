@@ -137,10 +137,10 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	private fun createCollisionChecker(): CollisionChecker {
 		val collisionSystem = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
-		collisionSystem.collided.on(DamageOnCollided(filter))
 		collisionSystem.collided.on(StickOnCollided(entityManager))
 		collisionSystem.collided.on(ForceOnCollided(entityManager, filter))
-		collisionSystem.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
+        collisionSystem.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
+        collisionSystem.collided.on(DamageOnCollided(filter))
 		collisionSystem.collided.on(RemoveOnCollided(entityManager, filter))
 		return collisionSystem
 	}
