@@ -16,15 +16,8 @@ import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.GraphHelper
 import dc.targetman.epf.graphics.EntityGraphDrawer
-import dc.targetman.mechanics.Alliance
-import dc.targetman.mechanics.CorpseOnLimbRemoved
-import dc.targetman.mechanics.Direction
-import dc.targetman.mechanics.EntityFinder
-import dc.targetman.mechanics.MovementSystem
-import dc.targetman.mechanics.ScaleSystem
-import dc.targetman.mechanics.StickActions
-import dc.targetman.mechanics.VitalLimbsSystem
-import dc.targetman.mechanics.WeaponSystem
+import dc.targetman.mechanics.*
+import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StickOnCollided
@@ -49,7 +42,7 @@ import dclib.physics.collision.CollisionChecker
 import dclib.physics.limb.LimbsSystem
 import dclib.system.Advancer
 import dclib.system.Updater
-import java.util.ArrayList
+import java.util.*
 
 class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatch, shapeRenderer: ShapeRenderer) {
 	companion object {
@@ -134,7 +127,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 				MovementSystem(entityManager, world),
 				limbsSystem,
 				TimedDeathSystem(entityManager),
-				WeaponSystem(entityManager, entityFactory),
+                WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)

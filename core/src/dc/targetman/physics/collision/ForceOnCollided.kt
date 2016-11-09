@@ -3,11 +3,11 @@ package dc.targetman.physics.collision
 import com.badlogic.gdx.math.Vector2
 import com.google.common.base.Predicate
 import dc.targetman.epf.parts.ForcePart
+import dc.targetman.physics.PhysicsUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.TransformPart
 import dclib.physics.collision.CollidedEvent
-import dclib.physics.limb.LimbUtils
 
 class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<CollidedEvent>)
  : (CollidedEvent) -> Unit {
@@ -16,7 +16,7 @@ class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<Co
 		val forcePart = sourceEntity.tryGet(ForcePart::class.java)
 		if (forcePart != null && filter.apply(event)) {
 			val force = getForce(sourceEntity)
-			applyForce(event.target.entity, force)
+			PhysicsUtils.applyForce(entityManager.all, event.target.entity, force)
 		}
 	}
 
@@ -24,11 +24,5 @@ class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<Co
 		val transform = sourceEntity[TransformPart::class.java].transform
 		val force = sourceEntity[ForcePart::class.java].force
 		return transform.velocity.setLength(force)
-	}
-
-	private fun applyForce(target: Entity, force: Vector2) {
-		val actualTarget = LimbUtils.findContainer(entityManager.all, target) ?: target
-		val actualTransform = actualTarget[TransformPart::class.java].transform
-		actualTransform.applyImpulse(force)
 	}
 }

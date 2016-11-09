@@ -1,6 +1,6 @@
 package dc.targetman.epf.parts;
 
-import dc.targetman.mechanics.Weapon;
+import dc.targetman.mechanics.weapon.Weapon;
 import dclib.geometry.Centrum;
 import dclib.physics.limb.Limb;
 import dclib.physics.limb.Rotator;
