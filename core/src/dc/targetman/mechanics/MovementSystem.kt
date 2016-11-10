@@ -13,6 +13,7 @@ import dclib.epf.EntitySystem
 import dclib.epf.parts.LimbAnimationsPart
 import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
+import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
@@ -25,32 +26,27 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun move(entity: Entity) {
-        val minSpeedToAdjust = 0.5f
         val movementPart = entity[MovementPart::class.java]
         val direction = movementPart.direction
         val walkAnimation = entity[LimbAnimationsPart::class.java]["walk"]
-        var forceDirection = direction
+        var targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
         if (direction === Direction.NONE) {
             walkAnimation.stop()
-            val velocity = entity[TransformPart::class.java].transform.velocity
-            if (Math.abs(velocity.x) > minSpeedToAdjust) {
-                forceDirection = Direction.from(-velocity.x)
-            }
         } else {
             walkAnimation.play()
             entity[LimbsPart::class.java].flipX = direction === Direction.LEFT
         }
-        applyMoveForce(entity, movementPart.moveSpeed, forceDirection)
+        applyMoveImpulse(entity, targetVelocityX)
     }
 
-    private fun applyMoveForce(entity: Entity, speed: Float, direction: Direction) {
-        val transform = entity[TransformPart::class.java].transform
-        val maxSpeedX = speed * getMoveStrength(entity)
-        val velocityX = transform.velocity.x
-        if (Direction.from(velocityX) !== direction || Math.abs(velocityX) < maxSpeedX) {
-            val impulse = Vector2(direction.toFloat(), 0f)
-            transform.applyImpulse(impulse)
-        }
+    private fun applyMoveImpulse(entity: Entity, targetVelocityX: Float) {
+        val maxImpulseScale = 1f
+        val transform = entity[TransformPart::class.java].transform as Box2dTransform
+        val mass = transform.body.mass
+        val targetImpulse = Box2dUtils.getImpulseToReachVelocity(transform.velocity.x, targetVelocityX, mass)
+        val maxImpulseAbs = maxImpulseScale * mass
+        val impulse = Math.min(Math.abs(targetImpulse), maxImpulseAbs) * Math.signum(targetImpulse)
+        transform.applyImpulse(Vector2(impulse, 0f))
     }
 
     private fun jump(entity: Entity) {
