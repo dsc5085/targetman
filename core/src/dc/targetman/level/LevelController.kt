@@ -101,7 +101,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-		renderBox2D()
+//		renderBox2D()
 	}
 
 	private fun handleEntityRemoved(entity: Entity) {

@@ -83,14 +83,17 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val baseShape = CircleShape()
         baseShape.radius = halfWidth
         baseShape.position = Vector2(0f, -halfHeight)
-        body.createFixture(baseShape, 0f).friction = 50f
+        val baseFixture = body.createFixture(baseShape, 0f)
+        baseFixture.friction = 0.1f
         baseShape.dispose()
         val shape = PolygonShape()
         shape.setAsBox(halfWidth, halfHeight)
-        body.createFixture(shape, 1f).friction = 0f
+        val bodyFixture = body.createFixture(shape, 1f)
+        bodyFixture.friction = 0f
         shape.dispose()
         body.isBullet = true
         body.isFixedRotation = true
+        body.linearDamping = 0.5f
         body.setTransform(position.x, position.y, 0f)
         Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.toInt().inv().toShort() /* TODO: create a custom method for short inv() */)
         root.addJoint(torso, 0f, 0f, 0.05f, 0.05f, 90f).addJoint(leftLegJoint).addJoint(rightLegJoint)
@@ -104,7 +107,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 1f, alliance.target.name)
         entity.attach(
                 LimbAnimationsPart(animations),
-                MovementPart(10f, 12f, leftLeg, rightLeg),
+                MovementPart(10f, 10f, leftLeg, rightLeg),
                 WeaponPart(weaponCentrum, weapon, rotator),
                 LimbsPart(root),
                 VitalLimbsPart(head, torso))
@@ -127,7 +130,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         bulletBody.linearVelocity = velocity
         Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
         val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
-        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(50f), ForcePart(80f))
+        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(25f))
         val trailBody = createBody("objects/bullet_trail", Vector2(1.5f, size.y), true)
         val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
         trail.attach(ScalePart(FloatRange(0f, 1f), 0.2f))

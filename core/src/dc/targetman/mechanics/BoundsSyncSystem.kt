@@ -19,11 +19,13 @@ class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManage
 
     fun moveLimbsToTransform(entity: Entity) {
         val limbsPart = entity[LimbsPart::class.java]
-        val rootTransform = limbsPart.root.transform
-        val localY = getY(limbsPart) - rootTransform.position.y
-        val bounds = entity[TransformPart::class.java].transform.bounds
-        val global = RectangleUtils.base(bounds)
-        rootTransform.setGlobal(Vector2(0f, localY), global)
+        if (limbsPart.root.descendants.size > 0) {
+            val rootTransform = limbsPart.root.transform
+            val localY = getY(limbsPart) - rootTransform.position.y
+            val bounds = entity[TransformPart::class.java].transform.bounds
+            val global = RectangleUtils.base(bounds)
+            rootTransform.setGlobal(Vector2(0f, localY), global)
+        }
     }
 
     private fun getY(limbsPart: LimbsPart): Float {

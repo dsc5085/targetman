@@ -46,7 +46,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent)
 		val childCorpseTransform = createCorpse(joint.limb)
 		if (childCorpseTransform != null) {
 			val jointDef = RevoluteJointDef()
-			jointDef.collideConnected = true
+            jointDef.collideConnected = false
 			jointDef.bodyA = corpseTransform.body
 			val localAnchorA = joint.parentLocal.scl(corpseTransform.scale)
 			jointDef.localAnchorA.set(localAnchorA)
