@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.MapRenderer
-import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Vector2
@@ -18,6 +17,7 @@ import dc.targetman.ai.GraphHelper
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
+import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StickOnCollided
@@ -34,7 +34,6 @@ import dclib.mechanics.RemoveOnCollided
 import dclib.mechanics.RemoveOnNoHealthEntityAdded
 import dclib.mechanics.TimedDeathSystem
 import dclib.physics.AutoRotateSystem
-import dclib.physics.Box2dUtils
 import dclib.physics.ParticlesManager
 import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
@@ -55,16 +54,14 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	private val world = World(Vector2(0f, -10f), true)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
-	private val camera: OrthographicCamera
+    private val camera = OrthographicCamera(640f, 480f)
 	private val mapRenderer: MapRenderer
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
 	private val entityDrawers = ArrayList<EntityDrawer>()
-	private val map: TiledMap
+    private val map = TmxMapLoader().load("maps/geometry.tmx")
 
 	init {
-		camera = OrthographicCamera(640f, 480f)
-		map = TmxMapLoader().load("maps/geometry.tmx")
 		screenHelper = ScreenHelper(PIXELS_PER_UNIT, camera)
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 		entityFactory = EntityFactory(entityManager, world, textureCache)
@@ -72,8 +69,6 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
 		advancer = createAdvancer()
-// TODO: Need to elegantly control bodies being removed from world as last step. This should be above createAdvancer, but unfortunately that would cause bodies to be removed prematurely and mess up the logic
-		entityManager.entityRemoved.on { handleEntityRemoved(it.entity) }
 		MapLoader(map, screenHelper, entityFactory).createObjects()
 		mapRenderer = OrthogonalTiledMapRenderer(map, 1f, spriteBatch)
 	}
@@ -104,13 +99,6 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 //		renderBox2D()
 	}
 
-	private fun handleEntityRemoved(entity: Entity) {
-		val body = Box2dUtils.getBody(entity)
-		if (body != null) {
-			world.destroyBody(body)
-		}
-	}
-
 	private fun createAdvancer(): Advancer {
 // TODO: Calculate actor size
 		val graphHelper = GraphHelper(map, screenHelper, Vector2(1f, 2f))
@@ -122,7 +110,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
-				createPhysicsUpdater(),
+                PhysicsUpdater(world, entityManager),
 				createCollisionChecker(),
 				MovementSystem(entityManager, world),
                 BoundsSyncSystem(entityManager),
@@ -165,14 +153,6 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		return object : Updater {
 			override fun update(delta: Float) {
 				processInput()
-			}
-		}
-	}
-
-	private fun createPhysicsUpdater(): Updater {
-		return object : Updater {
-			override fun update(delta: Float) {
-				world.step(delta, 8, 3)
 			}
 		}
 	}
