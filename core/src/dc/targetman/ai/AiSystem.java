@@ -1,11 +1,7 @@
 package dc.targetman.ai;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
 import dc.targetman.epf.parts.AiPart;
 import dc.targetman.epf.parts.WeaponPart;
 import dc.targetman.mechanics.Direction;
@@ -20,6 +16,9 @@ import dclib.geometry.Centrum;
 import dclib.geometry.RectangleUtils;
 import dclib.geometry.VectorUtils;
 import dclib.util.Maths;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class AiSystem extends EntitySystem {
 
@@ -37,13 +36,14 @@ public final class AiSystem extends EntitySystem {
 		AiPart aiPart = entity.tryGet(AiPart.class);
 		if (aiPart != null) {
 			aiPart.tick(delta);
-			Entity target = EntityFinder.findPlayer(entityManager);
-			if (target != null) {
+            Entity target = EntityFinder.INSTANCE.findPlayer(entityManager);
+            if (target != null) {
 				Ai ai = new Ai(entity);
 				Rectangle targetBounds = target.get(TransformPart.class).getTransform().getBounds();
 				navigate(ai, targetBounds);
 				aim(entity, targetBounds);
-			}
+                StickActions.trigger(entity);
+            }
 		}
 	}
 
@@ -126,9 +126,7 @@ public final class AiSystem extends EntitySystem {
 
 	/**
 	 * Returns float indicating how rotation should change.
-	 * @param from from
 	 * @param to to
-	 * @param currentAngle currentAngle
 	 * @param flipX flipX
 	 * @return 1 if angle should be increased, -1 if angle should be decreased, or 0 if angle shouldn't change
 	 */

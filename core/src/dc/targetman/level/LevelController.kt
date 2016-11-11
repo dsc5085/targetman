@@ -86,7 +86,9 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		if (isRunning) {
 			advancer.advance(delta)
 			val player = EntityFinder.findPlayer(entityManager)
-			CameraUtils.follow(player, screenHelper, camera)
+            if (player != null) {
+                CameraUtils.follow(player, screenHelper, camera)
+            }
 			mapRenderer.setView(camera)
 		}
 	}
@@ -153,6 +155,9 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 
 	private fun processInput() {
 		val player = EntityFinder.findPlayer(entityManager)
+        if (player == null) {
+            return
+        }
 		var moveDirection = Direction.NONE
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			moveDirection = Direction.LEFT
