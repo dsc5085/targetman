@@ -134,14 +134,12 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
-		return object : Predicate<CollidedEvent> {
+        return Predicate<CollidedEvent> {
 			// TODO: How to make this a non-nullable event
-			override fun apply(event: CollidedEvent?): Boolean {
-				val targetEntity = event!!.target.entity
-				val targetAlliance = getAlliance(targetEntity)
-				val sourceAlliance = getAlliance(event.source.entity)
-				return sourceAlliance != null && sourceAlliance.target === targetAlliance
-			}
+            val targetEntity = it!!.target.entity
+            val targetAlliance = getAlliance(targetEntity)
+            val sourceAlliance = getAlliance(it.source.entity)
+            sourceAlliance != null && sourceAlliance.target === targetAlliance
 		}
 	}
 
@@ -150,11 +148,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	}
 
 	private fun createInputUpdater(): Updater {
-		return object : Updater {
-			override fun update(delta: Float) {
-				processInput()
-			}
-		}
+        return Updater { processInput() }
 	}
 
 	private fun processInput() {

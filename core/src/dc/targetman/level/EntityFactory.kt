@@ -167,6 +167,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         transform.position = Vector2(position.x, position.y)
         val region = textureCache.getPolygonRegion(regionName)
         entity.attach(TransformPart(transform), SpritePart(region))
+        setFilterGroup(body, entity.attributes)
         return entity
     }
 
@@ -189,5 +190,12 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
             shape.dispose()
         }
         return body
+    }
+
+    private fun setFilterGroup(body: Body, attributes: Set<Enum<*>>) {
+        val alliance = attributes.filterIsInstance(Alliance::class.java).firstOrNull()
+        if (alliance != null) {
+            Box2dUtils.setFilter(body, group = (-alliance.ordinal).toShort())
+        }
     }
 }
