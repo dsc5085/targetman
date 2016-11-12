@@ -27,10 +27,15 @@ internal class Steering(private val graphHelper: GraphHelper) {
     }
 
     private fun getNextX(agent: Agent): Float? {
-        // TODO: Do not chase target if already in profile target distance range
+        var nextX: Float? = null
         val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
         val onTargetSegment = targetSegment != null && targetSegment === agent.belowSegment
-        return if (onTargetSegment) agent.targetBounds.center.x else agent.nextNode?.x()
+        if (!onTargetSegment) {
+            nextX = agent.nextNode?.x()
+        } else if (agent.bounds.center.dst(agent.targetBounds.center) > agent.profile.maxTargetDistance) {
+            nextX = agent.targetBounds.center.x
+        }
+        return nextX
     }
 
     private fun faceTarget(agent: Agent): Direction {

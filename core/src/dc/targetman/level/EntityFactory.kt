@@ -104,7 +104,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         animations.put("walk", walkAnimation)
         val rotator = Rotator(rightBicepJoint, FloatRange(-180f, -45f), 135f)
         val weaponCentrum = Centrum(gun.transform, Vector2(0.4f, 0.25f))
-        val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 1f, alliance.target.name)
+        val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 0f, alliance.target.name)
         entity.attach(
                 LimbAnimationsPart(animations),
                 MovementPart(10f, 12f, leftLeg, rightLeg),

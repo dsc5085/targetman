@@ -56,7 +56,7 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
         if (updatePath && agent.belowSegment != null && targetSegment != null) {
             val agentCenter = agent.bounds.center
             val targetCenter = agent.targetBounds.center
-            if (!AiUtils.isInSight(agentCenter, targetCenter, aiPart.profile.maxTargetDistance, world)) {
+            if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {
                 val endNode = graphHelper.getNearestNode(targetCenter.x, targetSegment)
                 val newPath = graphHelper.createPath(agentCenter.x, agent.belowSegment, endNode)
                 aiPart.path = newPath
