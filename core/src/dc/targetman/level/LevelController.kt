@@ -108,7 +108,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		limbsSystem.limbRemoved.on(CorpseOnLimbRemoved(entityManager))
 		return Advancer(
 				createInputUpdater(),
-				AiSystem(entityManager, graphHelper),
+                AiSystem(entityManager, graphHelper, world),
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),

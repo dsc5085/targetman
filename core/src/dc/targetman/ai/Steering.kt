@@ -24,6 +24,7 @@ internal class Steering(private val graphHelper: GraphHelper) {
     }
 
     private fun getNextX(agent: Agent): Float? {
+        // TODO: Do not chase target if already in profile target distance range
         val targetSegment = graphHelper.getBelowSegment(agent.targetBounds)
         val onTargetSegment = targetSegment != null && targetSegment === agent.belowSegment
         return if (onTargetSegment) RectangleUtils.base(agent.targetBounds).x else agent.nextNode?.x()

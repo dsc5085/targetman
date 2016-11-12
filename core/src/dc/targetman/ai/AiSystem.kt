@@ -2,6 +2,7 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.mechanics.EntityFinder
@@ -16,8 +17,8 @@ import dclib.geometry.RectangleUtils
 import dclib.geometry.VectorUtils
 import dclib.util.Maths
 
-class AiSystem(private val entityManager: EntityManager, private val graphHelper: GraphHelper)
-    : EntitySystem(entityManager) {
+class AiSystem(private val entityManager: EntityManager, private val graphHelper: GraphHelper,
+               private val world: World) : EntitySystem(entityManager) {
     private val steering = Steering(graphHelper)
 
     override fun update(delta: Float, entity: Entity) {
@@ -49,14 +50,17 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
     }
 
     private fun updatePath(agent: Agent) {
-        // TODO: Go to same platform as target, unless already in preferred range
         val targetSegment = graphHelper.getBelowSegment(agent.targetBounds)
-        val updatePath = agent.entity.get(AiPart::class.java).checkUpdatePath()
+        val aiPart = agent.entity.get(AiPart::class.java)
+        val updatePath = aiPart.checkUpdatePath()
         if (updatePath && agent.belowSegment != null && targetSegment != null) {
-            val targetX = RectangleUtils.base(agent.targetBounds).x
-            val endNode = graphHelper.getNearestNode(targetX, targetSegment)
-            val newPath = graphHelper.createPath(agent.position.x, agent.belowSegment, endNode)
-            agent.entity.get(AiPart::class.java).path = newPath
+            val targetPosition = agent.targetBounds.getCenter(Vector2())
+            if (!AiUtils.isInSight(agent.position, targetPosition, aiPart.profile.maxTargetDistance, world)) {
+                val targetX = RectangleUtils.base(agent.targetBounds).x
+                val endNode = graphHelper.getNearestNode(targetX, targetSegment)
+                val newPath = graphHelper.createPath(agent.position.x, agent.belowSegment, endNode)
+                aiPart.path = newPath
+            }
         }
     }
 
