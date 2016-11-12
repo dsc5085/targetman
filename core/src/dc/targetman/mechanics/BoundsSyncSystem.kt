@@ -7,7 +7,7 @@ import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.RectangleUtils
+import dclib.geometry.base
 
 class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
@@ -23,8 +23,7 @@ class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManage
             val rootTransform = limbsPart.root.transform
             val localY = getY(limbsPart) - rootTransform.position.y
             val bounds = entity[TransformPart::class.java].transform.bounds
-            val global = RectangleUtils.base(bounds)
-            rootTransform.setGlobal(Vector2(0f, localY), global)
+            rootTransform.setGlobal(Vector2(0f, localY), bounds.base)
         }
     }
 

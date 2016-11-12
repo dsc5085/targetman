@@ -1,18 +1,17 @@
 package dc.targetman.ai;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-
 import dc.targetman.util.ArrayUtils;
 import dclib.util.Maths;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 
@@ -26,8 +25,8 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 		segments = createSegments(boundsList);
 		connect(segments);
 		for (Segment segment : segments) {
-			nodes.addAll(segment.nodes);
-		}
+            nodes.addAll(segment.getNodes());
+        }
 	}
 
 	@Override
@@ -76,27 +75,27 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 	}
 
 	private void connect(final Segment segment1, final Segment segment2) {
-		connect(segment1.leftNode, segment2.rightNode);
-		connect(segment1.rightNode, segment2.leftNode);
-		connect(segment2.leftNode, segment1.rightNode);
-		connect(segment2.rightNode, segment1.leftNode);
-		connectMiddle(segment1, segment2);
+        connect(segment1.getLeftNode(), segment2.getRightNode());
+        connect(segment1.getRightNode(), segment2.getLeftNode());
+        connect(segment2.getLeftNode(), segment1.getRightNode());
+        connect(segment2.getRightNode(), segment1.getLeftNode());
+        connectMiddle(segment1, segment2);
 		connectMiddle(segment2, segment1);
 	}
 
 	private void connectMiddle(final Segment topSegment, final Segment bottomSegment) {
-		if (topSegment.y() > bottomSegment.y()) {
-			connectMiddle(topSegment.leftNode, bottomSegment, -actorSize.x);
-			connectMiddle(topSegment.rightNode, bottomSegment, actorSize.x);
-		}
+        if (topSegment.getY() > bottomSegment.getY()) {
+            connectMiddle(topSegment.getLeftNode(), bottomSegment, -actorSize.x);
+            connectMiddle(topSegment.getRightNode(), bottomSegment, actorSize.x);
+        }
 	}
 
 	private void connectMiddle(final DefaultNode topNode, final Segment bottomSegment, final float landingOffsetX) {
 		float landingX = topNode.x() + landingOffsetX;
 		if (bottomSegment.containsX(landingX)) {
-			DefaultNode bottomNode = new DefaultNode(landingX, bottomSegment.y());
-			bottomSegment.nodes.add(bottomNode);
-			connect(topNode, bottomNode);
+            DefaultNode bottomNode = new DefaultNode(landingX, bottomSegment.getY());
+            bottomSegment.getNodes().add(bottomNode);
+            connect(topNode, bottomNode);
 			connect(bottomNode, topNode);
 		}
 	}
@@ -119,8 +118,8 @@ public final class DefaultIndexedGraph implements IndexedGraph<DefaultNode> {
 	}
 
 	private void connectWithin(final Segment segment) {
-		List<DefaultNode> nodes = new ArrayList<DefaultNode>(segment.nodes);
-		Collections.sort(nodes, new Comparator<DefaultNode>() {
+        List<DefaultNode> nodes = new ArrayList<DefaultNode>(segment.getNodes());
+        Collections.sort(nodes, new Comparator<DefaultNode>() {
 			@Override
 			public int compare(final DefaultNode n1, final DefaultNode n2) {
 				return Float.compare(n1.x(), n2.x());

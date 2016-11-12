@@ -13,8 +13,8 @@ import dclib.epf.EntitySystem
 import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.Centrum
-import dclib.geometry.RectangleUtils
 import dclib.geometry.VectorUtils
+import dclib.geometry.center
 import dclib.util.Maths
 
 class AiSystem(private val entityManager: EntityManager, private val graphHelper: GraphHelper,
@@ -50,15 +50,15 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
     }
 
     private fun updatePath(agent: Agent) {
-        val targetSegment = graphHelper.getBelowSegment(agent.targetBounds)
+        val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
         val aiPart = agent.entity.get(AiPart::class.java)
         val updatePath = aiPart.checkUpdatePath()
         if (updatePath && agent.belowSegment != null && targetSegment != null) {
-            val targetPosition = agent.targetBounds.getCenter(Vector2())
-            if (!AiUtils.isInSight(agent.position, targetPosition, aiPart.profile.maxTargetDistance, world)) {
-                val targetX = RectangleUtils.base(agent.targetBounds).x
-                val endNode = graphHelper.getNearestNode(targetX, targetSegment)
-                val newPath = graphHelper.createPath(agent.position.x, agent.belowSegment, endNode)
+            val agentCenter = agent.bounds.center
+            val targetCenter = agent.targetBounds.center
+            if (!AiUtils.isInSight(agentCenter, targetCenter, aiPart.profile.maxTargetDistance, world)) {
+                val endNode = graphHelper.getNearestNode(targetCenter.x, targetSegment)
+                val newPath = graphHelper.createPath(agentCenter.x, agent.belowSegment, endNode)
                 aiPart.path = newPath
             }
         }
@@ -67,8 +67,7 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
     private fun aim(entity: Entity, targetBounds: Rectangle) {
         val centrum = entity.get(WeaponPart::class.java).centrum
         val flipX = entity.get(LimbsPart::class.java).flipX
-        val targetCenter = targetBounds.getCenter(Vector2())
-        val direction = getAimRotateDirection(centrum, targetCenter, flipX)
+        val direction = getAimRotateDirection(centrum, targetBounds.center, flipX)
         StickActions.aim(entity, direction)
     }
 
