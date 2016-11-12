@@ -3,6 +3,7 @@ package dc.targetman.ai
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.StickActions
 import dclib.epf.parts.LimbsPart
+import dclib.epf.parts.TransformPart
 import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.geometry.grow
@@ -11,7 +12,7 @@ internal class Steering(private val graphHelper: GraphHelper) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
         StickActions.move(agent.entity, moveDirection)
-        jump(agent, moveDirection)
+        jump(agent)
     }
 
     private fun getMoveDirection(agent: Agent): Direction {
@@ -30,10 +31,13 @@ internal class Steering(private val graphHelper: GraphHelper) {
         var nextX: Float? = null
         val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
         val onTargetSegment = targetSegment != null && targetSegment === agent.belowSegment
-        if (!onTargetSegment) {
+        if (onTargetSegment) {
+            val distanceToTarget = agent.bounds.center.dst(agent.targetBounds.center)
+            if (!isApproachingEdge(agent) && distanceToTarget > agent.profile.maxTargetDistance) {
+                nextX = agent.targetBounds.center.x
+            }
+        } else {
             nextX = agent.nextNode?.x()
-        } else if (agent.bounds.center.dst(agent.targetBounds.center) > agent.profile.maxTargetDistance) {
-            nextX = agent.targetBounds.center.x
         }
         return nextX
     }
@@ -50,19 +54,27 @@ internal class Steering(private val graphHelper: GraphHelper) {
         return moveDirection
     }
 
-    private fun jump(agent: Agent, moveDirection: Direction) {
+    private fun jump(agent: Agent) {
         if (agent.belowSegment != null) {
-            val checkBounds = agent.bounds.grow(agent.bounds.width / 2, 0f)
-            val atLeftEdge = checkBounds.containsX(agent.belowSegment.left)
-            val atRightEdge = checkBounds.containsX(agent.belowSegment.right)
-            val approachingEdge = atLeftEdge && moveDirection == Direction.LEFT
-                    || atRightEdge && moveDirection == Direction.RIGHT
             val nextSegment = graphHelper.getSegment(agent.nextNode)
             val notOnNextSegment = nextSegment != null && agent.belowSegment !== nextSegment
-            if (approachingEdge || (notOnNextSegment
-                    && (agent.nextNode == null || checkBounds.y < agent.nextNode.y()))) {
+            if (isApproachingEdge(agent) || (notOnNextSegment
+                    && (agent.nextNode == null || agent.bounds.y < agent.nextNode.y()))) {
                 StickActions.jump(agent.entity)
             }
         }
+    }
+
+    private fun isApproachingEdge(agent: Agent): Boolean {
+        val checkBoundsScale = 1
+        var isApproachingEdge = false
+        if (agent.belowSegment != null) {
+            val checkBounds = agent.bounds.grow(agent.bounds.width * checkBoundsScale, 0f)
+            val atLeftEdge = checkBounds.containsX(agent.belowSegment.left)
+            val atRightEdge = checkBounds.containsX(agent.belowSegment.right)
+            val velocityX = agent.entity[TransformPart::class.java].transform.velocity.x
+            isApproachingEdge = atLeftEdge && velocityX < 0 || atRightEdge && velocityX > 0
+        }
+        return isApproachingEdge
     }
 }

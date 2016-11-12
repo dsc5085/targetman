@@ -53,6 +53,7 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
         val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
         val aiPart = agent.entity.get(AiPart::class.java)
         val updatePath = aiPart.checkUpdatePath()
+        // TODO: below segment is untrustworthy since it could be a long way down
         if (updatePath && agent.belowSegment != null && targetSegment != null) {
             val agentCenter = agent.bounds.center
             val targetCenter = agent.targetBounds.center
