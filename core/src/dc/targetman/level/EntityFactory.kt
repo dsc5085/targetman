@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
+import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.DeathForm
@@ -53,7 +54,6 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
     }
 
     fun createStickman(position: Vector3, alliance: Alliance): Entity {
-        // TODO: arbitrary root limb parameters
         val root = createLimb(Vector2(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR), position, "objects/transparent", 50f, alliance, Material.FLESH)
         val leftForearm = createLimb(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
         val leftBicep = createLimb(Vector2(0.4f, 0.1f), position, "objects/limb", 50f, alliance, Material.FLESH)
@@ -107,12 +107,12 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 1f, alliance.target.name)
         entity.attach(
                 LimbAnimationsPart(animations),
-                MovementPart(10f, 15f, leftLeg, rightLeg),
+                MovementPart(10f, 12f, leftLeg, rightLeg),
                 WeaponPart(weaponCentrum, weapon, rotator),
                 LimbsPart(root),
                 VitalLimbsPart(head, torso))
         if (alliance === Alliance.ENEMY) {
-            entity.attach(AiPart())
+            entity.attach(AiPart(AiProfile(5f)))
         }
         entityManager.add(entity)
         return entity

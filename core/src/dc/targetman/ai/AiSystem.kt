@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.WeaponPart
-import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.StickActions
 import dclib.epf.Entity
@@ -19,80 +18,45 @@ import dclib.util.Maths
 
 class AiSystem(private val entityManager: EntityManager, private val graphHelper: GraphHelper)
     : EntitySystem(entityManager) {
+    private val steering = Steering(graphHelper)
+
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class.java)
         if (aiPart != null) {
             aiPart.tick(delta)
             val target = EntityFinder.findPlayer(entityManager)
             if (target != null) {
-                val ai = Ai(entity)
                 val targetBounds = target.get(TransformPart::class.java).transform.bounds
-                navigate(ai, targetBounds)
+                val agent = Agent(entity, targetBounds, graphHelper)
+                navigate(agent)
                 aim(entity, targetBounds)
-                StickActions.trigger(entity)
+//                StickActions.trigger(entity)
             }
         }
     }
 
-    private fun navigate(ai: Ai, targetBounds: Rectangle) {
-        removeReachedNodes(ai)
-        val moveDirection = getMoveDirection(ai, targetBounds)
-        StickActions.move(ai.entity, moveDirection)
-        jump(ai, moveDirection)
-        updatePath(ai, targetBounds)
+    private fun navigate(agent: Agent) {
+        steering.seek(agent)
+        removeReachedNodes(agent)
+        updatePath(agent)
     }
 
-    private fun removeReachedNodes(ai: Ai) {
-        if (ai.belowSegment != null && graphHelper.isBelow(ai.nextNode, ai.bounds, ai.belowSegment)) {
-            ai.path.remove(ai.nextNode)
-            ai.entity.get(AiPart::class.java).path = ai.path
+    private fun removeReachedNodes(agent: Agent) {
+        if (agent.belowSegment != null && graphHelper.isBelow(agent.nextNode, agent.bounds, agent.belowSegment)) {
+            val newPath = if (agent.nextNode == null) agent.path else agent.path - agent.nextNode
+            agent.entity.get(AiPart::class.java).path = newPath
         }
     }
 
-    private fun getMoveDirection(ai: Ai, targetBounds: Rectangle): Direction {
-        val nextX = getNextX(ai, targetBounds)
-        var moveDirection = Direction.NONE
-        if (nextX != null) {
-            if (!RectangleUtils.containsX(ai.bounds, nextX)) {
-                val offsetX = nextX - ai.position.x
-                moveDirection = if (offsetX > 0) Direction.RIGHT else Direction.LEFT
-            }
-        }
-        return moveDirection
-    }
-
-    private fun getNextX(ai: Ai, targetBounds: Rectangle): Float? {
-        var nextX: Float? = null
-        val targetSegment = graphHelper.getBelowSegment(targetBounds)
-        val onTargetSegment = targetSegment != null && targetSegment === ai.belowSegment
-        return if (onTargetSegment) RectangleUtils.base(targetBounds).x else ai.nextNode?.x()
-    }
-
-    private fun jump(ai: Ai, moveDirection: Direction) {
-        if (ai.belowSegment != null) {
-            val checkBounds = RectangleUtils.grow(ai.bounds, ai.bounds.width / 2, 0f)
-            val atLeftEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.left())
-            val atRightEdge = RectangleUtils.containsX(checkBounds, ai.belowSegment.right())
-            val approachingEdge = atLeftEdge && moveDirection == Direction.LEFT
-                    || atRightEdge && moveDirection == Direction.RIGHT
-            val nextSegment = graphHelper.getSegment(ai.nextNode)
-            val notOnNextSegment = nextSegment != null && ai.belowSegment !== nextSegment
-            if (approachingEdge || notOnNextSegment) {
-                if (ai.nextNode == null || checkBounds.y < ai.nextNode.y()) {
-                    StickActions.jump(ai.entity)
-                }
-            }
-        }
-    }
-
-    private fun updatePath(ai: Ai, targetBounds: Rectangle) {
-        val targetSegment = graphHelper.getBelowSegment(targetBounds)
-        val updatePath = ai.entity.get(AiPart::class.java).checkUpdatePath()
-        if (updatePath && ai.belowSegment != null && targetSegment != null) {
-            val targetX = RectangleUtils.base(targetBounds).x
+    private fun updatePath(agent: Agent) {
+        // TODO: Go to same platform as target, unless already in preferred range
+        val targetSegment = graphHelper.getBelowSegment(agent.targetBounds)
+        val updatePath = agent.entity.get(AiPart::class.java).checkUpdatePath()
+        if (updatePath && agent.belowSegment != null && targetSegment != null) {
+            val targetX = RectangleUtils.base(agent.targetBounds).x
             val endNode = graphHelper.getNearestNode(targetX, targetSegment)
-            val newPath = graphHelper.createPath(ai.position.x, ai.belowSegment, endNode)
-            ai.entity.get(AiPart::class.java).path = newPath
+            val newPath = graphHelper.createPath(agent.position.x, agent.belowSegment, endNode)
+            agent.entity.get(AiPart::class.java).path = newPath
         }
     }
 
@@ -100,7 +64,7 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
         val centrum = entity.get(WeaponPart::class.java).centrum
         val flipX = entity.get(LimbsPart::class.java).flipX
         val targetCenter = targetBounds.getCenter(Vector2())
-        val direction = getRotateDirection(centrum, targetCenter, flipX)
+        val direction = getAimRotateDirection(centrum, targetCenter, flipX)
         StickActions.aim(entity, direction)
     }
 
@@ -110,7 +74,7 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
      * @param flipX flipX
      * @return 1 if angle should be increased, -1 if angle should be decreased, or 0 if angle shouldn't change
      */
-    private fun getRotateDirection(centrum: Centrum, to: Vector2, flipX: Boolean): Int {
+    private fun getAimRotateDirection(centrum: Centrum, to: Vector2, flipX: Boolean): Int {
         val minAngleOffset = 2f
         var direction = 0
         val offset = VectorUtils.offset(centrum.position, to)
@@ -123,13 +87,5 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
             }
         }
         return direction
-    }
-
-    private inner class Ai(val entity: Entity) {
-        val bounds = entity.get(TransformPart::class.java).transform.bounds
-        val position = RectangleUtils.base(bounds)
-        val belowSegment = graphHelper.getBelowSegment(bounds)
-        val path = entity.get(AiPart::class.java).path
-        val nextNode = if (path.isEmpty()) null else path[0]
     }
 }

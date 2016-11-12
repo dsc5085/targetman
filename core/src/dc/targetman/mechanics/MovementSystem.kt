@@ -40,7 +40,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun applyMoveImpulse(entity: Entity, targetVelocityX: Float) {
-        val maxImpulseScale = 0.3f
+        val maxImpulseScale = 0.5f
         val transform = entity[TransformPart::class.java].transform as Box2dTransform
         val mass = transform.body.mass
         val targetImpulse = Box2dUtils.getImpulseToReachVelocity(transform.velocity.x, targetVelocityX, mass)
