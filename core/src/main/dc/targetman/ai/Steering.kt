@@ -1,9 +1,6 @@
 package dc.targetman.ai
 
 import dc.targetman.mechanics.Direction
-import dc.targetman.mechanics.StickActions
-import dclib.epf.parts.LimbsPart
-import dclib.epf.parts.TransformPart
 import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.geometry.grow
@@ -11,7 +8,7 @@ import dclib.geometry.grow
 class Steering(private val graphHelper: GraphHelper) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
-        StickActions.move(agent.entity, moveDirection)
+        agent.move(moveDirection)
         jump(agent)
     }
 
@@ -46,8 +43,8 @@ class Steering(private val graphHelper: GraphHelper) {
         var moveDirection = Direction.NONE
         val offsetX = agent.targetBounds.center.x - agent.bounds.center.x
         val directionToTarget = Direction.from(offsetX)
-        val flipX = agent.entity[LimbsPart::class.java].flipX
-        val currentDirection = if (flipX) Direction.LEFT else Direction.RIGHT
+        val scaleX = agent.transform.scale.x
+        val currentDirection = if (scaleX > 0) Direction.RIGHT else Direction.LEFT
         if (currentDirection !== directionToTarget) {
             moveDirection = directionToTarget
         }
@@ -58,9 +55,10 @@ class Steering(private val graphHelper: GraphHelper) {
         if (agent.belowSegment != null) {
             val nextSegment = graphHelper.getSegment(agent.nextNode)
             val notOnNextSegment = nextSegment != null && agent.belowSegment !== nextSegment
+            val nextNode = agent.nextNode
             if (isApproachingEdge(agent) || (notOnNextSegment
-                    && (agent.nextNode == null || agent.bounds.y < agent.nextNode.y()))) {
-                StickActions.jump(agent.entity)
+                    && (nextNode == null || agent.bounds.y < nextNode.y()))) {
+                agent.jump()
             }
         }
     }
@@ -72,7 +70,7 @@ class Steering(private val graphHelper: GraphHelper) {
             val checkBounds = agent.bounds.grow(agent.bounds.width * checkBoundsBufferScale, 0f)
             val atLeftEdge = checkBounds.containsX(agent.belowSegment.left)
             val atRightEdge = checkBounds.containsX(agent.belowSegment.right)
-            val velocityX = agent.entity[TransformPart::class.java].transform.velocity.x
+            val velocityX = agent.transform.velocity.x
             isApproachingEdge = atLeftEdge && velocityX < 0 || atRightEdge && velocityX > 0
         }
         return isApproachingEdge
