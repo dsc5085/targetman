@@ -107,7 +107,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 0f, alliance.target.name)
         entity.attach(
                 LimbAnimationsPart(animations),
-                MovementPart(10f, 12f, leftLeg, rightLeg),
+                MovementPart(8f, 12f, leftLeg, rightLeg),
                 WeaponPart(weaponCentrum, weapon, rotator),
                 LimbsPart(root),
                 VitalLimbsPart(head, torso))

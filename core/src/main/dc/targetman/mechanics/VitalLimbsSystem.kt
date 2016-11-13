@@ -4,8 +4,6 @@ import dc.targetman.epf.parts.VitalLimbsPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
-import dclib.physics.limb.Limb
-import dclib.physics.limb.LimbUtils
 
 class VitalLimbsSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
 	private val entityManager: EntityManager = entityManager

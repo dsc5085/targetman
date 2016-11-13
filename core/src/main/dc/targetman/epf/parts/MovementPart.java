@@ -1,11 +1,11 @@
 package dc.targetman.epf.parts;
 
+import dc.targetman.mechanics.Direction;
+import dclib.physics.limb.Limb;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import dc.targetman.mechanics.Direction;
-import dclib.physics.limb.Limb;
 
 public final class MovementPart {
 

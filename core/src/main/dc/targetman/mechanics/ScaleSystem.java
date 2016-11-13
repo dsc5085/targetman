@@ -1,7 +1,6 @@
 package dc.targetman.mechanics;
 
 import com.badlogic.gdx.math.Vector2;
-
 import dc.targetman.epf.parts.ScalePart;
 import dclib.epf.Entity;
 import dclib.epf.EntityManager;

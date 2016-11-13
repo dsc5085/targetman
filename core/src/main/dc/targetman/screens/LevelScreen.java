@@ -3,7 +3,6 @@ package dc.targetman.screens;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
-
 import dc.targetman.level.LevelController;
 import dclib.system.Input;
 
@@ -57,7 +56,7 @@ public final class LevelScreen implements Screen {
 			case Keys.ESCAPE:
 				controller.toggleRunning();
 				return true;
-			};
+			}
 			return false;
 		}
 
