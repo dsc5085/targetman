@@ -2,8 +2,8 @@ apply plugin: "kotlin"
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = [ "src/" ]
-
+sourceSets.main.java.srcDirs = ["src/main"]
+sourceSets.test.java.srcDirs = ["src/test"]
 
 eclipse.project {
     name = appName + "-core"
@@ -22,4 +22,6 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile group: 'com.vividsolutions', name: 'jts', version: '1.13'
     compile project(':dclib-core')
+    testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:1.+"
 }

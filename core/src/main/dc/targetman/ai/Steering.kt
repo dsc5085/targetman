@@ -8,7 +8,7 @@ import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.geometry.grow
 
-internal class Steering(private val graphHelper: GraphHelper) {
+class Steering(private val graphHelper: GraphHelper) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
         StickActions.move(agent.entity, moveDirection)
@@ -66,10 +66,10 @@ internal class Steering(private val graphHelper: GraphHelper) {
     }
 
     private fun isApproachingEdge(agent: Agent): Boolean {
-        val checkBoundsScale = 1
+        val checkBoundsBufferScale = 2
         var isApproachingEdge = false
         if (agent.belowSegment != null) {
-            val checkBounds = agent.bounds.grow(agent.bounds.width * checkBoundsScale, 0f)
+            val checkBounds = agent.bounds.grow(agent.bounds.width * checkBoundsBufferScale, 0f)
             val atLeftEdge = checkBounds.containsX(agent.belowSegment.left)
             val atRightEdge = checkBounds.containsX(agent.belowSegment.right)
             val velocityX = agent.entity[TransformPart::class.java].transform.velocity.x

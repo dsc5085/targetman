@@ -13,8 +13,9 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.ai.GraphHelper
+import dc.targetman.ai.DefaultGraphHelper
 import dc.targetman.ai.Navigator
+import dc.targetman.ai.Steering
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -104,13 +105,11 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 
 	private fun createAdvancer(): Advancer {
 // TODO: Calculate actor size
-		val graphHelper = GraphHelper(map, screenHelper, Vector2(1f, 2f))
-		var navigator = Navigator(graphHelper, world)
 		val limbsSystem = LimbsSystem(entityManager)
 		limbsSystem.limbRemoved.on(CorpseOnLimbRemoved(entityManager))
 		return Advancer(
 				createInputUpdater(),
-				AiSystem(entityManager, navigator),
+				createAiSystem(),
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
@@ -124,6 +123,13 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
+	}
+
+	private fun createAiSystem(): AiSystem {
+		val graphHelper = DefaultGraphHelper(map, screenHelper, Vector2(1f, 2f))
+		val steering = Steering(graphHelper)
+		var navigator = Navigator(graphHelper, steering, world)
+		return AiSystem(entityManager, navigator)
 	}
 
 	private fun createCollisionChecker(): CollisionChecker {
