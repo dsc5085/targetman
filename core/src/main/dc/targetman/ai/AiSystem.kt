@@ -2,7 +2,6 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.mechanics.EntityFinder
@@ -17,10 +16,8 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.center
 import dclib.util.Maths
 
-class AiSystem(private val entityManager: EntityManager, private val graphHelper: GraphHelper,
-               private val world: World) : EntitySystem(entityManager) {
-    private val steering = Steering(graphHelper)
-
+class AiSystem(private val entityManager: EntityManager, private val navigator: Navigator)
+    : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class.java)
         if (aiPart != null) {
@@ -28,39 +25,9 @@ class AiSystem(private val entityManager: EntityManager, private val graphHelper
             val target = EntityFinder.findPlayer(entityManager)
             if (target != null) {
                 val targetBounds = target.get(TransformPart::class.java).transform.bounds
-                val agent = Agent(entity, targetBounds, graphHelper)
-                navigate(agent)
+                navigator.navigate(entity, targetBounds)
                 aim(entity, targetBounds)
 //                StickActions.trigger(entity)
-            }
-        }
-    }
-
-    private fun navigate(agent: Agent) {
-        steering.seek(agent)
-        removeReachedNodes(agent)
-        updatePath(agent)
-    }
-
-    private fun removeReachedNodes(agent: Agent) {
-        if (agent.belowSegment != null && graphHelper.isBelow(agent.nextNode, agent.bounds, agent.belowSegment)) {
-            val newPath = if (agent.nextNode == null) agent.path else agent.path - agent.nextNode
-            agent.entity.get(AiPart::class.java).path = newPath
-        }
-    }
-
-    private fun updatePath(agent: Agent) {
-        val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
-        val aiPart = agent.entity.get(AiPart::class.java)
-        val updatePath = aiPart.checkUpdatePath()
-        // TODO: below segment is untrustworthy since it could be a long way down
-        if (updatePath && agent.belowSegment != null && targetSegment != null) {
-            val agentCenter = agent.bounds.center
-            val targetCenter = agent.targetBounds.center
-            if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {
-                val endNode = graphHelper.getNearestNode(targetCenter.x, targetSegment)
-                val newPath = graphHelper.createPath(agentCenter.x, agent.belowSegment, endNode)
-                aiPart.path = newPath
             }
         }
     }
