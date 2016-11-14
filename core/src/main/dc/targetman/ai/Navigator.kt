@@ -25,7 +25,7 @@ class Navigator(private val graphHelper: GraphHelper, private val steering: Stee
         val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
         val updatePath = agent.checkUpdatePath()
         // TODO: below segment is untrustworthy since it could be a long way down
-        if (updatePath && agent.belowSegment != null && targetSegment != null) {
+        if (updatePath && agent.belowSegment != null && targetSegment != null && agent.belowSegment !== targetSegment) {
             val agentCenter = agent.bounds.center
             val targetCenter = agent.targetBounds.center
             if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {
