@@ -28,8 +28,13 @@ class DefaultGraphHelper(map: TiledMap, screenHelper: ScreenHelper, actorSize: V
         return segment.nodes.minBy { getCost(x, it) }!!
     }
 
-    override fun isBelow(node: DefaultNode?, bounds: Rectangle, belowSegment: Segment): Boolean {
-        return belowSegment.nodes.contains(node) && bounds.containsX(node!!.x())
+    override fun isBelow(node: DefaultNode, bounds: Rectangle): Boolean {
+        var isBelow = false
+        if (bounds.containsX(node.x())) {
+            val belowSegment = getNearestBelowSegment(bounds)
+            isBelow = belowSegment != null && belowSegment.nodes.contains(node)
+        }
+        return isBelow
     }
 
     override fun getNearestBelowSegment(bounds: Rectangle): Segment? {

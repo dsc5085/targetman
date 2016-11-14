@@ -14,10 +14,9 @@ class Navigator(private val graphHelper: GraphHelper, private val steering: Stee
     }
 
     private fun removeReachedNodes(agent: Agent) {
-        if (agent.belowSegment != null && graphHelper.isBelow(agent.nextNode, agent.bounds, agent.belowSegment)) {
-            if (agent.nextNode != null) {
-                agent.path -= agent.nextNode!!
-            }
+        val nextNode = agent.nextNode
+        if (agent.belowSegment != null && nextNode != null && graphHelper.isBelow(nextNode, agent.bounds)) {
+            agent.path -= agent.nextNode!!
         }
     }
 

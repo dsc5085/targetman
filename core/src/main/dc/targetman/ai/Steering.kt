@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Rectangle
 import dc.targetman.mechanics.Direction
 import dclib.geometry.center
 import dclib.geometry.containsX
-import dclib.geometry.grow
 import dclib.util.Maths
 
 class Steering(private val graphHelper: GraphHelper) {
@@ -69,24 +68,10 @@ class Steering(private val graphHelper: GraphHelper) {
         if (agent.belowSegment != null) {
             val nextSegment = graphHelper.getSegment(agent.nextNode)
             val notOnNextSegment = nextSegment != null && agent.belowSegment !== nextSegment
-            val nextNode = agent.nextNode
-            if (isApproachingEdge(agent) || (notOnNextSegment
-                    && (nextNode == null || agent.bounds.y < nextNode.y()))) {
+            if (notOnNextSegment) {
                 agent.jump()
             }
         }
-    }
-
-    private fun isApproachingEdge(agent: Agent): Boolean {
-        var isApproachingEdge = false
-        if (agent.belowSegment != null) {
-            val checkBounds = agent.bounds.grow(getEdgeBuffer(agent.bounds), 0f)
-            val atLeftEdge = checkBounds.containsX(agent.belowSegment.left)
-            val atRightEdge = checkBounds.containsX(agent.belowSegment.right)
-            val velocityX = agent.transform.velocity.x
-            isApproachingEdge = atLeftEdge && velocityX < 0 || atRightEdge && velocityX > 0
-        }
-        return isApproachingEdge
     }
 
     private fun getEdgeBuffer(bounds: Rectangle): Float {
