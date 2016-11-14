@@ -1,9 +1,12 @@
 package dc.targetman.ai
 
+import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Rectangle
 import dc.targetman.mechanics.Direction
 import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.geometry.grow
+import dclib.util.Maths
 
 class Steering(private val graphHelper: GraphHelper) {
     fun seek(agent: Agent) {
@@ -27,14 +30,27 @@ class Steering(private val graphHelper: GraphHelper) {
     private fun getNextX(agent: Agent): Float? {
         var nextX: Float? = null
         val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
-        val onTargetSegment = targetSegment != null && targetSegment === agent.belowSegment
-        if (onTargetSegment) {
-            val distanceToTarget = agent.bounds.center.dst(agent.targetBounds.center)
-            if (!isApproachingEdge(agent) && distanceToTarget > agent.profile.maxTargetDistance) {
-                nextX = agent.targetBounds.center.x
-            }
+        if (targetSegment != null && targetSegment === agent.belowSegment) {
+            nextX = getNextXOnSameSegment(agent, targetSegment)
         } else {
             nextX = agent.nextNode?.x()
+        }
+        return nextX
+    }
+
+    private fun getNextXOnSameSegment(agent: Agent, segment: Segment): Float? {
+        var nextX: Float? = null
+        val agentX = agent.bounds.center.x
+        val targetX = agent.targetBounds.center.x
+        val edgeBuffer = getEdgeBuffer(agent.bounds)
+        val distance = Maths.distance(agentX, targetX)
+        if (!Maths.between(distance, agent.profile.minTargetDistance, agent.profile.maxTargetDistance)) {
+            if (agentX > targetX) {
+                nextX = targetX - agent.profile.minTargetDistance
+            } else {
+                nextX = targetX + agent.profile.minTargetDistance
+            }
+            nextX = MathUtils.clamp(nextX, segment.left + edgeBuffer, segment.right - edgeBuffer)
         }
         return nextX
     }
@@ -43,9 +59,7 @@ class Steering(private val graphHelper: GraphHelper) {
         var moveDirection = Direction.NONE
         val offsetX = agent.targetBounds.center.x - agent.bounds.center.x
         val directionToTarget = Direction.from(offsetX)
-        val scaleX = agent.transform.scale.x
-        val currentDirection = if (scaleX > 0) Direction.RIGHT else Direction.LEFT
-        if (currentDirection !== directionToTarget) {
+        if (agent.facingDirection !== directionToTarget) {
             moveDirection = directionToTarget
         }
         return moveDirection
@@ -64,15 +78,19 @@ class Steering(private val graphHelper: GraphHelper) {
     }
 
     private fun isApproachingEdge(agent: Agent): Boolean {
-        val checkBoundsBufferScale = 2
         var isApproachingEdge = false
         if (agent.belowSegment != null) {
-            val checkBounds = agent.bounds.grow(agent.bounds.width * checkBoundsBufferScale, 0f)
+            val checkBounds = agent.bounds.grow(getEdgeBuffer(agent.bounds), 0f)
             val atLeftEdge = checkBounds.containsX(agent.belowSegment.left)
             val atRightEdge = checkBounds.containsX(agent.belowSegment.right)
             val velocityX = agent.transform.velocity.x
             isApproachingEdge = atLeftEdge && velocityX < 0 || atRightEdge && velocityX > 0
         }
         return isApproachingEdge
+    }
+
+    private fun getEdgeBuffer(bounds: Rectangle): Float {
+        val edgeBufferScale = 1
+        return bounds.width * edgeBufferScale
     }
 }

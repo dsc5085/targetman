@@ -112,7 +112,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
                 LimbsPart(root),
                 VitalLimbsPart(head, torso))
         if (alliance === Alliance.ENEMY) {
-            entity.attach(AiPart(AiProfile(8f)))
+            entity.attach(AiPart(AiProfile(0f, 1.5f)))
         }
         entityManager.add(entity)
         return entity
