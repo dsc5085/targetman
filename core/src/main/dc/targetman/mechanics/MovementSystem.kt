@@ -1,6 +1,5 @@
 package dc.targetman.mechanics
 
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Contact
@@ -21,7 +20,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class.java)) {
             move(entity)
-            jump(entity)
+            jump(entity, delta)
         }
     }
 
@@ -40,7 +39,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun applyMoveImpulse(entity: Entity, targetVelocityX: Float) {
-        val maxImpulseScale = 0.5f
+        val maxImpulseScale = 0.7f
         val transform = entity[TransformPart::class.java].transform as Box2dTransform
         val mass = transform.body.mass
         val targetImpulse = Box2dUtils.getImpulseToReachVelocity(transform.velocity.x, targetVelocityX, mass)
@@ -49,23 +48,27 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         transform.applyImpulse(Vector2(impulse, 0f))
     }
 
-    private fun jump(entity: Entity) {
+    private fun jump(entity: Entity, delta: Float) {
         val movementPart = entity[MovementPart::class.java]
-        if (movementPart.isJumping) {
+        if (movementPart.isJumping && !movementPart.jumpIncreaseTimer.isElapsed) {
             val transform = entity[TransformPart::class.java].transform
-            val body = Box2dUtils.getBody(entity)
-            if (isGrounded(body!!)) {
+            if (isGrounded(entity)) {
                 transform.velocity = Vector2(transform.velocity.x, 0f)
-                val transformY = transform.position.y + MathUtils.FLOAT_ROUNDING_ERROR
-                transform.position = Vector2(transform.position.x, transformY)
-                val jumpForce = movementPart.jumpForce * getMoveStrength(entity)
-                transform.applyImpulse(Vector2(0f, jumpForce))
+                movementPart.jumpIncreaseTimer.tick(delta)
             }
+            if (movementPart.jumpIncreaseTimer.elapsedPercent > 0) {
+                val jumpImpulse = movementPart.jumpForce * getMoveStrength(entity) * delta
+                transform.applyImpulse(Vector2(0f, jumpImpulse))
+                movementPart.jumpIncreaseTimer.tick(delta)
+            }
+        } else {
+            movementPart.jumpIncreaseTimer.reset()
         }
         movementPart.isJumping = false
     }
 
-    private fun isGrounded(body: Body): Boolean {
+    private fun isGrounded(entity: Entity): Boolean {
+        val body = Box2dUtils.getBody(entity)!!
         return body.linearVelocity.y === 0f && world.contactList.any {
             val fixtureA = it.fixtureA
             val fixtureB = it.fixtureB
