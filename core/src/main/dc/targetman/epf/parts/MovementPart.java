@@ -30,7 +30,7 @@ public final class MovementPart {
 	}
 
     /**
-     * @return max jump height possible.  The actual value observed in the simulation may be greater
+     * @return jump apex height
      */
     public final float getJumpHeight() {
         return jumpHeight;
