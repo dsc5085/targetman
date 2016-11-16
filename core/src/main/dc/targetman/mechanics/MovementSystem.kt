@@ -50,21 +50,35 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
 
     private fun jump(entity: Entity, delta: Float) {
         val movementPart = entity[MovementPart::class.java]
-        if (movementPart.isJumping && !movementPart.jumpIncreaseTimer.isElapsed) {
-            val transform = entity[TransformPart::class.java].transform
-            if (isGrounded(entity)) {
-                transform.velocity = Vector2(transform.velocity.x, 0f)
-                movementPart.jumpIncreaseTimer.tick(delta)
-            }
-            if (movementPart.jumpIncreaseTimer.elapsedPercent > 0) {
-                val jumpImpulse = movementPart.jumpForce * getMoveStrength(entity) * delta
-                transform.applyImpulse(Vector2(0f, jumpImpulse))
-                movementPart.jumpIncreaseTimer.tick(delta)
-            }
+        if (movementPart.isJumping) {
+            increaseJump(entity, delta)
         } else {
             movementPart.jumpIncreaseTimer.reset()
         }
         movementPart.isJumping = false
+    }
+
+    private fun increaseJump(entity: Entity, delta: Float) {
+        val transform = entity[TransformPart::class.java].transform as Box2dTransform
+        val movementPart = entity[MovementPart::class.java]
+        val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
+        if (jumpIncreaseTimer.elapsedPercent > 0) {
+            jumpIncreaseTimer.tick(delta)
+            // TODO: Precalculate the impulse since other forces may be acting on the body
+            val maxJumpVelocityY = getVelocityToReachHeight(movementPart.jumpHeight) * getMoveStrength(entity)
+            val newJumpVelocityY = maxJumpVelocityY * jumpIncreaseTimer.elapsedPercent
+            val impulseY = Box2dUtils.getImpulseToReachVelocity(transform.velocity.y, newJumpVelocityY,
+                    transform.body.mass)
+            transform.applyImpulse(Vector2(0f, impulseY))
+            jumpIncreaseTimer.check()
+        } else if (isGrounded(entity)) {
+            transform.velocity = Vector2(transform.velocity.x, 0f)
+            jumpIncreaseTimer.tick(delta)
+        }
+    }
+
+    private fun getVelocityToReachHeight(height: Float): Float {
+        return Math.sqrt(2.0 * -world.gravity.y * height).toFloat()
     }
 
     private fun isGrounded(entity: Entity): Boolean {

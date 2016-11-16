@@ -93,7 +93,6 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         shape.dispose()
         body.isBullet = true
         body.isFixedRotation = true
-        body.linearDamping = 0.5f
         body.setTransform(position.x, position.y, 0f)
         Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.toInt().inv().toShort() /* TODO: create a custom method for short inv() */)
         root.addJoint(torso, 0f, 0f, 0.05f, 0.05f, 90f).addJoint(leftLegJoint).addJoint(rightLegJoint)
@@ -107,7 +106,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 0f, alliance.target.name)
         entity.attach(
                 LimbAnimationsPart(animations),
-                MovementPart(8f, 120f, leftLeg, rightLeg),
+                MovementPart(8f, 5f, leftLeg, rightLeg),
                 WeaponPart(weaponCentrum, weapon, rotator),
                 LimbsPart(root),
                 VitalLimbsPart(head, torso))
