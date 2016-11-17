@@ -14,7 +14,6 @@ import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import dclib.util.Timer
 import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
 class MovementSystem(entityManager: EntityManager, private val world: World) : EntitySystem(entityManager) {
@@ -51,27 +50,22 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
 
     private fun updateJumping(entity: Entity, delta: Float) {
         val movementPart = entity[MovementPart::class.java]
-        if (movementPart.tryJumping) {
-            increaseJump(entity, delta)
-        } else {
-            movementPart.jumpIncreaseTimer.reset()
+        val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
+        if (!movementPart.tryJumping || jumpIncreaseTimer.isElapsed) {
+            jumpIncreaseTimer.reset()
+        } else if (movementPart.tryJumping && (isGrounded(entity) || jumpIncreaseTimer.isStarted)) {
+            jump(entity, delta)
         }
         movementPart.tryJumping = false
     }
 
-    private fun increaseJump(entity: Entity, delta: Float) {
-        val transform = entity[TransformPart::class.java].transform as Box2dTransform
+    private fun jump(entity: Entity, delta: Float) {
         val movementPart = entity[MovementPart::class.java]
-        val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        if (isGrounded(entity) && !jumpIncreaseTimer.isStarted) {
+        val transform = entity[TransformPart::class.java].transform as Box2dTransform
+        if (isGrounded(entity)) {
             transform.velocity = Vector2(transform.velocity.x, 0f)
-            increaseJump(delta, entity, jumpIncreaseTimer, movementPart, transform)
-        } else if (jumpIncreaseTimer.isStarted) {
-            increaseJump(delta, entity, jumpIncreaseTimer, movementPart, transform)
         }
-    }
-
-    private fun increaseJump(delta: Float, entity: Entity, jumpIncreaseTimer: Timer, movementPart: MovementPart, transform: Box2dTransform) {
+        val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
         val maxJumpSpeed = movementPart.jumpSpeed * getMoveStrength(entity)
         val oldApproxJumpSpeed = maxJumpSpeed * jumpIncreaseTimer.elapsedPercent
         jumpIncreaseTimer.tick(delta)
@@ -79,7 +73,6 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         val impulseY = Box2dUtils.getImpulseToReachVelocity(oldApproxJumpSpeed, newApproxJumpSpeedWithGravity,
                 transform.body.mass)
         transform.applyImpulse(Vector2(0f, impulseY))
-        jumpIncreaseTimer.check()
     }
 
     private fun isGrounded(entity: Entity): Boolean {
