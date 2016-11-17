@@ -14,7 +14,7 @@ public final class StickActions {
 	}
 
 	public static final void jump(final Entity entity) {
-		entity.get(MovementPart.class).setJumping(true);
+		entity.get(MovementPart.class).setTryJumping(true);
 	}
 
 	public static final void aim(final Entity entity, final int direction) {

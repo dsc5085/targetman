@@ -13,15 +13,15 @@ public final class MovementPart {
     private final float MAX_JUMP_INCREASE_TIME = 0.2f;
 
 	private final float moveSpeed;
-    private final float jumpHeight;
+    private final float jumpSpeed;
     private final List<Limb> limbs;
 	private Direction direction = Direction.NONE;
 	private boolean isJumping = false;
     private final Timer jumpIncreaseTimer = new Timer(MAX_JUMP_INCREASE_TIME);
 
-    public MovementPart(final float moveSpeed, final float jumpHeight, final Limb... limbs) {
+    public MovementPart(final float moveSpeed, final float jumpSpeed, final Limb... limbs) {
         this.moveSpeed = moveSpeed;
-        this.jumpHeight = jumpHeight;
+        this.jumpSpeed = jumpSpeed;
         this.limbs = Arrays.asList(limbs);
 	}
 
@@ -32,8 +32,8 @@ public final class MovementPart {
     /**
      * @return jump apex height
      */
-    public final float getJumpHeight() {
-        return jumpHeight;
+    public final float getJumpSpeed() {
+        return jumpSpeed;
     }
 
 	public final List<Limb> getLimbs() {
@@ -48,16 +48,16 @@ public final class MovementPart {
 		this.direction = direction;
 	}
 
-	public final boolean isJumping() {
-		return isJumping;
+    public final boolean getTryJumping() {
+        return isJumping;
 	}
 
     public final Timer getJumpIncreaseTimer() {
         return jumpIncreaseTimer;
     }
 
-	public final void setJumping(final boolean isJumping) {
-		this.isJumping = isJumping;
+    public final void setTryJumping(final boolean isJumping) {
+        this.isJumping = isJumping;
 	}
 
 }
