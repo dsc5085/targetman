@@ -30,7 +30,7 @@ public final class MovementPart {
 	}
 
     /**
-     * @return jump apex height
+     * @return approximate maximum jump speed after jump increase phase
      */
     public final float getJumpSpeed() {
         return jumpSpeed;

@@ -1,0 +1,111 @@
+package dc.targetman.physics
+
+import com.badlogic.gdx.math.Vector2
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import test.dclib.geometry.VectorTestUtils
+
+class JumpVelocitySolverTest {
+    private val agentSpeed = Vector2(10f, 10f)
+    private val solver = JumpVelocitySolver(agentSpeed, -10f)
+
+    @Test
+    fun solve_SamePosition_ZeroVelocity() {
+        val start = Vector2(1f, 0f)
+        testSolve(start, start, 0f, 0f)
+    }
+
+    @Test
+    fun solve_StraightDrop_ZeroVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(1f, -10f)
+        testSolve(start, end, 0f, 0f)
+    }
+
+    @Test
+    fun solve_StraightUp_UpwardsVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(1f, 2f)
+        testSolve(start, end, 0f, 6.3245554f)
+    }
+
+    @Test
+    fun solve_TooHighUp_InvalidVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(1f, 50f)
+        testSolve(start, end, 0f, 31.622776f)
+    }
+
+    @Test
+    fun solve_ShortHop_SmallVelocityY() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(2f, 0f)
+        testSolve(start, end, agentSpeed.x, 0.5f)
+    }
+
+    @Test
+    fun solve_LongHop_BigVelocityY() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(-18f, 0f)
+        testSolve(start, end, -agentSpeed.x, 9.5f)
+    }
+
+    @Test
+    fun solve_TooLongHop_InvalidVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(100f, 0f)
+        testSolve(start, end, agentSpeed.x, 49.5f)
+    }
+
+    @Test
+    fun solve_DiagonalUp_DiagonalVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(-2f, 3f)
+        testSolve(start, end, -3.8729832f, 7.745967f)
+    }
+
+    @Test
+    fun solve_DiagonalDrop_DiagonalVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(3f, -10f)
+        testSolve(start, end, agentSpeed.x, 0f)
+    }
+
+    @Test
+    fun solve_LongDiagonalDrop_DiagonalVelocity() {
+        val start = Vector2(1f, 0f)
+        val end = Vector2(-18f, -5f)
+        testSolve(start, end, -agentSpeed.x, 6.8684206f)
+    }
+
+    @Test
+    fun isValid_Zero_True() {
+        assertTrue(solver.isValid(Vector2(0f, 0f)))
+    }
+
+    @Test
+    fun isValid_PositiveValid_True() {
+        assertTrue(solver.isValid(Vector2(8f, 7f)))
+    }
+
+    @Test
+    fun isValid_NegativeValidX_True() {
+        assertTrue(solver.isValid(Vector2(-8f, 3f)))
+    }
+
+    @Test
+    fun isValid_TooBig_True() {
+        assertFalse(solver.isValid(Vector2(agentSpeed.x + 2f, agentSpeed.y + 1f)))
+    }
+
+    @Test
+    fun isValid_NegativeY_False() {
+        assertFalse(solver.isValid(Vector2(8f, -7f)))
+    }
+
+    private fun testSolve(start: Vector2, end: Vector2, expectedVelocityX: Float, expectedVelocityY: Float) {
+        val velocity = solver.solve(start, end)
+        VectorTestUtils.assertEquals(expectedVelocityX, expectedVelocityY, velocity)
+    }
+}
