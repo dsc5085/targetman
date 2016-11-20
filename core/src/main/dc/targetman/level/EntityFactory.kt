@@ -32,21 +32,17 @@ import net.dermetfan.gdx.math.BayazitDecomposer
 import java.util.*
 
 // TODO: Cleanup
-class EntityFactory(entityManager: EntityManager, world: World, textureCache: TextureCache) {
-    private val entityManager: EntityManager = entityManager
-    private val world: World = world
-    private val textureCache: TextureCache = textureCache
-    private val convexHullCache: ConvexHullCache
-
-    init {
-        convexHullCache = ConvexHullCache(textureCache)
-    }
+class EntityFactory(private val entityManager: EntityManager,
+                    private val world: World,
+                    private val textureCache: TextureCache) {
+    private val convexHullCache = ConvexHullCache(textureCache)
 
     fun createWall(vertices: List<Vector2>?) {
         val entity = Entity()
         val def = BodyDef()
         def.type = BodyType.StaticBody
         val body = createBody(def, PolygonUtils.toFloats(vertices), false)
+        body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         entity.attach(TransformPart(Box2dTransform(0f, body)))
         entity.attribute(Material.METAL)
@@ -80,6 +76,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
         val def = BodyDef()
         def.type = BodyType.DynamicBody
         val body = world.createBody(def)
+        body.userData = entity
         val baseShape = CircleShape()
         baseShape.radius = halfWidth
         baseShape.position = Vector2(0f, -halfHeight)
@@ -161,6 +158,7 @@ class EntityFactory(entityManager: EntityManager, world: World, textureCache: Te
 
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
         val entity = Entity()
+        body.userData = entity
         entity.attribute(*attributes)
         val transform = Box2dTransform(position.z, body)
         transform.position = Vector2(position.x, position.y)

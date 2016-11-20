@@ -39,7 +39,8 @@ import dclib.physics.AutoRotateSystem
 import dclib.physics.ParticlesManager
 import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
-import dclib.physics.collision.CollisionChecker
+import dclib.physics.collision.ContactChecker
+import dclib.physics.collision.EntityCollisionChecker
 import dclib.physics.limb.LimbsSystem
 import dclib.system.Advancer
 import dclib.system.Updater
@@ -114,7 +115,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
                 PhysicsUpdater(world, entityManager),
-				createCollisionChecker(),
+				createContactChecker(),
 				MovementSystem(entityManager, world),
                 BoundsSyncSystem(entityManager),
 				limbsSystem,
@@ -132,15 +133,16 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		return AiSystem(entityManager, navigator)
 	}
 
-	private fun createCollisionChecker(): CollisionChecker {
-		val collisionSystem = CollisionChecker(entityManager, world)
+	private fun createContactChecker(): ContactChecker {
+		val contactChecker = ContactChecker(world)
+		val entityCollisionChecker = EntityCollisionChecker(contactChecker)
 		val filter = getCollisionFilter()
-		collisionSystem.collided.on(StickOnCollided(entityManager))
-		collisionSystem.collided.on(ForceOnCollided(entityManager, filter))
-        collisionSystem.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
-        collisionSystem.collided.on(DamageOnCollided(filter))
-		collisionSystem.collided.on(RemoveOnCollided(entityManager, filter))
-		return collisionSystem
+		entityCollisionChecker.collided.on(StickOnCollided(entityManager))
+		entityCollisionChecker.collided.on(ForceOnCollided(entityManager, filter))
+		entityCollisionChecker.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
+		entityCollisionChecker.collided.on(DamageOnCollided(filter))
+		entityCollisionChecker.collided.on(RemoveOnCollided(entityManager, filter))
+		return contactChecker
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {

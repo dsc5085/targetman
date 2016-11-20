@@ -31,10 +31,10 @@ class JumpVelocitySolverTest {
     }
 
     @Test
-    fun solve_TooHighUp_InvalidVelocity() {
+    fun solve_TooHighUp_Invalid() {
         val start = Vector2(1f, 0f)
         val end = Vector2(1f, 50f)
-        testSolve(start, end, 0f, 31.622776f)
+        testSolveInvalid(start, end)
     }
 
     @Test
@@ -52,10 +52,10 @@ class JumpVelocitySolverTest {
     }
 
     @Test
-    fun solve_TooLongHop_InvalidVelocity() {
+    fun solve_TooLongHop_Invalid() {
         val start = Vector2(1f, 0f)
         val end = Vector2(100f, 0f)
-        testSolve(start, end, agentSpeed.x, 49.5f)
+        testSolveInvalid(start, end)
     }
 
     @Test
@@ -79,33 +79,14 @@ class JumpVelocitySolverTest {
         testSolve(start, end, -agentSpeed.x, 6.8684206f)
     }
 
-    @Test
-    fun isValid_Zero_True() {
-        assertTrue(solver.isValid(Vector2(0f, 0f)))
-    }
-
-    @Test
-    fun isValid_PositiveValid_True() {
-        assertTrue(solver.isValid(Vector2(8f, 7f)))
-    }
-
-    @Test
-    fun isValid_NegativeValidX_True() {
-        assertTrue(solver.isValid(Vector2(-8f, 3f)))
-    }
-
-    @Test
-    fun isValid_TooBig_True() {
-        assertFalse(solver.isValid(Vector2(agentSpeed.x + 2f, agentSpeed.y + 1f)))
-    }
-
-    @Test
-    fun isValid_NegativeY_False() {
-        assertFalse(solver.isValid(Vector2(8f, -7f)))
-    }
-
     private fun testSolve(start: Vector2, end: Vector2, expectedVelocityX: Float, expectedVelocityY: Float) {
-        val velocity = solver.solve(start, end)
-        VectorTestUtils.assertEquals(expectedVelocityX, expectedVelocityY, velocity)
+        val result = solver.solve(start, end)
+        VectorTestUtils.assertEquals(expectedVelocityX, expectedVelocityY, result.velocity)
+        assertTrue(result.isValid)
+    }
+
+    private fun testSolveInvalid(start: Vector2, end: Vector2) {
+        val result = solver.solve(start, end)
+        assertFalse(result.isValid)
     }
 }
