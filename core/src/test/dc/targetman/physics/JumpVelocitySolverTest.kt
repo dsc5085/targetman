@@ -8,7 +8,7 @@ import test.dclib.geometry.VectorTestUtils
 
 class JumpVelocitySolverTest {
     private val agentSpeed = Vector2(10f, 10f)
-    private val solver = JumpVelocitySolver(agentSpeed, -10f)
+    private val solver = JumpVelocitySolver(agentSpeed, -9.8f)
 
     @Test
     fun solve_SamePosition_ZeroVelocity() {
@@ -27,7 +27,7 @@ class JumpVelocitySolverTest {
     fun solve_StraightUp_UpwardsVelocity() {
         val start = Vector2(1f, 0f)
         val end = Vector2(1f, 2f)
-        testSolve(start, end, 0f, 6.3245554f)
+        testSolve(start, end, 0f, 6.2609906f)
     }
 
     @Test
@@ -41,14 +41,14 @@ class JumpVelocitySolverTest {
     fun solve_ShortHop_SmallVelocityY() {
         val start = Vector2(1f, 0f)
         val end = Vector2(2f, 0f)
-        testSolve(start, end, agentSpeed.x, 0.5f)
+        testSolve(start, end, agentSpeed.x, 0.49000007f)
     }
 
     @Test
     fun solve_LongHop_BigVelocityY() {
         val start = Vector2(1f, 0f)
         val end = Vector2(-18f, 0f)
-        testSolve(start, end, -agentSpeed.x, 9.5f)
+        testSolve(start, end, -agentSpeed.x, 9.309999f)
     }
 
     @Test
@@ -62,21 +62,21 @@ class JumpVelocitySolverTest {
     fun solve_DiagonalUp_DiagonalVelocity() {
         val start = Vector2(1f, 0f)
         val end = Vector2(-2f, 3f)
-        testSolve(start, end, -3.8729832f, 7.745967f)
+        testSolve(start, end, -3.8340578f, 7.668116f)
     }
 
     @Test
     fun solve_DiagonalDrop_DiagonalVelocity() {
         val start = Vector2(1f, 0f)
         val end = Vector2(3f, -10f)
-        testSolve(start, end, agentSpeed.x, 0f)
+        testSolve(start, end, 1.4f, 0f)
     }
 
     @Test
     fun solve_LongDiagonalDrop_DiagonalVelocity() {
         val start = Vector2(1f, 0f)
         val end = Vector2(-18f, -5f)
-        testSolve(start, end, -agentSpeed.x, 6.8684206f)
+        testSolve(start, end, -agentSpeed.x, 6.6784205f)
     }
 
     private fun testSolve(start: Vector2, end: Vector2, expectedVelocityX: Float, expectedVelocityY: Float) {

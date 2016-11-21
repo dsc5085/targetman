@@ -8,10 +8,12 @@ class JumpVelocitySolver(private val agentSpeed: Vector2, private val gravityY: 
         val velocity = Vector2()
         val offset = VectorUtils.offset(start, end)
         val horizontalTime = Math.abs(offset.x / agentSpeed.x)
-        var verticalTime = 0f
+        val verticalTime: Float
         if (offset.y > 0) {
             velocity.y = getVelocityToReachHeight(offset.y)
             verticalTime = getTimeToReachVelocityY(velocity.y, 0f)
+        } else {
+            verticalTime = getFreefallTime(offset.y)
         }
         val time: Float
         if (horizontalTime > verticalTime) {
@@ -23,6 +25,13 @@ class JumpVelocitySolver(private val agentSpeed: Vector2, private val gravityY: 
             velocity.x = if (verticalTime == 0f) 0f else offset.x / verticalTime
         }
         return JumpVelocityResult(velocity, time, agentSpeed)
+    }
+
+    private fun getFreefallTime(offsetY: Float): Float {
+        if (offsetY > 0) {
+            throw IllegalArgumentException("Offset y must be less than or equal to 0")
+        }
+        return Math.sqrt((2.0 * offsetY) / gravityY).toFloat()
     }
 
     private fun getVelocityToReachHeight(height: Float): Float {

@@ -1,13 +1,12 @@
 package dc.targetman.ai
 
 import org.junit.Test
-import org.mockito.Mockito.mock
 
 class SteeringTest {
     @Test
     fun seek_SameSegmentAsTarget_MovesToTarget() {
-        val graphHelper = mock(GraphHelper::class.java)
-        val steering = Steering(graphHelper)
+//        val graphHelper = mock(GraphHelper::class.java)
+//        val steering = Steering(graphHelper)
     }
 
     @Test

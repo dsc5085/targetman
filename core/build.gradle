@@ -24,4 +24,8 @@ dependencies {
     compile project(':dclib-core')
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:1.+"
+    testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    testCompile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+    testCompile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
 }

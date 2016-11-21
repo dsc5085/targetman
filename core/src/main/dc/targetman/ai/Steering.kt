@@ -27,7 +27,7 @@ class Steering(private val graphHelper: GraphHelper) {
     }
 
     private fun getNextX(agent: Agent): Float? {
-        var nextX: Float? = null
+        var nextX: Float?
         val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
         if (targetSegment != null && targetSegment === agent.belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)

@@ -83,6 +83,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	fun dispose() {
 		map.dispose()
 		entityManager.dispose()
+        world.dispose()
 	}
 
 	fun update(delta: Float) {

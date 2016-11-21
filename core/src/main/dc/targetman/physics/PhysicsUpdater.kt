@@ -23,6 +23,6 @@ class PhysicsUpdater(private val world: World, entityManager: EntityManager) : U
             world.destroyBody(body)
         }
         removedBodies.clear()
-        world.step(delta, 8, 3)
+        world.step(delta, Box2dUtils.VELOCITY_ITERATIONS, Box2dUtils.POSITION_ITERATIONS)
     }
 }

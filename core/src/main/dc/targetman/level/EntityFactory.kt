@@ -4,13 +4,12 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
-import com.google.common.collect.Iterables
-import com.google.common.collect.Lists
 import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.DeathForm
 import dc.targetman.mechanics.weapon.Weapon
+import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dc.targetman.physics.limb.WalkAnimation
@@ -28,7 +27,6 @@ import dclib.physics.limb.Limb
 import dclib.physics.limb.LimbAnimation
 import dclib.physics.limb.Rotator
 import dclib.util.FloatRange
-import net.dermetfan.gdx.math.BayazitDecomposer
 import java.util.*
 
 // TODO: Cleanup
@@ -39,9 +37,7 @@ class EntityFactory(private val entityManager: EntityManager,
 
     fun createWall(vertices: List<Vector2>?) {
         val entity = Entity()
-        val def = BodyDef()
-        def.type = BodyType.StaticBody
-        val body = createBody(def, PolygonUtils.toFloats(vertices), false)
+        val body = PhysicsUtils.createBody(world, BodyType.StaticBody, PolygonUtils.toFloats(vertices), false)
         body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         entity.attach(TransformPart(Box2dTransform(0f, body)))
@@ -169,24 +165,8 @@ class EntityFactory(private val entityManager: EntityManager,
     }
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {
-        val bodyDef = BodyDef()
-        bodyDef.type = BodyType.DynamicBody
         val vertices = convexHullCache.create(regionName, size).vertices
-        return createBody(bodyDef, vertices, sensor)
-    }
-
-    private fun createBody(bodyDef: BodyDef, vertices: FloatArray, sensor: Boolean): Body {
-        val body = world.createBody(bodyDef)
-        val vertexVectors = com.badlogic.gdx.utils.Array<Vector2>(Iterables.toArray(PolygonUtils.toVectors(vertices), Vector2::class.java))
-        for (partition in BayazitDecomposer.convexPartition(vertexVectors)) {
-            val shape = PolygonShape()
-            val partitionVectors = Lists.newArrayList(partition)
-            shape.set(PolygonUtils.toFloats(partitionVectors))
-            val fixture = body.createFixture(shape, 1f)
-            fixture.isSensor = sensor
-            shape.dispose()
-        }
-        return body
+        return PhysicsUtils.createBody(world, BodyType.DynamicBody, vertices, sensor)
     }
 
     private fun setFilterGroup(body: Body, attributes: Set<Enum<*>>) {
