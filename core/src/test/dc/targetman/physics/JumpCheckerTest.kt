@@ -1,30 +1,115 @@
 package dc.targetman.physics
 
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.World
 import dclib.geometry.PolygonUtils
-import org.junit.Assert.assertTrue
+import dclib.geometry.base
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class JumpCheckerTest {
     private val GRAVITY = -9.8f
     private val AGENT_SPEED = Vector2(10f, 10f)
-    private val jumpChecker = createJumpChecker()
 
     @Test
-    fun isValid__True() {
-        val isValid = jumpChecker.isValid(Vector2(0f, 10f), Vector2(2f, 13f), Vector2(0.5f, 0f))
-        assertTrue(isValid)
+    fun isValid_Up_True() {
+        val map = arrayOf(
+                "#",
+                "#   #",
+                "#",
+                "#",
+                "##"
+        )
+        val start = Vector2(1.5f, 1f)
+        testIsValid(true, map, start, start.cpy().add(2f, 3f))
     }
 
-    private fun createJumpChecker(): JumpChecker {
+    @Test
+    fun isValid_Far_True() {
+        val map = arrayOf(
+                " #",
+                "##"
+        )
+        val start = Vector2(0.5f, 1f)
+        testIsValid(true, map, start, start.cpy().add(-16f, -5f))
+    }
+
+    @Test
+    fun isValid_CloseBlocked_False() {
+        val map = arrayOf(
+                "#",
+                "##"
+        )
+        val start = Vector2(1.5f, 1f)
+        testIsValid(false, map, start, start.cpy().add(-3f, 3f))
+    }
+
+    @Test
+    fun isValid_FarBlocked_False() {
+        val map = arrayOf(
+                "       #",
+                "       #",
+                "       #",
+                "       #",
+                "##     #"
+        )
+        val start = Vector2(1.5f, 1f)
+        testIsValid(false, map, start, start.cpy().add(7f, 3f))
+    }
+
+    @Test
+    fun isValid_InWall_False() {
+        val map = arrayOf(
+                "##",
+                "##"
+        )
+        val start = Vector2(1.5f, 1f)
+        testIsValid(false, map, start, start.cpy().add(3f, 3f))
+    }
+
+    @Test
+    fun isValid_TooFar_False() {
+        val map = arrayOf(
+                "#",
+                "##"
+        )
+        val start = Vector2(1.5f, 1f)
+        testIsValid(false, map, start, start.cpy().add(20f, 3f))
+    }
+
+    private fun testIsValid(expected: Boolean, map: Array<String>, start: Vector2, end: Vector2) {
         val solver = JumpVelocitySolver(AGENT_SPEED)
-        val world = World(Vector2(0f, GRAVITY), true)
-        val body = PhysicsUtils.createBody(world, BodyType.DynamicBody, PolygonUtils.createRectangleVertices(1f, 2f), false)
+        val world = createWorld(map)
+        val bounds = Rectangle(0f, 0f, 1f, 1f)
+        val vertices = PolygonUtils.createRectangleVertices(bounds)
+        val body = PhysicsUtils.createBody(world, BodyType.DynamicBody, vertices, false)
         body.isFixedRotation = true
         body.isBullet = true
         body.isActive = false
-        return JumpChecker(body, world, solver)
+        val jumpChecker = JumpChecker(body, world, solver)
+        val isValid = jumpChecker.isValid(start, end, bounds.base)
+        world.dispose()
+        assertEquals(expected, isValid)
+    }
+
+    private fun createWorld(map: Array<String>): World {
+        val world = World(Vector2(0f, GRAVITY), true)
+        val reversedMap = map.reversedArray()
+        for (i in 0..reversedMap.size - 1) {
+            for (j in 0..reversedMap[i].length - 1) {
+                val char = reversedMap[i][j]
+                if (char === '#') {
+                    createWall(world, j.toFloat(), i.toFloat())
+                }
+            }
+        }
+        return world
+    }
+
+    private fun createWall(world: World, x: Float, y: Float) {
+        val vertices = PolygonUtils.createRectangleVertices(Rectangle(x, y, 1f, 1f))
+        PhysicsUtils.createBody(world, BodyType.StaticBody, vertices, false)
     }
 }
