@@ -3,7 +3,7 @@ package dc.targetman.physics
 import com.badlogic.gdx.math.Vector2
 import dclib.util.Maths
 
-class JumpVelocityResult(velocity: Vector2, val time: Float, agentSpeed: Vector2) {
+class JumpVelocityResult(velocity: Vector2, val airTime: Float, agentSpeed: Vector2) {
     private val _velocity: Vector2 = velocity
     val velocity: Vector2
         get() = _velocity.cpy()

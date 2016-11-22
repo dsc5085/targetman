@@ -8,19 +8,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class JumpCheckerTest {
-    private val gravity = -9.8f
-    private val agentSpeed = Vector2(10f, 10f)
-    private val solver = JumpVelocitySolver(agentSpeed, gravity)
+    private val GRAVITY = -9.8f
+    private val AGENT_SPEED = Vector2(10f, 10f)
+    private val jumpChecker = createJumpChecker()
 
     @Test
     fun isValid__True() {
-        val world = World(Vector2(0f, gravity), true)
-        val body = PhysicsUtils.createBody(world, BodyType.DynamicBody, PolygonUtils.createRectangleVertices(2f, 2f), false)
+        val isValid = jumpChecker.isValid(Vector2(0f, 10f), Vector2(2f, 13f), Vector2(0.5f, 0f))
+        assertTrue(isValid)
+    }
+
+    private fun createJumpChecker(): JumpChecker {
+        val solver = JumpVelocitySolver(AGENT_SPEED)
+        val world = World(Vector2(0f, GRAVITY), true)
+        val body = PhysicsUtils.createBody(world, BodyType.DynamicBody, PolygonUtils.createRectangleVertices(1f, 2f), false)
         body.isFixedRotation = true
         body.isBullet = true
         body.isActive = false
-        val jumpChecker = JumpChecker(body, world, solver)
-        val isValid = jumpChecker.isValid(Vector2(0f, 10f), Vector2(2f, 13f))
-        assertTrue(isValid)
+        return JumpChecker(body, world, solver)
     }
 }

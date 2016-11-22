@@ -7,8 +7,9 @@ import org.junit.Test
 import test.dclib.geometry.VectorTestUtils
 
 class JumpVelocitySolverTest {
-    private val agentSpeed = Vector2(10f, 10f)
-    private val solver = JumpVelocitySolver(agentSpeed, -9.8f)
+    private val GRAVITY = -9.8f
+    private val AGENT_SPEED = Vector2(10f, 10f)
+    private val solver = JumpVelocitySolver(AGENT_SPEED)
 
     @Test
     fun solve_SamePosition_ZeroVelocity() {
@@ -41,14 +42,14 @@ class JumpVelocitySolverTest {
     fun solve_ShortHop_SmallVelocityY() {
         val start = Vector2(1f, 0f)
         val end = Vector2(2f, 0f)
-        testSolve(start, end, agentSpeed.x, 0.49000007f)
+        testSolve(start, end, AGENT_SPEED.x, 0.49000007f)
     }
 
     @Test
     fun solve_LongHop_BigVelocityY() {
         val start = Vector2(1f, 0f)
         val end = Vector2(-18f, 0f)
-        testSolve(start, end, -agentSpeed.x, 9.309999f)
+        testSolve(start, end, -AGENT_SPEED.x, 9.309999f)
     }
 
     @Test
@@ -76,17 +77,17 @@ class JumpVelocitySolverTest {
     fun solve_LongDiagonalDrop_DiagonalVelocity() {
         val start = Vector2(1f, 0f)
         val end = Vector2(-18f, -5f)
-        testSolve(start, end, -agentSpeed.x, 6.6784205f)
+        testSolve(start, end, -AGENT_SPEED.x, 6.6784205f)
     }
 
     private fun testSolve(start: Vector2, end: Vector2, expectedVelocityX: Float, expectedVelocityY: Float) {
-        val result = solver.solve(start, end)
+        val result = solver.solve(start, end, GRAVITY)
         VectorTestUtils.assertEquals(expectedVelocityX, expectedVelocityY, result.velocity)
         assertTrue(result.isValid)
     }
 
     private fun testSolveInvalid(start: Vector2, end: Vector2) {
-        val result = solver.solve(start, end)
+        val result = solver.solve(start, end, GRAVITY)
         assertFalse(result.isValid)
     }
 }
