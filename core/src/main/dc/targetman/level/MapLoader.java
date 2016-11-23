@@ -34,8 +34,8 @@ public final class MapLoader {
 
 	public final void createStaticObjects() {
 		List<List<Vector2>> tilesVertices = new ArrayList<List<Vector2>>();
-		TiledMapTileLayer collisionLayer = MapUtils.getCollisionLayer(map);
-		for (int x = 0; x < collisionLayer.getWidth(); x++) {
+        TiledMapTileLayer collisionLayer = MapUtils.INSTANCE.getCollisionLayer(map);
+        for (int x = 0; x < collisionLayer.getWidth(); x++) {
 			for (int y = 0; y < collisionLayer.getHeight(); y++) {
 				if (collisionLayer.getCell(x, y) != null) {
 					tilesVertices.add(createTileVertices(x, y));

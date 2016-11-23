@@ -129,8 +129,8 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	}
 
 	private fun createAiSystem(): AiSystem {
-        val collisionLayer = MapUtils.getCollisionLayer(map)
-        val graph = GraphFactory(collisionLayer, screenHelper, Vector2(1f, 2f)).create()
+        val boundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
+        val graph = GraphFactory(boundsList, Vector2(1f, 2f)).create()
         val graphHelper = DefaultGraphHelper(graph)
 		val steering = Steering(graphHelper)
 		var navigator = Navigator(graphHelper, steering, world)
