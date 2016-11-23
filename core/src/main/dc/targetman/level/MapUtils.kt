@@ -6,6 +6,10 @@ import com.badlogic.gdx.math.Rectangle
 import dclib.graphics.ScreenHelper
 
 object MapUtils {
+    fun getCollisionLayer(map: TiledMap): TiledMapTileLayer {
+        return map.layers.get(0) as TiledMapTileLayer
+    }
+
     fun createSegmentBoundsList(map: TiledMap, screenHelper: ScreenHelper): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
         val collisionLayer = getCollisionLayer(map)
@@ -23,10 +27,6 @@ object MapUtils {
             }
         }
         return boundsList
-    }
-
-    fun getCollisionLayer(map: TiledMap): TiledMapTileLayer {
-        return map.layers.get(0) as TiledMapTileLayer
     }
 
     private fun getFloorLength(layer: TiledMapTileLayer, x: Int, y: Int): Int {
