@@ -1,7 +1,7 @@
 package dc.targetman.epf.parts
 
 import dc.targetman.ai.AiProfile
-import dc.targetman.ai.DefaultNode
+import dc.targetman.ai.graph.DefaultNode
 import dclib.util.Timer
 
 class AiPart(val profile: AiProfile) {

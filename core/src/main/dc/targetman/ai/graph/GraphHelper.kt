@@ -1,4 +1,4 @@
-package dc.targetman.ai
+package dc.targetman.ai.graph
 
 import com.badlogic.gdx.math.Rectangle
 

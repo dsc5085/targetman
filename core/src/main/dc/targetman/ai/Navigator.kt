@@ -2,6 +2,7 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.physics.box2d.World
+import dc.targetman.ai.graph.GraphHelper
 import dclib.epf.Entity
 import dclib.geometry.center
 

@@ -1,4 +1,4 @@
-package dc.targetman.ai
+package dc.targetman.ai.graph
 
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath
 import com.badlogic.gdx.ai.pfa.GraphPath
@@ -31,12 +31,12 @@ class DefaultGraphHelper(private val graph: DefaultIndexedGraph) : GraphHelper {
     }
 
     override fun getNearestBelowSegment(bounds: Rectangle): Segment? {
-        val overlappingBelowSegments = graph.segments.filter { it.overlapsX(bounds) && it.y < bounds.y }
+        val overlappingBelowSegments = graph.getSegments().filter { it.overlapsX(bounds) && it.y < bounds.y }
         return overlappingBelowSegments.minBy { bounds.y - it.y }
     }
 
     override fun getSegment(node: DefaultNode?): Segment? {
-        return graph.segments.singleOrNull { it.nodes.contains(node) }
+        return graph.getSegments().singleOrNull { it.nodes.contains(node) }
     }
 
     override fun createPath(x: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {

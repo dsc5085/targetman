@@ -1,4 +1,4 @@
-package dc.targetman.ai;
+package dc.targetman.ai.graph;
 
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.ai.pfa.DefaultConnection;

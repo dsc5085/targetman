@@ -2,6 +2,8 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
+import dc.targetman.ai.graph.GraphHelper
+import dc.targetman.ai.graph.Segment
 import dc.targetman.mechanics.Direction
 import dclib.geometry.center
 import dclib.geometry.containsX

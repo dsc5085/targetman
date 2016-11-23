@@ -1,6 +1,8 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
+import dc.targetman.ai.graph.DefaultNode
+import dc.targetman.ai.graph.GraphHelper
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.StickActions
