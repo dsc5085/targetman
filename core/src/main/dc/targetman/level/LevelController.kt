@@ -12,10 +12,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
 import com.google.common.base.Predicate
-import dc.targetman.ai.AiSystem
-import dc.targetman.ai.DefaultGraphHelper
-import dc.targetman.ai.Navigator
-import dc.targetman.ai.Steering
+import dc.targetman.ai.*
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -128,7 +125,8 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	}
 
 	private fun createAiSystem(): AiSystem {
-		val graphHelper = DefaultGraphHelper(map, screenHelper, Vector2(1f, 2f))
+        val graph = GraphFactory(map, screenHelper, Vector2(1f, 2f)).create()
+        val graphHelper = DefaultGraphHelper(graph)
 		val steering = Steering(graphHelper)
 		var navigator = Navigator(graphHelper, steering, world)
 		return AiSystem(entityManager, navigator)

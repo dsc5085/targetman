@@ -4,18 +4,11 @@ import com.badlogic.gdx.ai.pfa.DefaultGraphPath
 import com.badlogic.gdx.ai.pfa.GraphPath
 import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
-import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.Vector2
-import dc.targetman.level.MapUtils
 import dclib.geometry.containsX
-import dclib.graphics.ScreenHelper
 import dclib.util.Maths
-import java.util.*
 
-class DefaultGraphHelper(map: TiledMap, screenHelper: ScreenHelper, actorSize: Vector2) : GraphHelper {
-    private val graph = createGraph(map, screenHelper, actorSize)
+class DefaultGraphHelper(private val graph: DefaultIndexedGraph) : GraphHelper {
     private val pathFinder = IndexedAStarPathFinder(graph, true)
 
     private val heuristic: Heuristic<DefaultNode> = Heuristic { node, endNode ->
@@ -56,35 +49,6 @@ class DefaultGraphHelper(map: TiledMap, screenHelper: ScreenHelper, actorSize: V
             }
         }
         return lowestCostPath.toList()
-    }
-
-    private fun createGraph(map: TiledMap, screenHelper: ScreenHelper, actorSize: Vector2): DefaultIndexedGraph {
-        val collisionLayer = MapUtils.getCollisionLayer(map)
-        val boundsList = ArrayList<Rectangle>()
-        val size = screenHelper.toWorldUnits(collisionLayer.tileWidth, collisionLayer.tileHeight)
-        for (y in 0..collisionLayer.height - 1 - 1) {
-            var x = 0
-            while (x < collisionLayer.width) {
-                val floorLength = getFloorLength(collisionLayer, x, y)
-                if (floorLength > 0) {
-                    val bounds = Rectangle(x.toFloat(), y.toFloat(), floorLength * size.x, size.y)
-                    boundsList.add(bounds)
-                    x += floorLength
-                }
-                x++
-            }
-        }
-        return DefaultIndexedGraph(boundsList, actorSize)
-    }
-
-    private fun getFloorLength(layer: TiledMapTileLayer, x: Int, y: Int): Int {
-        var floorLength = 0
-        var i = x
-        while (i < layer.width && layer.getCell(i, y) != null && layer.getCell(i, y + 1) == null) {
-            floorLength++
-            i++
-        }
-        return floorLength
     }
 
     private fun getCost(x: Float, path: GraphPath<DefaultNode>): Float {
