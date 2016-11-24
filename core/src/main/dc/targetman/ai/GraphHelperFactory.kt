@@ -24,8 +24,8 @@ object GraphHelperFactory {
             PhysicsUtils.createBody(staticWorld, BodyDef.BodyType.StaticBody, boundsVertices, false)
         }
         val jumpChecker = JumpChecker(staticWorld, jumpVelocitySolver)
-        staticWorld.dispose()
         val graph = GraphFactory(boundsList, size, jumpChecker).create()
+        staticWorld.dispose()
         return DefaultGraphHelper(graph)
     }
 }

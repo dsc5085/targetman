@@ -6,7 +6,9 @@ import dc.targetman.ai.graph.GraphHelper
 import dclib.epf.Entity
 import dclib.geometry.center
 
-class Navigator(private val graphHelper: GraphHelper, private val steering: Steering, private val world: World) {
+class Navigator(private val graphHelper: GraphHelper, private val world: World) {
+    private val steering: Steering = Steering(graphHelper)
+
     fun navigate(entity: Entity, targetBounds: Rectangle) {
         val agent = Agent(entity, targetBounds, graphHelper)
         steering.seek(agent)
