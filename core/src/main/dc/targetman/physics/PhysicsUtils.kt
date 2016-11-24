@@ -12,6 +12,10 @@ import dclib.physics.limb.LimbUtils
 import net.dermetfan.gdx.math.BayazitDecomposer
 
 object PhysicsUtils {
+    fun createWorld(): World {
+        return World(Vector2(0f, -10f), true)
+    }
+
     fun createBody(world: World, type: BodyDef.BodyType, vertices: FloatArray, sensor: Boolean): Body {
         val bodyDef = BodyDef()
         bodyDef.type = type
