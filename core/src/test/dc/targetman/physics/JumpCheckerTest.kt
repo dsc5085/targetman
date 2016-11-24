@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.World
 import dclib.geometry.PolygonUtils
 import dclib.geometry.base
+import dclib.geometry.size
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -82,14 +83,9 @@ class JumpCheckerTest {
     private fun testIsValid(expected: Boolean, map: Array<String>, start: Vector2, end: Vector2) {
         val solver = JumpVelocitySolver(AGENT_SPEED)
         val world = createWorld(map)
+        val jumpChecker = JumpChecker(world, solver)
         val bounds = Rectangle(0f, 0f, 1f, 1f)
-        val vertices = PolygonUtils.createRectangleVertices(bounds)
-        val body = PhysicsUtils.createBody(world, BodyType.DynamicBody, vertices, false)
-        body.isFixedRotation = true
-        body.isBullet = true
-        body.isActive = false
-        val jumpChecker = JumpChecker(body, world, solver)
-        val isValid = jumpChecker.isValid(start, end, bounds.base)
+        val isValid = jumpChecker.isValid(start, end, bounds.size, bounds.base)
         world.dispose()
         assertEquals(expected, isValid)
     }

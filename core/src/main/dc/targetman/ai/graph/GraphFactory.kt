@@ -2,10 +2,13 @@ package dc.targetman.ai.graph
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import dclib.util.Maths
+import dc.targetman.physics.JumpChecker
 import kotlin.comparisons.compareBy
 
-class GraphFactory(private val boundsList: List<Rectangle>, private val actorSize: Vector2) {
+class GraphFactory(
+        private val boundsList: List<Rectangle>,
+        private val agentSize: Vector2,
+        private val jumpChecker: JumpChecker) {
     fun create(): DefaultIndexedGraph {
         val segments = boundsList.map { Segment(it) }
         connect(segments)
@@ -27,46 +30,35 @@ class GraphFactory(private val boundsList: List<Rectangle>, private val actorSiz
     }
 
     private fun connect(segment1: Segment, segment2: Segment) {
-        connect(segment1.leftNode, segment2.rightNode)
-        connect(segment1.rightNode, segment2.leftNode)
-        connect(segment2.leftNode, segment1.rightNode)
-        connect(segment2.rightNode, segment1.leftNode)
+        connect(segment1.leftNode, segment2.rightNode, 0f)
+        connect(segment1.rightNode, segment2.leftNode, agentSize.x)
+        connect(segment2.leftNode, segment1.rightNode, 0f)
+        connect(segment2.rightNode, segment1.leftNode, agentSize.x)
         connectMiddle(segment1, segment2)
         connectMiddle(segment2, segment1)
     }
 
     private fun connectMiddle(topSegment: Segment, bottomSegment: Segment) {
         if (topSegment.y > bottomSegment.y) {
-            connectMiddle(topSegment.leftNode, bottomSegment, -actorSize.x)
-            connectMiddle(topSegment.rightNode, bottomSegment, actorSize.x)
+            connectMiddle(topSegment.leftNode, bottomSegment, agentSize.x)
+            connectMiddle(topSegment.rightNode, bottomSegment, 0f)
         }
     }
 
-    private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment, landingOffsetX: Float) {
-        val landingX = topNode.x() + landingOffsetX
-        if (bottomSegment.containsX(landingX)) {
-            val bottomNode = DefaultNode(landingX, bottomSegment.y)
+    private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment, localX: Float) {
+        if (bottomSegment.containsX(topNode.x())) {
+            val bottomNode = DefaultNode(topNode.x(), bottomSegment.y)
             bottomSegment.nodes.add(bottomNode)
-            connect(topNode, bottomNode)
-            connect(bottomNode, topNode)
+            connect(topNode, bottomNode, localX)
+            connect(bottomNode, topNode, localX)
         }
     }
 
-    private fun connect(startNode: DefaultNode, endNode: DefaultNode) {
-        if (canJumpTo(startNode, endNode)) {
+    private fun connect(startNode: DefaultNode, endNode: DefaultNode, localX: Float) {
+        val local = Vector2(localX, 0f)
+        if (jumpChecker.isValid(startNode.position, endNode.position, agentSize, local)) {
             startNode.addConnection(endNode)
         }
-    }
-
-    private fun canJumpTo(startNode: DefaultNode, endNode: DefaultNode): Boolean {
-        // TODO: Replace these constants with calculations
-        val jumpWidth = 8f
-        val jumpHeight = 5f
-        val gapWidth = Maths.distance(startNode.x(), endNode.x())
-        val canJumpToHorizontally = gapWidth < jumpWidth
-        val yOffset = endNode.y() - startNode.y()
-        val canJumpToVertically = yOffset < jumpHeight
-        return canJumpToHorizontally && canJumpToVertically
     }
 
     private fun connectWithin(segment: Segment) {

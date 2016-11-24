@@ -9,6 +9,8 @@ import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
 import com.google.common.base.Predicate
@@ -18,9 +20,13 @@ import dc.targetman.ai.Steering
 import dc.targetman.ai.graph.DefaultGraphHelper
 import dc.targetman.ai.graph.GraphFactory
 import dc.targetman.epf.graphics.EntityGraphDrawer
+import dc.targetman.epf.parts.MovementPart
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
+import dc.targetman.physics.JumpChecker
+import dc.targetman.physics.JumpVelocitySolver
 import dc.targetman.physics.PhysicsUpdater
+import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StickOnCollided
@@ -29,6 +35,8 @@ import dclib.epf.Entity
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntitySpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
+import dclib.epf.parts.TransformPart
+import dclib.geometry.PolygonUtils
 import dclib.graphics.CameraUtils
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
@@ -55,7 +63,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	private var isRunning = true
 	private val entityFactory: EntityFactory
 	private val entityManager = DefaultEntityManager()
-	private val world = World(Vector2(0f, -10f), true)
+    private val world = createWorld()
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
     private val camera = OrthographicCamera(640f, 480f)
@@ -106,6 +114,10 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 //		renderBox2D()
 	}
 
+    private fun createWorld(): World {
+        return World(Vector2(0f, -10f), true)
+    }
+
 	private fun createAdvancer(): Advancer {
 // TODO: Calculate actor size
 		val limbsSystem = LimbsSystem(entityManager)
@@ -129,11 +141,25 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	}
 
 	private fun createAiSystem(): AiSystem {
+        // TODO: Cleanup
+        // TODO: Creating an entity just for this is wasteful
+        val aiEntity = entityFactory.createStickman(Vector3(), Alliance.ENEMY)
         val boundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
-        val graph = GraphFactory(boundsList, Vector2(1f, 2f)).create()
+        val movementPart = aiEntity[MovementPart::class.java]
+        val jumpVelocitySolver = JumpVelocitySolver(Vector2(movementPart.moveSpeed, movementPart.jumpSpeed))
+        val size = aiEntity[TransformPart::class.java].transform.size
+        val world = createWorld()
+        for (bounds in boundsList) {
+            val vertices = PolygonUtils.createRectangleVertices(bounds)
+            PhysicsUtils.createBody(world, BodyDef.BodyType.StaticBody, vertices, false)
+        }
+        val jumpChecker = JumpChecker(world, jumpVelocitySolver)
+        val graph = GraphFactory(boundsList, size, jumpChecker).create()
         val graphHelper = DefaultGraphHelper(graph)
 		val steering = Steering(graphHelper)
 		var navigator = Navigator(graphHelper, steering, world)
+        entityManager.remove(aiEntity)
+        world.dispose()
 		return AiSystem(entityManager, navigator)
 	}
 

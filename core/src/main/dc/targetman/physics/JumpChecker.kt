@@ -2,38 +2,40 @@ package dc.targetman.physics
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
+import dclib.geometry.PolygonUtils
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
-class JumpChecker(private val body: Body,
-                  private val world: World,
-                  private val jumpVelocitySolver: JumpVelocitySolver) {
-    init {
-        if (body.isActive) {
-            throw IllegalArgumentException("Body cannot be active")
-        }
-    }
-
-    fun isValid(start: Vector2, end: Vector2, bodyLocal: Vector2): Boolean {
+class JumpChecker(private val world: World, private val jumpVelocitySolver: JumpVelocitySolver) {
+    fun isValid(start: Vector2, end: Vector2, size: Vector2, local: Vector2): Boolean {
         val result = jumpVelocitySolver.solve(start, end, world.gravity.y)
-        return result.isValid && passedSimulation(start, end, bodyLocal, result)
+        return result.isValid && passedSimulation(start, end, size, local, result)
     }
 
-    private fun passedSimulation(start: Vector2,
-                                 end: Vector2,
-                                 bodyLocal: Vector2,
-                                 result: JumpVelocityResult): Boolean {
-        val clonedBody = Box2DUtils.clone(body)
-        clonedBody.isActive = true
-        val transform = Box2dTransform(clonedBody)
-        transform.setGlobal(bodyLocal, start)
+    private fun passedSimulation(
+            start: Vector2,
+            end: Vector2,
+            size: Vector2,
+            local: Vector2,
+            result: JumpVelocityResult): Boolean {
+        val body = createBody(size)
+        val transform = Box2dTransform(body)
+        transform.setGlobal(local, start)
         transform.velocity = result.velocity
         runSimulation(result.airTime)
-        val actualEnd = transform.toGlobal(bodyLocal)
-        world.destroyBody(clonedBody)
+        val actualEnd = transform.toGlobal(local)
+        world.destroyBody(body)
         return areBox2dPositionsApproximatelyEqual(end, actualEnd, start)
+    }
+
+    private fun createBody(size: Vector2): Body {
+        val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
+        val body = PhysicsUtils.createBody(world, BodyDef.BodyType.DynamicBody, vertices, false)
+        body.isFixedRotation = true
+        body.isBullet = true
+        return body
     }
 
     /**
