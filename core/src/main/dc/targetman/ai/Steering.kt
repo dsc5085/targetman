@@ -2,14 +2,14 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
-import dc.targetman.ai.graph.GraphHelper
+import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
 import dc.targetman.mechanics.Direction
 import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.util.Maths
 
-class Steering(private val graphHelper: GraphHelper) {
+class Steering(private val graphQuery: GraphQuery) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
         agent.move(moveDirection)
@@ -30,7 +30,7 @@ class Steering(private val graphHelper: GraphHelper) {
 
     private fun getNextX(agent: Agent): Float? {
         var nextX: Float?
-        val targetSegment = graphHelper.getNearestBelowSegment(agent.targetBounds)
+        val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         if (targetSegment != null && targetSegment === agent.belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
         } else {
@@ -68,7 +68,7 @@ class Steering(private val graphHelper: GraphHelper) {
 
     private fun jump(agent: Agent) {
         if (agent.belowSegment != null) {
-            val nextSegment = graphHelper.getSegment(agent.nextNode)
+            val nextSegment = graphQuery.getSegment(agent.nextNode)
             val notOnNextSegment = nextSegment != null && agent.belowSegment !== nextSegment
             if (notOnNextSegment) {
                 agent.jump()

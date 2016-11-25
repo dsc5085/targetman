@@ -5,10 +5,9 @@ import com.badlogic.gdx.ai.pfa.GraphPath
 import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.math.Rectangle
-import dclib.geometry.containsX
 import dclib.util.Maths
 
-class DefaultGraphHelper(private val graph: DefaultIndexedGraph) : GraphHelper {
+class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     private val pathFinder = IndexedAStarPathFinder(graph, true)
 
     private val heuristic: Heuristic<DefaultNode> = Heuristic { node, endNode ->
@@ -19,15 +18,6 @@ class DefaultGraphHelper(private val graph: DefaultIndexedGraph) : GraphHelper {
 
     override fun getNearestNode(x: Float, segment: Segment): DefaultNode {
         return segment.nodes.minBy { getCost(x, it) }!!
-    }
-
-    override fun isBelow(node: DefaultNode, bounds: Rectangle): Boolean {
-        var isBelow = false
-        if (bounds.containsX(node.x())) {
-            val belowSegment = getNearestBelowSegment(bounds)
-            isBelow = belowSegment != null && belowSegment.nodes.contains(node)
-        }
-        return isBelow
     }
 
     override fun getNearestBelowSegment(bounds: Rectangle): Segment? {

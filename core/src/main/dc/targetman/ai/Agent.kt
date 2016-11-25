@@ -2,7 +2,7 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import dc.targetman.ai.graph.DefaultNode
-import dc.targetman.ai.graph.GraphHelper
+import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.StickActions
@@ -12,10 +12,10 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.grow
 import dclib.physics.Box2dUtils
 
-class Agent(private val entity: Entity, val targetBounds: Rectangle, graphHelper: GraphHelper) {
+class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery: GraphQuery) {
     val transform = entity.get(TransformPart::class.java).transform
     val bounds = transform.bounds.grow(Box2dUtils.ROUNDING_ERROR, 0f)
-    val belowSegment = graphHelper.getNearestBelowSegment(bounds)
+    val belowSegment = graphQuery.getNearestBelowSegment(bounds)
     private val aiPart = entity.get(AiPart::class.java)
 
     var path: List<DefaultNode>

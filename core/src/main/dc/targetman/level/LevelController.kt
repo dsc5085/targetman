@@ -12,8 +12,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.ai.GraphHelperFactory
 import dc.targetman.ai.Navigator
+import dc.targetman.ai.graph.GraphQueryFactory
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -130,8 +130,8 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
         // TODO: Creating an entity just for this is wasteful
         val aiEntity = entityFactory.createStickman(Vector3(), Alliance.ENEMY)
         val boundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
-        val graphHelper = GraphHelperFactory.create(boundsList, aiEntity)
-        var navigator = Navigator(graphHelper, world)
+        val graphQuery = GraphQueryFactory.create(boundsList, aiEntity)
+        var navigator = Navigator(graphQuery, world)
         entityManager.remove(aiEntity)
 		return AiSystem(entityManager, navigator)
 	}

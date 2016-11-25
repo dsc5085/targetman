@@ -1,11 +1,8 @@
-package dc.targetman.ai
+package dc.targetman.ai.graph
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
-import dc.targetman.ai.graph.DefaultGraphHelper
-import dc.targetman.ai.graph.GraphFactory
-import dc.targetman.ai.graph.GraphHelper
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.physics.JumpChecker
 import dc.targetman.physics.JumpVelocitySolver
@@ -14,8 +11,8 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 
-object GraphHelperFactory {
-    fun create(boundsList: List<Rectangle>, aiEntity: Entity): GraphHelper {
+object GraphQueryFactory {
+    fun create(boundsList: List<Rectangle>, aiEntity: Entity): GraphQuery {
         val movementPart = aiEntity[MovementPart::class.java]
         val jumpVelocitySolver = JumpVelocitySolver(Vector2(movementPart.moveSpeed, movementPart.jumpSpeed))
         val size = aiEntity[TransformPart::class.java].transform.size
@@ -26,6 +23,6 @@ object GraphHelperFactory {
         val jumpChecker = JumpChecker(staticWorld, jumpVelocitySolver)
         val graph = GraphFactory(boundsList, size, jumpChecker).create()
         staticWorld.dispose()
-        return DefaultGraphHelper(graph)
+        return DefaultGraphQuery(graph)
     }
 }
