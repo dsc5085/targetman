@@ -9,9 +9,7 @@ import dclib.geometry.grow
 import dclib.physics.Box2dUtils
 import dclib.util.Maths
 
-class Navigator(private val graphQuery: GraphQuery, private val world: World) {
-    private val steering: Steering = Steering(graphQuery)
-
+class Navigator(private val graphQuery: GraphQuery, private val steering: Steering, private val world: World) {
     fun navigate(entity: Entity, targetBounds: Rectangle) {
         val agent = Agent(entity, targetBounds, graphQuery)
         steering.seek(agent)

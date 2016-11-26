@@ -1,6 +1,7 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.epf.parts.AiPart
@@ -15,14 +16,17 @@ class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery:
     val belowSegment = graphQuery.getNearestBelowSegment(bounds)
     private val aiPart = entity.get(AiPart::class.java)
 
+    val facingDirection: Direction
+        get() = if (entity[LimbsPart::class.java].flipX) Direction.LEFT else Direction.RIGHT
+
+    val velocity: Vector2
+        get() = entity[TransformPart::class.java].transform.velocity
+
     var path: List<DefaultNode>
         get() = aiPart.path
         set(value) {
             aiPart.path = value
         }
-
-    val facingDirection: Direction
-        get() = if (entity[LimbsPart::class.java].flipX) Direction.LEFT else Direction.RIGHT
 
     val nextNode: DefaultNode?
         get() = if (aiPart.path.isEmpty()) null else aiPart.path[0]

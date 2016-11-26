@@ -9,7 +9,7 @@ import dclib.physics.Box2dUtils
 
 class JumpChecker(private val world: World, private val jumpVelocitySolver: JumpVelocitySolver) {
     fun isValid(start: Vector2, end: Vector2, size: Vector2, local: Vector2): Boolean {
-        val result = jumpVelocitySolver.solve(start, end, world.gravity.y)
+        val result = jumpVelocitySolver.solve(start, end)
         return result.isValid && passedSimulation(start, end, size, local, result)
     }
 

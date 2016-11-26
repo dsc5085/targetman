@@ -80,7 +80,7 @@ class JumpCheckerTest {
     }
 
     private fun testIsValid(expected: Boolean, map: Array<String>, start: Vector2, end: Vector2) {
-        val solver = JumpVelocitySolver(AGENT_SPEED)
+        val solver = JumpVelocitySolver(AGENT_SPEED, GRAVITY)
         val world = createWorld(map)
         val jumpChecker = JumpChecker(world, solver)
         val bounds = Rectangle(0f, 0f, 1f, 1f)

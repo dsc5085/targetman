@@ -5,11 +5,13 @@ import com.badlogic.gdx.math.Rectangle
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
 import dc.targetman.mechanics.Direction
+import dc.targetman.physics.JumpVelocitySolver
+import dclib.geometry.base
 import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.util.Maths
 
-class Steering(private val graphQuery: GraphQuery) {
+class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolver: JumpVelocitySolver) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
         agent.move(moveDirection)
@@ -67,13 +69,20 @@ class Steering(private val graphQuery: GraphQuery) {
     }
 
     private fun jump(agent: Agent) {
-        if (agent.belowSegment != null) {
-            val nextSegment = graphQuery.getSegment(agent.nextNode)
-            val notOnNextSegment = nextSegment != null && agent.belowSegment !== nextSegment
-            if (notOnNextSegment) {
+        if (agent.nextNode != null) {
+            val nextSegment = graphQuery.getSegment(agent.nextNode!!)
+            val notOnNextSegment = agent.belowSegment === null
+                    || (nextSegment !== null && agent.belowSegment !== nextSegment)
+            // TODO: bounds.base isn't accurate for jump solving
+            if (notOnNextSegment && needToIncreaseJump(agent)) {
                 agent.jump()
             }
         }
+    }
+
+    private fun needToIncreaseJump(agent: Agent): Boolean {
+        val neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
+        return agent.velocity.y < neededVelocityY
     }
 
     private fun getEdgeBuffer(bounds: Rectangle): Float {

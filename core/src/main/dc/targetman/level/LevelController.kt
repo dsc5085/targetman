@@ -11,8 +11,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.ai.Navigator
-import dc.targetman.ai.graph.GraphQueryFactory
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -129,8 +127,7 @@ class LevelController(
 	}
 
 	private fun createAiSystem(): AiSystem {
-        val graphQuery = GraphQueryFactory.create(map, screenHelper, textureCache)
-        var navigator = Navigator(graphQuery, world)
+        val navigator = NavigatorFactory.create(map, world, screenHelper, textureCache)
 		return AiSystem(entityManager, navigator)
 	}
 
