@@ -1,10 +1,8 @@
 package dc.targetman.physics
 
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.physics.box2d.PolygonShape
-import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
@@ -16,9 +14,20 @@ object PhysicsUtils {
         return World(Vector2(0f, -10f), true)
     }
 
-    fun createBody(world: World, type: BodyDef.BodyType, vertices: FloatArray, sensor: Boolean): Body {
+    fun createStaticBody(world: World, vertices: FloatArray): Body {
         val bodyDef = BodyDef()
-        bodyDef.type = type
+        bodyDef.type = BodyType.StaticBody
+        val body = world.createBody(bodyDef)
+        val shape = ChainShape()
+        shape.createLoop(vertices)
+        body.createFixture(shape, 1f)
+        shape.dispose()
+        return body
+    }
+
+    fun createDynamicBody(world: World, vertices: FloatArray, sensor: Boolean): Body {
+        val bodyDef = BodyDef()
+        bodyDef.type = BodyType.DynamicBody
         val body = world.createBody(bodyDef)
         val vectors = PolygonUtils.toVectors(vertices).toTypedArray()
         val vertexVectors = com.badlogic.gdx.utils.Array<Vector2>(vectors)

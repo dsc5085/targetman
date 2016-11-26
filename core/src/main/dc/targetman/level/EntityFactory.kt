@@ -37,7 +37,7 @@ class EntityFactory(private val entityManager: EntityManager,
 
     fun createWall(vertices: List<Vector2>?) {
         val entity = Entity()
-        val body = PhysicsUtils.createBody(world, BodyType.StaticBody, PolygonUtils.toFloats(vertices), false)
+        val body = PhysicsUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
         body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         entity.attach(TransformPart(Box2dTransform(0f, body)))
@@ -166,7 +166,7 @@ class EntityFactory(private val entityManager: EntityManager,
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {
         val vertices = convexHullCache.create(regionName, size).vertices
-        return PhysicsUtils.createBody(world, BodyType.DynamicBody, vertices, sensor)
+        return PhysicsUtils.createDynamicBody(world, vertices, sensor)
     }
 
     private fun setFilterGroup(body: Body, attributes: Set<Enum<*>>) {

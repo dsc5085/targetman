@@ -2,7 +2,6 @@ package dc.targetman.physics
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import dclib.geometry.PolygonUtils
 import dclib.physics.Box2dTransform
@@ -32,7 +31,7 @@ class JumpChecker(private val world: World, private val jumpVelocitySolver: Jump
 
     private fun createBody(size: Vector2): Body {
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
-        val body = PhysicsUtils.createBody(world, BodyDef.BodyType.DynamicBody, vertices, false)
+        val body = PhysicsUtils.createDynamicBody(world, vertices, false)
         body.isFixedRotation = true
         body.isBullet = true
         return body

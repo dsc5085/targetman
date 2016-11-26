@@ -61,7 +61,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
 	private val entityDrawers = ArrayList<EntityDrawer>()
-    private val map = TmxMapLoader().load("maps/geometry.tmx")
+    private val map = TmxMapLoader().load("maps/test_level.tmx")
 
 	init {
 		screenHelper = ScreenHelper(PIXELS_PER_UNIT, camera)
@@ -101,7 +101,7 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-//		renderBox2D()
+        renderBox2D()
 	}
 
 	private fun createAdvancer(): Advancer {

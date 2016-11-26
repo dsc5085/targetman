@@ -2,7 +2,6 @@ package dc.targetman.ai.graph
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.BodyDef
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.physics.JumpChecker
 import dc.targetman.physics.JumpVelocitySolver
@@ -18,7 +17,7 @@ object GraphQueryFactory {
         val size = aiEntity[TransformPart::class.java].transform.size
         val staticWorld = PhysicsUtils.createWorld()
         for (boundsVertices in boundsList.map { PolygonUtils.createRectangleVertices(it) }) {
-            PhysicsUtils.createBody(staticWorld, BodyDef.BodyType.StaticBody, boundsVertices, false)
+            PhysicsUtils.createStaticBody(staticWorld, boundsVertices)
         }
         val jumpChecker = JumpChecker(staticWorld, jumpVelocitySolver)
         val graph = GraphFactory(boundsList, size, jumpChecker).create()

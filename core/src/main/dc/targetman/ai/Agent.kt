@@ -9,12 +9,9 @@ import dc.targetman.mechanics.StickActions
 import dclib.epf.Entity
 import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.grow
-import dclib.physics.Box2dUtils
 
 class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery: GraphQuery) {
-    val transform = entity.get(TransformPart::class.java).transform
-    val bounds = transform.bounds.grow(Box2dUtils.ROUNDING_ERROR, 0f)
+    val bounds = entity.get(TransformPart::class.java).transform.bounds
     val belowSegment = graphQuery.getNearestBelowSegment(bounds)
     private val aiPart = entity.get(AiPart::class.java)
 
