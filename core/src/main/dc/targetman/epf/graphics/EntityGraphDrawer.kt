@@ -24,15 +24,13 @@ class EntityGraphDrawer(private val shapeRenderer: ShapeRenderer, private val sc
 
     private fun draw(entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class.java)
-        if (aiPart != null && !aiPart.path.isEmpty()) {
-            val path = aiPart.path.map { it.position }
+        if (aiPart != null && aiPart.path.isNotEmpty()) {
             val bounds = entity.get(TransformPart::class.java).transform.bounds
-            var start = bounds.base
-            var end = path[0]
-            for (i in 1..path.size - 1) {
+            val points = listOf(bounds.base) + aiPart.path.map { it.position }
+            for (i in 0..points.size - 2) {
+                val start = points[i]
+                val end = points[i + 1]
                 shapeRenderer.line(start, end)
-                start = path[i - 1]
-                end = path[i]
             }
         }
     }

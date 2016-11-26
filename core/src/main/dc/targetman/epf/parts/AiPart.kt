@@ -5,9 +5,7 @@ import dc.targetman.ai.graph.DefaultNode
 import dclib.util.Timer
 
 class AiPart(val profile: AiProfile) {
-    companion object {
-        private val THINK_TIME = 0.1f
-    }
+    private val THINK_TIME = 0.1f
 
     var path = listOf<DefaultNode>()
 
