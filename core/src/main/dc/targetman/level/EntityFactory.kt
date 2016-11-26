@@ -104,7 +104,7 @@ class EntityFactory(private val entityManager: EntityManager,
                 LimbsPart(root),
                 VitalLimbsPart(head, torso))
         if (alliance === Alliance.ENEMY) {
-            entity.attach(AiPart(AiProfile(0f, 1.5f)))
+            entity.attach(AiPart(AiProfile(2f, 4.5f)))
         }
         entityManager.add(entity)
         return entity

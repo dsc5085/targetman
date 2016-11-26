@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
@@ -45,7 +44,10 @@ import dclib.system.Advancer
 import dclib.system.Updater
 import java.util.*
 
-class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatch, shapeRenderer: ShapeRenderer) {
+class LevelController(
+        private val textureCache: TextureCache,
+        spriteBatch: PolygonSpriteBatch,
+        shapeRenderer: ShapeRenderer) {
 	companion object {
 		private val PIXELS_PER_UNIT = 32f
 	}
@@ -127,12 +129,8 @@ class LevelController(textureCache: TextureCache, spriteBatch: PolygonSpriteBatc
 	}
 
 	private fun createAiSystem(): AiSystem {
-        // TODO: Creating an entity just for this is wasteful
-        val aiEntity = entityFactory.createStickman(Vector3(), Alliance.ENEMY)
-        val boundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
-        val graphQuery = GraphQueryFactory.create(boundsList, aiEntity)
+        val graphQuery = GraphQueryFactory.create(map, screenHelper, textureCache)
         var navigator = Navigator(graphQuery, world)
-        entityManager.remove(aiEntity)
 		return AiSystem(entityManager, navigator)
 	}
 

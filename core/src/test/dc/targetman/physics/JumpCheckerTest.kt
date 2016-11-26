@@ -2,7 +2,6 @@ package dc.targetman.physics
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.World
 import dclib.geometry.PolygonUtils
 import dclib.geometry.base
@@ -50,14 +49,14 @@ class JumpCheckerTest {
     @Test
     fun isValid_FarBlocked_False() {
         val map = arrayOf(
-                "       #",
-                "       #",
-                "       #",
-                "       #",
-                "##     #"
+                "    #",
+                "    #",
+                "    #",
+                "    #",
+                "##  ###"
         )
         val start = Vector2(1.5f, 1f)
-        testIsValid(false, map, start, start.cpy().add(7f, 3f))
+        testIsValid(false, map, start, start.cpy().add(4f, 0f))
     }
 
     @Test
@@ -106,6 +105,6 @@ class JumpCheckerTest {
 
     private fun createWall(world: World, x: Float, y: Float) {
         val vertices = PolygonUtils.createRectangleVertices(Rectangle(x, y, 1f, 1f))
-        PhysicsUtils.createBody(world, BodyType.StaticBody, vertices, false)
+        PhysicsUtils.createStaticBody(world, vertices)
     }
 }
