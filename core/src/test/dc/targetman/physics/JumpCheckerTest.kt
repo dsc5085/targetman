@@ -27,6 +27,19 @@ class JumpCheckerTest {
     }
 
     @Test
+    fun isValid_Drop_True() {
+        val map = arrayOf(
+                "#",
+                "#   #",
+                "#",
+                "#",
+                "#"
+        )
+        val start = Vector2(3.5f, 4f)
+        testIsValid(true, map, start, start.cpy().add(0f, -4f))
+    }
+
+    @Test
     fun isValid_Far_True() {
         val map = arrayOf(
                 " #",

@@ -3,6 +3,7 @@ package dc.targetman.ai.graph
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
+import dclib.util.CollectionUtils
 import kotlin.comparisons.compareBy
 
 class GraphFactory(
@@ -25,7 +26,7 @@ class GraphFactory(
             }
         }
         for (segment in segments) {
-            connectWithin(segment)
+            connectNodesOnSameSegment(segment)
         }
     }
 
@@ -47,8 +48,7 @@ class GraphFactory(
 
     private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment, localX: Float) {
         if (bottomSegment.containsX(topNode.x())) {
-            val bottomNode = DefaultNode(topNode.x(), bottomSegment.y)
-            bottomSegment.nodes.add(bottomNode)
+            val bottomNode = CollectionUtils.getOrAdd(bottomSegment.nodes, DefaultNode(topNode.x(), bottomSegment.y))
             connect(topNode, bottomNode, localX)
             connect(bottomNode, topNode, localX)
         }
@@ -61,7 +61,7 @@ class GraphFactory(
         }
     }
 
-    private fun connectWithin(segment: Segment) {
+    private fun connectNodesOnSameSegment(segment: Segment) {
         val sortedNodes = segment.nodes.sortedWith(compareBy { it.x() })
         for (i in 0..sortedNodes.size - 2) {
             val node1 = sortedNodes[i]
