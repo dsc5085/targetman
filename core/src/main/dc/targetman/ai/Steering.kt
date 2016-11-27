@@ -36,7 +36,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
         if (targetSegment != null && targetSegment === agent.belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
         } else {
-            nextX = agent.nextNode?.x()
+            nextX = agent.nextNode?.x
         }
         return nextX
     }
@@ -73,7 +73,6 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
             val nextSegment = graphQuery.getSegment(agent.nextNode!!)
             val notOnNextSegment = agent.belowSegment === null
                     || (nextSegment !== null && agent.belowSegment !== nextSegment)
-            // TODO: bounds.base isn't accurate for jump solving
             if (notOnNextSegment && needToIncreaseJump(agent)) {
                 agent.jump()
             }
@@ -81,6 +80,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
     }
 
     private fun needToIncreaseJump(agent: Agent): Boolean {
+        // TODO: bounds.base isn't accurate for jump solving
         val neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
         return agent.velocity.y < neededVelocityY
     }

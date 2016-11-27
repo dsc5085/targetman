@@ -11,10 +11,10 @@ class Segment(val bounds: Rectangle) {
     val nodes = mutableSetOf(leftNode, rightNode)
 
     val left: Float
-        get() = leftNode.x()
+        get() = leftNode.x
 
     val right: Float
-        get() = rightNode.x()
+        get() = rightNode.x
 
     val y: Float
         get() = bounds.top

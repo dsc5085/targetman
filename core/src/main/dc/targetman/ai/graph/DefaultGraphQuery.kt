@@ -11,8 +11,8 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     private val pathFinder = IndexedAStarPathFinder(graph, true)
 
     private val heuristic: Heuristic<DefaultNode> = Heuristic { node, endNode ->
-        val xOffset = Maths.distance(node.x(), endNode.x())
-        val yOffset = Maths.distance(endNode.y(), node.y())
+        val xOffset = Maths.distance(node.x, endNode.x)
+        val yOffset = Maths.distance(endNode.y, node.y)
         xOffset + yOffset
     }
 
@@ -52,6 +52,6 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     }
 
     private fun getCost(x: Float, node: DefaultNode): Float {
-        return Maths.distance(x, node.x())
+        return Maths.distance(x, node.x)
     }
 }
