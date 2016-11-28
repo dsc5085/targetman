@@ -9,8 +9,8 @@ import dclib.geometry.grow
 import dclib.physics.Box2dUtils
 import dclib.util.Maths
 
-class PathUpdater(private val graphQuery: GraphQuery, private val steering: Steering, private val world: World) {
-    fun update(entity: Entity, targetBounds: Rectangle) {
+class Navigator(private val graphQuery: GraphQuery, private val steering: Steering, private val world: World) {
+    fun navigate(entity: Entity, targetBounds: Rectangle) {
         val agent = Agent(entity, targetBounds, graphQuery)
         steering.seek(agent)
         updatePath(agent)
