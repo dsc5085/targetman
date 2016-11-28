@@ -11,9 +11,9 @@ class GraphFactory(
         private val agentSize: Vector2,
         private val jumpChecker: JumpChecker) {
     fun create(): DefaultIndexedGraph {
-        val segments = boundsList.map { Segment(it) }
+        val segments = boundsList.map { Segment(it, agentSize.x) }
         connect(segments)
-        val nodes = segments.flatMap { it.nodes }
+        val nodes = segments.flatMap { it.getNodes() }
         return DefaultIndexedGraph(nodes, segments)
     }
 
@@ -31,10 +31,10 @@ class GraphFactory(
     }
 
     private fun connect(segment1: Segment, segment2: Segment) {
-        connectJump(segment1.leftNode, segment2.rightNode, 0f)
-        connectJump(segment1.rightNode, segment2.leftNode, agentSize.x)
-        connectJump(segment2.leftNode, segment1.rightNode, 0f)
-        connectJump(segment2.rightNode, segment1.leftNode, agentSize.x)
+        connectJump(segment1.leftNode, segment2.rightLandingNode, 0f)
+        connectJump(segment2.rightNode, segment1.leftLandingNode, agentSize.x)
+        connectJump(segment1.rightNode, segment2.leftLandingNode, agentSize.x)
+        connectJump(segment2.leftNode, segment1.rightLandingNode, 0f)
         connectMiddle(segment1, segment2)
         connectMiddle(segment2, segment1)
     }
@@ -51,15 +51,13 @@ class GraphFactory(
                               localX: Float) {
         val bottomX = topNode.x + landingOffsetX
         if (bottomSegment.containsX(bottomX)) {
-            val cornerNode = DefaultNode(bottomX, topNode.y)
+            // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
+            val cornerNode = topSegment.getOrAdd(DefaultNode(bottomX, topNode.y))
             topNode.addConnection(cornerNode)
             cornerNode.addConnection(topNode)
-            val bottomNode = DefaultNode(bottomX, bottomSegment.y)
+            val bottomNode = bottomSegment.getOrAdd(DefaultNode(bottomX, bottomSegment.y))
             connectJump(cornerNode, bottomNode, localX)
             connectJump(bottomNode, cornerNode, localX)
-            // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
-            topSegment.nodes.add(cornerNode)
-            bottomSegment.nodes.add(bottomNode)
         }
     }
 
@@ -71,7 +69,7 @@ class GraphFactory(
     }
 
     private fun connectNodesOnSameSegment(segment: Segment) {
-        val sortedNodes = segment.nodes.sortedWith(compareBy { it.x })
+        val sortedNodes = segment.getNodes().sortedWith(compareBy { it.x })
         for (i in 0..sortedNodes.size - 2) {
             val node1 = sortedNodes[i]
             val node2 = sortedNodes[i + 1]

@@ -17,7 +17,7 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     }
 
     override fun getNearestNode(x: Float, segment: Segment): DefaultNode {
-        return segment.nodes.minBy { getCost(x, it) }!!
+        return segment.getNodes().minBy { getCost(x, it) }!!
     }
 
     override fun getNearestBelowSegment(bounds: Rectangle): Segment? {
@@ -26,12 +26,12 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     }
 
     override fun getSegment(node: DefaultNode): Segment? {
-        return graph.getSegments().singleOrNull { it.nodes.contains(node) }
+        return graph.getSegments().singleOrNull { it.getNodes().contains(node) }
     }
 
     override fun createPath(x: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {
         var lowestCostPath: GraphPath<DefaultNode> = DefaultGraphPath()
-        for (startNode in startSegment.nodes) {
+        for (startNode in startSegment.getNodes()) {
             val path = DefaultGraphPath<DefaultNode>()
             pathFinder.searchNodePath(startNode, endNode, heuristic, path)
             if (lowestCostPath.none() || getCost(x, path) < getCost(x, lowestCostPath)) {

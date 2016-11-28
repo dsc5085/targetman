@@ -1,7 +1,6 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Rectangle
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
 import dc.targetman.mechanics.Direction
@@ -45,7 +44,6 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
         var nextX: Float? = null
         val agentX = agent.bounds.center.x
         val targetX = agent.targetBounds.center.x
-        val edgeBuffer = getEdgeBuffer(agent.bounds)
         val distance = Maths.distance(agentX, targetX)
         if (!Maths.between(distance, agent.profile.minTargetDistance, agent.profile.maxTargetDistance)) {
             if (agentX > targetX) {
@@ -53,7 +51,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
             } else {
                 nextX = targetX + agent.profile.minTargetDistance
             }
-            nextX = MathUtils.clamp(nextX, segment.left + edgeBuffer, segment.right - edgeBuffer)
+            nextX = MathUtils.clamp(nextX, segment.leftLandingNode.x, segment.rightLandingNode.x)
         }
         return nextX
     }
@@ -83,10 +81,5 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
         // TODO: bounds.base isn't accurate for jump solving
         val neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
         return agent.velocity.y < neededVelocityY
-    }
-
-    private fun getEdgeBuffer(bounds: Rectangle): Float {
-        val edgeBufferScale = 1
-        return bounds.width * edgeBufferScale
     }
 }

@@ -3,12 +3,16 @@ package dc.targetman.ai.graph
 import com.badlogic.gdx.math.Rectangle
 import dclib.geometry.right
 import dclib.geometry.top
+import dclib.util.CollectionUtils
 import dclib.util.Maths
 
-class Segment(val bounds: Rectangle) {
+class Segment(val bounds: Rectangle, landingBuffer: Float) {
+    private val nodes: MutableSet<DefaultNode>
+
     val leftNode = DefaultNode(bounds.x, y)
+    val leftLandingNode = DefaultNode(bounds.x + landingBuffer, y)
     val rightNode = DefaultNode(bounds.right, y)
-    val nodes = mutableSetOf(leftNode, rightNode)
+    val rightLandingNode = DefaultNode(bounds.right - landingBuffer, y)
 
     val left: Float
         get() = leftNode.x
@@ -18,6 +22,18 @@ class Segment(val bounds: Rectangle) {
 
     val y: Float
         get() = bounds.top
+
+    init {
+        nodes = mutableSetOf(leftNode, leftLandingNode, rightLandingNode, rightNode)
+    }
+
+    fun getNodes(): Set<DefaultNode> {
+        return nodes.toSet()
+    }
+
+    fun getOrAdd(node: DefaultNode): DefaultNode {
+        return CollectionUtils.getOrAdd(nodes, node)
+    }
 
     fun containsX(x: Float): Boolean {
         return Maths.between(x, left, right)

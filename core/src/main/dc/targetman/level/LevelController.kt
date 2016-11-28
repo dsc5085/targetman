@@ -40,7 +40,6 @@ import dclib.physics.collision.EntityCollisionChecker
 import dclib.physics.limb.LimbsSystem
 import dclib.system.Advancer
 import dclib.system.Updater
-import java.util.*
 
 class LevelController(
         private val textureCache: TextureCache,
@@ -60,7 +59,7 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
-	private val entityDrawers = ArrayList<EntityDrawer>()
+	private val entityDrawers = mutableListOf<EntityDrawer>()
     private val map = TmxMapLoader().load("maps/triple_platforms.tmx")
 
 	init {
