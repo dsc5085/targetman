@@ -19,7 +19,6 @@ class Navigator(private val graphQuery: GraphQuery, private val steering: Steeri
 
     private fun updatePath(agent: Agent) {
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
-        // TODO: cleanup
         if (agent.belowSegment != null && targetSegment != null
                 && Maths.distance(agent.bounds.y, agent.belowSegment.y) < Box2dUtils.ROUNDING_ERROR
                 && agent.checkUpdatePath()) {

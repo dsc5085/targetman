@@ -23,6 +23,7 @@ class EntityGraphDrawer(private val shapeRenderer: ShapeRenderer, private val sc
     }
 
     private fun draw(entity: Entity) {
+        val pointSize = 0.2f
         val aiPart = entity.tryGet(AiPart::class.java)
         if (aiPart != null && aiPart.path.isNotEmpty()) {
             val bounds = entity.get(TransformPart::class.java).transform.bounds
@@ -30,6 +31,7 @@ class EntityGraphDrawer(private val shapeRenderer: ShapeRenderer, private val sc
             for (i in 0..points.size - 2) {
                 val start = points[i]
                 val end = points[i + 1]
+                shapeRenderer.rect(end.x - pointSize / 2, end.y - pointSize / 2, pointSize, pointSize)
                 shapeRenderer.line(start, end)
             }
         }
