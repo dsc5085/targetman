@@ -16,7 +16,7 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.center
 import dclib.util.Maths
 
-class AiSystem(private val entityManager: EntityManager, private val pathUpdater: PathUpdater)
+class AiSystem(private val entityManager: EntityManager, private val navigator: Navigator)
     : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class.java)
@@ -25,7 +25,7 @@ class AiSystem(private val entityManager: EntityManager, private val pathUpdater
             val target = EntityFinder.findPlayer(entityManager)
             if (target != null) {
                 val targetBounds = target.get(TransformPart::class.java).transform.bounds
-                pathUpdater.update(entity, targetBounds)
+                navigator.navigate(entity, targetBounds)
                 aim(entity, targetBounds)
 //                StickActions.trigger(entity)
             }
