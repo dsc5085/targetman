@@ -127,8 +127,8 @@ class LevelController(
 	}
 
 	private fun createAiSystem(): AiSystem {
-        val navigator = NavigatorFactory.create(map, world, screenHelper, textureCache)
-		return AiSystem(entityManager, navigator)
+        val pathUpdater = PathUpdaterFactory.create(map, world, screenHelper, textureCache)
+        return AiSystem(entityManager, pathUpdater)
 	}
 
 	private fun createContactChecker(): ContactChecker {
