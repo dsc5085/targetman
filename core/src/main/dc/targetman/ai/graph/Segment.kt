@@ -10,9 +10,7 @@ class Segment(val bounds: Rectangle, landingBuffer: Float) {
     private val nodes: MutableSet<DefaultNode>
 
     val leftNode = DefaultNode(bounds.x, y)
-    val leftLandingNode = DefaultNode(bounds.x + landingBuffer, y)
     val rightNode = DefaultNode(bounds.right, y)
-    val rightLandingNode = DefaultNode(bounds.right - landingBuffer, y)
 
     val left: Float
         get() = leftNode.x
@@ -24,7 +22,7 @@ class Segment(val bounds: Rectangle, landingBuffer: Float) {
         get() = bounds.top
 
     init {
-        nodes = mutableSetOf(leftNode, leftLandingNode, rightLandingNode, rightNode)
+        nodes = mutableSetOf(leftNode, rightNode)
     }
 
     fun getNodes(): Set<DefaultNode> {

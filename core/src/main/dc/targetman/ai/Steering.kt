@@ -51,7 +51,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
             } else {
                 nextX = targetX + agent.profile.minTargetDistance
             }
-            nextX = MathUtils.clamp(nextX, segment.leftLandingNode.x, segment.rightLandingNode.x)
+            nextX = MathUtils.clamp(nextX, segment.left, segment.right)
         }
         return nextX
     }

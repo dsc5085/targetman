@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
 import dclib.physics.Box2dUtils
+import dclib.util.Maths
 import kotlin.comparisons.compareBy
 
 class GraphFactory(
@@ -31,10 +32,15 @@ class GraphFactory(
     }
 
     private fun connect(segment1: Segment, segment2: Segment) {
-        connectJump(segment1.leftNode, segment2.rightLandingNode, 0f)
-        connectJump(segment2.rightNode, segment1.leftLandingNode, agentSize.x)
-        connectJump(segment1.rightNode, segment2.leftLandingNode, agentSize.x)
-        connectJump(segment2.leftNode, segment1.rightLandingNode, 0f)
+        val leftToRightDistance = Maths.distance(segment1.left, segment2.right)
+        val rightToLeftDistance = Maths.distance(segment1.right, segment1.left)
+        if (leftToRightDistance < rightToLeftDistance) {
+            connectJump(segment1.leftNode, segment2.rightNode, 0f)
+            connectJump(segment2.rightNode, segment1.leftNode, agentSize.x)
+        } else {
+            connectJump(segment1.rightNode, segment2.leftNode, agentSize.x)
+            connectJump(segment2.leftNode, segment1.rightNode, 0f)
+        }
         connectMiddle(segment1, segment2)
         connectMiddle(segment2, segment1)
     }
