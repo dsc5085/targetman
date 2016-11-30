@@ -25,8 +25,8 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return overlappingBelowSegments.minBy { bounds.y - it.y }
     }
 
-    override fun getSegment(node: DefaultNode): Segment? {
-        return graph.getSegments().singleOrNull { it.getNodes().contains(node) }
+    override fun getSegment(node: DefaultNode): Segment {
+        return graph.getSegments().single { it.getNodes().contains(node) }
     }
 
     override fun createPath(x: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {

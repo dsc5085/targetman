@@ -8,6 +8,7 @@ import dc.targetman.physics.JumpVelocitySolver
 import dclib.geometry.base
 import dclib.geometry.center
 import dclib.geometry.containsX
+import dclib.geometry.right
 import dclib.util.Maths
 
 class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolver: JumpVelocitySolver) {
@@ -20,8 +21,19 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
     private fun getMoveDirection(agent: Agent): Direction {
         val nextX = getNextX(agent)
         val moveDirection: Direction
-        if (nextX != null && !agent.bounds.containsX(nextX)) {
-            val offsetX = nextX - agent.bounds.center.x
+        if (nextX != null) {
+            val offsetX: Float
+            val nextSegment = graphQuery.getSegment(agent.nextNode!!)
+            val aboveNextNode = agent.bounds.y > nextSegment.y
+            if (aboveNextNode && agent.bounds.x < nextSegment.left) {
+                offsetX = nextSegment.left - agent.bounds.x
+            } else if (aboveNextNode && agent.bounds.right > nextSegment.right) {
+                offsetX = nextSegment.right - agent.bounds.right
+            } else if (!agent.bounds.containsX(nextX)) {
+                offsetX = nextX - agent.bounds.center.x
+            } else {
+                offsetX = 0f
+            }
             moveDirection = Direction.from(offsetX)
         } else {
             moveDirection = faceTarget(agent)
@@ -79,7 +91,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
 
     private fun needToIncreaseJump(agent: Agent): Boolean {
         // TODO: bounds.base isn't accurate for jump solving
-        val neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
+        var neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
         return agent.velocity.y < neededVelocityY
     }
 }

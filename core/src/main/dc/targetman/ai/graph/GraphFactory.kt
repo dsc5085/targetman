@@ -35,11 +35,11 @@ class GraphFactory(
         val leftToRightDistance = Maths.distance(segment1.left, segment2.right)
         val rightToLeftDistance = Maths.distance(segment1.right, segment1.left)
         if (leftToRightDistance < rightToLeftDistance) {
-            connectJump(segment1.leftNode, segment2.rightNode, 0f)
-            connectJump(segment2.rightNode, segment1.leftNode, agentSize.x)
+            connectJump(segment1.leftNode, segment2.rightNode)
+            connectJump(segment2.rightNode, segment1.leftNode)
         } else {
-            connectJump(segment1.rightNode, segment2.leftNode, agentSize.x)
-            connectJump(segment2.leftNode, segment1.rightNode, 0f)
+            connectJump(segment1.rightNode, segment2.leftNode)
+            connectJump(segment2.leftNode, segment1.rightNode)
         }
         connectMiddle(segment1, segment2)
         connectMiddle(segment2, segment1)
@@ -48,13 +48,13 @@ class GraphFactory(
     private fun connectMiddle(topSegment: Segment, bottomSegment: Segment) {
         if (topSegment.y > bottomSegment.y) {
             val edgeBuffer = agentSize.x + Box2dUtils.ROUNDING_ERROR
-            connectMiddle(topSegment, topSegment.leftNode, bottomSegment, -edgeBuffer, 0f)
-            connectMiddle(topSegment, topSegment.rightNode, bottomSegment, edgeBuffer, agentSize.x)
+            connectMiddle(topSegment, topSegment.leftNode, bottomSegment, -edgeBuffer)
+            connectMiddle(topSegment, topSegment.rightNode, bottomSegment, edgeBuffer)
         }
     }
 
-    private fun connectMiddle(topSegment: Segment, topNode: DefaultNode, bottomSegment: Segment, landingOffsetX: Float,
-                              localX: Float) {
+    private fun connectMiddle(topSegment: Segment, topNode: DefaultNode, bottomSegment: Segment,
+                              landingOffsetX: Float) {
         val bottomX = topNode.x + landingOffsetX
         if (bottomSegment.containsX(bottomX)) {
             // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
@@ -62,14 +62,16 @@ class GraphFactory(
             topNode.addConnection(cornerNode)
             cornerNode.addConnection(topNode)
             val bottomNode = bottomSegment.getOrAdd(DefaultNode(bottomX, bottomSegment.y))
-            connectJump(cornerNode, bottomNode, localX)
-            connectJump(bottomNode, cornerNode, localX)
+            connectJump(cornerNode, bottomNode)
+            connectJump(bottomNode, cornerNode)
         }
     }
 
-    private fun connectJump(startNode: DefaultNode, endNode: DefaultNode, localX: Float) {
-        val local = Vector2(localX, 0f)
-        if (jumpChecker.isValid(startNode.position, endNode.position, agentSize, local)) {
+    private fun connectJump(startNode: DefaultNode, endNode: DefaultNode) {
+        val localLeft = Vector2(0f, 0f)
+        val localRight = Vector2(agentSize.x, 0f)
+        if (jumpChecker.isValid(startNode.position, endNode.position, agentSize, localLeft)
+                || jumpChecker.isValid(startNode.position, endNode.position, agentSize, localRight)) {
             startNode.addConnection(endNode)
         }
     }
