@@ -12,9 +12,12 @@ import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
 
 class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery: GraphQuery) {
-    val bounds = entity.get(TransformPart::class.java).transform.bounds
-    val belowSegment = graphQuery.getNearestBelowSegment(bounds)
     private val aiPart = entity.get(AiPart::class.java)
+
+    val belowSegment = graphQuery.getNearestBelowSegment(bounds)
+
+    val bounds: Rectangle
+        get() = entity.get(TransformPart::class.java).transform.bounds
 
     val facingDirection: Direction
         get() = if (entity[LimbsPart::class.java].flipX) Direction.LEFT else Direction.RIGHT

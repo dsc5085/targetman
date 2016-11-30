@@ -60,7 +60,7 @@ class LevelController(
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
 	private val entityDrawers = mutableListOf<EntityDrawer>()
-    private val map = TmxMapLoader().load("maps/triple_platforms.tmx")
+	private val map = TmxMapLoader().load("maps/test_level.tmx")
 
 	init {
 		screenHelper = ScreenHelper(PIXELS_PER_UNIT, camera)

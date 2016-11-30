@@ -34,8 +34,9 @@ class Navigator(private val graphQuery: GraphQuery, private val steering: Steeri
 
     private fun removeReachedNodes(agent: Agent) {
         val nextNode = agent.nextNode
-        val grownBounds = agent.bounds.grow(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR)
-        if (nextNode != null && grownBounds.contains(nextNode.position)) {
+        var checkBounds = agent.bounds.setHeight(0f)
+                .grow(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR)
+        if (nextNode != null && checkBounds.contains(nextNode.position)) {
             agent.path -= nextNode
         }
     }
