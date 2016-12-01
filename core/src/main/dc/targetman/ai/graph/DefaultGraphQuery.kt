@@ -29,12 +29,12 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return graph.getSegments().single { it.getNodes().contains(node) }
     }
 
-    override fun createPath(x: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {
+    override fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {
         var lowestCostPath: GraphPath<DefaultNode> = DefaultGraphPath()
         for (startNode in startSegment.getNodes()) {
             val path = DefaultGraphPath<DefaultNode>()
             pathFinder.searchNodePath(startNode, endNode, heuristic, path)
-            if (lowestCostPath.none() || getCost(x, path) < getCost(x, lowestCostPath)) {
+            if (lowestCostPath.none() || getCost(startX, path) < getCost(startX, lowestCostPath)) {
                 lowestCostPath = path
             }
         }
@@ -42,7 +42,7 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     }
 
     private fun getCost(x: Float, path: GraphPath<DefaultNode>): Float {
-        var cost = if (path.count > 0) getCost(x, path.get(0)) else 0f
+        var cost = if (path.any()) getCost(x, path.get(0)) else 0f
         for (i in 0..path.count - 1 - 1) {
             val startNode = path.get(i)
             val endNode = path.get(i + 1)

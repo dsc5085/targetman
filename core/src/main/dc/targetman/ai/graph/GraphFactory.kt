@@ -58,6 +58,7 @@ class GraphFactory(
         val bottomX = topNode.x + landingOffsetX
         if (bottomSegment.containsX(bottomX)) {
             // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
+            // TODO: Should probably also add corner node between regular jump nodes
             val cornerNode = topSegment.getOrAdd(DefaultNode(bottomX, topNode.y))
             topNode.addConnection(cornerNode)
             cornerNode.addConnection(topNode)
