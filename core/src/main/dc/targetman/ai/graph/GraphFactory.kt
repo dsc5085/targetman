@@ -34,12 +34,15 @@ class GraphFactory(
     private fun connect(segment1: Segment, segment2: Segment) {
         val leftToRightDistance = Maths.distance(segment1.left, segment2.right)
         val rightToLeftDistance = Maths.distance(segment1.right, segment1.left)
-        if (leftToRightDistance < rightToLeftDistance) {
-            connectJump(segment1.leftNode, segment2.rightNode)
-            connectJump(segment2.rightNode, segment1.leftNode)
-        } else {
-            connectJump(segment1.rightNode, segment2.leftNode)
-            connectJump(segment2.leftNode, segment1.rightNode)
+        val minDistance = Math.min(leftToRightDistance, rightToLeftDistance)
+        if (minDistance > 0) {
+            if (leftToRightDistance == minDistance) {
+                connectJump(segment1.leftNode, segment2.rightNode)
+                connectJump(segment2.rightNode, segment1.leftNode)
+            } else {
+                connectJump(segment1.rightNode, segment2.leftNode)
+                connectJump(segment2.leftNode, segment1.rightNode)
+            }
         }
         connectMiddle(segment1, segment2)
         connectMiddle(segment2, segment1)
