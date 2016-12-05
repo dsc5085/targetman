@@ -22,6 +22,7 @@ class Navigator(private val graphQuery: GraphQuery, private val steering: Steeri
         if (agent.belowSegment != null && targetSegment != null
                 && Maths.distance(agent.bounds.y, agent.belowSegment.y) < Box2dUtils.ROUNDING_ERROR
                 && agent.checkUpdatePath()) {
+            // TODO: Better way to approximate start and end nodes
             val agentCenter = agent.bounds.center
             val targetCenter = agent.targetBounds.center
             if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {

@@ -78,8 +78,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
     }
 
     private fun needToIncreaseJump(agent: Agent): Boolean {
-        // TODO: bounds.base isn't accurate for jump solving
-        var neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
+        val neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
         return agent.velocity.y < neededVelocityY
     }
 }
