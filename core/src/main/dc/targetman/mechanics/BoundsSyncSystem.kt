@@ -1,13 +1,11 @@
 package dc.targetman.mechanics
 
-import com.badlogic.gdx.math.Vector2
 import dc.targetman.epf.parts.MovementPart
+import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
-import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.base
 
 class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
@@ -18,17 +16,18 @@ class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManage
     }
 
     fun moveLimbsToTransform(entity: Entity) {
-        val limbsPart = entity[LimbsPart::class.java]
-        if (limbsPart.root.descendants.size > 0) {
-            val rootTransform = limbsPart.root.transform
-            val localY = getY(limbsPart) - rootTransform.position.y
-            val bounds = entity[TransformPart::class.java].transform.bounds
-            rootTransform.setGlobal(Vector2(0f, localY), bounds.base)
+        val skeletonPart = entity[SkeletonPart::class.java]
+        if (skeletonPart.getAll().isNotEmpty()) {
+            // TODO: Fix.  Need to find a way to resize bounding box and put limbs at correct location
+//            val rootTransform = limbsPart.root.transform
+//            val localY = getY(limbsPart) - rootTransform.position.y
+//            val bounds = entity[TransformPart::class.java].transform.bounds
+//            rootTransform.setGlobal(Vector2(0f, localY), bounds.base)
         }
     }
 
-    private fun getY(limbsPart: LimbsPart): Float {
-        val descendants = limbsPart.root.descendants
-        return descendants.map { it.transform.bounds.y }.minBy { it }!!
+    private fun getY(skeletonPart: SkeletonPart): Float {
+        val limbs = skeletonPart.getAll()
+        return limbs.map { it[TransformPart::class.java].transform.bounds.y }.minBy { it }!!
     }
 }

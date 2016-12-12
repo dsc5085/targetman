@@ -5,10 +5,10 @@ import com.badlogic.gdx.math.Vector2
 import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.epf.parts.AiPart
+import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.StickActions
 import dclib.epf.Entity
-import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
 
 class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery: GraphQuery) {
@@ -20,7 +20,7 @@ class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery:
         get() = entity.get(TransformPart::class.java).transform.bounds
 
     val facingDirection: Direction
-        get() = if (entity[LimbsPart::class.java].flipX) Direction.LEFT else Direction.RIGHT
+        get() = if (entity[SkeletonPart::class.java].flipX) Direction.LEFT else Direction.RIGHT
 
     val velocity: Vector2
         get() = entity[TransformPart::class.java].transform.velocity

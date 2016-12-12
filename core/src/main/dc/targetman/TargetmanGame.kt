@@ -41,7 +41,8 @@ class TargetmanGame : ApplicationAdapter() {
 
 	private fun createTextureCache(): TextureCache {
 		val textureCache = TextureCache()
-		textureCache.addTexturesAsAtlas("textures/objects/", "objects")
+        textureCache.loadTexturesIntoAtlas("textures/objects/", "objects")
+        textureCache.loadTexturesIntoAtlas("textures/skins/man", "skins/man")
 		return textureCache
 	}
 }

@@ -123,6 +123,5 @@
  </layer>
  <objectgroup color="#000000" name="Actors">
   <object id="29" gid="2" x="665" y="2775" width="32" height="32"/>
-  <object id="30" gid="3" x="427.667" y="3095.33" width="32" height="32"/>
  </objectgroup>
 </map>

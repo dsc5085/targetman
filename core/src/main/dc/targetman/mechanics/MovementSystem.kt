@@ -6,11 +6,10 @@ import com.badlogic.gdx.physics.box2d.Contact
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.MovementPart
+import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
-import dclib.epf.parts.LimbAnimationsPart
-import dclib.epf.parts.LimbsPart
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
@@ -27,13 +26,14 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     private fun move(entity: Entity) {
         val movementPart = entity[MovementPart::class.java]
         val direction = movementPart.direction
-        val walkAnimation = entity[LimbAnimationsPart::class.java]["walk"]
+        // TODO: Fix animation
+//        val walkAnimation = entity[LimbAnimationsPart::class.java]["walk"]
         var targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
         if (direction === Direction.NONE) {
-            walkAnimation.stop()
+//            walkAnimation.stop()
         } else {
-            walkAnimation.play()
-            entity[LimbsPart::class.java].flipX = direction === Direction.LEFT
+//            walkAnimation.play()
+            entity[SkeletonPart::class.java].flipX = direction === Direction.LEFT
         }
         applyMoveImpulse(entity, targetVelocityX)
     }
@@ -97,8 +97,9 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun getMoveStrength(entity: Entity): Float {
-        val movementLimbs = entity[MovementPart::class.java].limbs
-        val numActiveMovementLimbs = entity[LimbsPart::class.java].all.count { movementLimbs.contains(it) }
-        return numActiveMovementLimbs.toFloat() / movementLimbs.size
+        val movementLimbNames = entity[MovementPart::class.java].limbNames
+        val skeletonPart = entity[SkeletonPart::class.java]
+        val numActiveMovementLimbs = movementLimbNames.count { skeletonPart[it].isActive }
+        return numActiveMovementLimbs.toFloat() / movementLimbNames.size
     }
 }

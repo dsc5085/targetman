@@ -58,8 +58,8 @@ public final class MapLoader {
 		for (TiledMapTileMapObject object : layer.getObjects().getByType(TiledMapTileMapObject.class)) {
 			Vector3 position = getWorldPosition(object, 0);
 			String allianceString = object.getTile().getProperties().get(Alliance.class.getSimpleName(), String.class);
-			entityFactory.createStickman(position, Alliance.valueOf(allianceString));
-		}
+            entityFactory.createMan(position, Alliance.valueOf(allianceString));
+        }
 	}
 
 	private Vector3 getWorldPosition(final TiledMapTileMapObject object, final float z) {

@@ -11,6 +11,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
+import dc.targetman.character.AddLimbsOnEntityAdded
+import dc.targetman.character.LimbRemovedChecker
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -37,7 +39,6 @@ import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.ContactChecker
 import dclib.physics.collision.EntityCollisionChecker
-import dclib.physics.limb.LimbsSystem
 import dclib.system.Advancer
 import dclib.system.Updater
 
@@ -65,10 +66,11 @@ class LevelController(
 	init {
 		screenHelper = ScreenHelper(PIXELS_PER_UNIT, camera)
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-		entityFactory = EntityFactory(entityManager, world, textureCache)
+        entityFactory = EntityFactory(PIXELS_PER_UNIT, entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
+        entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
 		advancer = createAdvancer()
 		MapLoader(map, screenHelper, entityFactory).createObjects()
 		mapRenderer = OrthogonalTiledMapRenderer(map, 1f, spriteBatch)
@@ -104,9 +106,8 @@ class LevelController(
 	}
 
 	private fun createAdvancer(): Advancer {
-// TODO: Calculate actor size
-		val limbsSystem = LimbsSystem(entityManager)
-		limbsSystem.limbRemoved.on(CorpseOnLimbRemoved(entityManager))
+        val limbRemovedChecker = LimbRemovedChecker(entityManager)
+        limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager))
 		return Advancer(
 				createInputUpdater(),
 				createAiSystem(),
@@ -117,7 +118,6 @@ class LevelController(
 				createContactChecker(),
 				MovementSystem(entityManager, world),
                 BoundsSyncSystem(entityManager),
-				limbsSystem,
 				TimedDeathSystem(entityManager),
                 WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),

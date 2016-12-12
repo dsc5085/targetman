@@ -18,8 +18,9 @@ public final class StickActions {
 	}
 
 	public static final void aim(final Entity entity, final int direction) {
-		entity.get(WeaponPart.class).setAimDirection(direction);
-	}
+        // TODO:
+//		entity.get(WeaponPart.class).setAimDirection(direction);
+    }
 
 	public static final void trigger(final Entity entity) {
 		entity.get(WeaponPart.class).setTriggered(true);
