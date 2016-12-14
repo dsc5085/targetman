@@ -30,7 +30,7 @@ class EntityFactory(
         private val world: World,
         private val textureCache: TextureCache) {
     private val convexHullCache = ConvexHullCache(textureCache)
-    private val characterFactory = createCharacterFactory(pixelsPerUnit)
+    private val characterFactory = createCharacterFactory()
 
     fun createWall(vertices: List<Vector2>?) {
         val entity = Entity()
@@ -94,8 +94,8 @@ class EntityFactory(
         return entity
     }
 
-    private fun createCharacterFactory(pixelsPerUnit: Float): CharacterFactory {
-        val characterLoader = CharacterLoader(pixelsPerUnit, textureCache)
+    private fun createCharacterFactory(): CharacterFactory {
+        val characterLoader = CharacterLoader(textureCache)
         return CharacterFactory(characterLoader, convexHullCache, world)
     }
 

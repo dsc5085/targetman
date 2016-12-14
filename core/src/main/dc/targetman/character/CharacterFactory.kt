@@ -84,6 +84,7 @@ class CharacterFactory(
             if (regionAttachment != null) {
                 val limb = character.limbs.single { it.name == name }
                 val size = Vector2(regionAttachment.width, regionAttachment.height)
+                        .scl(bone.worldScaleX, bone.worldScaleY)
                 val regionName = "${character.atlasName}/${regionAttachment.path}"
                 entity = createLimbEntity(limb, size, regionName, alliance)
             } else {

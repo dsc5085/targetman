@@ -3,7 +3,7 @@ package dc.targetman.epf.parts
 import com.esotericsoftware.spine.Skeleton
 import dclib.epf.Entity
 
-class SkeletonPart(private val skeleton: Skeleton, private val namesToLimbEntities: Map<String, Entity>) {
+class SkeletonPart(val skeleton: Skeleton, private val namesToLimbEntities: Map<String, Entity>) {
     var flipX: Boolean
         get() = skeleton.flipX
         set(value) {
@@ -18,8 +18,12 @@ class SkeletonPart(private val skeleton: Skeleton, private val namesToLimbEntiti
         return namesToLimbEntities.filter { it.value === entity }.keys.single()
     }
 
-    fun getAll(): Collection<Entity> {
-        return namesToLimbEntities.values.filter { it.isActive }
+    fun getAllLimbs(): Collection<Entity> {
+        return namesToLimbEntities.values
+    }
+
+    fun getActiveLimbs(): Collection<Entity> {
+        return getAllLimbs().filter { it.isActive }
     }
 
     fun getDescendants(name: String): List<Entity> {

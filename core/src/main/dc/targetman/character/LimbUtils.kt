@@ -8,7 +8,7 @@ object LimbUtils {
         return if (entityToFind.has(SkeletonPart::class.java)) entityToFind
         else entities.firstOrNull {
             val limbsPart = it.tryGet(SkeletonPart::class.java)
-            limbsPart?.getAll().orEmpty().contains(entityToFind)
+            limbsPart?.getActiveLimbs().orEmpty().contains(entityToFind)
         }
     }
 }

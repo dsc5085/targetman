@@ -19,10 +19,11 @@ import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 
 object NavigatorFactory {
-    fun create(map: TiledMap,
-               world: World,
-               screenHelper: ScreenHelper,
-               textureCache: TextureCache): Navigator {
+    fun create(
+            map: TiledMap,
+            world: World,
+            screenHelper: ScreenHelper,
+            textureCache: TextureCache): Navigator {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()

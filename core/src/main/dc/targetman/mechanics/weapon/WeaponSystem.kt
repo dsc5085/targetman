@@ -10,12 +10,13 @@ import dclib.epf.EntitySystem
 class WeaponSystem(private val entityManager: EntityManager, private val entityFactory: EntityFactory)
 : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
-        val weaponPart = entity.tryGet(WeaponPart::class.java)
-        if (weaponPart != null && hasFiringLimbs(entity)) {
-            fire(weaponPart)
-            weaponPart.update(delta)
-            weaponPart.setTriggered(false)
-        }
+        // TODO:
+//        val weaponPart = entity.tryGet(WeaponPart::class.java)
+//        if (weaponPart != null && hasFiringLimbs(entity)) {
+//            fire(weaponPart)
+//            weaponPart.update(delta)
+//            weaponPart.setTriggered(false)
+//        }
     }
 
     private fun hasFiringLimbs(entity: Entity): Boolean {

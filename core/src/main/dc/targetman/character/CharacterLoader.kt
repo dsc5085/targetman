@@ -1,5 +1,6 @@
 package dc.targetman.character
 
+import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.SkeletonBinary
 import dc.targetman.physics.collision.Material
@@ -7,14 +8,21 @@ import dclib.graphics.TextureCache
 import dclib.system.io.FileUtils
 
 // TODO: Load the literal values from a file
-class CharacterLoader(private val pixelsPerUnit: Float, private val textureCache: TextureCache) {
+class CharacterLoader(private val textureCache: TextureCache) {
     fun create(skeletonPath: String): Character {
+        val height = 2f
         val atlasName = "skins/man"
         val atlas = textureCache.getAtlas(atlasName)
         val skeletonBinary = SkeletonBinary(atlas)
-        skeletonBinary.scale = 1 / pixelsPerUnit
         val skeletonFile = FileUtils.internalPathToFileHandle(skeletonPath)
         val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
+        // TODO: Cleanup
+        skeleton.updateWorldTransform()
+        val size = Vector2()
+        skeleton.getBounds(Vector2(), size)
+        val newScale = skeleton.rootBone.scaleY * height / size.y
+        skeleton.rootBone.setScale(newScale)
+        skeleton.updateWorldTransform()
         return Character(skeleton, createLimbs(), "right_bicep", "muzzle", atlasName)
     }
 

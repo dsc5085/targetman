@@ -17,7 +17,7 @@ class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManage
 
     fun moveLimbsToTransform(entity: Entity) {
         val skeletonPart = entity[SkeletonPart::class.java]
-        if (skeletonPart.getAll().isNotEmpty()) {
+        if (skeletonPart.getActiveLimbs().isNotEmpty()) {
             // TODO: Fix.  Need to find a way to resize bounding box and put limbs at correct location
 //            val rootTransform = limbsPart.root.transform
 //            val localY = getY(limbsPart) - rootTransform.position.y
@@ -27,7 +27,7 @@ class BoundsSyncSystem(entityManager: EntityManager) : EntitySystem(entityManage
     }
 
     private fun getY(skeletonPart: SkeletonPart): Float {
-        val limbs = skeletonPart.getAll()
+        val limbs = skeletonPart.getActiveLimbs()
         return limbs.map { it[TransformPart::class.java].transform.bounds.y }.minBy { it }!!
     }
 }

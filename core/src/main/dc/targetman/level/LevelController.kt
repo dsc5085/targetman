@@ -13,6 +13,7 @@ import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.character.AddLimbsOnEntityAdded
 import dc.targetman.character.LimbRemovedChecker
+import dc.targetman.character.SkeletonSystem
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -115,6 +116,7 @@ class LevelController(
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
                 PhysicsUpdater(world, entityManager),
+                SkeletonSystem(entityManager),
 				createContactChecker(),
 				MovementSystem(entityManager, world),
                 BoundsSyncSystem(entityManager),
