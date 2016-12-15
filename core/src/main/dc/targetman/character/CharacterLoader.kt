@@ -31,7 +31,7 @@ class CharacterLoader(private val textureCache: TextureCache) {
                 Limb("head", 50f, Material.FLESH, isVital = true),
                 Limb("neck", 50f, Material.FLESH),
                 Limb("torso", 100f, Material.FLESH, isVital = true),
-                Limb("gun", 1000f, Material.METAL),
+                //      TODO:  Limb("gun", 1000f, Material.METAL),
                 Limb("right_hand", 50f, Material.FLESH),
                 Limb("right_forearm", 50f, Material.FLESH),
                 Limb("right_bicep", 50f, Material.FLESH),
@@ -43,7 +43,6 @@ class CharacterLoader(private val textureCache: TextureCache) {
                 Limb("left_foot", 50f, Material.FLESH, true),
                 Limb("left_bicep", 50f, Material.FLESH),
                 Limb("left_forearm", 50f, Material.FLESH),
-                Limb("left_hand", 50f, Material.FLESH)
-        )
+                Limb("left_hand", 50f, Material.FLESH))
     }
 }

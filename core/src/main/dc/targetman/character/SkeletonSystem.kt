@@ -1,6 +1,8 @@
 package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
+import com.esotericsoftware.spine.Slot
+import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -21,13 +23,23 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
                 val name = skeletonPart.getName(limb)
                 val slot = skeleton.slots.singleOrNull { it.attachment.name == name }
                 if (slot != null) {
-                    val bone = slot.bone
-                    val scale = Vector2(bone.worldScaleX, bone.worldScaleY)
-                    val transform = limb[TransformPart::class.java].transform
-                    transform.position = Vector2(bone.worldX, bone.worldY)
-//                    transform.rotation = bone.rotation
+                    updateLimbTransform(limb, slot)
                 }
             }
+        }
+    }
+
+    private fun updateLimbTransform(limb: Entity, slot: Slot) {
+        val bone = slot.bone
+        val scale = Vector2(bone.worldScaleX, bone.worldScaleY)
+        val transform = limb[TransformPart::class.java].transform
+        val attachment = slot.attachment
+        if (attachment is RegionAttachment) {
+            transform.rotation = bone.worldRotationX + attachment.rotation
+            val localOffset = Vector2(attachment.x, attachment.y).scl(scale).setAngle(bone.worldRotationX)
+            val newGlobal = Vector2(bone.worldX, bone.worldY).add(localOffset)
+            val origin = transform.size.scl(0.5f)
+            transform.setGlobal(origin, newGlobal)
         }
     }
 }
