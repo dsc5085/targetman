@@ -1,6 +1,7 @@
 package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
+import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
@@ -19,8 +20,8 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         if (skeletonPart != null) {
             val skeleton = skeletonPart.skeleton
             val transform = entity[TransformPart::class.java].transform
+            updateAnimation(delta, skeleton, skeletonPart.animationState)
             updateRootPosition(skeleton, transform)
-            skeleton.updateWorldTransform()
             for (limb in skeletonPart.getActiveLimbs()) {
                 // TODO: name should be included with limb
                 val name = skeletonPart.getName(limb)
@@ -32,12 +33,18 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         }
     }
 
+    private fun updateAnimation(delta: Float, skeleton: Skeleton, animationState: AnimationState) {
+        animationState.update(delta)
+        animationState.apply(skeleton)
+        skeleton.updateWorldTransform()
+    }
+
     private fun updateRootPosition(skeleton: Skeleton, transform: Transform) {
-        // TODO: Update bounds to be size of skeleton
         val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
         val newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
         skeleton.rootBone.x = newRootPosition.x
         skeleton.rootBone.y = newRootPosition.y
+        skeleton.updateWorldTransform()
     }
 
     private fun updateLimbTransform(limb: Entity, slot: Slot) {

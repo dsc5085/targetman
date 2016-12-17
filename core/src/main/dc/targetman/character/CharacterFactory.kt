@@ -3,6 +3,8 @@ package dc.targetman.character
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.*
+import com.esotericsoftware.spine.Bone
+import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
@@ -16,6 +18,7 @@ import dclib.epf.parts.HealthPart
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.inv
+import dclib.geometry.size
 import dclib.graphics.ConvexHullCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
@@ -29,9 +32,7 @@ class CharacterFactory(
         val character = characterLoader.create(skeletonPath)
         val entity = Entity()
         entity.attribute(alliance)
-        val size = Vector2()
-        character.skeleton.getBounds(Vector2(), size)
-        val body = createBody(size, position)
+        val body = createBody(character.skeleton.bounds.size, position)
         body.userData = entity
         val transform = Box2dTransform(position.z, body)
         entity.attach(TransformPart(transform))
@@ -77,9 +78,9 @@ class CharacterFactory(
 
     private fun createLimbEntities(character: Character, alliance: Alliance): Map<String, Entity> {
         val limbEntities = mutableMapOf<String, Entity>()
-        for (bone in character.skeleton.bones) {
-            val boneSlots = character.skeleton.slots.filter { it.bone === bone }
-            val regionAttachment = boneSlots.map { it.attachment }.filterIsInstance<RegionAttachment>().firstOrNull()
+        val skeleton = character.skeleton
+        for (bone in skeleton.bones) {
+            val regionAttachment = getRegionAttachments(skeleton, bone).firstOrNull()
             val name = bone.data.name
             val entity: Entity
             if (regionAttachment != null) {
@@ -94,6 +95,11 @@ class CharacterFactory(
             limbEntities.put(name, entity)
         }
         return limbEntities
+    }
+
+    private fun getRegionAttachments(skeleton: Skeleton, bone: Bone): List<RegionAttachment> {
+        val boneSlots = skeleton.slots.filter { it.bone === bone }
+        return boneSlots.map { it.attachment }.filterIsInstance<RegionAttachment>()
     }
 
     private fun createSimpleEntity(alliance: Alliance): Entity {

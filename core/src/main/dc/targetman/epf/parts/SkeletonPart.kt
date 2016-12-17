@@ -1,9 +1,18 @@
 package dc.targetman.epf.parts
 
+import com.esotericsoftware.spine.AnimationState
+import com.esotericsoftware.spine.AnimationStateData
 import com.esotericsoftware.spine.Skeleton
 import dclib.epf.Entity
 
 class SkeletonPart(val skeleton: Skeleton, private val namesToLimbEntities: Map<String, Entity>) {
+    val animationState: AnimationState
+
+    init {
+        val animationStateData = AnimationStateData(skeleton.data)
+        animationState = AnimationState(animationStateData)
+    }
+
     var flipX: Boolean
         get() = skeleton.rootBone.scaleX < 0
         set(value) {
