@@ -1,6 +1,7 @@
 package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
+import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
@@ -8,6 +9,8 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
+import dclib.geometry.base
+import dclib.physics.Transform
 
 class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
     // TODO: Cleanup
@@ -15,9 +18,8 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         val skeletonPart = entity.tryGet(SkeletonPart::class.java)
         if (skeletonPart != null) {
             val skeleton = skeletonPart.skeleton
-            val center = entity[TransformPart::class.java].transform.center
-            skeleton.rootBone.x = center.x
-            skeleton.rootBone.y = center.y
+            val transform = entity[TransformPart::class.java].transform
+            updateRootPosition(skeleton, transform)
             skeleton.updateWorldTransform()
             for (limb in skeletonPart.getActiveLimbs()) {
                 // TODO: name should be included with limb
@@ -30,8 +32,12 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         }
     }
 
-    private fun updateBounds() {
-
+    private fun updateRootPosition(skeleton: Skeleton, transform: Transform) {
+        // TODO: Update bounds to be size of skeleton
+        val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
+        val newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
+        skeleton.rootBone.x = newRootPosition.x
+        skeleton.rootBone.y = newRootPosition.y
     }
 
     private fun updateLimbTransform(limb: Entity, slot: Slot) {

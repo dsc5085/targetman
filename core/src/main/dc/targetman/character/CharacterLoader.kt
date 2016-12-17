@@ -1,6 +1,5 @@
 package dc.targetman.character
 
-import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.SkeletonBinary
 import dc.targetman.physics.collision.Material
@@ -20,9 +19,7 @@ class CharacterLoader(private val textureCache: TextureCache) {
         skeleton.rootBone.x = 0f
         skeleton.rootBone.y = 0f
         skeleton.updateWorldTransform()
-        val size = Vector2()
-        skeleton.getBounds(Vector2(), size)
-        val newScale = skeleton.rootBone.scaleY * height / size.y
+        val newScale = skeleton.rootBone.scaleY * height / skeleton.bounds.height
         skeleton.rootBone.setScale(newScale)
         skeleton.updateWorldTransform()
         return Character(skeleton, createLimbs(), "right_bicep", "muzzle", atlasName)
