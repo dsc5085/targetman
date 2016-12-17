@@ -29,7 +29,8 @@ class CharacterFactory(
         val character = characterLoader.create(skeletonPath)
         val entity = Entity()
         entity.attribute(alliance)
-        val size = Vector2(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR)
+        val size = Vector2()
+        character.skeleton.getBounds(Vector2(), size)
         val body = createBody(size, position)
         body.userData = entity
         val transform = Box2dTransform(position.z, body)
@@ -52,7 +53,7 @@ class CharacterFactory(
 
     private fun createBody(size: Vector2, position: Vector3): Body {
         val halfWidth = size.x / 2
-        val boxHalfHeight = size.y - halfWidth
+        val boxHalfHeight = (size.y - halfWidth) / 2
         val def = BodyDef()
         def.type = BodyDef.BodyType.DynamicBody
         val body = world.createBody(def)
@@ -112,7 +113,8 @@ class CharacterFactory(
         body.userData = entity
         val transform = Box2dTransform(body)
         entity.attach(TransformPart(transform), SpritePart(hullData.region))
-        Box2dUtils.setFilter(body, group = (-alliance.ordinal).toShort())
+        val group = (-Box2dUtils.toGroup(alliance)).toShort()
+        Box2dUtils.setFilter(body, group = group)
         entity.attach(HealthPart(limb.health))
         return entity
     }

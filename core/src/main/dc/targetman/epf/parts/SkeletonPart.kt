@@ -5,9 +5,10 @@ import dclib.epf.Entity
 
 class SkeletonPart(val skeleton: Skeleton, private val namesToLimbEntities: Map<String, Entity>) {
     var flipX: Boolean
-        get() = skeleton.flipX
+        get() = skeleton.rootBone.scaleX < 0
         set(value) {
-            skeleton.flipX = value
+            val absScaleX = Math.abs(skeleton.rootBone.scaleX)
+            skeleton.rootBone.scaleX = if (value) -absScaleX else absScaleX
         }
 
     operator fun get(name: String): Entity {

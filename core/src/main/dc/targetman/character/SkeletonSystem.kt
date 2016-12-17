@@ -15,8 +15,9 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         val skeletonPart = entity.tryGet(SkeletonPart::class.java)
         if (skeletonPart != null) {
             val skeleton = skeletonPart.skeleton
-            skeleton.rootBone.x = 0f
-            skeleton.rootBone.y = 0f
+            val center = entity[TransformPart::class.java].transform.center
+            skeleton.rootBone.x = center.x
+            skeleton.rootBone.y = center.y
             skeleton.updateWorldTransform()
             for (limb in skeletonPart.getActiveLimbs()) {
                 // TODO: name should be included with limb
@@ -27,6 +28,10 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
                 }
             }
         }
+    }
+
+    private fun updateBounds() {
+
     }
 
     private fun updateLimbTransform(limb: Entity, slot: Slot) {

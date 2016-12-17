@@ -17,6 +17,8 @@ class CharacterLoader(private val textureCache: TextureCache) {
         val skeletonFile = FileUtils.internalPathToFileHandle(skeletonPath)
         val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
         // TODO: Cleanup
+        skeleton.rootBone.x = 0f
+        skeleton.rootBone.y = 0f
         skeleton.updateWorldTransform()
         val size = Vector2()
         skeleton.getBounds(Vector2(), size)
