@@ -6,24 +6,21 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.character.CharacterFactory
 import dc.targetman.character.CharacterLoader
+import dc.targetman.epf.parts.ForcePart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
 import dclib.epf.EntityManager
-import dclib.epf.parts.CollisionRemovePart
-import dclib.epf.parts.SpritePart
-import dclib.epf.parts.TimedDeathPart
-import dclib.epf.parts.TransformPart
-import dclib.geometry.Centrum
+import dclib.epf.parts.*
 import dclib.geometry.PolygonUtils
 import dclib.graphics.ConvexHullCache
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
+import dclib.physics.Transform
 
-// TODO: Cleanup
 class EntityFactory(
         pixelsPerUnit: Float,
         private val entityManager: EntityManager,
@@ -48,20 +45,20 @@ class EntityFactory(
         return entity
     }
 
-    fun createBullet(centrum: Centrum, angleOffset: Float, speed: Float, type: String) {
+    fun createBullet(transform: Transform, angleOffset: Float, speed: Float, type: String) {
+        val targetAlliance = Alliance.valueOf(type) // TODO: hacky...
+        val size = Vector2(0.08f, 0.08f)
+        val relativeCenter = PolygonUtils.relativeCenter(transform.position, size)
+        val position3 = Vector3(relativeCenter.x, relativeCenter.y, 0f)
+        val bulletBody = createBody("objects/bullet", size, false)
+        bulletBody.isBullet = true
+        bulletBody.gravityScale = 0.1f
+        val velocity = Vector2(speed, 0f).setAngle(transform.rotation + angleOffset)
+        bulletBody.linearVelocity = velocity
+        Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
+        val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
+        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(10f))
         // TODO:
-//        val targetAlliance = Alliance.valueOf(type) // TODO: hacky...
-//        val size = Vector2(0.08f, 0.08f)
-//        val relativeCenter = PolygonUtils.relativeCenter(centrum.position, size)
-//        val position3 = Vector3(relativeCenter.x, relativeCenter.y, 0f)
-//        val bulletBody = createBody("objects/bullet", size, false)
-//        bulletBody.isBullet = true
-//        bulletBody.gravityScale = 0.1f
-//        val velocity = Vector2(speed, 0f).setAngle(centrum.rotation + angleOffset)
-//        bulletBody.linearVelocity = velocity
-//        Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
-//        val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
-//        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(10f))
 //        val trailBody = createBody("objects/bullet_trail", Vector2(1.5f, size.y), true)
 //        val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
 //        trail.attach(ScalePart(FloatRange(0f, 1f), 0.2f))
@@ -69,8 +66,8 @@ class EntityFactory(
 //        val trailLimb = CharacterLimb(trail)
 //        val root = CharacterLimb(bullet).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0f)
 //        val limbsPart = SkeletonPart(root)
-//        bullet.attach(limbsPart, CollisionRemovePart())
-//        entityManager.add(bullet)
+        bullet.attach(/*limbsPart, */CollisionRemovePart())
+        entityManager.add(bullet)
     }
 
     fun createBloodParticle(size: Float, position: Vector3, velocity: Vector2) {

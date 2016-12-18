@@ -3,7 +3,6 @@ package dc.targetman.skeleton
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.Skeleton
-import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
@@ -24,10 +23,7 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
             for (limb in skeletonPart.getActiveLimbs()) {
                 // TODO: name should be included with limb
                 val name = skeletonPart.getName(limb)
-                val slot = skeleton.slots.singleOrNull { it.attachment.name == name }
-                if (slot != null) {
-                    updateLimbTransform(limb, slot)
-                }
+                updateLimbTransform(name, limb, skeleton)
             }
         }
     }
@@ -46,17 +42,20 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         skeleton.updateWorldTransform()
     }
 
-    private fun updateLimbTransform(limb: Entity, slot: Slot) {
-        val bone = slot.bone
+    private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
+        val bone = skeleton.bones.single { it.data.name == limbName }
         val scale = Vector2(bone.worldScaleX, bone.worldScaleY)
         val transform = limb[TransformPart::class.java].transform
-        val attachment = slot.attachment
+        val origin = transform.size.scl(0.5f)
+        val newGlobal = Vector2(bone.worldX, bone.worldY)
+        transform.rotation = bone.worldRotationX
+        val attachment = skeleton.slots.filter { it.bone.data.name == limbName }.map { it.attachment }
+                .filterIsInstance<RegionAttachment>().firstOrNull()
         if (attachment is RegionAttachment) {
-            transform.rotation = bone.worldRotationX + attachment.rotation
+            transform.rotation += attachment.rotation
             val localOffset = Vector2(attachment.x, attachment.y).scl(scale).setAngle(bone.worldRotationX)
-            val newGlobal = Vector2(bone.worldX, bone.worldY).add(localOffset)
-            val origin = transform.size.scl(0.5f)
-            transform.setGlobal(origin, newGlobal)
+            newGlobal.add(localOffset)
         }
+        transform.setGlobal(origin, newGlobal)
     }
 }
