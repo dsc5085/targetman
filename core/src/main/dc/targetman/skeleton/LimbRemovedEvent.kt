@@ -1,4 +1,4 @@
-package dc.targetman.character
+package dc.targetman.skeleton
 
 import dclib.epf.Entity
 

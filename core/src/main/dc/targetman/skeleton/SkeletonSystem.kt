@@ -1,4 +1,4 @@
-package dc.targetman.character
+package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.AnimationState
@@ -14,7 +14,6 @@ import dclib.geometry.base
 import dclib.physics.Transform
 
 class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
-    // TODO: Cleanup
     override fun update(delta: Float, entity: Entity) {
         val skeletonPart = entity.tryGet(SkeletonPart::class.java)
         if (skeletonPart != null) {

@@ -1,4 +1,4 @@
-package dc.targetman.character
+package dc.targetman.skeleton
 
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.EntityAddedEvent

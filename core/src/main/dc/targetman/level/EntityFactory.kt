@@ -66,8 +66,8 @@ class EntityFactory(
 //        val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
 //        trail.attach(ScalePart(FloatRange(0f, 1f), 0.2f))
 //        entityManager.add(trail)
-//        val trailLimb = Limb(trail)
-//        val root = Limb(bullet).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0f)
+//        val trailLimb = CharacterLimb(trail)
+//        val root = CharacterLimb(bullet).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0f)
 //        val limbsPart = SkeletonPart(root)
 //        bullet.attach(limbsPart, CollisionRemovePart())
 //        entityManager.add(bullet)
@@ -96,7 +96,7 @@ class EntityFactory(
 
     private fun createCharacterFactory(): CharacterFactory {
         val characterLoader = CharacterLoader(textureCache)
-        return CharacterFactory(characterLoader, convexHullCache, world)
+        return CharacterFactory(characterLoader, textureCache, world)
     }
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {

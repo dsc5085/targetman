@@ -3,7 +3,7 @@ package dc.targetman.physics
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
-import dc.targetman.character.LimbUtils
+import dc.targetman.skeleton.LimbUtils
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils

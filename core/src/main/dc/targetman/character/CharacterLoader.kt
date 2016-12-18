@@ -3,6 +3,7 @@ package dc.targetman.character
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.SkeletonBinary
 import dc.targetman.physics.collision.Material
+import dc.targetman.skeleton.bounds
 import dclib.graphics.TextureCache
 import dclib.system.io.FileUtils
 
@@ -15,9 +16,6 @@ class CharacterLoader(private val textureCache: TextureCache) {
         val skeletonBinary = SkeletonBinary(atlas)
         val skeletonFile = FileUtils.internalPathToFileHandle(skeletonPath)
         val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
-        // TODO: Cleanup
-        skeleton.rootBone.x = 0f
-        skeleton.rootBone.y = 0f
         skeleton.updateWorldTransform()
         val newScale = skeleton.rootBone.scaleY * height / skeleton.bounds.height
         skeleton.rootBone.setScale(newScale)
@@ -25,23 +23,23 @@ class CharacterLoader(private val textureCache: TextureCache) {
         return Character(skeleton, createLimbs(), "right_bicep", "muzzle", atlasName)
     }
 
-    private fun createLimbs(): List<Limb> {
+    private fun createLimbs(): List<CharacterLimb> {
         return listOf(
-                Limb("head", 50f, Material.FLESH, isVital = true),
-                Limb("neck", 50f, Material.FLESH),
-                Limb("torso", 100f, Material.FLESH, isVital = true),
-                //      TODO:  Limb("gun", 1000f, Material.METAL),
-                Limb("right_hand", 50f, Material.FLESH),
-                Limb("right_forearm", 50f, Material.FLESH),
-                Limb("right_bicep", 50f, Material.FLESH),
-                Limb("right_foot", 50f, Material.FLESH, true),
-                Limb("right_shin", 75f, Material.FLESH, true),
-                Limb("right_thigh", 75f, Material.FLESH),
-                Limb("left_thigh", 75f, Material.FLESH),
-                Limb("left_shin", 75f, Material.FLESH, true),
-                Limb("left_foot", 50f, Material.FLESH, true),
-                Limb("left_bicep", 50f, Material.FLESH),
-                Limb("left_forearm", 50f, Material.FLESH),
-                Limb("left_hand", 50f, Material.FLESH))
+                CharacterLimb("head", 50f, Material.FLESH, isVital = true),
+                CharacterLimb("neck", 50f, Material.FLESH),
+                CharacterLimb("torso", 100f, Material.FLESH, isVital = true),
+                //      TODO:  CharacterLimb("gun", 1000f, Material.METAL),
+                CharacterLimb("right_hand", 50f, Material.FLESH),
+                CharacterLimb("right_forearm", 50f, Material.FLESH),
+                CharacterLimb("right_bicep", 50f, Material.FLESH),
+                CharacterLimb("right_foot", 50f, Material.FLESH, true),
+                CharacterLimb("right_shin", 75f, Material.FLESH, true),
+                CharacterLimb("right_thigh", 75f, Material.FLESH),
+                CharacterLimb("left_thigh", 75f, Material.FLESH),
+                CharacterLimb("left_shin", 75f, Material.FLESH, true),
+                CharacterLimb("left_foot", 50f, Material.FLESH, true),
+                CharacterLimb("left_bicep", 50f, Material.FLESH),
+                CharacterLimb("left_forearm", 50f, Material.FLESH),
+                CharacterLimb("left_hand", 50f, Material.FLESH))
     }
 }

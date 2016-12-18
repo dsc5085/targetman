@@ -1,6 +1,6 @@
 package dc.targetman.mechanics
 
-import dc.targetman.character.LimbRemovedEvent
+import dc.targetman.skeleton.LimbRemovedEvent
 import dclib.epf.EntityManager
 
 class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent) -> Unit {

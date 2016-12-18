@@ -11,9 +11,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.character.AddLimbsOnEntityAdded
-import dc.targetman.character.LimbRemovedChecker
-import dc.targetman.character.SkeletonSystem
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -22,6 +19,9 @@ import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StickOnCollided
+import dc.targetman.skeleton.AddLimbsOnEntityAdded
+import dc.targetman.skeleton.LimbRemovedChecker
+import dc.targetman.skeleton.SkeletonSystem
 import dclib.epf.DefaultEntityManager
 import dclib.epf.Entity
 import dclib.epf.graphics.EntityDrawer

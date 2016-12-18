@@ -13,20 +13,22 @@ import dc.targetman.mechanics.DeathForm
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
+import dc.targetman.skeleton.bounds
 import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
+import dclib.geometry.PolygonUtils
 import dclib.geometry.inv
 import dclib.geometry.size
-import dclib.graphics.ConvexHullCache
+import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 
 class CharacterFactory(
         private val characterLoader: CharacterLoader,
-        private val convexHullCache: ConvexHullCache,
+        private val textureCache: TextureCache,
         private val world: World) {
     fun create(skeletonPath: String, position: Vector3, alliance: Alliance): Entity {
         val character = characterLoader.create(skeletonPath)
@@ -110,15 +112,16 @@ class CharacterFactory(
         return entity
     }
 
-    private fun createLimbEntity(limb: Limb, size: Vector2, regionName: String, alliance: Alliance): Entity {
+    private fun createLimbEntity(limb: CharacterLimb, size: Vector2, regionName: String, alliance: Alliance): Entity {
         val entity = Entity()
         entity.attribute(alliance, limb.material, DeathForm.CORPSE)
-        val hullData = convexHullCache.create(regionName, size)
-        val body = PhysicsUtils.createDynamicBody(world, hullData.hull, true)
+        val region = textureCache.getPolygonRegion(regionName)
+        val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
+        val body = PhysicsUtils.createDynamicBody(world, vertices, true)
         body.gravityScale = 0f
         body.userData = entity
         val transform = Box2dTransform(body)
-        entity.attach(TransformPart(transform), SpritePart(hullData.region))
+        entity.attach(TransformPart(transform), SpritePart(region))
         val group = (-Box2dUtils.toGroup(alliance)).toShort()
         Box2dUtils.setFilter(body, group = group)
         entity.attach(HealthPart(limb.health))
