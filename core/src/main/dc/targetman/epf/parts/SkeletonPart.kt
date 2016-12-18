@@ -42,4 +42,11 @@ class SkeletonPart(val skeleton: Skeleton, private val namesToLimbEntities: Map<
         val descendants = childNames.flatMap { getDescendants(it) }
         return descendants.plus(entity)
     }
+
+    fun playAnimation(name: String) {
+        val trackIndex = 0
+        if (animationState.tracks.size <= trackIndex || animationState.tracks[trackIndex].animation.name != name) {
+            animationState.setAnimation(trackIndex, name, true)
+        }
+    }
 }

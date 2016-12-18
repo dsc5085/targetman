@@ -26,13 +26,12 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     private fun move(entity: Entity) {
         val movementPart = entity[MovementPart::class.java]
         val direction = movementPart.direction
-        // TODO: Fix animation
-//        val walkAnimation = entity[LimbAnimationsPart::class.java]["walk"]
+        val skeletonPart = entity[SkeletonPart::class.java]
         var targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
-        if (direction === Direction.NONE) {
-//            walkAnimation.stop()
+        if (direction == Direction.NONE) {
+            skeletonPart.playAnimation("idle")
         } else {
-//            walkAnimation.play()
+            skeletonPart.playAnimation("run")
             entity[SkeletonPart::class.java].flipX = direction === Direction.LEFT
         }
         applyMoveImpulse(entity, targetVelocityX)
