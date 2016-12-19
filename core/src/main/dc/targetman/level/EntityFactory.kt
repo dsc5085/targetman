@@ -87,7 +87,7 @@ class EntityFactory(
         transform.position = Vector2(position.x, position.y)
         val region = textureCache.getPolygonRegion(regionName)
         entity.attach(TransformPart(transform), SpritePart(region))
-        setFilterGroup(body, entity.attributes)
+        setFilterGroup(body, entity.getAttributes())
         return entity
     }
 

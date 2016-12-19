@@ -43,7 +43,7 @@ object PhysicsUtils {
 
     fun applyForce(entities: List<Entity>, target: Entity, force: Vector2) {
         val actualTarget = LimbUtils.findContainer(entities, target) ?: target
-        val actualTransform = actualTarget[TransformPart::class.java].transform
+        val actualTransform = actualTarget[TransformPart::class].transform
         actualTransform.applyImpulse(force)
     }
 }

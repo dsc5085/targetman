@@ -5,9 +5,9 @@ import dclib.epf.Entity
 
 object LimbUtils {
     fun findContainer(entities: List<Entity>, entityToFind: Entity): Entity? {
-        return if (entityToFind.has(SkeletonPart::class.java)) entityToFind
+        return if (entityToFind.has(SkeletonPart::class)) entityToFind
         else entities.firstOrNull {
-            val limbsPart = it.tryGet(SkeletonPart::class.java)
+            val limbsPart = it.tryGet(SkeletonPart::class)
             limbsPart?.getActiveLimbs().orEmpty().contains(entityToFind)
         }
     }

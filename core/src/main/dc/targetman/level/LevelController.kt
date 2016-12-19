@@ -23,7 +23,6 @@ import dc.targetman.skeleton.AddLimbsOnEntityAdded
 import dc.targetman.skeleton.LimbRemovedChecker
 import dc.targetman.skeleton.SkeletonSystem
 import dclib.epf.DefaultEntityManager
-import dclib.epf.Entity
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntitySpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
@@ -148,14 +147,10 @@ class LevelController(
         return Predicate<CollidedEvent> {
 			// TODO: How to make this a non-nullable event
             val targetEntity = it!!.target.entity
-            val targetAlliance = getAlliance(targetEntity)
-            val sourceAlliance = getAlliance(it.source.entity)
+            val targetAlliance = EntityUtils.getAlliance(targetEntity)
+            val sourceAlliance = EntityUtils.getAlliance(it.source.entity)
             sourceAlliance != null && sourceAlliance.target === targetAlliance
 		}
-	}
-
-	private fun getAlliance(entity: Entity): Alliance? {
-		return entity.attributes.firstOrNull { it is Alliance } as Alliance?
 	}
 
 	private fun createInputUpdater(): Updater {

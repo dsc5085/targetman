@@ -14,10 +14,10 @@ import dclib.physics.Transform
 
 class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
-        val skeletonPart = entity.tryGet(SkeletonPart::class.java)
+        val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
             val skeleton = skeletonPart.skeleton
-            val transform = entity[TransformPart::class.java].transform
+            val transform = entity[TransformPart::class].transform
             updateAnimation(delta, skeleton, skeletonPart.animationState)
             updateRootPosition(skeleton, transform)
             for (limb in skeletonPart.getActiveLimbs()) {
@@ -45,7 +45,7 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
     private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
         val bone = skeleton.bones.single { it.data.name == limbName }
         val scale = Vector2(bone.worldScaleX, bone.worldScaleY)
-        val transform = limb[TransformPart::class.java].transform
+        val transform = limb[TransformPart::class].transform
         val origin = transform.size.scl(0.5f)
         val newGlobal = Vector2(bone.worldX, bone.worldY)
         transform.rotation = bone.worldRotationX

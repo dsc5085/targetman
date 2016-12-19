@@ -17,29 +17,29 @@ import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
 class MovementSystem(entityManager: EntityManager, private val world: World) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
-        if (entity.has(MovementPart::class.java)) {
+        if (entity.has(MovementPart::class)) {
             move(entity)
             updateJumping(entity, delta)
         }
     }
 
     private fun move(entity: Entity) {
-        val movementPart = entity[MovementPart::class.java]
+        val movementPart = entity[MovementPart::class]
         val direction = movementPart.direction
-        val skeletonPart = entity[SkeletonPart::class.java]
+        val skeletonPart = entity[SkeletonPart::class]
         var targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
         if (direction == Direction.NONE) {
             skeletonPart.playAnimation("idle")
         } else {
             skeletonPart.playAnimation("run")
-            entity[SkeletonPart::class.java].flipX = direction === Direction.LEFT
+            entity[SkeletonPart::class].flipX = direction === Direction.LEFT
         }
         applyMoveImpulse(entity, targetVelocityX)
     }
 
     private fun applyMoveImpulse(entity: Entity, targetVelocityX: Float) {
         val maxImpulseScale = 0.7f
-        val transform = entity[TransformPart::class.java].transform as Box2dTransform
+        val transform = entity[TransformPart::class].transform as Box2dTransform
         val mass = transform.body.mass
         val targetImpulse = Box2dUtils.getImpulseToReachVelocity(transform.velocity.x, targetVelocityX, mass)
         val maxImpulseAbs = maxImpulseScale * mass
@@ -48,7 +48,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun updateJumping(entity: Entity, delta: Float) {
-        val movementPart = entity[MovementPart::class.java]
+        val movementPart = entity[MovementPart::class]
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
         if (!movementPart.tryJumping || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
@@ -59,8 +59,8 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun jump(entity: Entity, delta: Float) {
-        val movementPart = entity[MovementPart::class.java]
-        val transform = entity[TransformPart::class.java].transform as Box2dTransform
+        val movementPart = entity[MovementPart::class]
+        val transform = entity[TransformPart::class].transform as Box2dTransform
         if (isGrounded(entity)) {
             transform.velocity = Vector2(transform.velocity.x, 0f)
         }
@@ -96,8 +96,8 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     }
 
     private fun getMoveStrength(entity: Entity): Float {
-        val movementLimbNames = entity[MovementPart::class.java].limbNames
-        val skeletonPart = entity[SkeletonPart::class.java]
+        val movementLimbNames = entity[MovementPart::class].limbNames
+        val skeletonPart = entity[SkeletonPart::class]
         val numActiveMovementLimbs = movementLimbNames.count { skeletonPart[it].isActive }
         return numActiveMovementLimbs.toFloat() / movementLimbNames.size
     }

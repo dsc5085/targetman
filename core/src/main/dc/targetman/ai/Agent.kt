@@ -12,18 +12,18 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 
 class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery: GraphQuery) {
-    private val aiPart = entity.get(AiPart::class.java)
+    private val aiPart = entity.get(AiPart::class)
 
     val belowSegment = graphQuery.getNearestBelowSegment(bounds)
 
     val bounds: Rectangle
-        get() = entity[TransformPart::class.java].transform.bounds
+        get() = entity[TransformPart::class].transform.bounds
 
     val facingDirection: Direction
-        get() = if (entity[SkeletonPart::class.java].flipX) Direction.LEFT else Direction.RIGHT
+        get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
 
     val velocity: Vector2
-        get() = entity[TransformPart::class.java].transform.velocity
+        get() = entity[TransformPart::class].transform.velocity
 
     var path: List<DefaultNode>
         get() = aiPart.path

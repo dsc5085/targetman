@@ -15,7 +15,7 @@ import dclib.util.FloatRange
 class WeaponSystem(private val entityManager: EntityManager, private val entityFactory: EntityFactory)
 : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
-        val weaponPart = entity.tryGet(WeaponPart::class.java)
+        val weaponPart = entity.tryGet(WeaponPart::class)
         if (weaponPart != null && hasFiringLimbs(entity)) {
             fire(entity)
             weaponPart.update(delta)
@@ -24,17 +24,17 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
     }
 
     private fun hasFiringLimbs(entity: Entity): Boolean {
-        val rotatorName = entity[WeaponPart::class.java].rotatorName
-        return entity[SkeletonPart::class.java].getDescendants(rotatorName).all { it.isActive }
+        val rotatorName = entity[WeaponPart::class].rotatorName
+        return entity[SkeletonPart::class].getDescendants(rotatorName).all { it.isActive }
     }
 
     private fun fire(entity: Entity) {
-        val weaponPart = entity[WeaponPart::class.java]
+        val weaponPart = entity[WeaponPart::class]
         if (weaponPart.shouldFire()) {
             val weapon = weaponPart.weapon
-            val skeletonPart = entity[SkeletonPart::class.java]
+            val skeletonPart = entity[SkeletonPart::class]
             val muzzleEntity = skeletonPart[weaponPart.muzzleName]
-            val muzzleTransform = muzzleEntity[TransformPart::class.java].transform
+            val muzzleTransform = muzzleEntity[TransformPart::class].transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.all, entity, recoil)
             createBullets(muzzleTransform, weapon)

@@ -31,8 +31,8 @@ object NavigatorFactory {
 //        // TODO: Creating an entity just for this is wasteful.
         val aiEntity = entityFactory.createMan(Vector3(), Alliance.ENEMY)
         MapLoader(map, screenHelper, entityFactory).createStaticObjects()
-        val agentSize = aiEntity[TransformPart::class.java].transform.size
-        val movementPart = aiEntity[MovementPart::class.java]
+        val agentSize = aiEntity[TransformPart::class].transform.size
+        val movementPart = aiEntity[MovementPart::class]
         val speed = Vector2(movementPart.moveSpeed, movementPart.jumpSpeed)
         val jumpVelocitySolver = JumpVelocitySolver(speed, world.gravity.y)
         val jumpChecker = JumpChecker(staticWorld, jumpVelocitySolver)

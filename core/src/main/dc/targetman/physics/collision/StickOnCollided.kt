@@ -17,7 +17,7 @@ class StickOnCollided(val entityManager: EntityManager) : (CollidedEvent) -> Uni
 		val targetBodyType = event.target.body.type
 		if (sourceEntity.of(Material.STICKY) && targetBodyType === BodyType.StaticBody) {
 			val spawn = Entity()
-			val transform = sourceEntity[TransformPart::class.java].transform
+            val transform = sourceEntity[TransformPart::class].transform
 			val spawnTransform = DefaultTransform(transform)
 // TODO:
 //			Vector2 size = transform.getSize();
@@ -26,7 +26,7 @@ class StickOnCollided(val entityManager: EntityManager) : (CollidedEvent) -> Uni
 //				transform.translate(stickOffset);
 //			}
 			val timedDeathPart = TimedDeathPart(deathTimeRange.random())
-			spawn.attach(TransformPart(spawnTransform), sourceEntity[SpritePart::class.java], timedDeathPart)
+            spawn.attach(TransformPart(spawnTransform), sourceEntity[SpritePart::class], timedDeathPart)
 			entityManager.add(spawn)
 		}
 	}

@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import dc.targetman.level.EntityFactory
-import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.EntityUtils
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.physics.Contacter
@@ -17,7 +17,7 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 	override fun invoke(event: CollidedEvent) {
 		val sourceEntity = event.source.entity
 		val targetEntity = event.target.entity
-		val position = sourceEntity[TransformPart::class.java].transform.position3
+        val position = sourceEntity[TransformPart::class].transform.position3
 		position.z += MathUtils.FLOAT_ROUNDING_ERROR
 		val velocity = event.source.body.linearVelocity
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
@@ -27,20 +27,24 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 	}
 
 	private fun createSparks(sourceEntity: Entity, target: Contacter, position: Vector3) {
-		val targetAlliance = target.entity.attributes.firstOrNull { it is Alliance } as Alliance?
-		if (!sourceEntity.of(targetAlliance) && !target.fixture.isSensor && target.entity.of(Material.METAL)) {
+        val targetAlliance = EntityUtils.getAlliance(target.entity)
+        val notTargetAlliance = targetAlliance != null && !sourceEntity.of(targetAlliance)
+        if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL)) {
 			particlesManager.createEffect("spark", Vector2(position.x, position.y))
 		}
 	}
 
-	private fun createBloodParticles(sourceEntity: Entity, targetEntity: Entity, position: Vector3,
-									 velocity: Vector2) {
+    private fun createBloodParticles(
+            sourceEntity: Entity,
+            targetEntity: Entity,
+            position: Vector3,
+            velocity: Vector2) {
 		val numParticles = 10
 		val sizeRange = FloatRange(0.01f, 0.07f)
 		val rotationDiffRange = FloatRange(-10f, 10f)
 		val velocityRatioRange = FloatRange(0.1f, 0.5f)
 		// TODO: use filterIsInstanceTo
-		val targetAlliance = targetEntity.attributes.firstOrNull { it is Alliance } as Alliance?
+        val targetAlliance = EntityUtils.getAlliance(targetEntity)
 		if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
 			for (i in 0..numParticles)  {
 				val randomizedVelocity = velocity.cpy()

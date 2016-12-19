@@ -11,9 +11,9 @@ class VitalLimbsSystem(entityManager: EntityManager) : EntitySystem(entityManage
 
 	// TODO: Subscribe to entity removed event instead of polling
 	override fun update(delta: Float, entity: Entity) {
-		val vitalLimbsPart = entity.tryGet(VitalLimbsPart::class.java)
+        val vitalLimbsPart = entity.tryGet(VitalLimbsPart::class)
         if (vitalLimbsPart != null) {
-            val skeletonPart = entity[SkeletonPart::class.java]
+            val skeletonPart = entity[SkeletonPart::class]
             val isVitalLimbDead = vitalLimbsPart.limbNames.any { !skeletonPart[it].isActive }
             if (isVitalLimbDead) {
                 entityManager.remove(entity)

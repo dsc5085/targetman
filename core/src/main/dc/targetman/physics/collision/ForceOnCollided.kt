@@ -13,7 +13,7 @@ class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<Co
  : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
 		val sourceEntity = event.source.entity
-		val forcePart = sourceEntity.tryGet(ForcePart::class.java)
+        val forcePart = sourceEntity.tryGet(ForcePart::class)
 		if (forcePart != null && filter.apply(event)) {
 			val force = getForce(sourceEntity)
 			PhysicsUtils.applyForce(entityManager.all, event.target.entity, force)
@@ -21,8 +21,8 @@ class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<Co
 	}
 
 	private fun getForce(sourceEntity: Entity): Vector2 {
-		val transform = sourceEntity[TransformPart::class.java].transform
-		val force = sourceEntity[ForcePart::class.java].force
+        val transform = sourceEntity[TransformPart::class].transform
+        val force = sourceEntity[ForcePart::class].force
 		return transform.velocity.setLength(force)
 	}
 }

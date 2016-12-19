@@ -16,7 +16,7 @@ class LimbRemovedChecker(entityManager: EntityManager) {
 
     private fun handleEntityRemoved(entity: Entity) {
         val container = LimbUtils.findContainer(entityManager.all, entity)
-        val skeletonPart = container?.tryGet(SkeletonPart::class.java)
+        val skeletonPart = container?.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
             limbRemoved.notify(LimbRemovedEvent(entity, container!!))
             val name = skeletonPart.getName(entity)

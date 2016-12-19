@@ -7,7 +7,7 @@ import dclib.epf.EntityManager
 object EntityFinder {
     fun findPlayer(entityManager: EntityManager): Entity? {
         return entityManager.all.firstOrNull {
-            it.has(MovementPart::class.java) && it.of(Alliance.PLAYER)
+            it.has(MovementPart::class) && it.of(Alliance.PLAYER)
         }
     }
 }
