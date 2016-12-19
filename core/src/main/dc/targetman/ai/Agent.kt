@@ -17,7 +17,7 @@ class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery:
     val belowSegment = graphQuery.getNearestBelowSegment(bounds)
 
     val bounds: Rectangle
-        get() = entity.get(TransformPart::class.java).transform.bounds
+        get() = entity[TransformPart::class.java].transform.bounds
 
     val facingDirection: Direction
         get() = if (entity[SkeletonPart::class.java].flipX) Direction.LEFT else Direction.RIGHT

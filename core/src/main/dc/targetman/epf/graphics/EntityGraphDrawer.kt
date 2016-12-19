@@ -26,7 +26,7 @@ class EntityGraphDrawer(private val shapeRenderer: ShapeRenderer, private val sc
         val pointSize = 0.2f
         val aiPart = entity.tryGet(AiPart::class.java)
         if (aiPart != null && aiPart.path.isNotEmpty()) {
-            val bounds = entity.get(TransformPart::class.java).transform.bounds
+            val bounds = entity[TransformPart::class.java].transform.bounds
             val points = listOf(bounds.base) + aiPart.path.map { it.position }
             for (i in 0..points.size - 2) {
                 val start = points[i]

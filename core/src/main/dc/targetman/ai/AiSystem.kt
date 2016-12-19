@@ -24,7 +24,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
             aiPart.tick(delta)
             val target = EntityFinder.findPlayer(entityManager)
             if (target != null) {
-                val targetBounds = target.get(TransformPart::class.java).transform.bounds
+                val targetBounds = target[TransformPart::class.java].transform.bounds
                 navigator.navigate(entity, targetBounds)
                 aim(entity, targetBounds)
 //                StickActions.trigger(entity)
@@ -35,7 +35,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
         val muzzleName = entity.get(WeaponPart::class.java).muzzleName
         val skeletonPart = entity.get(SkeletonPart::class.java)
-        val muzzleTransform = skeletonPart[muzzleName].get(TransformPart::class.java).transform
+        val muzzleTransform = skeletonPart[muzzleName][TransformPart::class.java].transform
         val direction = getAimRotateDirection(muzzleTransform, targetBounds.center, skeletonPart.flipX)
         StickActions.aim(entity, direction)
     }
