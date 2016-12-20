@@ -28,7 +28,7 @@ class CharacterLoader(private val textureCache: TextureCache) {
                 CharacterLimb("head", 50f, Material.FLESH, isVital = true),
                 CharacterLimb("neck", 50f, Material.FLESH),
                 CharacterLimb("torso", 100f, Material.FLESH, isVital = true),
-                //      TODO:  CharacterLimb("gun", 1000f, Material.METAL),
+                CharacterLimb("gun", 1000f, Material.METAL),
                 CharacterLimb("right_hand", 50f, Material.FLESH),
                 CharacterLimb("right_forearm", 50f, Material.FLESH),
                 CharacterLimb("right_bicep", 50f, Material.FLESH),

@@ -44,8 +44,11 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
 
     private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
         val bone = skeleton.bones.single { it.data.name == limbName }
-        val scale = Vector2(bone.worldScaleX, bone.worldScaleY)
+        val flipScaleX = Math.signum(skeleton.rootBone.scaleX)
+        val flipScaleY = Math.signum(skeleton.rootBone.scaleY)
+        val scale = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScaleX, flipScaleY)
         val transform = limb[TransformPart::class].transform
+        transform.scale = scale
         val origin = transform.size.scl(0.5f)
         val newGlobal = Vector2(bone.worldX, bone.worldY)
         transform.rotation = bone.worldRotationX

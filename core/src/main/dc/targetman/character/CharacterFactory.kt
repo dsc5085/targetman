@@ -88,9 +88,10 @@ class CharacterFactory(
             if (regionAttachment != null) {
                 val limb = character.limbs.single { it.name == name }
                 val size = Vector2(regionAttachment.width, regionAttachment.height)
-                        .scl(bone.worldScaleX, bone.worldScaleY)
+                        .scl(regionAttachment.scaleX, regionAttachment.scaleY)
                 val regionName = "${character.atlasName}/${regionAttachment.path}"
-                entity = createLimbEntity(limb, size, regionName, alliance)
+                val scale = Vector2(bone.worldScaleX, bone.worldScaleY)
+                entity = createLimbEntity(limb, size, scale, regionName, alliance)
             } else {
                 entity = createSimpleEntity(alliance)
             }
@@ -112,7 +113,7 @@ class CharacterFactory(
         return entity
     }
 
-    private fun createLimbEntity(limb: CharacterLimb, size: Vector2, regionName: String, alliance: Alliance): Entity {
+    private fun createLimbEntity(limb: CharacterLimb, size: Vector2, scale: Vector2, regionName: String, alliance: Alliance): Entity {
         val entity = Entity()
         entity.attribute(alliance, limb.material, DeathForm.CORPSE)
         val region = textureCache.getPolygonRegion(regionName)
@@ -121,6 +122,7 @@ class CharacterFactory(
         body.gravityScale = 0f
         body.userData = entity
         val transform = Box2dTransform(body)
+        transform.scale = scale
         entity.attach(TransformPart(transform), SpritePart(region))
         val group = (-Box2dUtils.toGroup(alliance)).toShort()
         Box2dUtils.setFilter(body, group = group)

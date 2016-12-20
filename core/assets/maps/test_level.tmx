@@ -123,9 +123,5 @@
  </layer>
  <objectgroup color="#000000" name="Actors">
   <object id="29" gid="2" x="188" y="3107" width="32" height="32"/>
-  <object id="33" gid="3" x="56" y="3059" width="32" height="32"/>
-  <object id="34" gid="3" x="261" y="3037" width="32" height="32"/>
-  <object id="35" gid="3" x="93" y="3113" width="32" height="32"/>
-  <object id="36" gid="3" x="374" y="3103" width="32" height="32"/>
  </objectgroup>
 </map>
