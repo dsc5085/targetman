@@ -9,6 +9,7 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
+import dclib.geometry.VectorUtils
 import dclib.geometry.base
 import dclib.physics.Transform
 
@@ -55,10 +56,15 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         val attachment = skeleton.slots.filter { it.bone.data.name == limbName }.map { it.attachment }
                 .filterIsInstance<RegionAttachment>().firstOrNull()
         if (attachment is RegionAttachment) {
-            transform.rotation += attachment.rotation
-            val localOffset = Vector2(attachment.x, attachment.y).scl(scale).setAngle(bone.worldRotationX)
+            transform.rotation += getScaledRotation(attachment.rotation, scale)
+            val offsetRotation = getScaledRotation(bone.worldRotationX, scale)
+            val localOffset = Vector2(attachment.x, attachment.y).rotate(offsetRotation).scl(scale)
             newGlobal.add(localOffset)
         }
         transform.setGlobal(origin, newGlobal)
+    }
+
+    private fun getScaledRotation(degrees: Float, scale: Vector2): Float {
+        return VectorUtils.toVector2(degrees, 1f).scl(scale).angle()
     }
 }

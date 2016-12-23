@@ -46,22 +46,20 @@ class LevelController(
         private val textureCache: TextureCache,
         spriteBatch: PolygonSpriteBatch,
         shapeRenderer: ShapeRenderer) {
-	companion object {
-		private val PIXELS_PER_UNIT = 32f
-	}
-	
-	private var isRunning = true
+	private val PIXELS_PER_UNIT = 32f
+
 	private val entityFactory: EntityFactory
 	private val entityManager = DefaultEntityManager()
     private val world = PhysicsUtils.createWorld()
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
-    private val camera = OrthographicCamera(640f, 480f)
+	private val camera = OrthographicCamera(160f, 120f)
 	private val mapRenderer: MapRenderer
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
 	private val entityDrawers = mutableListOf<EntityDrawer>()
 	private val map = TmxMapLoader().load("maps/test_level.tmx")
+	private var isRunning = true
 
 	init {
 		screenHelper = ScreenHelper(PIXELS_PER_UNIT, camera)
