@@ -41,7 +41,7 @@ class EntityFactory(
     }
 
     fun createMan(position: Vector3, alliance: Alliance): Entity {
-        val entity = characterFactory.create("skeletons/man_original.skel", position, alliance)
+        val entity = characterFactory.create("skeletons/man_original.skel", 2f, position, alliance)
         entityManager.add(entity)
         return entity
     }

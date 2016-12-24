@@ -3,22 +3,17 @@ package dc.targetman.character
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.SkeletonBinary
 import dc.targetman.physics.collision.Material
-import dc.targetman.skeleton.bounds
 import dclib.graphics.TextureCache
 import dclib.system.io.FileUtils
 
 // TODO: Load the literal values from a file
 class CharacterLoader(private val textureCache: TextureCache) {
     fun create(skeletonPath: String): Character {
-        val height = 2f
         val atlasName = "skins/man"
         val atlas = textureCache.getAtlas(atlasName)
         val skeletonBinary = SkeletonBinary(atlas)
         val skeletonFile = FileUtils.internalPathToFileHandle(skeletonPath)
         val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
-        skeleton.updateWorldTransform()
-        val newScale = skeleton.rootBone.scaleY * height / skeleton.bounds.height
-        skeleton.rootBone.setScale(newScale)
         skeleton.updateWorldTransform()
         return Character(skeleton, createLimbs(), "right_bicep", "muzzle", atlasName)
     }

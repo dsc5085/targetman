@@ -1,7 +1,6 @@
 package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.Vector2
-import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
@@ -17,10 +16,8 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
     override fun update(delta: Float, entity: Entity) {
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
-            val skeleton = skeletonPart.skeleton
             val transform = entity[TransformPart::class].transform
-            updateAnimation(delta, skeleton, skeletonPart.animationState)
-            updateRootPosition(skeleton, transform)
+            val skeleton = getTransformedSkeleton(delta, skeletonPart, transform)
             for (limb in skeletonPart.getActiveLimbs()) {
                 // TODO: name should be included with limb
                 val name = skeletonPart.getName(limb)
@@ -29,10 +26,16 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         }
     }
 
-    private fun updateAnimation(delta: Float, skeleton: Skeleton, animationState: AnimationState) {
+    private fun getTransformedSkeleton(delta: Float, skeletonPart: SkeletonPart, transform: Transform): Skeleton {
+        val skeleton = Skeleton(skeletonPart.skeleton)
+        val animationState = skeletonPart.animationState
         animationState.update(delta)
         animationState.apply(skeleton)
+        skeleton.rootBone.scaleX *= skeletonPart.baseScale.x
+        skeleton.rootBone.scaleY *= skeletonPart.baseScale.y
         skeleton.updateWorldTransform()
+        updateRootPosition(skeleton, transform)
+        return skeleton
     }
 
     private fun updateRootPosition(skeleton: Skeleton, transform: Transform) {
@@ -45,9 +48,8 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
 
     private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
         val bone = skeleton.bones.single { it.data.name == limbName }
-        val flipScaleX = Math.signum(skeleton.rootBone.scaleX)
-        val flipScaleY = Math.signum(skeleton.rootBone.scaleY)
-        val scale = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScaleX, flipScaleY)
+        val flipScale = VectorUtils.sign(Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY))
+        val scale = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
         val transform = limb[TransformPart::class].transform
         transform.scale = scale
         val origin = transform.size.scl(0.5f)

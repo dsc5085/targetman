@@ -1,11 +1,12 @@
 package dc.targetman.epf.parts
 
+import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import com.esotericsoftware.spine.Skeleton
 import dclib.epf.Entity
 
-class SkeletonPart(val skeleton: Skeleton, private val namesToLimbEntities: Map<String, Entity>) {
+class SkeletonPart(val skeleton: Skeleton, val baseScale: Vector2, private val namesToLimbEntities: Map<String, Entity>) {
     val animationState: AnimationState
 
     init {
@@ -14,10 +15,10 @@ class SkeletonPart(val skeleton: Skeleton, private val namesToLimbEntities: Map<
     }
 
     var flipX: Boolean
-        get() = skeleton.rootBone.scaleX < 0
+        get() = baseScale.x < 0
         set(value) {
-            val absScaleX = Math.abs(skeleton.rootBone.scaleX)
-            skeleton.rootBone.scaleX = if (value) -absScaleX else absScaleX
+            val absScaleX = Math.abs(baseScale.x)
+            baseScale.x = if (value) -absScaleX else absScaleX
         }
 
     operator fun get(name: String): Entity {

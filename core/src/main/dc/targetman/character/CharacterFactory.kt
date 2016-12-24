@@ -31,16 +31,19 @@ class CharacterFactory(
         private val characterLoader: CharacterLoader,
         private val textureCache: TextureCache,
         private val world: World) {
-    fun create(skeletonPath: String, position: Vector3, alliance: Alliance): Entity {
+    fun create(skeletonPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = characterLoader.create(skeletonPath)
         val entity = Entity()
         entity.attribute(alliance)
-        val body = createBody(character.skeleton.bounds.size, position)
+        val skeleton = character.skeleton
+        val baseScaleValue = skeleton.rootBone.scaleY * height / skeleton.bounds.height
+        val baseScale = Vector2(baseScaleValue, baseScaleValue)
+        val body = createBody(skeleton.bounds.size.cpy().scl(baseScale), position)
         body.userData = entity
         val transform = Box2dTransform(position.z, body)
         entity.attach(TransformPart(transform))
         val limbEntities = createLimbEntities(character, alliance)
-        entity.attach(SkeletonPart(character.skeleton, limbEntities))
+        entity.attach(SkeletonPart(skeleton, baseScale, limbEntities))
         val target = alliance.target.name
         val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 0f, target)
         entity.attach(WeaponPart(weapon, character.rotatorName, character.muzzleName))
