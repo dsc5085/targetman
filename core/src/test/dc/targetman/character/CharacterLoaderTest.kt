@@ -29,7 +29,7 @@ class CharacterLoaderTest {
 
     @Test
     fun create_Valid_Success() {
-        val loader = CharacterLoader(32f, textureCache)
+        val loader = CharacterLoader(textureCache)
         val character = loader.create("assets/skeletons/man_original.skel")
         assert(character.limbs.isNotEmpty())
     }

@@ -21,10 +21,10 @@ class JumpChecker(private val world: World, private val jumpVelocitySolver: Jump
             result: JumpVelocityResult): Boolean {
         val body = createBody(size)
         val transform = Box2dTransform(body)
-        transform.setGlobal(local, start)
+        transform.setWorld(local, start)
         transform.velocity = result.velocity
         runSimulation(result.airTime)
-        val actualEnd = transform.toGlobal(local)
+        val actualEnd = transform.toWorld(local)
         world.destroyBody(body)
         return areBox2dPositionsApproximatelyEqual(end, actualEnd, start)
     }

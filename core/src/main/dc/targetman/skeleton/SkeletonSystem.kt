@@ -47,23 +47,26 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
     }
 
     private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
+        // TODO: cleanup
         val bone = skeleton.bones.single { it.data.name == limbName }
         val flipScale = VectorUtils.sign(Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY))
         val scale = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
         val transform = limb[TransformPart::class].transform
-        transform.scale = scale
         val origin = transform.size.scl(0.5f)
-        val newGlobal = Vector2(bone.worldX, bone.worldY)
+        val newWorld = Vector2(bone.worldX, bone.worldY)
         transform.rotation = bone.worldRotationX
         val attachment = skeleton.slots.filter { it.bone.data.name == limbName }.map { it.attachment }
                 .filterIsInstance<RegionAttachment>().firstOrNull()
+        var attachmentScaledRotation = 0f
         if (attachment is RegionAttachment) {
-            transform.rotation += getScaledRotation(attachment.rotation, scale)
+            attachmentScaledRotation = getScaledRotation(attachment.rotation, scale)
+            transform.rotation += attachmentScaledRotation
             val offsetRotation = getScaledRotation(bone.worldRotationX, scale)
             val localOffset = Vector2(attachment.x, attachment.y).rotate(offsetRotation).scl(scale)
-            newGlobal.add(localOffset)
+            newWorld.add(localOffset)
         }
-        transform.setGlobal(origin, newGlobal)
+        transform.scale = VectorUtils.abs(Vector2(bone.worldScaleX, bone.worldScaleY).rotate(attachmentScaledRotation)).scl(flipScale)
+        transform.setWorld(origin, newWorld)
     }
 
     private fun getScaledRotation(degrees: Float, scale: Vector2): Float {
