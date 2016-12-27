@@ -56,7 +56,6 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
     }
 
     private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
-        // TODO: cleanup
         val bone = skeleton.bones.single { it.data.name == limbName }
         val transform = limb[TransformPart::class].transform
         val newWorld = Vector2(bone.worldX, bone.worldY)

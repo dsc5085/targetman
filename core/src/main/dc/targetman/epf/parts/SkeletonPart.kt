@@ -26,7 +26,13 @@ class SkeletonPart(val skeleton: Skeleton, val baseScale: Vector2, private val n
     }
 
     fun getName(entity: Entity): String {
-        return namesToLimbEntities.filter { it.value === entity }.keys.single()
+        val name: String
+        if (entity.tryGet(SkeletonPart::class) === this) {
+            name = skeleton.rootBone.data.name
+        } else {
+            name = namesToLimbEntities.filter { it.value === entity }.keys.single()
+        }
+        return name
     }
 
     fun getAllLimbs(): Collection<Entity> {

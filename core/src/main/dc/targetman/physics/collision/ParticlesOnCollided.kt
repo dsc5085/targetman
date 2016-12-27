@@ -43,7 +43,6 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 		val sizeRange = FloatRange(0.01f, 0.07f)
 		val rotationDiffRange = FloatRange(-10f, 10f)
 		val velocityRatioRange = FloatRange(0.1f, 0.5f)
-		// TODO: use filterIsInstanceTo
         val targetAlliance = EntityUtils.getAlliance(targetEntity)
 		if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
 			for (i in 0..numParticles)  {
