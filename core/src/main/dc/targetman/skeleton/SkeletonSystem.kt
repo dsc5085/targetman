@@ -2,23 +2,28 @@ package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Vector2
+import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
+import com.esotericsoftware.spine.attachments.Attachment
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
+import dclib.eventing.EventDelegate
 import dclib.geometry.VectorUtils
+import dclib.geometry.abs
 import dclib.geometry.base
 import dclib.physics.Transform
 
 class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
+    val animationApplied = EventDelegate<AnimationAppliedEvent>()
+
     override fun update(delta: Float, entity: Entity) {
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
-            val transform = entity[TransformPart::class].transform
-            val skeleton = getTransformedSkeleton(delta, skeletonPart, transform)
+            val skeleton = getTransformedSkeleton(delta, entity)
             for (limb in skeletonPart.getActiveLimbs()) {
                 // TODO: name should be included with limb
                 val name = skeletonPart.getName(limb)
@@ -27,15 +32,18 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         }
     }
 
-    private fun getTransformedSkeleton(delta: Float, skeletonPart: SkeletonPart, transform: Transform): Skeleton {
+    private fun getTransformedSkeleton(delta: Float, entity: Entity): Skeleton {
+        val skeletonPart = entity[SkeletonPart::class]
         val skeleton = Skeleton(skeletonPart.skeleton)
         val animationState = skeletonPart.animationState
         animationState.update(delta)
         animationState.apply(skeleton)
+        skeleton.updateWorldTransform()
+        animationApplied.notify(AnimationAppliedEvent(entity, skeleton))
         skeleton.rootBone.scaleX *= skeletonPart.baseScale.x
         skeleton.rootBone.scaleY *= skeletonPart.baseScale.y
         skeleton.updateWorldTransform()
-        updateRootPosition(skeleton, transform)
+        updateRootPosition(skeleton, entity[TransformPart::class].transform)
         return skeleton
     }
 
@@ -51,27 +59,30 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         // TODO: cleanup
         val bone = skeleton.bones.single { it.data.name == limbName }
         val transform = limb[TransformPart::class].transform
-        val origin = transform.size.scl(0.5f)
         val newWorld = Vector2(bone.worldX, bone.worldY)
         transform.rotation = bone.worldRotationX
         val attachment = skeleton.slots.filter { it.bone.data.name == limbName }.map { it.attachment }
                 .filterIsInstance<RegionAttachment>().firstOrNull()
-        val flipScale = VectorUtils.sign(Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY))
-        val boneScale = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
+        updateTransform(transform, attachment, bone, newWorld)
+    }
+
+    private fun updateTransform(transform: Transform, attachment: Attachment?, bone: Bone, newWorld: Vector2) {
         if (attachment is RegionAttachment) {
+            val boneScale = BoneUtils.getScale(bone)
             transform.rotation += getScaledRotation(attachment.rotation, boneScale)
             val offsetRotation = getScaledRotation(bone.worldRotationX, boneScale)
-            transform.scale = calculateTransformScale(boneScale, flipScale, attachment.rotation)
+            transform.scale = calculateTransformScale(boneScale, attachment.rotation)
             val localOffset = Vector2(attachment.x, attachment.y).rotate(offsetRotation).scl(transform.scale)
             newWorld.add(localOffset)
         }
+        val origin = transform.size.scl(0.5f)
         transform.setWorld(origin, newWorld)
     }
 
-    private fun calculateTransformScale(boneScale: Vector2, flipScale: Vector2, attachmentRotation: Float): Vector2 {
+    private fun calculateTransformScale(boneScale: Vector2, attachmentRotation: Float): Vector2 {
+        val boneFlipScale = VectorUtils.sign(boneScale)
         val matrix = Matrix3().rotate(attachmentRotation).scale(boneScale).rotate(-attachmentRotation)
-        val scale = matrix.getScale(Vector2())
-        return VectorUtils.abs(scale).scl(flipScale)
+        return matrix.getScale(Vector2()).abs().scl(boneFlipScale)
     }
 
     private fun getScaledRotation(degrees: Float, scale: Vector2): Float {

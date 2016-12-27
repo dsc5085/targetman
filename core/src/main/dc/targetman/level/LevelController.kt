@@ -13,6 +13,7 @@ import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
+import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.PhysicsUtils
@@ -53,7 +54,7 @@ class LevelController(
     private val world = PhysicsUtils.createWorld()
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
-	private val camera = OrthographicCamera(160f, 120f)
+    private val camera = OrthographicCamera(640f, 480f)
 	private val mapRenderer: MapRenderer
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
@@ -100,7 +101,7 @@ class LevelController(
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-		renderBox2D()
+//		renderBox2D()
 	}
 
 	private fun createAdvancer(): Advancer {
@@ -113,7 +114,7 @@ class LevelController(
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
                 PhysicsUpdater(world, entityManager),
-                SkeletonSystem(entityManager),
+                createSkeletonSystem(),
 				createContactChecker(),
 				MovementSystem(entityManager, world),
                 BoundsSyncSystem(entityManager),
@@ -128,6 +129,12 @@ class LevelController(
         val navigator = NavigatorFactory.create(map, world, screenHelper, textureCache)
         return AiSystem(entityManager, navigator)
 	}
+
+    private fun createSkeletonSystem(): SkeletonSystem {
+        val skeletonSystem = SkeletonSystem(entityManager)
+        skeletonSystem.animationApplied.on(AimOnAnimationApplied())
+        return skeletonSystem
+    }
 
 	private fun createContactChecker(): ContactChecker {
 		val contactChecker = ContactChecker(world)

@@ -14,8 +14,7 @@ object StickActions {
     }
 
     fun aim(entity: Entity, direction: Int) {
-        // TODO:
-        //		entity.get(WeaponPart.class).setAimDirection(direction);
+        entity[WeaponPart::class].aimDirection = direction
     }
 
     fun trigger(entity: Entity) {

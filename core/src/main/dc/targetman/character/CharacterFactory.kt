@@ -18,10 +18,7 @@ import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.PolygonUtils
-import dclib.geometry.VectorUtils
-import dclib.geometry.inv
-import dclib.geometry.size
+import dclib.geometry.*
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
@@ -92,8 +89,7 @@ class CharacterFactory(
             if (regionAttachment != null) {
                 val limb = character.limbs.single { it.name == name }
                 val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
-                val size = Vector2(regionAttachment.width, regionAttachment.height)
-                        .scl(VectorUtils.abs(regionScale))
+                val size = Vector2(regionAttachment.width, regionAttachment.height).scl(regionScale.abs())
                 val regionName = "${character.atlasName}/${regionAttachment.path}"
                 val scale = VectorUtils.sign(regionScale)
                 entity = createLimbEntity(limb, size, scale, regionName, alliance)

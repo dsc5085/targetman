@@ -44,8 +44,7 @@ class SkeletonPart(val skeleton: Skeleton, val baseScale: Vector2, private val n
         return descendants.plus(entity)
     }
 
-    fun playAnimation(name: String) {
-        val trackIndex = 0
+    fun playAnimation(name: String, trackIndex: Int = 0) {
         if (animationState.tracks.size <= trackIndex || animationState.tracks[trackIndex].animation.name != name) {
             animationState.setAnimation(trackIndex, name, true)
         }

@@ -4,6 +4,9 @@ import dc.targetman.mechanics.weapon.Weapon
 import dclib.util.Timer
 
 class WeaponPart(val weapon: Weapon, val rotatorName: String, val muzzleName: String) {
+    var aimDirection = 0
+    var aimRotation = 0f
+
     private val reloadTimer = Timer(weapon.reloadTime, weapon.reloadTime)
     private var triggered = false
 
