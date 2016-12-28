@@ -1,6 +1,5 @@
 package dc.targetman.skeleton
 
-import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.eventing.EventDelegate
@@ -15,12 +14,10 @@ class LimbRemovedChecker(entityManager: EntityManager) {
     }
 
     private fun handleEntityRemoved(entity: Entity) {
-        val container = LimbUtils.findContainer(entityManager.all, entity)
-        val skeletonPart = container?.tryGet(SkeletonPart::class)
-        if (skeletonPart != null) {
-            limbRemoved.notify(LimbRemovedEvent(entity, container!!))
-            val name = skeletonPart.getName(entity)
-            val descendantEntities = skeletonPart.getDescendants(name)
+        val limb = LimbUtils.find(entityManager.all, entity)
+        if (limb != null) {
+            limbRemoved.notify(LimbRemovedEvent(limb))
+            val descendantEntities = limb.getDescendants().map { it.entity }
             entityManager.removeAll(descendantEntities)
         }
     }

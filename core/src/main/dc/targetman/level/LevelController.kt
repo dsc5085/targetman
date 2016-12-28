@@ -117,7 +117,6 @@ class LevelController(
                 createSkeletonSystem(),
 				createContactChecker(),
 				MovementSystem(entityManager, world),
-                BoundsSyncSystem(entityManager),
 				TimedDeathSystem(entityManager),
                 WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
@@ -150,7 +149,6 @@ class LevelController(
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
         return Predicate<CollidedEvent> {
-			// TODO: How to make this a non-nullable event
             val targetEntity = it!!.target.entity
             val targetAlliance = EntityUtils.getAlliance(targetEntity)
             val sourceAlliance = EntityUtils.getAlliance(it.source.entity)

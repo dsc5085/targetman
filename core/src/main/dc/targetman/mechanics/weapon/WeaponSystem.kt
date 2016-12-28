@@ -27,7 +27,8 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
 
     private fun hasFiringLimbs(entity: Entity): Boolean {
         val rotatorName = entity[WeaponPart::class].rotatorName
-        return entity[SkeletonPart::class].getDescendants(rotatorName).all { it.isActive }
+        val rotatorLimb = entity[SkeletonPart::class][rotatorName]
+        return rotatorLimb.getDescendants().all { it.isActive }
     }
 
     private fun aim(delta: Float, weaponPart: WeaponPart) {
@@ -39,8 +40,8 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
         val weaponPart = entity[WeaponPart::class]
         if (weaponPart.shouldFire()) {
             val weapon = weaponPart.weapon
-            val skeletonPart = entity[SkeletonPart::class]
-            val muzzleTransform = skeletonPart[weaponPart.muzzleName][TransformPart::class].transform
+            val muzzleEntity = entity[SkeletonPart::class][weaponPart.muzzleName].entity
+            val muzzleTransform = muzzleEntity[TransformPart::class].transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.all, entity, recoil)
             createBullets(muzzleTransform, weapon)

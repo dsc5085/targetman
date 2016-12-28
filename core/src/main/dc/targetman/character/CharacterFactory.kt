@@ -13,6 +13,7 @@ import dc.targetman.mechanics.DeathForm
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
+import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.bounds
 import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
@@ -39,7 +40,7 @@ class CharacterFactory(
         body.userData = entity
         val transform = Box2dTransform(position.z, body)
         entity.attach(TransformPart(transform))
-        val limbEntities = createLimbEntities(character, alliance)
+        val limbEntities = createLimbEntities(character, alliance, entity)
         entity.attach(SkeletonPart(skeleton, baseScale, limbEntities))
         val target = alliance.target.name
         val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 0f, target)
@@ -79,26 +80,30 @@ class CharacterFactory(
         return body
     }
 
-    private fun createLimbEntities(character: Character, alliance: Alliance): Map<String, Entity> {
-        val limbEntities = mutableMapOf<String, Entity>()
-        val skeleton = character.skeleton
-        for (bone in skeleton.bones) {
-            val regionAttachment = getRegionAttachments(skeleton, bone).firstOrNull()
-            val name = bone.data.name
-            val entity: Entity
-            if (regionAttachment != null) {
-                val limb = character.limbs.single { it.name == name }
-                val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
-                val size = Vector2(regionAttachment.width, regionAttachment.height).scl(regionScale.abs())
-                val regionName = "${character.atlasName}/${regionAttachment.path}"
-                val scale = VectorUtils.sign(regionScale)
-                entity = createLimbEntity(limb, size, scale, regionName, alliance)
-            } else {
-                entity = createSimpleEntity(alliance)
-            }
-            limbEntities.put(name, entity)
+    private fun createLimbEntities(character: Character, alliance: Alliance, container: Entity): List<Limb> {
+        val limbs = mutableListOf<Limb>()
+        for (bone in character.skeleton.bones) {
+            val entity = createEntity(alliance, bone, character)
+            limbs.add(Limb(bone, entity, container))
         }
-        return limbEntities
+        return limbs
+    }
+
+    private fun createEntity(alliance: Alliance, bone: Bone, character: Character): Entity {
+        val regionAttachment = getRegionAttachments(character.skeleton, bone).firstOrNull()
+        val name = bone.data.name
+        val entity: Entity
+        if (regionAttachment != null) {
+            val limb = character.limbs.single { it.name == name }
+            val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
+            val size = Vector2(regionAttachment.width, regionAttachment.height).scl(regionScale.abs())
+            val regionName = "${character.atlasName}/${regionAttachment.path}"
+            val scale = VectorUtils.sign(regionScale)
+            entity = createLimbEntity(limb, size, scale, regionName, alliance)
+        } else {
+            entity = createSimpleEntity(alliance)
+        }
+        return entity
     }
 
     private fun getRegionAttachments(skeleton: Skeleton, bone: Bone): List<RegionAttachment> {

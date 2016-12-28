@@ -25,9 +25,7 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         if (skeletonPart != null) {
             val skeleton = getTransformedSkeleton(delta, entity)
             for (limb in skeletonPart.getActiveLimbs()) {
-                // TODO: name should be included with limb
-                val name = skeletonPart.getName(limb)
-                updateLimbTransform(name, limb, skeleton)
+                updateLimbTransform(limb, skeleton)
             }
         }
     }
@@ -55,13 +53,12 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         skeleton.updateWorldTransform()
     }
 
-    private fun updateLimbTransform(limbName: String, limb: Entity, skeleton: Skeleton) {
-        val bone = skeleton.bones.single { it.data.name == limbName }
-        val transform = limb[TransformPart::class].transform
+    private fun updateLimbTransform(limb: Limb, transformedSkeleton: Skeleton) {
+        val bone = transformedSkeleton.findBone(limb.name)
+        val transform = limb.entity[TransformPart::class].transform
         val newWorld = Vector2(bone.worldX, bone.worldY)
         transform.rotation = bone.worldRotationX
-        val attachment = skeleton.slots.filter { it.bone.data.name == limbName }.map { it.attachment }
-                .filterIsInstance<RegionAttachment>().firstOrNull()
+        val attachment = limb.getAttachments().filterIsInstance<RegionAttachment>().firstOrNull()
         updateTransform(transform, attachment, bone, newWorld)
     }
 
