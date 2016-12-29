@@ -1,7 +1,7 @@
 package dc.targetman.skeleton
 
 import com.esotericsoftware.spine.Bone
-import com.esotericsoftware.spine.attachments.Attachment
+import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
@@ -20,8 +20,10 @@ class Limb(val bone: Bone, val entity: Entity, val container: Entity) {
     private val skeletonPart: SkeletonPart
         get() = container[SkeletonPart::class]
 
-    fun getAttachments(): List<Attachment> {
-        return skeletonPart.skeleton.slots.filter { it.bone.data.name == name }.map { it.attachment }
+    fun getRegionAttachment(): RegionAttachment? {
+        // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
+        val attachments = skeletonPart.skeleton.slots.filter { it.bone.data.name == name }.map { it.attachment }
+        return attachments.filterIsInstance<RegionAttachment>().singleOrNull()
     }
 
     fun getChildren(): List<Limb> {

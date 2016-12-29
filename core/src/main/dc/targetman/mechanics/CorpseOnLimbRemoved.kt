@@ -2,10 +2,10 @@ package dc.targetman.mechanics
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
-import com.esotericsoftware.spine.Bone
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbRemovedEvent
+import dc.targetman.skeleton.SkeletonUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
@@ -32,7 +32,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent)
             for (childLimb in limb.getChildren()) {
                 val childCorpseTransform = createCorpseChain(childLimb)
                 if (childCorpseTransform != null) {
-                    createJoint(corpseTransform, childLimb.bone, childCorpseTransform)
+                    createJoint(corpseTransform, childLimb, childCorpseTransform)
                 }
             }
         }
@@ -53,17 +53,19 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent)
         return corpseEntity
     }
 
-    private fun createJoint(corpseTransform: Box2dTransform, childBone: Bone, childCorpseTransform: Box2dTransform) {
+    private fun createJoint(parentTransform: Box2dTransform, childLimb: Limb, childTransform: Box2dTransform) {
         val jointDef = RevoluteJointDef()
         jointDef.collideConnected = false
-        jointDef.bodyA = corpseTransform.body
-        val boneGlobal = Vector2(childBone.worldX, childBone.worldY)
-        val localAnchorA = corpseTransform.toLocal(boneGlobal)
+        // TODO: Cleanup
+        jointDef.bodyA = parentTransform.body
+        val transformOffset = SkeletonUtils.getOffset(childLimb.bone, childLimb.getRegionAttachment()!!, Vector2(1f, 1f))
+        val boneGlobal = SkeletonUtils.getOrigin(childTransform.size).add(transformOffset)
+        val localAnchorA = parentTransform.toLocal(boneGlobal)
         jointDef.localAnchorA.set(localAnchorA)
-        jointDef.bodyB = childCorpseTransform.body
-        val localAnchorB = childCorpseTransform.toLocal(boneGlobal)
+        jointDef.bodyB = childTransform.body
+        val localAnchorB = childTransform.toLocal(boneGlobal)
         jointDef.localAnchorB.set(localAnchorB)
-        corpseTransform.body.world.createJoint(jointDef)
+        parentTransform.body.world.createJoint(jointDef)
     }
 
     private fun createCorpseTransform(transform: Box2dTransform): Box2dTransform {

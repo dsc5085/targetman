@@ -43,7 +43,7 @@ class CharacterFactory(
         val limbEntities = createLimbEntities(character, alliance, entity)
         entity.attach(SkeletonPart(skeleton, baseScale, limbEntities))
         val target = alliance.target.name
-        val weapon = Weapon(0.1f, 1, 35f, 28f, 32f, 0f, target)
+        val weapon = Weapon(0.1f, 1, 2f, 28f, 32f, 0f, target)
         entity.attach(WeaponPart(weapon, character.rotatorName, character.muzzleName))
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))

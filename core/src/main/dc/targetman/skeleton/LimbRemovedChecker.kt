@@ -8,6 +8,7 @@ class LimbRemovedChecker(entityManager: EntityManager) {
     val limbRemoved = EventDelegate<LimbRemovedEvent>()
 
     private val entityManager = entityManager
+    private val ignoredLimbs = mutableListOf<Limb>()
 
     init {
         entityManager.entityRemoved.on { handleEntityRemoved(it.entity) }
@@ -15,10 +16,11 @@ class LimbRemovedChecker(entityManager: EntityManager) {
 
     private fun handleEntityRemoved(entity: Entity) {
         val limb = LimbUtils.find(entityManager.all, entity)
-        if (limb != null) {
+        if (limb != null && !ignoredLimbs.remove(limb)) {
             limbRemoved.notify(LimbRemovedEvent(limb))
-            val descendantEntities = limb.getDescendants().map { it.entity }
-            entityManager.removeAll(descendantEntities)
+            val descendants = limb.getDescendants()
+            ignoredLimbs.addAll(descendants)
+            entityManager.removeAll(descendants.map { it.entity })
         }
     }
 }
