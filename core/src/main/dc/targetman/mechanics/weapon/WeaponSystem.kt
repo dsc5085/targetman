@@ -7,7 +7,6 @@ import dc.targetman.physics.PhysicsUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
-import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
@@ -40,8 +39,8 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
         val weaponPart = entity[WeaponPart::class]
         if (weaponPart.shouldFire()) {
             val weapon = weaponPart.weapon
-            val muzzleEntity = entity[SkeletonPart::class][weaponPart.muzzleName].entity
-            val muzzleTransform = muzzleEntity[TransformPart::class].transform
+            val muzzleLimb = entity[SkeletonPart::class][weaponPart.muzzleName]
+            val muzzleTransform = muzzleLimb.transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.all, entity, recoil)
             createBullets(muzzleTransform, weapon)

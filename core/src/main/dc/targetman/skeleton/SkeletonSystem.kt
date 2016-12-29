@@ -55,7 +55,7 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
 
     private fun updateLimbTransform(limb: Limb, transformedSkeleton: Skeleton) {
         val bone = transformedSkeleton.findBone(limb.name)
-        val transform = limb.entity[TransformPart::class].transform
+        val transform = limb.transform
         val newWorld = Vector2(bone.worldX, bone.worldY)
         transform.rotation = bone.worldRotationX
         val attachment = limb.getAttachments().filterIsInstance<RegionAttachment>().firstOrNull()
@@ -68,8 +68,8 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
             transform.rotation += getScaledRotation(attachment.rotation, boneScale)
             val offsetRotation = getScaledRotation(bone.worldRotationX, boneScale)
             transform.scale = calculateTransformScale(boneScale, attachment.rotation)
-            val localOffset = Vector2(attachment.x, attachment.y).rotate(offsetRotation).scl(transform.scale)
-            newWorld.add(localOffset)
+            val offsetFromBone = Vector2(attachment.x, attachment.y).rotate(offsetRotation).scl(transform.scale)
+            newWorld.add(offsetFromBone)
         }
         val origin = transform.size.scl(0.5f)
         transform.setWorld(origin, newWorld)

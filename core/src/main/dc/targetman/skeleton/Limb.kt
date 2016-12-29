@@ -4,6 +4,8 @@ import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.attachments.Attachment
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
+import dclib.epf.parts.TransformPart
+import dclib.physics.Transform
 
 class Limb(val bone: Bone, val entity: Entity, val container: Entity) {
     val name: String
@@ -11,6 +13,9 @@ class Limb(val bone: Bone, val entity: Entity, val container: Entity) {
 
     val isActive: Boolean
         get() = entity.isActive
+
+    val transform: Transform
+        get() = entity[TransformPart::class].transform
 
     private val skeletonPart: SkeletonPart
         get() = container[SkeletonPart::class]
