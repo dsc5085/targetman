@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbRemovedEvent
-import dc.targetman.skeleton.SkeletonUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
@@ -56,14 +55,12 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent)
     private fun createJoint(parentTransform: Box2dTransform, childLimb: Limb, childTransform: Box2dTransform) {
         val jointDef = RevoluteJointDef()
         jointDef.collideConnected = false
-        // TODO: Cleanup
         jointDef.bodyA = parentTransform.body
-        val transformOffset = SkeletonUtils.getOffset(childLimb.bone, childLimb.getRegionAttachment()!!, Vector2(1f, 1f))
-        val boneGlobal = childTransform.toWorld(SkeletonUtils.getOrigin(childTransform.size)).add(transformOffset)
-        val localAnchorA = parentTransform.toLocal(boneGlobal)
+        val boneWorld = Vector2(childLimb.bone.worldX, childLimb.bone.worldY)
+        val localAnchorA = parentTransform.toLocal(boneWorld)
         jointDef.localAnchorA.set(localAnchorA)
         jointDef.bodyB = childTransform.body
-        val localAnchorB = childTransform.toLocal(boneGlobal)
+        val localAnchorB = childTransform.toLocal(boneWorld)
         jointDef.localAnchorB.set(localAnchorB)
         parentTransform.body.world.createJoint(jointDef)
     }

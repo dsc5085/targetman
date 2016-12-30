@@ -26,12 +26,12 @@ class Limb(val name: String, val entity: Entity, val container: Entity) {
         return attachments.filterIsInstance<RegionAttachment>().singleOrNull()
     }
 
-    fun getChildren(): List<Limb> {
-        return bone.children.map { skeletonPart[it.data.name] }
+    fun getChildren(): Set<Limb> {
+        return bone.children.map { skeletonPart[it.data.name] }.filter { it.isActive }.toSet()
     }
 
-    fun getDescendants(): List<Limb> {
-        val descendants = bone.children.flatMap { skeletonPart[it.data.name].getDescendants() }
-        return descendants.plus(this)
+    fun getDescendants(): Set<Limb> {
+        val descendants = getChildren().flatMap { it.getDescendants().plus(it) }
+        return descendants.toSet()
     }
 }

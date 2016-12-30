@@ -15,8 +15,9 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
 : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val weaponPart = entity.tryGet(WeaponPart::class)
-        if (weaponPart != null && hasFiringLimbs(entity)) {
-            entity[SkeletonPart::class].playAnimation("aim", 1)
+        val skeletonPart = entity.tryGet(SkeletonPart::class)
+        if (weaponPart != null && hasFiringLimbs(weaponPart, skeletonPart!!)) {
+            skeletonPart.playAnimation("aim", 1)
             aim(delta, weaponPart)
             fire(entity)
             weaponPart.update(delta)
@@ -24,10 +25,10 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
         }
     }
 
-    private fun hasFiringLimbs(entity: Entity): Boolean {
-        val rotatorName = entity[WeaponPart::class].rotatorName
-        val rotatorLimb = entity[SkeletonPart::class][rotatorName]
-        return rotatorLimb.getDescendants().all { it.isActive }
+    private fun hasFiringLimbs(weaponPart: WeaponPart, skeletonPart: SkeletonPart): Boolean {
+        val rotatorName = weaponPart.rotatorName
+        val rotatorLimb = skeletonPart[rotatorName]
+        return rotatorLimb.getDescendants().any { it.name == weaponPart.muzzleName }
     }
 
     private fun aim(delta: Float, weaponPart: WeaponPart) {
