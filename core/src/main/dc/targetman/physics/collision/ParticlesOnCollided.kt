@@ -40,7 +40,7 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
             position: Vector3,
             velocity: Vector2) {
 		val numParticles = 10
-		val sizeRange = FloatRange(0.01f, 0.07f)
+		val sizeRange = FloatRange(0.05f, 0.15f)
 		val rotationDiffRange = FloatRange(-10f, 10f)
 		val velocityRatioRange = FloatRange(0.1f, 0.5f)
         val targetAlliance = EntityUtils.getAlliance(targetEntity)

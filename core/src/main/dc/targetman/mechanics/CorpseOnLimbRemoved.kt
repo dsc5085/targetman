@@ -56,14 +56,9 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : 
 
     private fun createJoint(parentTransform: Box2dTransform, childLimb: Limb, childTransform: Box2dTransform) {
         val jointDef = RevoluteJointDef()
-        jointDef.collideConnected = false
-        jointDef.bodyA = parentTransform.body
         val boneWorld = Vector2(childLimb.bone.worldX, childLimb.bone.worldY)
-        val localAnchorA = parentTransform.toLocal(boneWorld)
-        jointDef.localAnchorA.set(localAnchorA)
-        jointDef.bodyB = childTransform.body
-        val localAnchorB = childTransform.toLocal(boneWorld)
-        jointDef.localAnchorB.set(localAnchorB)
+        jointDef.initialize(parentTransform.body, childTransform.body, boneWorld)
+        jointDef.collideConnected = false
         parentTransform.body.world.createJoint(jointDef)
     }
 
@@ -84,7 +79,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : 
             corpseTransform = Box2dTransform(transform)
         } else {
             // TODO: Move this code into a new constructor?
-            val body = Box2dUtils.createDynamicBody(world, transform.vertices)
+            val body = Box2dUtils.createDynamicBody(world, transform.getVertices())
             corpseTransform = Box2dTransform(body)
             corpseTransform.position = transform.position
             corpseTransform.rotation = transform.rotation
