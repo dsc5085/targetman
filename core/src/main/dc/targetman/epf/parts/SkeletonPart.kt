@@ -24,7 +24,7 @@ class SkeletonPart(skeleton: Skeleton, private val limbs: List<Limb>) {
             root.transform.scale = scale
         }
 
-    private val root: Limb
+    val root: Limb
         get() = get(skeleton.rootBone.data.name)
 
     operator fun get(name: String): Limb {

@@ -106,7 +106,7 @@ class LevelController(
 
 	private fun createAdvancer(): Advancer {
         val limbRemovedChecker = LimbRemovedChecker(entityManager)
-        limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager))
+		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
 		return Advancer(
 				createInputUpdater(),
 				createAiSystem(),

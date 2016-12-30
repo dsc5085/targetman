@@ -8,7 +8,8 @@ object LimbUtils {
         var limb: Limb? = null
         val container = findContainer(entities, entityToFind)
         if (container != null) {
-            limb = container[SkeletonPart::class][entityToFind]
+            val skeletonPart = container[SkeletonPart::class]
+            limb = if (entityToFind == container) skeletonPart.root else skeletonPart[entityToFind]
         }
         return limb
     }

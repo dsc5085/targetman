@@ -8,7 +8,6 @@ import dc.targetman.character.CharacterFactory
 import dc.targetman.character.CharacterLoader
 import dc.targetman.epf.parts.ForcePart
 import dc.targetman.mechanics.Alliance
-import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
@@ -32,7 +31,7 @@ class EntityFactory(
 
     fun createWall(vertices: List<Vector2>?) {
         val entity = Entity()
-        val body = PhysicsUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
+        val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
         body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         entity.attach(TransformPart(Box2dTransform(0f, body)))
@@ -99,7 +98,7 @@ class EntityFactory(
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {
         val hull = convexHullCache.create(regionName, size).hull
-        return PhysicsUtils.createDynamicBody(world, hull, sensor)
+        return Box2dUtils.createDynamicBody(world, hull, sensor)
     }
 
     private fun setFilterGroup(body: Body, attributes: Set<Enum<*>>) {

@@ -31,7 +31,7 @@ class JumpChecker(private val world: World, private val jumpVelocitySolver: Jump
 
     private fun createBody(size: Vector2): Body {
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
-        val body = PhysicsUtils.createDynamicBody(world, vertices, false)
+        val body = Box2dUtils.createDynamicBody(world, vertices, false)
         body.isFixedRotation = true
         body.isBullet = true
         return body

@@ -11,7 +11,6 @@ import dc.targetman.epf.parts.*
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.DeathForm
 import dc.targetman.mechanics.weapon.Weapon
-import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.bounds
@@ -128,7 +127,7 @@ class CharacterFactory(
         entity.attribute(alliance, limb.material, DeathForm.CORPSE)
         val region = textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
-        val body = PhysicsUtils.createDynamicBody(world, vertices, true)
+        val body = Box2dUtils.createDynamicBody(world, vertices, true)
         body.gravityScale = 0f
         body.userData = entity
         val transform = Box2dTransform(body)
@@ -142,7 +141,7 @@ class CharacterFactory(
 
     private fun createSimpleEntity(alliance: Alliance, scale: Vector2): Entity {
         val entity = Entity()
-        entity.attribute(alliance)
+        entity.attribute(alliance, DeathForm.CORPSE)
         val transform = DefaultTransform()
         transform.scale = scale
         entity.attach(TransformPart(transform))
