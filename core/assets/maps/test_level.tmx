@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="46">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="53">
  <tileset firstgid="1" name="level" tilewidth="32" tileheight="32" tilecount="3" columns="0">
   <tile id="0">
    <image width="32" height="32" source="../textures/level/block.png"/>
@@ -124,5 +124,12 @@
  <objectgroup color="#000000" name="Actors">
   <object id="29" gid="2" x="188" y="3107" width="32" height="32"/>
   <object id="45" gid="3" x="83" y="3077" width="32" height="32"/>
+  <object id="46" gid="3" x="800" y="2742" width="32" height="32"/>
+  <object id="47" gid="3" x="352" y="2681" width="32" height="32"/>
+  <object id="48" gid="3" x="635" y="2683" width="32" height="32"/>
+  <object id="49" gid="3" x="705" y="2952" width="32" height="32"/>
+  <object id="50" gid="3" x="1007" y="2900" width="32" height="32"/>
+  <object id="51" gid="3" x="158" y="2945" width="32" height="32"/>
+  <object id="52" gid="3" x="325" y="2980" width="32" height="32"/>
  </objectgroup>
 </map>

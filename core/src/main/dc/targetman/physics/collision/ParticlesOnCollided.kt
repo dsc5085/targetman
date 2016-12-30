@@ -28,7 +28,7 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 
 	private fun createSparks(sourceEntity: Entity, target: Contacter, position: Vector3) {
         val targetAlliance = EntityUtils.getAlliance(target.entity)
-        val notTargetAlliance = targetAlliance != null && !sourceEntity.of(targetAlliance)
+        val notTargetAlliance = targetAlliance == null || !sourceEntity.of(targetAlliance)
         if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL)) {
 			particlesManager.createEffect("spark", Vector2(position.x, position.y))
 		}

@@ -66,7 +66,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : 
         val corpseTransform = createBox2dTransform(transform)
         val corpseBody = corpseTransform.body
         corpseBody.gravityScale = 1f
-        Box2dUtils.setFilter(corpseBody, CollisionCategory.ALL, CollisionCategory.STATIC, 0)
+        Box2dUtils.setFilter(corpseBody, CollisionCategory.ALL, CollisionCategory.STATIC)
         for (fixture in corpseBody.fixtureList) {
             fixture.isSensor = false
         }
