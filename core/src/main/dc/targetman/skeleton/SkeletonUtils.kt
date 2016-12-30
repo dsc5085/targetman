@@ -16,7 +16,7 @@ object SkeletonUtils {
     }
 
     fun getOffset(from: Bone, to: RegionAttachment, toScale: Vector2): Vector2 {
-        // TODO: calculate scale or pass it in, e.g. toScale
+        // TODO: see if its better to calculate scale or pass it in, e.g. toScale
 //        val boneScale = getScale(from)
         val attachmentScale = calculateAttachmentScale(toScale, to.rotation)
         val offsetRotation = getScaledRotation(from.worldRotationX, toScale)

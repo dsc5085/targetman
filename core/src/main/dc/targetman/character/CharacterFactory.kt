@@ -34,14 +34,15 @@ class CharacterFactory(
         val entity = Entity()
         entity.attribute(alliance)
         val skeleton = character.skeleton
-        val baseScaleValue = skeleton.rootBone.scaleY * height / skeleton.bounds.height
+        val skeletonSize = skeleton.bounds.size
+        val baseScaleValue = skeleton.rootBone.scaleY * height / skeletonSize.y
         val baseScale = Vector2(baseScaleValue, baseScaleValue)
-        val body = createBody(skeleton.bounds.size.cpy().scl(baseScale), position)
+        val body = createBody(skeletonSize.cpy().scl(baseScale), position)
         body.userData = entity
         val transform = Box2dTransform(position.z, body)
         entity.attach(TransformPart(transform))
-        val limbEntities = createLimbEntities(character, alliance, entity)
-        entity.attach(SkeletonPart(skeleton, baseScale, limbEntities))
+        val limbEntities = createLimbs(character, alliance, entity, baseScale)
+        entity.attach(SkeletonPart(skeleton, limbEntities))
         val target = alliance.target.name
         val weapon = Weapon(0.1f, 1, 2f, 28f, 32f, 0f, target)
         entity.attach(WeaponPart(weapon, character.rotatorName, character.muzzleName))
@@ -80,28 +81,33 @@ class CharacterFactory(
         return body
     }
 
-    private fun createLimbEntities(character: Character, alliance: Alliance, container: Entity): List<Limb> {
+    private fun createLimbs(
+            character: Character,
+            alliance: Alliance,
+            container: Entity,
+            baseScale: Vector2
+    ): List<Limb> {
         val limbs = mutableListOf<Limb>()
         for (bone in character.skeleton.bones) {
-            val entity = createEntity(alliance, bone, character)
-            limbs.add(Limb(bone, entity, container))
+            val entity = createLimbEntity(alliance, bone, character, baseScale)
+            limbs.add(Limb(bone.data.name, entity, container))
         }
         return limbs
     }
 
-    private fun createEntity(alliance: Alliance, bone: Bone, character: Character): Entity {
-        val regionAttachment = getRegionAttachments(character.skeleton, bone).firstOrNull()
+    private fun createLimbEntity(alliance: Alliance, bone: Bone, character: Character, baseScale: Vector2): Entity {
         val name = bone.data.name
         val entity: Entity
+        val regionAttachment = getRegionAttachments(character.skeleton, bone).firstOrNull()
         if (regionAttachment != null) {
             val limb = character.limbs.single { it.name == name }
             val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
-            val size = Vector2(regionAttachment.width, regionAttachment.height).scl(regionScale.abs())
+            val size = Vector2(regionAttachment.width, regionAttachment.height).scl(baseScale).scl(regionScale.abs())
             val regionName = "${character.atlasName}/${regionAttachment.path}"
             val scale = VectorUtils.sign(regionScale)
             entity = createLimbEntity(limb, size, scale, regionName, alliance)
         } else {
-            entity = createSimpleEntity(alliance)
+            entity = createSimpleEntity(alliance, baseScale)
         }
         return entity
     }
@@ -111,15 +117,13 @@ class CharacterFactory(
         return boneSlots.map { it.attachment }.filterIsInstance<RegionAttachment>()
     }
 
-    private fun createSimpleEntity(alliance: Alliance): Entity {
-        val entity = Entity()
-        entity.attribute(alliance)
-        val transform = DefaultTransform()
-        entity.attach(TransformPart(transform))
-        return entity
-    }
-
-    private fun createLimbEntity(limb: CharacterLimb, size: Vector2, scale: Vector2, regionName: String, alliance: Alliance): Entity {
+    private fun createLimbEntity(
+            limb: CharacterLimb,
+            size: Vector2,
+            scale: Vector2,
+            regionName: String,
+            alliance: Alliance
+    ): Entity {
         val entity = Entity()
         entity.attribute(alliance, limb.material, DeathForm.CORPSE)
         val region = textureCache.getPolygonRegion(regionName)
@@ -133,6 +137,15 @@ class CharacterFactory(
         val group = (-Box2dUtils.toGroup(alliance)).toShort()
         Box2dUtils.setFilter(body, group = group)
         entity.attach(HealthPart(limb.health))
+        return entity
+    }
+
+    private fun createSimpleEntity(alliance: Alliance, scale: Vector2): Entity {
+        val entity = Entity()
+        entity.attribute(alliance)
+        val transform = DefaultTransform()
+        transform.scale = scale
+        entity.attach(TransformPart(transform))
         return entity
     }
 }

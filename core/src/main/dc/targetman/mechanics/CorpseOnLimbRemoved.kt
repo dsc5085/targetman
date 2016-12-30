@@ -59,7 +59,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager) : (LimbRemovedEvent)
         // TODO: Cleanup
         jointDef.bodyA = parentTransform.body
         val transformOffset = SkeletonUtils.getOffset(childLimb.bone, childLimb.getRegionAttachment()!!, Vector2(1f, 1f))
-        val boneGlobal = SkeletonUtils.getOrigin(childTransform.size).add(transformOffset)
+        val boneGlobal = childTransform.toWorld(SkeletonUtils.getOrigin(childTransform.size)).add(transformOffset)
         val localAnchorA = parentTransform.toLocal(boneGlobal)
         jointDef.localAnchorA.set(localAnchorA)
         jointDef.bodyB = childTransform.body

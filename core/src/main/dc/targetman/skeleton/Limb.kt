@@ -7,12 +7,12 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.physics.Transform
 
-class Limb(val bone: Bone, val entity: Entity, val container: Entity) {
-    val name: String
-        get() = bone.data.name
-
+class Limb(val name: String, val entity: Entity, val container: Entity) {
     val isActive: Boolean
         get() = entity.isActive
+
+    val bone: Bone
+        get() = skeletonPart.skeleton.findBone(name)
 
     val transform: Transform
         get() = entity[TransformPart::class].transform

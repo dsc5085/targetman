@@ -7,18 +7,25 @@ import com.esotericsoftware.spine.Skeleton
 import dc.targetman.skeleton.Limb
 import dclib.epf.Entity
 
-class SkeletonPart(
-        val skeleton: Skeleton,
-        val baseScale: Vector2,
-        private val limbs: List<Limb>) {
+class SkeletonPart(skeleton: Skeleton, private val limbs: List<Limb>) {
+    var skeleton: Skeleton = Skeleton(skeleton)
     val animationState = createAnimationState()
+
+    val baseScale: Vector2
+        get() {
+            return root.transform.scale
+        }
 
     var flipX: Boolean
         get() = baseScale.x < 0
         set(value) {
-            val absScaleX = Math.abs(baseScale.x)
-            baseScale.x = if (value) -absScaleX else absScaleX
+            val scale = baseScale
+            scale.x = Math.abs(scale.x) * if (value) -1 else 1
+            root.transform.scale = scale
         }
+
+    private val root: Limb
+        get() = get(skeleton.rootBone.data.name)
 
     operator fun get(name: String): Limb {
         return limbs.single { it.name == name }
