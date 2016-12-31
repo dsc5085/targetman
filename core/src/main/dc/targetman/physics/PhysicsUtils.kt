@@ -12,8 +12,9 @@ object PhysicsUtils {
     }
 
     fun applyForce(entities: List<Entity>, target: Entity, force: Vector2) {
-        val actualTarget = LimbUtils.findContainer(entities, target) ?: target
-        val actualTransform = actualTarget[TransformPart::class].transform
-        actualTransform.applyImpulse(force)
+        val targetContainer = LimbUtils.find(entities, target)?.container
+        val actualTarget = targetContainer ?: target
+        val transform = actualTarget[TransformPart::class].transform
+        transform.applyImpulse(force)
     }
 }

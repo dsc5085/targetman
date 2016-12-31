@@ -1,23 +1,20 @@
 package dc.targetman.mechanics
 
-import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.VitalLimbsPart
-import dclib.epf.Entity
+import dc.targetman.skeleton.LimbUtils
 import dclib.epf.EntityManager
-import dclib.epf.EntitySystem
+import dclib.epf.EntityRemovedEvent
 
-class VitalLimbsSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
-	private val entityManager: EntityManager = entityManager
-
-	// TODO: Subscribe to entity removed event instead of polling
-	override fun update(delta: Float, entity: Entity) {
-        val vitalLimbsPart = entity.tryGet(VitalLimbsPart::class)
-        if (vitalLimbsPart != null) {
-            val skeletonPart = entity[SkeletonPart::class]
-            val isVitalLimbDead = vitalLimbsPart.limbNames.any { !skeletonPart[it].isActive }
-            if (isVitalLimbDead) {
-                entityManager.remove(entity)
+class VitalLimbsSystem(private val entityManager: EntityManager) : (EntityRemovedEvent) -> Unit {
+    override fun invoke(event: EntityRemovedEvent) {
+        val limb = LimbUtils.find(entityManager.all, event.entity)
+        if (limb != null) {
+            val vitalLimbsPart = limb.container.tryGet(VitalLimbsPart::class)
+            if (vitalLimbsPart != null) {
+                if (vitalLimbsPart.limbNames.contains(limb.name)) {
+                    entityManager.remove(limb.container)
+                }
             }
-		}
-	}
+        }
+    }
 }
