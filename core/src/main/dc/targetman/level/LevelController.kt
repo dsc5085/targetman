@@ -44,17 +44,16 @@ import dclib.system.Advancer
 import dclib.system.Updater
 
 class LevelController(
-        private val textureCache: TextureCache,
-        spriteBatch: PolygonSpriteBatch,
-        shapeRenderer: ShapeRenderer) {
-	private val PIXELS_PER_UNIT = 32f
-
+		private val textureCache: TextureCache,
+		spriteBatch: PolygonSpriteBatch,
+		shapeRenderer: ShapeRenderer,
+		pixelsPerUnit: Float,
+		private val camera: OrthographicCamera) {
 	private val entityFactory: EntityFactory
 	private val entityManager = DefaultEntityManager()
-    private val world = PhysicsUtils.createWorld()
+	private val world = PhysicsUtils.createWorld()
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
-    private val camera = OrthographicCamera(640f, 480f)
 	private val mapRenderer: MapRenderer
 	private val screenHelper: ScreenHelper
 	private val particlesManager: ParticlesManager
@@ -63,14 +62,13 @@ class LevelController(
 	private var isRunning = true
 
 	init {
-		screenHelper = ScreenHelper(PIXELS_PER_UNIT, camera)
+		screenHelper = ScreenHelper(pixelsPerUnit, camera)
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-        entityFactory = EntityFactory(PIXELS_PER_UNIT, entityManager, world, textureCache)
+		entityFactory = EntityFactory(pixelsPerUnit, entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
-        entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
-        entityManager.entityRemoved.on(RemoveContainerOnVitalEntityRemoved(entityManager))
+		entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
 		advancer = createAdvancer()
 		MapLoader(map, screenHelper, entityFactory).createObjects()
 		mapRenderer = OrthogonalTiledMapRenderer(map, 1f, spriteBatch)
@@ -83,17 +81,16 @@ class LevelController(
 	fun dispose() {
 		map.dispose()
 		entityManager.dispose()
-        world.dispose()
+		world.dispose()
 	}
 
 	fun update(delta: Float) {
 		if (isRunning) {
 			advancer.advance(delta)
 			val player = EntityFinder.findPlayer(entityManager)
-            if (player != null) {
-                CameraUtils.follow(player, screenHelper, camera)
-            }
-			mapRenderer.setView(camera)
+			if (player != null) {
+				CameraUtils.follow(player, screenHelper, camera)
+			}
 		}
 	}
 
@@ -102,11 +99,11 @@ class LevelController(
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-//        renderBox2D()
+		renderBox2D()
 	}
 
 	private fun createAdvancer(): Advancer {
-        val limbRemovedChecker = LimbRemovedChecker(entityManager)
+		val limbRemovedChecker = LimbRemovedChecker(entityManager)
 		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
 		return Advancer(
 				createInputUpdater(),
@@ -114,26 +111,27 @@ class LevelController(
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
-                PhysicsUpdater(world, entityManager),
-                createSkeletonSystem(),
+				PhysicsUpdater(world, entityManager),
+				createSkeletonSystem(),
 				createContactChecker(),
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
-                WeaponSystem(entityManager, entityFactory),
+				WeaponSystem(entityManager, entityFactory),
+				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
 	}
 
 	private fun createAiSystem(): AiSystem {
-        val navigator = NavigatorFactory.create(map, world, screenHelper, textureCache)
-        return AiSystem(entityManager, navigator)
+		val navigator = NavigatorFactory.create(map, world, screenHelper, textureCache)
+		return AiSystem(entityManager, navigator)
 	}
 
-    private fun createSkeletonSystem(): SkeletonSystem {
-        val skeletonSystem = SkeletonSystem(entityManager)
-        skeletonSystem.animationApplied.on(AimOnAnimationApplied())
-        return skeletonSystem
-    }
+	private fun createSkeletonSystem(): SkeletonSystem {
+		val skeletonSystem = SkeletonSystem(entityManager)
+		skeletonSystem.animationApplied.on(AimOnAnimationApplied())
+		return skeletonSystem
+	}
 
 	private fun createContactChecker(): ContactChecker {
 		val contactChecker = ContactChecker(world)
@@ -148,23 +146,23 @@ class LevelController(
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
-        return Predicate<CollidedEvent> {
-            val targetEntity = it!!.target.entity
-            val targetAlliance = EntityUtils.getAlliance(targetEntity)
-            val sourceAlliance = EntityUtils.getAlliance(it.source.entity)
-            sourceAlliance != null && sourceAlliance.target === targetAlliance
+		return Predicate<CollidedEvent> {
+			val targetEntity = it!!.target.entity
+			val targetAlliance = EntityUtils.getAlliance(targetEntity)
+			val sourceAlliance = EntityUtils.getAlliance(it.source.entity)
+			sourceAlliance != null && sourceAlliance.target === targetAlliance
 		}
 	}
 
 	private fun createInputUpdater(): Updater {
-        return Updater { processInput() }
+		return Updater { processInput() }
 	}
 
 	private fun processInput() {
 		val player = EntityFinder.findPlayer(entityManager)
-        if (player == null) {
-            return
-        }
+		if (player == null) {
+			return
+		}
 		var moveDirection = Direction.NONE
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			moveDirection = Direction.LEFT
