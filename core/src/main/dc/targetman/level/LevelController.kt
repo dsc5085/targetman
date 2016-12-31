@@ -70,6 +70,7 @@ class LevelController(
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
         entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
+        entityManager.entityRemoved.on(RemoveContainerOnVitalEntityRemoved(entityManager))
 		advancer = createAdvancer()
 		MapLoader(map, screenHelper, entityFactory).createObjects()
 		mapRenderer = OrthogonalTiledMapRenderer(map, 1f, spriteBatch)
@@ -119,7 +120,6 @@ class LevelController(
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
                 WeaponSystem(entityManager, entityFactory),
-				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
 	}

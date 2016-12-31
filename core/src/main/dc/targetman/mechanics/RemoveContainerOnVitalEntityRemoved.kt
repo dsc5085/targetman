@@ -5,7 +5,7 @@ import dc.targetman.skeleton.LimbUtils
 import dclib.epf.EntityManager
 import dclib.epf.EntityRemovedEvent
 
-class VitalLimbsSystem(private val entityManager: EntityManager) : (EntityRemovedEvent) -> Unit {
+class RemoveContainerOnVitalEntityRemoved(private val entityManager: EntityManager) : (EntityRemovedEvent) -> Unit {
     override fun invoke(event: EntityRemovedEvent) {
         val limb = LimbUtils.find(entityManager.all, event.entity)
         if (limb != null) {
