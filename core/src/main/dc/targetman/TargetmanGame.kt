@@ -5,7 +5,7 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.utils.viewport.FitViewport
+import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import dc.targetman.level.LevelController
 import dc.targetman.screens.LevelScreen
@@ -18,13 +18,11 @@ class TargetmanGame : ApplicationAdapter() {
 
 	private val screenManager = ScreenManager()
 	private lateinit var textureCache: TextureCache
-    private lateinit var viewport: Viewport
 	private lateinit var spriteBatch: PolygonSpriteBatch
 	private lateinit var shapeRenderer: ShapeRenderer
 	
 	override fun create() {
 		textureCache = createTextureCache()
-        viewport = createViewport()
 		spriteBatch = PolygonSpriteBatch()
 		shapeRenderer = ShapeRenderer()
 		screenManager.add(createLevelScreen())
@@ -46,6 +44,7 @@ class TargetmanGame : ApplicationAdapter() {
 	}
 
 	private fun createLevelScreen(): Screen? {
+		val viewport = createViewport()
         val camera = viewport.camera as OrthographicCamera
         val controller = LevelController(textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT, camera)
         return LevelScreen(controller, viewport)
@@ -60,9 +59,8 @@ class TargetmanGame : ApplicationAdapter() {
 
     private fun createViewport(): Viewport {
         val aspectRatio = 16f / 9f
-        val viewWidth = 15 * PIXELS_PER_UNIT
-        val viewHeight = viewWidth / aspectRatio
+		val viewWidth = 20f * PIXELS_PER_UNIT
         val camera = OrthographicCamera()
-        return FitViewport(viewWidth, viewHeight, camera)
+		return StretchViewport(viewWidth, viewWidth / aspectRatio, camera)
     }
 }
