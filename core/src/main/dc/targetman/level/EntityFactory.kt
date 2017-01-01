@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.character.CharacterFactory
 import dc.targetman.character.CharacterLoader
 import dc.targetman.epf.parts.ForcePart
+import dc.targetman.epf.parts.ScalePart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
@@ -20,6 +21,7 @@ import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
+import dclib.util.FloatRange
 
 class EntityFactory(
         pixelsPerUnit: Float,
@@ -47,7 +49,7 @@ class EntityFactory(
 
     fun createBullet(transform: Transform, angleOffset: Float, speed: Float, type: String) {
         val targetAlliance = Alliance.valueOf(type) // TODO: hacky...
-        val size = Vector2(0.08f, 0.08f)
+        val size = Vector2(1f, 0.08f)
         val relativeCenter = PolygonUtils.relativeCenter(transform.position, size)
         val position3 = Vector3(relativeCenter.x, relativeCenter.y, 0f)
         val bulletBody = createBody("objects/bullet", size, false)
@@ -57,16 +59,7 @@ class EntityFactory(
         bulletBody.linearVelocity = velocity
         Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
         val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
-        bullet.attach(AutoRotatePart(), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(10f))
-        // TODO:
-//        val trailBody = createBody("objects/bullet_trail", Vector2(1.5f, size.y), true)
-//        val trail = createBaseEntity(trailBody, Vector3(), "objects/bullet_trail")
-//        trail.attach(ScalePart(FloatRange(0f, 1f), 0.2f))
-//        entityManager.add(trail)
-//        val trailLimb = CharacterLimb(trail)
-//        val root = CharacterLimb(bullet).addJoint(trailLimb, 0.04f, 0.04f, 1.46f, 0.04f, 0f)
-//        val limbsPart = SkeletonPart(root)
-        bullet.attach(/*limbsPart, */CollisionRemovePart())
+        bullet.attach(AutoRotatePart(), CollisionRemovePart(), ScalePart(FloatRange(0f, 1f), 0.05f), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(10f))
         entityManager.add(bullet)
     }
 
