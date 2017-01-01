@@ -11,7 +11,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -66,7 +65,7 @@ class LevelController(
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 		entityFactory = EntityFactory(pixelsPerUnit, entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
-		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
+//		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
 		entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
 		advancer = createAdvancer()

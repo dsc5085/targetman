@@ -16,6 +16,7 @@ import dclib.epf.EntityManager
 import dclib.epf.parts.*
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
+import dclib.geometry.inv
 import dclib.graphics.ConvexHullCache
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
@@ -57,7 +58,7 @@ class EntityFactory(
         bulletBody.gravityScale = 0.1f
         val velocity = VectorUtils.toVector2(transform.rotation + angleOffset, speed)
         bulletBody.linearVelocity = velocity
-        Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.ALL)
+        Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.PROJECTILE.inv())
         val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
         bullet.attach(AutoRotatePart(), CollisionRemovePart(), ScalePart(FloatRange(0f, 1f), 0.05f), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(10f))
         entityManager.add(bullet)
