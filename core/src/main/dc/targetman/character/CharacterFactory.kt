@@ -10,6 +10,7 @@ import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.DeathForm
+import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
@@ -133,9 +134,8 @@ class CharacterFactory(
         val transform = Box2dTransform(body)
         transform.scale = scale
         entity.attach(TransformPart(transform), SpritePart(region))
-        val group = (-Box2dUtils.toGroup(alliance)).toShort()
-        Box2dUtils.setFilter(body, group = group)
         entity.attach(HealthPart(limb.health))
+        EntityUtils.filterSameAlliance(entity)
         return entity
     }
 

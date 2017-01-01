@@ -9,6 +9,7 @@ import dc.targetman.character.CharacterLoader
 import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.ScalePart
 import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.EntityUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
@@ -81,7 +82,7 @@ class EntityFactory(
         transform.position = Vector2(position.x, position.y)
         val region = textureCache.getPolygonRegion(regionName)
         entity.attach(TransformPart(transform), SpritePart(region))
-        setFilterGroup(body, entity.getAttributes())
+        EntityUtils.filterSameAlliance(entity)
         return entity
     }
 
@@ -93,12 +94,5 @@ class EntityFactory(
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {
         val hull = convexHullCache.create(regionName, size).hull
         return Box2dUtils.createDynamicBody(world, hull, sensor)
-    }
-
-    private fun setFilterGroup(body: Body, attributes: Set<Enum<*>>) {
-        val alliance = attributes.filterIsInstance(Alliance::class.java).firstOrNull()
-        if (alliance != null) {
-            Box2dUtils.setFilter(body, group = (-alliance.ordinal).toShort())
-        }
     }
 }
