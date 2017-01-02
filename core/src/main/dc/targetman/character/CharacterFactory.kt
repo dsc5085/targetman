@@ -2,7 +2,10 @@ package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
+import com.badlogic.gdx.physics.box2d.PolygonShape
+import com.badlogic.gdx.physics.box2d.World
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.attachments.RegionAttachment
@@ -66,12 +69,8 @@ class CharacterFactory(
         body.isBullet = true
         body.isFixedRotation = true
         body.setTransform(position.x, position.y, 0f)
-        val baseShape = CircleShape()
-        baseShape.radius = halfWidth
-        baseShape.position = Vector2(0f, -boxHalfHeight)
-        val baseFixture = body.createFixture(baseShape, 0f)
-        baseFixture.friction = 0.1f
-        baseShape.dispose()
+        val basePosition = Vector2(0f, -boxHalfHeight)
+        createBaseFixtures(basePosition, body, halfWidth)
         val boxShape = PolygonShape()
         boxShape.setAsBox(halfWidth, boxHalfHeight)
         val bodyFixture = body.createFixture(boxShape, 1f)
@@ -79,6 +78,19 @@ class CharacterFactory(
         boxShape.dispose()
         Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.inv())
         return body
+    }
+
+    private fun createBaseFixtures(basePosition: Vector2, body: Body, halfWidth: Float) {
+        val numPerimeterPoints = 14
+        val baseVertices = PolygonUtils.createCircleVertices(halfWidth, basePosition, numPerimeterPoints)
+        val baseVerticesPartitions = PolygonUtils.partition(baseVertices)
+        for (baseVerticesPartition in baseVerticesPartitions) {
+            val baseShape = PolygonShape()
+            baseShape.set(baseVerticesPartition)
+            val baseFixture = body.createFixture(baseShape, 0f)
+            baseFixture.friction = 0.1f
+            baseShape.dispose()
+        }
     }
 
     private fun createLimbs(

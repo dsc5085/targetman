@@ -33,7 +33,7 @@ class EntityFactory(
     private val convexHullCache = ConvexHullCache(textureCache)
     private val characterFactory = createCharacterFactory()
 
-    fun createWall(vertices: List<Vector2>?) {
+    fun createWall(vertices: List<Vector2>) {
         val entity = Entity()
         val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
         body.userData = entity

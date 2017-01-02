@@ -49,9 +49,9 @@ public final class MapLoader {
 	}
 
 	private List<Vector2> createTileVertices(final int x, final int y) {
-		float[] vertices = PolygonUtils.createRectangleVertices(new Rectangle(x, y, 1, 1));
-		return PolygonUtils.toVectors(vertices);
-	}
+        float[] vertices = PolygonUtils.INSTANCE.createRectangleVertices(new Rectangle(x, y, 1, 1));
+        return PolygonUtils.INSTANCE.toVectors(vertices);
+    }
 
 	private void createActors() {
 		MapLayer layer = map.getLayers().get(1);

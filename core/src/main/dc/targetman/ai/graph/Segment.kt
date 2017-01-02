@@ -6,7 +6,7 @@ import dclib.geometry.top
 import dclib.util.CollectionUtils
 import dclib.util.Maths
 
-class Segment(val bounds: Rectangle, landingBuffer: Float) {
+class Segment(val bounds: Rectangle) {
     private val nodes: MutableSet<DefaultNode>
 
     val leftNode = DefaultNode(bounds.x, y)

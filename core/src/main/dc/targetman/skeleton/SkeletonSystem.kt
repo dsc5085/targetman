@@ -19,13 +19,14 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
             updateSkeleton(delta, entity)
+            updateBounds(entity)
             for (limb in skeletonPart.getActiveLimbs()) {
                 updateTransform(limb, skeletonPart.baseScale)
             }
         }
     }
 
-    fun updateSkeleton(delta: Float, entity: Entity) {
+    private fun updateSkeleton(delta: Float, entity: Entity) {
         val skeletonPart = entity[SkeletonPart::class]
         val skeleton = skeletonPart.skeleton
         skeletonPart.animationState.update(delta)
@@ -38,6 +39,14 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         skeleton.updateWorldTransform()
         val transform = entity[TransformPart::class].transform
         updateRootPosition(skeleton, transform.bounds.base)
+    }
+
+    private fun updateBounds(entity: Entity) {
+        val skeleton = entity[SkeletonPart::class].skeleton
+        val height = skeleton.bounds.height
+        val transform = entity[TransformPart::class].transform
+        val worldSize = Vector2(transform.worldSize.x, height)
+        transform.setWorldSize(worldSize)
     }
 
     private fun updateRootPosition(skeleton: Skeleton, basePosition: Vector2) {

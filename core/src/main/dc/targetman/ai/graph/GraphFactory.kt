@@ -12,7 +12,7 @@ class GraphFactory(
         private val agentSize: Vector2,
         private val jumpChecker: JumpChecker) {
     fun create(): DefaultIndexedGraph {
-        val segments = boundsList.map { Segment(it, agentSize.x) }
+        val segments = boundsList.map { Segment(it) }
         connect(segments)
         val nodes = segments.flatMap { it.getNodes() }
         return DefaultIndexedGraph(nodes, segments)
