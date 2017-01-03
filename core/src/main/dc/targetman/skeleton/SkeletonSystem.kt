@@ -1,7 +1,6 @@
 package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.Vector2
-import com.esotericsoftware.spine.Skeleton
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -20,6 +19,7 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         if (skeletonPart != null) {
             updateSkeleton(delta, entity)
             updateBounds(entity)
+            updateRootPosition(entity)
             for (limb in skeletonPart.getActiveLimbs()) {
                 updateTransform(limb, skeletonPart.baseScale)
             }
@@ -37,21 +37,20 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         skeleton.rootBone.scaleX = skeletonPart.baseScale.x
         skeleton.rootBone.scaleY = skeletonPart.baseScale.y
         skeleton.updateWorldTransform()
-        val transform = entity[TransformPart::class].transform
-        updateRootPosition(skeleton, transform.bounds.base)
     }
 
     private fun updateBounds(entity: Entity) {
         val skeleton = entity[SkeletonPart::class].skeleton
-        val height = skeleton.bounds.height
         val transform = entity[TransformPart::class].transform
-        val worldSize = Vector2(transform.worldSize.x, height)
-        transform.setWorldSize(worldSize)
+        val size = Vector2(transform.size.x, skeleton.bounds.height)
+        transform.setSize(size)
     }
 
-    private fun updateRootPosition(skeleton: Skeleton, basePosition: Vector2) {
+    private fun updateRootPosition(entity: Entity) {
+        val skeleton = entity[SkeletonPart::class].skeleton
+        val transform = entity[TransformPart::class].transform
         val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
-        val newRootPosition = basePosition.add(0f, rootYToMinYOffset)
+        val newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
         skeleton.rootBone.x = newRootPosition.x
         skeleton.rootBone.y = newRootPosition.y
         skeleton.updateWorldTransform()
