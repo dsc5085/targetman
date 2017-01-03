@@ -18,11 +18,19 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
             updateSkeleton(delta, entity)
+            removeInactiveSlots(skeletonPart)
             updateBounds(entity)
             updateRootPosition(entity)
             for (limb in skeletonPart.getActiveLimbs()) {
                 updateTransform(limb, skeletonPart.baseScale)
             }
+        }
+    }
+
+    private fun removeInactiveSlots(skeletonPart: SkeletonPart) {
+        val inactiveLimbs = skeletonPart.getAllLimbs().filter { !it.isActive }
+        for (limb in inactiveLimbs) {
+            skeletonPart.skeleton.drawOrder.removeAll { it.attachment === limb.getRegionAttachment() }
         }
     }
 
