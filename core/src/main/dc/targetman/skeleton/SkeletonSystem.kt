@@ -82,6 +82,6 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
             transform.scale = attachmentScale
         }
         val origin = SkeletonUtils.getOrigin(transform.size)
-        transform.setWorld(origin, world)
+        transform.setLocalToWorld(origin, world)
     }
 }

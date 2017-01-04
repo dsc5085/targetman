@@ -64,7 +64,8 @@ public final class MapLoader {
 
 	private Vector3 getWorldPosition(final TiledMapTileMapObject object, final float z) {
 		Vector2 worldPosition = screenHelper.toWorldUnits(object.getX(), object.getY());
-		return new Vector3(worldPosition.x, worldPosition.y, 0);
+        // TODO: Use Vector2Extensions to convert to Vector3
+        return new Vector3(worldPosition.x, worldPosition.y, 0);
 	}
 
 }

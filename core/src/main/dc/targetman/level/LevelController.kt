@@ -18,7 +18,7 @@ import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
-import dc.targetman.physics.collision.StickOnCollided
+import dc.targetman.physics.collision.StainOnCollided
 import dc.targetman.skeleton.AddLimbsOnEntityAdded
 import dc.targetman.skeleton.LimbRemovedChecker
 import dc.targetman.skeleton.SkeletonSystem
@@ -98,7 +98,7 @@ class LevelController(
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-		renderBox2D()
+//		renderBox2D()
 	}
 
 	private fun createAdvancer(): Advancer {
@@ -136,7 +136,7 @@ class LevelController(
 		val contactChecker = ContactChecker(world)
 		val entityCollisionChecker = EntityCollisionChecker(contactChecker)
 		val filter = getCollisionFilter()
-		entityCollisionChecker.collided.on(StickOnCollided(entityManager))
+        entityCollisionChecker.collided.on(StainOnCollided(entityManager))
 		entityCollisionChecker.collided.on(ForceOnCollided(entityManager, filter))
 		entityCollisionChecker.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
 		entityCollisionChecker.collided.on(DamageOnCollided(filter))

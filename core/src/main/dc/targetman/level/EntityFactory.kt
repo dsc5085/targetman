@@ -18,6 +18,7 @@ import dclib.epf.parts.*
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
 import dclib.geometry.inv
+import dclib.geometry.toVector3
 import dclib.graphics.ConvexHullCache
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
@@ -53,7 +54,7 @@ class EntityFactory(
         val targetAlliance = Alliance.valueOf(type) // TODO: hacky...
         val size = Vector2(1f, 0.08f)
         val relativeCenter = PolygonUtils.relativeCenter(transform.position, size)
-        val position3 = Vector3(relativeCenter.x, relativeCenter.y, 0f)
+        val position3 = relativeCenter.toVector3()
         val bulletBody = createBody("objects/bullet", size, false)
         bulletBody.isBullet = true
         bulletBody.gravityScale = 0.1f

@@ -7,9 +7,9 @@ import dc.targetman.level.EntityFactory
 import dc.targetman.mechanics.EntityUtils
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
-import dclib.physics.Contacter
 import dclib.physics.ParticlesManager
 import dclib.physics.collision.CollidedEvent
+import dclib.physics.collision.Contacter
 import dclib.util.FloatRange
 
 class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFactory: EntityFactory)
