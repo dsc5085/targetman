@@ -23,9 +23,12 @@ import dc.targetman.skeleton.AddLimbsOnEntityAdded
 import dc.targetman.skeleton.LimbRemovedChecker
 import dc.targetman.skeleton.SkeletonSystem
 import dclib.epf.DefaultEntityManager
+import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntitySpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
+import dclib.epf.parts.TransformPart
+import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
@@ -48,8 +51,10 @@ class LevelController(
 		shapeRenderer: ShapeRenderer,
 		pixelsPerUnit: Float,
 		private val camera: OrthographicCamera) {
+	val levelFinished = EventDelegate<LevelFinishedEvent>()
+
 	private val entityFactory: EntityFactory
-	private val entityManager = DefaultEntityManager()
+	private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
@@ -66,8 +71,6 @@ class LevelController(
 		entityFactory = EntityFactory(pixelsPerUnit, entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
 //		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
-		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
-		entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
 		advancer = createAdvancer()
 		MapLoader(map, screenHelper, entityFactory).createObjects()
 		mapRenderer = OrthogonalTiledMapRenderer(map, 1f, spriteBatch)
@@ -81,6 +84,7 @@ class LevelController(
 		map.dispose()
 		entityManager.dispose()
 		world.dispose()
+		box2DRenderer.dispose()
 	}
 
 	fun update(delta: Float) {
@@ -89,6 +93,8 @@ class LevelController(
 			val player = EntityFinder.findPlayer(entityManager)
 			if (player != null) {
 				CameraUtils.follow(player, screenHelper, camera)
+			} else {
+				levelFinished.notify(LevelFinishedEvent())
 			}
 		}
 	}
@@ -99,6 +105,13 @@ class LevelController(
 		mapRenderer.render()
 		renderEntities()
 //		renderBox2D()
+	}
+
+	private fun createEntityManager(): EntityManager {
+		val entityManager = DefaultEntityManager()
+		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
+		entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
+		return entityManager
 	}
 
 	private fun createAdvancer(): Advancer {

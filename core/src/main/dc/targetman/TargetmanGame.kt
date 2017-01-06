@@ -1,6 +1,7 @@
 package dc.targetman
 
 import com.badlogic.gdx.ApplicationAdapter
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -47,6 +48,7 @@ class TargetmanGame : ApplicationAdapter() {
 		val viewport = createViewport()
         val camera = viewport.camera as OrthographicCamera
         val controller = LevelController(textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT, camera)
+		controller.levelFinished.on { screenManager.swap(createLevelScreen()) }
         return LevelScreen(controller, viewport)
 	}
 
@@ -61,6 +63,8 @@ class TargetmanGame : ApplicationAdapter() {
         val aspectRatio = 16f / 9f
 		val viewWidth = 20f * PIXELS_PER_UNIT
         val camera = OrthographicCamera()
-		return StretchViewport(viewWidth, viewWidth / aspectRatio, camera)
+		val viewport = StretchViewport(viewWidth, viewWidth / aspectRatio, camera)
+		viewport.update(Gdx.graphics.width, Gdx.graphics.height)
+		return viewport
     }
 }
