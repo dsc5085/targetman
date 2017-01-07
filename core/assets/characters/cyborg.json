@@ -90,5 +90,6 @@
   ],
   "rotatorName": "right_bicep",
   "muzzleName": "muzzle",
-  "atlasName": "skins/man"
+  "atlasName": "skins/man",
+  "weapon": "weapons/shotgun.json"
 }
