@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.character.CharacterFactory
-import dc.targetman.character.CharacterLoader
 import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.ScalePart
 import dc.targetman.mechanics.Alliance
@@ -28,12 +27,11 @@ import dclib.physics.Transform
 import dclib.util.FloatRange
 
 class EntityFactory(
-        pixelsPerUnit: Float,
         private val entityManager: EntityManager,
         private val world: World,
         private val textureCache: TextureCache) {
     private val convexHullCache = ConvexHullCache(textureCache)
-    private val characterFactory = createCharacterFactory()
+    private val characterFactory = CharacterFactory(textureCache, world)
 
     fun createWall(vertices: List<Vector2>) {
         val entity = Entity()
@@ -46,7 +44,7 @@ class EntityFactory(
     }
 
     fun createMan(position: Vector3, alliance: Alliance): Entity {
-        val entity = characterFactory.create("skeletons/man_original.skel", 2f, position, alliance)
+        val entity = characterFactory.create("characters/cyborg.json", 2f, position, alliance)
         entityManager.add(entity)
         return entity
     }
@@ -92,11 +90,6 @@ class EntityFactory(
         entity.attach(TransformPart(transform), SpritePart(region))
         EntityUtils.filterSameAlliance(entity)
         return entity
-    }
-
-    private fun createCharacterFactory(): CharacterFactory {
-        val characterLoader = CharacterLoader(textureCache)
-        return CharacterFactory(characterLoader, textureCache, world)
     }
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {

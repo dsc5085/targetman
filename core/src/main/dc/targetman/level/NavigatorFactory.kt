@@ -27,7 +27,7 @@ object NavigatorFactory {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
-        val entityFactory = EntityFactory(screenHelper.pixelsPerUnit, entityManager, staticWorld, textureCache)
+        val entityFactory = EntityFactory(entityManager, staticWorld, textureCache)
         // TODO: Creating an entity just for this is wasteful.
         val aiEntity = entityFactory.createMan(Vector3(), Alliance.ENEMY)
         MapLoader(map, screenHelper, entityFactory).createStaticObjects()

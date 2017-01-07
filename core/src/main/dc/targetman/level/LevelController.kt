@@ -27,7 +27,6 @@ import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntitySpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
-import dclib.epf.parts.TransformPart
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
 import dclib.graphics.ScreenHelper
@@ -68,7 +67,7 @@ class LevelController(
 	init {
 		screenHelper = ScreenHelper(pixelsPerUnit, camera)
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-		entityFactory = EntityFactory(pixelsPerUnit, entityManager, world, textureCache)
+		entityFactory = EntityFactory(entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
 //		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()

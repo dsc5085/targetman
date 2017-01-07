@@ -1,10 +1,8 @@
 package dc.targetman.character
 
-import com.esotericsoftware.spine.Skeleton
-
 data class Character(
-        val skeleton: Skeleton,
-        val limbs: List<CharacterLimb>,
-        val rotatorName: String,
-        val muzzleName: String,
-        val atlasName: String)
+        val skeletonPath: String = "",
+        val limbs: List<CharacterLimb> = listOf(),
+        val rotatorName: String = "",
+        val muzzleName: String = "",
+        val atlasName: String = "")

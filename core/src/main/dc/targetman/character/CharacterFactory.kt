@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.physics.box2d.World
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
+import com.esotericsoftware.spine.SkeletonBinary
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
@@ -30,15 +31,12 @@ import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.system.io.FileUtils
 
-class CharacterFactory(
-        private val characterLoader: CharacterLoader,
-        private val textureCache: TextureCache,
-        private val world: World) {
-    fun create(skeletonPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
-        val character = characterLoader.create(skeletonPath)
+class CharacterFactory(private val textureCache: TextureCache, private val world: World) {
+    fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
+        val character = Json.toObject<Character>(FileUtils.toFileHandle(characterPath))
         val entity = Entity()
         entity.attribute(alliance)
-        val skeleton = character.skeleton
+        val skeleton = createSkeleton(character.skeletonPath, character.atlasName)
         val skeletonSize = skeleton.bounds.size
         val baseScaleValue = skeleton.rootBone.scaleY * height / skeletonSize.y
         val baseScale = Vector2(baseScaleValue, baseScaleValue)
@@ -46,7 +44,7 @@ class CharacterFactory(
         body.userData = entity
         val transform = Box2dTransform(position.z, body)
         entity.attach(TransformPart(transform))
-        val limbEntities = createLimbs(character, alliance, entity, baseScale)
+        val limbEntities = createLimbs(character, skeleton, alliance, entity, baseScale)
         entity.attach(SkeletonPart(skeleton, limbEntities))
         val weapon = Json.toObject<Weapon>(FileUtils.toFileHandle("weapons/shotgun.json"))
         entity.attach(WeaponPart(weapon, character.rotatorName, character.muzzleName))
@@ -59,6 +57,15 @@ class CharacterFactory(
             entity.attach(AiPart(aiProfile))
         }
         return entity
+    }
+
+    private fun createSkeleton(skeletonPath: String, atlasName: String): Skeleton {
+        val atlas = textureCache.getAtlas(atlasName)
+        val skeletonBinary = SkeletonBinary(atlas)
+        val skeletonFile = FileUtils.toFileHandle(skeletonPath)
+        val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
+        skeleton.updateWorldTransform()
+        return skeleton
     }
 
     private fun createBody(size: Vector2, position: Vector3): Body {
@@ -96,22 +103,28 @@ class CharacterFactory(
 
     private fun createLimbs(
             character: Character,
+            skeleton: Skeleton,
             alliance: Alliance,
             container: Entity,
             baseScale: Vector2
     ): List<Limb> {
         val limbs = mutableListOf<Limb>()
-        for (bone in character.skeleton.bones) {
-            val entity = createLimbEntity(alliance, bone, character, baseScale)
+        for (bone in skeleton.bones) {
+            val entity = createLimbEntity(alliance, bone, character, skeleton, baseScale)
             limbs.add(Limb(bone.data.name, entity, container))
         }
         return limbs
     }
 
-    private fun createLimbEntity(alliance: Alliance, bone: Bone, character: Character, baseScale: Vector2): Entity {
+    private fun createLimbEntity(
+            alliance: Alliance,
+            bone: Bone,
+            character: Character,
+            skeleton: Skeleton,
+            baseScale: Vector2): Entity {
         val name = bone.data.name
         val entity: Entity
-        val regionAttachment = getRegionAttachments(character.skeleton, bone).firstOrNull()
+        val regionAttachment = getRegionAttachments(skeleton, bone).firstOrNull()
         if (regionAttachment != null) {
             val limb = character.limbs.single { it.name == name }
             val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
