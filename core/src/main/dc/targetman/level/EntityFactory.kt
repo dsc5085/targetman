@@ -10,6 +10,7 @@ import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.ScalePart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
+import dc.targetman.mechanics.weapon.Bullet
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
@@ -50,20 +51,26 @@ class EntityFactory(
         return entity
     }
 
-    fun createBullet(transform: Transform, angleOffset: Float, speed: Float, type: String) {
-        val targetAlliance = Alliance.valueOf(type) // TODO: hacky...
-        val size = Vector2(1f, 0.08f)
-        val relativeCenter = PolygonUtils.relativeCenter(transform.position, size)
+    fun createBullet(bullet: Bullet, muzzleTransform: Transform, angleOffset: Float, speed: Float, alliance: Alliance) {
+        val relativeCenter = PolygonUtils.relativeCenter(muzzleTransform.position, bullet.size)
         val position3 = relativeCenter.toVector3()
-        val bulletBody = createBody("objects/bullet", size, false)
+        val bulletBody = createBody(bullet.regionName, bullet.size, false)
         bulletBody.isBullet = true
-        bulletBody.gravityScale = 0.1f
-        val velocity = VectorUtils.toVector2(transform.rotation + angleOffset, speed)
+        bulletBody.gravityScale = bullet.gravityScale
+        val velocity = VectorUtils.toVector2(muzzleTransform.rotation + angleOffset, speed)
         bulletBody.linearVelocity = velocity
         Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.PROJECTILE.inv())
-        val bullet = createBaseEntity(bulletBody, position3, "objects/bullet", targetAlliance.target, Material.METAL)
-        bullet.attach(AutoRotatePart(), CollisionRemovePart(), ScalePart(FloatRange(0f, 1f), 0.05f), TimedDeathPart(3f), CollisionDamagePart(10f), ForcePart(10f))
-        entityManager.add(bullet)
+        val entity = createBaseEntity(bulletBody, position3, bullet.regionName, alliance, Material.METAL)
+        entity.attach(
+                AutoRotatePart(),
+                CollisionRemovePart(),
+                TimedDeathPart(bullet.deathTime),
+                CollisionDamagePart(bullet.damage),
+                ForcePart(bullet.force))
+        if (bullet.scaleTime != null) {
+            entity.attach(ScalePart(FloatRange(0f, 1f), bullet.scaleTime))
+        }
+        entityManager.add(entity)
     }
 
     fun createBloodParticle(size: Float, position: Vector3, velocity: Vector2) {

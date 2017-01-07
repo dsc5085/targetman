@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.World
 import dclib.geometry.PolygonUtils
 import dclib.geometry.base
 import dclib.geometry.size
+import dclib.physics.Box2dUtils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -118,6 +119,6 @@ class JumpCheckerTest {
 
     private fun createWall(world: World, x: Float, y: Float) {
         val vertices = PolygonUtils.createRectangleVertices(Rectangle(x, y, 1f, 1f))
-        PhysicsUtils.createStaticBody(world, vertices)
+        Box2dUtils.createStaticBody(world, vertices)
     }
 }

@@ -3,6 +3,8 @@ package dc.targetman.mechanics.weapon
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.level.EntityFactory
+import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.EntityUtils
 import dc.targetman.physics.PhysicsUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -44,17 +46,17 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
             val muzzleTransform = muzzleLimb.transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.all, entity, recoil)
-            createBullets(muzzleTransform, weapon)
+            createBullets(muzzleTransform, weapon, EntityUtils.getAlliance(entity)!!)
             weaponPart.reset()
         }
     }
 
-    private fun createBullets(muzzleTransform: Transform, weapon: Weapon) {
+    private fun createBullets(muzzleTransform: Transform, weapon: Weapon, alliance: Alliance) {
         val spreadRange = FloatRange(-weapon.spread / 2, weapon.spread / 2)
         for (i in 0..weapon.numBullets - 1) {
             val angleOffset = spreadRange.random()
             val speed = weapon.speedRange.random()
-            entityFactory.createBullet(muzzleTransform, angleOffset, speed, weapon.bulletType)
+            entityFactory.createBullet(weapon.bullet, muzzleTransform, angleOffset, speed, alliance)
         }
     }
 }

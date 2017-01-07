@@ -6,6 +6,7 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
 object EntityUtils {
+    // TODO: Just make a generic get attribute method in Entity
     fun getAlliance(entity: Entity): Alliance? {
         return entity.getAttributes().filterIsInstance<Alliance>().firstOrNull()
     }

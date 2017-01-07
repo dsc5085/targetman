@@ -12,7 +12,7 @@ class CharacterLoader(private val textureCache: TextureCache) {
         val atlasName = "skins/man"
         val atlas = textureCache.getAtlas(atlasName)
         val skeletonBinary = SkeletonBinary(atlas)
-        val skeletonFile = FileUtils.internalPathToFileHandle(skeletonPath)
+        val skeletonFile = FileUtils.toFileHandle(skeletonPath)
         val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
         skeleton.updateWorldTransform()
         return Character(skeleton, createLimbs(), "right_bicep", "muzzle", atlasName)

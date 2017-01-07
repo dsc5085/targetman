@@ -18,6 +18,7 @@ import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.bounds
+import dc.targetman.util.Json
 import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
 import dclib.epf.parts.SpritePart
@@ -27,6 +28,7 @@ import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
+import dclib.system.io.FileUtils
 
 class CharacterFactory(
         private val characterLoader: CharacterLoader,
@@ -46,8 +48,7 @@ class CharacterFactory(
         entity.attach(TransformPart(transform))
         val limbEntities = createLimbs(character, alliance, entity, baseScale)
         entity.attach(SkeletonPart(skeleton, limbEntities))
-        val target = alliance.target.name
-        val weapon = Weapon(0.1f, 1, 2f, 28f, 32f, 0f, target)
+        val weapon = Json.toObject<Weapon>(FileUtils.toFileHandle("weapons/shotgun.json"))
         entity.attach(WeaponPart(weapon, character.rotatorName, character.muzzleName))
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
