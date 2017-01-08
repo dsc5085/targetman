@@ -43,8 +43,8 @@ class EntityFactory(
         entityManager.add(entity)
     }
 
-    fun createMan(position: Vector3, alliance: Alliance): Entity {
-        val entity = characterFactory.create("characters/cyborg.json", 2f, position, alliance)
+    fun createCharacter(characterPath: String, position: Vector3, alliance: Alliance): Entity {
+        val entity = characterFactory.create(characterPath, 2f, position, alliance)
         entityManager.add(entity)
         return entity
     }

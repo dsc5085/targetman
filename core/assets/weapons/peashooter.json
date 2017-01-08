@@ -1,0 +1,9 @@
+{
+  "reloadTime": 2,
+  "numBullets": 1,
+  "spread": 5,
+  "minSpeed": 8,
+  "maxSpeed": 9,
+  "recoil": 0.1,
+  "bullet": "weapons/pellet.json"
+}

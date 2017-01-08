@@ -5,5 +5,5 @@
   "minSpeed": 10,
   "maxSpeed": 11,
   "recoil": 0.2,
-  "bullet": "bullets/pellet.json"
+  "bullet": "weapons/pellet.json"
 }

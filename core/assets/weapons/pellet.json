@@ -7,6 +7,6 @@
   "gravityScale": 0.1,
   "deathTime": 3,
   "damage": 10,
-  "force": 3,
+  "force": 7,
   "scaleTime": 0.05
 }

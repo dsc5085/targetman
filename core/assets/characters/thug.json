@@ -1,0 +1,95 @@
+{
+  "skeletonPath": "skeletons/man_original.skel",
+  "limbs": [
+    {
+      "name": "head",
+      "health": 50,
+      "material": "FLESH",
+      "isVital": true
+    },
+    {
+      "name": "neck",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "torso",
+      "health": 100,
+      "material": "FLESH",
+      "isVital": true
+    },
+    {
+      "name": "gun",
+      "health": 1000,
+      "material": "METAL"
+    },
+    {
+      "name": "right_hand",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "right_forearm",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "right_bicep",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "right_foot",
+      "health": 50,
+      "material": "FLESH",
+      "isMovement": true
+    },
+    {
+      "name": "right_shin",
+      "health": 50,
+      "material": "FLESH",
+      "isMovement": true
+    },
+    {
+      "name": "right_thigh",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "left_hand",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "left_forearm",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "left_bicep",
+      "health": 50,
+      "material": "FLESH"
+    },
+    {
+      "name": "left_foot",
+      "health": 50,
+      "material": "FLESH",
+      "isMovement": true
+    },
+    {
+      "name": "left_shin",
+      "health": 50,
+      "material": "FLESH",
+      "isMovement": true
+    },
+    {
+      "name": "left_thigh",
+      "health": 50,
+      "material": "FLESH"
+    }
+  ],
+  "rotatorName": "right_bicep",
+  "muzzleName": "muzzle",
+  "atlasName": "skins/man",
+  "weapon": "weapons/peashooter.json"
+}
