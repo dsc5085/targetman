@@ -10,6 +10,11 @@ object MapUtils {
         return map.layers.get(0) as TiledMapTileLayer
     }
 
+    fun getPixelsPerUnit(map: TiledMap): Float {
+        val collisionLayer = getCollisionLayer(map)
+        return Math.max(collisionLayer.tileWidth, collisionLayer.tileHeight)
+    }
+
     fun createSegmentBoundsList(map: TiledMap, screenHelper: ScreenHelper): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
         val collisionLayer = getCollisionLayer(map)

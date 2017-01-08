@@ -30,7 +30,7 @@ object NavigatorFactory {
         val entityFactory = EntityFactory(entityManager, staticWorld, textureCache)
         // TODO: Creating an entity just for this is wasteful.
         val aiEntity = entityFactory.createCharacter("characters/thug.json", Vector3(), Alliance.ENEMY)
-        MapLoader(map, screenHelper, entityFactory).createStaticObjects()
+        MapLoader(map, entityFactory).createStaticObjects()
         val agentSize = aiEntity[TransformPart::class].transform.size
         val movementPart = aiEntity[MovementPart::class]
         val speed = Vector2(movementPart.moveSpeed, movementPart.jumpSpeed)

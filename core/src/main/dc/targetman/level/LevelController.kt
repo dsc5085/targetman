@@ -71,8 +71,9 @@ class LevelController(
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
 //		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
-		MapLoader(map, screenHelper, entityFactory).createObjects()
-		mapRenderer = OrthogonalTiledMapRenderer(map, 1f, spriteBatch)
+		MapLoader(map, entityFactory).createObjects()
+		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
+		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
 	}
 
 	fun toggleRunning() {
@@ -103,7 +104,7 @@ class LevelController(
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-//		renderBox2D()
+		renderBox2D()
 	}
 
 	private fun createEntityManager(): EntityManager {
