@@ -7,4 +7,5 @@ data class CharacterLimb(
         val health: Float = 100f,
         val material: Material = Material.FLESH,
         val isMovement: Boolean = false,
-        val isVital: Boolean = false)
+        val isVital: Boolean = false,
+        val isPassive: Boolean = false)

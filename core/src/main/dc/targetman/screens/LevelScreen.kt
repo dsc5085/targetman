@@ -18,8 +18,8 @@ class LevelScreen(private val controller: LevelController, private val viewport:
     }
 
     override fun render(delta: Float) {
-        controller.update(delta)
         controller.draw()
+        controller.update(delta)
     }
 
     override fun resize(width: Int, height: Int) {

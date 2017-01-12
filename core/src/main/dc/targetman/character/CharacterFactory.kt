@@ -1,5 +1,6 @@
 package dc.targetman.character
 
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Body
@@ -149,7 +150,10 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
             alliance: Alliance
     ): Entity {
         val entity = Entity()
-        entity.attribute(alliance, limb.material, DeathForm.CORPSE)
+        entity.attribute(limb.material, DeathForm.CORPSE)
+        if (!limb.isPassive) {
+            entity.attribute(alliance)
+        }
         val region = textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
         val body = Box2dUtils.createDynamicBody(world, vertices, true)
@@ -166,7 +170,12 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
     private fun createSimpleEntity(alliance: Alliance, scale: Vector2): Entity {
         val entity = Entity()
         entity.attribute(alliance, DeathForm.CORPSE)
-        val transform = DefaultTransform()
+        // TODO: Is there a better solution for the comment below?
+        // The width and height are fairly arbitrary, but the limb should be large enough such that its geometry
+        // contains the bone positions of its children.  Meeting this constraint ensures things work correctly such as
+        // Box2D joint connections.
+        val polygon = Polygon(PolygonUtils.createRectangleVertices(0.1f, 0.1f))
+        val transform = DefaultTransform(polygon, 0f)
         transform.scale = scale
         entity.attach(TransformPart(transform))
         return entity

@@ -5,9 +5,9 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 
 object EntityFinder {
-    fun findPlayer(entityManager: EntityManager): Entity? {
+    fun find(entityManager: EntityManager, attribute: Enum<*>): Entity? {
         return entityManager.all.firstOrNull {
-            it.has(MovementPart::class) && it.of(Alliance.PLAYER)
+            it.has(MovementPart::class) && it.of(attribute)
         }
     }
 }

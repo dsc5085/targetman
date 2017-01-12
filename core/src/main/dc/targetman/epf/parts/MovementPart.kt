@@ -11,5 +11,5 @@ class MovementPart(val moveSpeed: Float,
                    val limbNames: List<String>) {
     var direction = Direction.NONE
     var tryJumping = false
-    val jumpIncreaseTimer = Timer(0.2f)
+    val jumpIncreaseTimer = Timer(0.15f)
 }

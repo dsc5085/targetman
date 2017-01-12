@@ -83,17 +83,18 @@ class LevelController(
 	fun dispose() {
 		map.dispose()
 		entityManager.dispose()
-		world.dispose()
 		box2DRenderer.dispose()
+		world.dispose()
 	}
 
 	fun update(delta: Float) {
 		if (isRunning) {
 			advancer.advance(delta)
-			val player = EntityFinder.findPlayer(entityManager)
+			val player = EntityFinder.find(entityManager, Alliance.PLAYER)
 			if (player != null) {
 				CameraUtils.follow(player, screenHelper, camera)
-			} else {
+			}
+			if (player == null || Gdx.input.isKeyPressed(Keys.R)) {
 				levelFinished.notify(LevelFinishedEvent())
 			}
 		}
@@ -171,7 +172,7 @@ class LevelController(
 	}
 
 	private fun processInput() {
-		val player = EntityFinder.findPlayer(entityManager)
+		val player = EntityFinder.find(entityManager, Alliance.PLAYER)
 		if (player == null) {
 			return
 		}

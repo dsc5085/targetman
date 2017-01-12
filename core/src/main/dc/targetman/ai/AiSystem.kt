@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.WeaponPart
+import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.StickActions
 import dclib.epf.Entity
@@ -22,7 +23,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
         val aiPart = entity.tryGet(AiPart::class)
         if (aiPart != null) {
             aiPart.tick(delta)
-            val target = EntityFinder.findPlayer(entityManager)
+            val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
                 val targetBounds = target[TransformPart::class].transform.bounds
                 navigator.navigate(entity, targetBounds)

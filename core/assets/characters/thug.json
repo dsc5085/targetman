@@ -20,8 +20,8 @@
     },
     {
       "name": "gun",
-      "health": 1000,
-      "material": "METAL"
+      "material": "METAL",
+      "isPassive": true
     },
     {
       "name": "right_hand",

@@ -1,5 +1,5 @@
 {
-  "reloadTime": 1,
+  "reloadTime": 0.2,
   "numBullets": 7,
   "spread": 30,
   "minSpeed": 15,
