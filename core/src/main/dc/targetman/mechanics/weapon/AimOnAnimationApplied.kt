@@ -3,18 +3,17 @@ package dc.targetman.mechanics.weapon
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.skeleton.AnimationAppliedEvent
-import dc.targetman.skeleton.SkeletonUtils
+import dclib.geometry.VectorUtils
 
-class AimOnAnimationApplied() : (AnimationAppliedEvent) -> Unit {
+class AimOnAnimationApplied : (AnimationAppliedEvent) -> Unit {
     override fun invoke(event: AnimationAppliedEvent) {
         val weaponPart = event.entity[WeaponPart::class]
         val skeletonPart = event.entity[SkeletonPart::class]
-        val skeleton = skeletonPart.skeleton
-        val muzzleBone = skeleton.findBone(weaponPart.muzzleName)
-        val muzzleBoneRotation = SkeletonUtils.getScaledRotation(muzzleBone.worldRotationX, skeletonPart.baseScale)
+        val muzzle = skeletonPart[weaponPart.muzzleName]
+        val muzzleBoneRotation = VectorUtils.getScaledRotation(muzzle.bone.worldRotationX, muzzle.scale)
         val rotationOffset = weaponPart.aimRotation - muzzleBoneRotation
-        val rotatorBone = skeleton.findBone(weaponPart.rotatorName)
+        val rotatorBone = skeletonPart[weaponPart.rotatorName].bone
         rotatorBone.rotation += rotationOffset
-        skeleton.updateWorldTransform()
+        skeletonPart.skeleton.updateWorldTransform()
     }
 }

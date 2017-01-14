@@ -12,6 +12,8 @@ import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
+import dclib.geometry.VectorUtils
+import dclib.geometry.abs
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
@@ -64,11 +66,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : 
         jointDef.collideConnected = true
         jointDef.enableLimit = true
         val angleRange = getAngleRange(childLimb.name)
-        val rawLowerAngle = (angleRange.min() - childLimb.bone.rotation)
-        val rawUpperAngle = (angleRange.max() - childLimb.bone.rotation)
-        val degreesClampOffset = rawUpperAngle - rawUpperAngle % Maths.DEGREES_MAX
-        jointDef.lowerAngle = (rawLowerAngle - degreesClampOffset) * MathUtils.degRad
-        jointDef.upperAngle = (rawUpperAngle - degreesClampOffset) * MathUtils.degRad
+        setJointAngleRange(jointDef, angleRange, childLimb.bone.rotation, childLimb.scale)
         parentTransform.body.world.createJoint(jointDef)
     }
 
@@ -111,6 +109,24 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : 
             else -> 0f
         }
         return FloatRange(lowerAngle, upperAngle)
+    }
+
+    private fun setJointAngleRange(
+            jointDef: RevoluteJointDef,
+            angleRange: FloatRange,
+            childLocalRotation: Float,
+            scale: Vector2
+    ) {
+        val relativeLowerAngle = VectorUtils.getScaledRotation(angleRange.min(), scale.abs()) - childLocalRotation
+        val relativeUpperAngle = VectorUtils.getScaledRotation(angleRange.max(), scale.abs()) - childLocalRotation
+        val roundedDegrees = Maths.round(relativeUpperAngle, Maths.DEGREES_MAX)
+        val lowerAngleDeg = relativeLowerAngle - roundedDegrees
+        val upperAngleDeg = relativeUpperAngle - roundedDegrees
+        // Flip the angle's sign to handle flipped transform scales
+        val angleFlipMultiplier = Math.signum(scale.x) * Math.signum(scale.y)
+        val jointRange = FloatRange(lowerAngleDeg * angleFlipMultiplier, upperAngleDeg * angleFlipMultiplier)
+        jointDef.lowerAngle = jointRange.min() * MathUtils.degRad
+        jointDef.upperAngle = jointRange.max() * MathUtils.degRad
     }
 
     private fun createCorpseTransform(transform: Transform): Transform {
