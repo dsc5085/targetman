@@ -105,7 +105,7 @@ class LevelController(
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-		renderBox2D()
+//		renderBox2D()
 	}
 
 	private fun createEntityManager(): EntityManager {
