@@ -71,13 +71,10 @@ class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager)
         val world = Vector2(bone.worldX, bone.worldY)
         transform.rotation = limb.bone.worldRotationX
         if (attachment != null) {
-            // TODO: Figure out best way to get scale
             val offsetFromBone = SkeletonUtils.getOffset(bone, attachment, limb.scale)
             world.add(offsetFromBone)
-            // TODO: Duplicate code with SkeletonUtils.  Also cleanup .scl call
             val boneScale = limb.scale.scl(VectorUtils.inv(baseScale.abs()))
             val attachmentScale = SkeletonUtils.calculateAttachmentScale(boneScale, attachment.rotation)
-            //
             transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
             transform.scale = attachmentScale
         }
