@@ -11,6 +11,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
+import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -20,8 +21,9 @@ import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StainOnCollided
 import dc.targetman.skeleton.AddLimbsOnEntityAdded
+import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
 import dc.targetman.skeleton.LimbRemovedChecker
-import dc.targetman.skeleton.SkeletonSystem
+import dc.targetman.skeleton.SkeletonSyncSystem
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
@@ -69,7 +71,7 @@ class LevelController(
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 		entityFactory = EntityFactory(entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
-//		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
+		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, entityFactory).createObjects()
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
@@ -105,13 +107,14 @@ class LevelController(
 		mapRenderer.setView(camera)
 		mapRenderer.render()
 		renderEntities()
-		renderBox2D()
+//		renderBox2D()
 	}
 
 	private fun createEntityManager(): EntityManager {
 		val entityManager = DefaultEntityManager()
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
 		entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
+		entityManager.entityAdded.on(ChangeContainerHealthOnEntityAdded(entityManager))
 		return entityManager
 	}
 
@@ -140,8 +143,8 @@ class LevelController(
 		return AiSystem(entityManager, navigator)
 	}
 
-	private fun createSkeletonSystem(): SkeletonSystem {
-		val skeletonSystem = SkeletonSystem(entityManager)
+	private fun createSkeletonSystem(): SkeletonSyncSystem {
+		val skeletonSystem = SkeletonSyncSystem(entityManager)
 		skeletonSystem.animationApplied.on(AimOnAnimationApplied())
 		return skeletonSystem
 	}

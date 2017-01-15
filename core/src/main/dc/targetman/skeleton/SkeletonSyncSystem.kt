@@ -11,7 +11,7 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.geometry.base
 
-class SkeletonSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
+class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
     val animationApplied = EventDelegate<AnimationAppliedEvent>()
 
     override fun update(delta: Float, entity: Entity) {

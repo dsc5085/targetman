@@ -8,4 +8,5 @@ data class Character(
         val rotatorName: String = "",
         val muzzleName: String = "",
         val atlasName: String = "",
+        val health: Float = 1f,
         val weapon: Weapon = Weapon())

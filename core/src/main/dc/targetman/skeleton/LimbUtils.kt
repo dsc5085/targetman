@@ -14,7 +14,7 @@ object LimbUtils {
         return limb
     }
 
-    private fun findContainer(entities: List<Entity>, limbEntity: Entity): Entity? {
+    fun findContainer(entities: List<Entity>, limbEntity: Entity): Entity? {
         return if (limbEntity.has(SkeletonPart::class)) limbEntity
         else entities.firstOrNull {
             val skeletonPart = it.tryGet(SkeletonPart::class)
