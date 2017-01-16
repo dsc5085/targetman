@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.epf.graphics.EntityGraphDrawer
+import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
@@ -70,7 +71,7 @@ class LevelController(
 		screenHelper = ScreenHelper(pixelsPerUnit, camera)
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 		entityFactory = EntityFactory(entityManager, world, textureCache)
-		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, entityManager))
+		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, entityFactory).createObjects()
