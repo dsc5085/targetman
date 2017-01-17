@@ -9,7 +9,6 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.physics.ParticlesManager
 import dclib.physics.collision.CollidedEvent
-import dclib.physics.collision.Contacter
 import dclib.util.FloatRange
 
 class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFactory: EntityFactory)
@@ -21,16 +20,18 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 		position.z += MathUtils.FLOAT_ROUNDING_ERROR
 		val velocity = event.source.body.linearVelocity
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
-			createSparks(sourceEntity, event.target, position)
+			createSparks(event)
 			createBloodParticles(sourceEntity, targetEntity, position, velocity)
 		}
 	}
 
-	private fun createSparks(sourceEntity: Entity, target: Contacter, position: Vector3) {
+	private fun createSparks(event: CollidedEvent) {
+		val target = event.target
         val targetAlliance = EntityUtils.getAlliance(target.entity)
-        val notTargetAlliance = targetAlliance == null || !sourceEntity.of(targetAlliance)
-        if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL)) {
-			particlesManager.createEffect("spark", Vector2(position.x, position.y))
+        val notTargetAlliance = targetAlliance == null || !event.source.entity.of(targetAlliance)
+        if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL)
+				&& event.contactPoint != null) {
+			particlesManager.createEffect("spark", event.contactPoint)
 		}
 	}
 
