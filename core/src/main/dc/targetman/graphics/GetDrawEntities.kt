@@ -31,8 +31,8 @@ class GetDrawEntities(private val entityManager: EntityManager) : () -> List<Ent
     private fun getSortedChildren(skeletonPart: SkeletonPart): List<Entity> {
         val activeLimbs = skeletonPart.getActiveLimbs()
         var sortedLimbs = skeletonPart.skeleton.drawOrder.map {
-            slot -> activeLimbs.first { limb -> limb.name == slot.data.name }
-        }
+            slot -> activeLimbs.firstOrNull { limb -> limb.name == slot.data.name }
+        }.filterNotNull()
         if (skeletonPart.flipX) {
             sortedLimbs = sortedLimbs.reversed()
         }
