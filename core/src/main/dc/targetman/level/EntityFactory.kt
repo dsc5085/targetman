@@ -39,7 +39,7 @@ class EntityFactory(
         body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         entity.attach(TransformPart(Box2dTransform(0f, body)))
-        entity.attribute(Material.METAL)
+        entity.addAttributes(Material.METAL)
         entityManager.add(entity)
     }
 
@@ -75,7 +75,7 @@ class EntityFactory(
         val body = createBody("objects/blood", Vector2(size, size), true)
         body.linearVelocity = velocity
         val entity = createBaseEntity(body, position, "objects/blood")
-        entity.attribute(Material.STICKY)
+        entity.addAttributes(Material.STICKY)
         entity.attach(CollisionRemovePart(), TimedDeathPart(3f))
         entityManager.add(entity)
     }
@@ -83,7 +83,7 @@ class EntityFactory(
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
         val entity = Entity()
         body.userData = entity
-        entity.attribute(*attributes)
+        entity.addAttributes(*attributes)
         val transform = Box2dTransform(position.z, body)
         transform.position = Vector2(position.x, position.y)
         val region = textureCache.getPolygonRegion(regionName)

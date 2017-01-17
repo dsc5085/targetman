@@ -35,7 +35,7 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(FileUtils.toFileHandle(characterPath))
         val entity = Entity()
-        entity.attribute(alliance)
+        entity.addAttributes(alliance)
         val skeleton = createSkeleton(character.skeletonPath, character.atlasName)
         val skeletonSize = skeleton.bounds.size
         val baseScaleValue = skeleton.rootBone.scaleY * height / skeletonSize.y
@@ -151,9 +151,9 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
             alliance: Alliance
     ): Entity {
         val entity = Entity()
-        entity.attribute(limb.material, DeathForm.CORPSE)
+        entity.addAttributes(limb.material, DeathForm.CORPSE)
         if (!limb.isPassive) {
-            entity.attribute(alliance)
+            entity.addAttributes(alliance)
         }
         val region = textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
@@ -170,7 +170,7 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
 
     private fun createSimpleEntity(alliance: Alliance, scale: Vector2): Entity {
         val entity = Entity()
-        entity.attribute(alliance, DeathForm.CORPSE)
+        entity.addAttributes(alliance, DeathForm.CORPSE)
         // TODO: Is there a better solution for the comment below?
         // The width and height are fairly arbitrary, but the limb should be large enough such that its geometry
         // contains the bone positions of its children.  Meeting this constraint ensures things work correctly such as

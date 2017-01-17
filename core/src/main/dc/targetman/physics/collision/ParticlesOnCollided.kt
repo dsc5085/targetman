@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import dc.targetman.level.EntityFactory
-import dc.targetman.mechanics.EntityUtils
+import dc.targetman.mechanics.Alliance
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.physics.ParticlesManager
@@ -27,7 +27,7 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 
 	private fun createSparks(event: CollidedEvent) {
 		val target = event.target
-        val targetAlliance = EntityUtils.getAlliance(target.entity)
+        val targetAlliance = target.entity.getAttribute(Alliance::class)
         val notTargetAlliance = targetAlliance == null || !event.source.entity.of(targetAlliance)
         if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL)
 				&& event.contactPoint != null) {
@@ -44,7 +44,7 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
 		val sizeRange = FloatRange(0.05f, 0.15f)
 		val rotationDiffRange = FloatRange(-10f, 10f)
 		val velocityRatioRange = FloatRange(0.1f, 0.5f)
-        val targetAlliance = EntityUtils.getAlliance(targetEntity)
+        val targetAlliance = targetEntity.getAttribute(Alliance::class)
 		if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
 			for (i in 0..numParticles)  {
 				val randomizedVelocity = velocity.cpy()

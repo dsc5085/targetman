@@ -4,7 +4,6 @@ import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.level.EntityFactory
 import dc.targetman.mechanics.Alliance
-import dc.targetman.mechanics.EntityUtils
 import dc.targetman.physics.PhysicsUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -46,7 +45,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
             val muzzleTransform = muzzleLimb.transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.all, entity, recoil)
-            createBullets(muzzleTransform, weapon, EntityUtils.getAlliance(entity)!!)
+            createBullets(muzzleTransform, weapon, entity.getAttribute(Alliance::class)!!)
             weaponPart.reset()
         }
     }

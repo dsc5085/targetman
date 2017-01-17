@@ -23,7 +23,8 @@ object NavigatorFactory {
             map: TiledMap,
             world: World,
             screenHelper: ScreenHelper,
-            textureCache: TextureCache): Navigator {
+            textureCache: TextureCache
+    ): Navigator {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
