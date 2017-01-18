@@ -10,7 +10,8 @@ import kotlin.comparisons.compareBy
 class GraphFactory(
         private val boundsList: List<Rectangle>,
         private val agentSize: Vector2,
-        private val jumpChecker: JumpChecker) {
+        private val jumpChecker: JumpChecker
+) {
     fun create(): DefaultIndexedGraph {
         val segments = boundsList.map { Segment(it) }
         connect(segments)

@@ -140,7 +140,7 @@ class LevelController(
 	}
 
 	private fun createAiSystem(): AiSystem {
-		val navigator = NavigatorFactory.create(map, world, screenHelper, textureCache)
+		val navigator = NavigatorFactory.create(map, world, textureCache)
 		return AiSystem(entityManager, navigator)
 	}
 

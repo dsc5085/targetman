@@ -3,7 +3,6 @@ package dc.targetman.level
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.math.Rectangle
-import dclib.graphics.ScreenHelper
 
 object MapUtils {
     fun getCollisionLayer(map: TiledMap): TiledMapTileLayer {
@@ -15,16 +14,15 @@ object MapUtils {
         return Math.max(collisionLayer.tileWidth, collisionLayer.tileHeight)
     }
 
-    fun createSegmentBoundsList(map: TiledMap, screenHelper: ScreenHelper): List<Rectangle> {
+    fun createSegmentBoundsList(map: TiledMap): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
         val collisionLayer = getCollisionLayer(map)
-        val size = screenHelper.toWorldUnits(collisionLayer.tileWidth, collisionLayer.tileHeight)
         for (y in 0..collisionLayer.height - 1 - 1) {
             var x = 0
             while (x < collisionLayer.width) {
                 val floorLength = getFloorLength(collisionLayer, x, y)
                 if (floorLength > 0) {
-                    val bounds = Rectangle(x.toFloat(), y.toFloat(), floorLength * size.x, size.y)
+                    val bounds = Rectangle(x.toFloat(), y.toFloat(), floorLength.toFloat(), 1f)
                     boundsList.add(bounds)
                     x += floorLength
                 }

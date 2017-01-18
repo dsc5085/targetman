@@ -15,17 +15,15 @@ import dc.targetman.physics.JumpVelocitySolver
 import dc.targetman.physics.PhysicsUtils
 import dclib.epf.DefaultEntityManager
 import dclib.epf.parts.TransformPart
-import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 
 object NavigatorFactory {
     fun create(
             map: TiledMap,
             world: World,
-            screenHelper: ScreenHelper,
             textureCache: TextureCache
     ): Navigator {
-        val segmentBoundsList = MapUtils.createSegmentBoundsList(map, screenHelper)
+        val segmentBoundsList = MapUtils.createSegmentBoundsList(map)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
         val entityFactory = EntityFactory(entityManager, staticWorld, textureCache)
