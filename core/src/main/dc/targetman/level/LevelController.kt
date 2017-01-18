@@ -52,7 +52,8 @@ class LevelController(
 		spriteBatch: PolygonSpriteBatch,
 		shapeRenderer: ShapeRenderer,
 		pixelsPerUnit: Float,
-		private val camera: OrthographicCamera) {
+		private val camera: OrthographicCamera
+) {
 	val levelFinished = EventDelegate<LevelFinishedEvent>()
 
 	private val entityFactory: EntityFactory
