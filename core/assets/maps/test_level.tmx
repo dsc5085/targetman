@@ -241,10 +241,6 @@
   <object id="68" gid="2" x="8960" y="19712" width="32" height="32"/>
   <object id="69" gid="2" x="11008" y="24576" width="32" height="32"/>
   <object id="70" gid="2" x="10752" y="22016" width="32" height="32"/>
-  <object id="71" gid="2" x="5888" y="20224" width="32" height="32"/>
-  <object id="72" gid="2" x="6400" y="23552" width="32" height="32"/>
-  <object id="73" gid="2" x="9216" y="22272" width="32" height="32"/>
-  <object id="74" gid="2" x="8192" y="19968" width="32" height="32"/>
  </objectgroup>
  <layer name="Background" width="100" height="100">
   <data encoding="csv">

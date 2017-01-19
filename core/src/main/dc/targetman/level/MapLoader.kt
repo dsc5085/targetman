@@ -3,12 +3,12 @@ package dc.targetman.level
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.geometry.PolygonOperations
 import dc.targetman.mechanics.Alliance
 import dclib.geometry.PolygonUtils
 import dclib.geometry.toVector3
+import dclib.graphics.TextureUtils
 
 class MapLoader(private val map: TiledMap, private val entityFactory: EntityFactory) {
     private val collisionLayer = MapUtils.getCollisionLayer(map)
@@ -37,11 +37,11 @@ class MapLoader(private val map: TiledMap, private val entityFactory: EntityFact
     }
 
     private fun createTileVertices(x: Int, y: Int, cell: TiledMapTileLayer.Cell): List<Vector2> {
-        val width = cell.tile.textureRegion.regionWidth.toFloat() * scale
-        val height = cell.tile.textureRegion.regionHeight.toFloat() * scale
-        val bounds = Rectangle(x.toFloat(), y.toFloat(), width, height)
-        val vertices = PolygonUtils.createRectangleVertices(bounds)
-        return PolygonUtils.toVectors(vertices)
+        // TODO: Cache convex hull for performance
+        val convexHull = TextureUtils.createConvexHull(cell.tile.textureRegion)
+        val scaledConvexHull = PolygonUtils.scale(convexHull, scale)
+        val shiftedConvexHull = PolygonUtils.shift(scaledConvexHull, x.toFloat(), y.toFloat())
+        return PolygonUtils.toVectors(shiftedConvexHull)
     }
 
     private fun createActors() {
