@@ -38,10 +38,16 @@ class MapLoader(private val map: TiledMap, private val entityFactory: EntityFact
 
     private fun createTileVertices(x: Int, y: Int, cell: TiledMapTileLayer.Cell): List<Vector2> {
         // TODO: Cache convex hull for performance
-        val convexHull = TextureUtils.createConvexHull(cell.tile.textureRegion)
-        val scaledConvexHull = PolygonUtils.scale(convexHull, scale)
-        val shiftedConvexHull = PolygonUtils.shift(scaledConvexHull, x.toFloat(), y.toFloat())
-        return PolygonUtils.toVectors(shiftedConvexHull)
+        var convexHull = TextureUtils.createConvexHull(cell.tile.textureRegion)
+        convexHull = PolygonUtils.scale(convexHull, scale)
+        if (cell.flipHorizontally) {
+            convexHull = PolygonUtils.flipX(convexHull)
+        }
+        if (cell.flipVertically) {
+            convexHull = PolygonUtils.flipY(convexHull)
+        }
+        convexHull = PolygonUtils.shift(convexHull, x.toFloat(), y.toFloat())
+        return PolygonUtils.toVectors(convexHull)
     }
 
     private fun createActors() {
