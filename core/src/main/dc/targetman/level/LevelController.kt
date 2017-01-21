@@ -106,9 +106,9 @@ class LevelController(
 
 	fun draw() {
 		particlesManager.draw()
+		renderEntities()
 		mapRenderer.setView(camera)
 		mapRenderer.render()
-		renderEntities()
 		renderBox2D()
 	}
 

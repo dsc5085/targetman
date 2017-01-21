@@ -69,6 +69,8 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
     }
 
     private fun createBody(size: Vector2, position: Vector3): Body {
+        // Provide a small buffer to the base radius so that it doesn't collide with the wall and create friction
+        val baseRadiusRatio = 0.99f
         val halfWidth = size.x / 2
         val boxHalfHeight = (size.y - halfWidth) / 2
         val def = BodyDef()
@@ -78,7 +80,7 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         body.isFixedRotation = true
         body.setTransform(position.x, position.y, 0f)
         val basePosition = Vector2(0f, -boxHalfHeight)
-        createBaseFixtures(basePosition, body, halfWidth)
+        createBaseFixtures(basePosition, body, halfWidth * baseRadiusRatio)
         val boxShape = PolygonShape()
         boxShape.setAsBox(halfWidth, boxHalfHeight)
         val bodyFixture = body.createFixture(boxShape, 1f)
@@ -88,9 +90,9 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         return body
     }
 
-    private fun createBaseFixtures(basePosition: Vector2, body: Body, halfWidth: Float) {
+    private fun createBaseFixtures(basePosition: Vector2, body: Body, radius: Float) {
         val numPerimeterPoints = 14
-        val baseVertices = PolygonUtils.createCircleVertices(halfWidth, basePosition, numPerimeterPoints)
+        val baseVertices = PolygonUtils.createCircleVertices(radius, basePosition, numPerimeterPoints)
         val baseVerticesPartitions = PolygonUtils.partition(baseVertices)
         for (baseVerticesPartition in baseVerticesPartitions) {
             val baseShape = PolygonShape()
