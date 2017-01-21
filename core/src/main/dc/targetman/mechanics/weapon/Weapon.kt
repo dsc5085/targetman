@@ -9,6 +9,8 @@ data class Weapon(
         val minSpeed: Float = 1f,
         val maxSpeed: Float = 1f,
         val recoil: Float = 0f,
+        val width: Float = 1f,
+        val regionName: String = "",
         var bullet: Bullet = Bullet()
 ) {
     val speedRange: FloatRange

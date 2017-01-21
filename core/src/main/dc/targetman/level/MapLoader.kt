@@ -73,7 +73,7 @@ class MapLoader(
     private fun createTileVertices(x: Int, y: Int, cell: TiledMapTileLayer.Cell): List<Vector2> {
         // TODO: Cache convex hull for performance
         var convexHull = TextureUtils.createConvexHull(cell.tile.textureRegion)
-        convexHull = PolygonUtils.scale(convexHull, scale)
+        PolygonUtils.scale(convexHull, scale)
         if (cell.flipHorizontally) {
             convexHull = PolygonUtils.flipX(convexHull)
         }
