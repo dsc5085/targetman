@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
-import dc.targetman.character.CharacterFactory
 import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.ScalePart
 import dc.targetman.mechanics.Alliance
@@ -29,25 +28,9 @@ import dclib.util.FloatRange
 class EntityFactory(
         private val entityManager: EntityManager,
         private val world: World,
-        private val textureCache: TextureCache) {
+        private val textureCache: TextureCache
+) {
     private val convexHullCache = ConvexHullCache(textureCache)
-    private val characterFactory = CharacterFactory(textureCache, world)
-
-    fun createWall(vertices: List<Vector2>) {
-        val entity = Entity()
-        val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
-        body.userData = entity
-        Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
-        entity.attach(TransformPart(Box2dTransform(0f, body)))
-        entity.addAttributes(Material.METAL)
-        entityManager.add(entity)
-    }
-
-    fun createCharacter(characterPath: String, position: Vector3, alliance: Alliance): Entity {
-        val entity = characterFactory.create(characterPath, 2f, position, alliance)
-        entityManager.add(entity)
-        return entity
-    }
 
     fun createBullet(bullet: Bullet, muzzleTransform: Transform, angleOffset: Float, speed: Float, alliance: Alliance) {
         val relativeCenter = PolygonUtils.relativeCenter(muzzleTransform.position, bullet.size)

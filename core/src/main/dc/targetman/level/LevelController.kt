@@ -62,20 +62,19 @@ class LevelController(
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
-	private val screenHelper: ScreenHelper
+	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
 	private val particlesManager: ParticlesManager
 	private val entityDrawers = mutableListOf<EntityDrawer>()
-	private val map = TmxMapLoader().load("maps/test_level.tmx")
+	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private var isRunning = true
 
 	init {
-		screenHelper = ScreenHelper(pixelsPerUnit, camera)
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 		entityFactory = EntityFactory(entityManager, world, textureCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
-		MapLoader(map, entityFactory).createObjects()
+		MapLoader(map, entityManager, textureCache, world).createObjects()
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
 	}

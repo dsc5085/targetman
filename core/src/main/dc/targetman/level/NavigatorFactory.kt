@@ -26,10 +26,10 @@ object NavigatorFactory {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
-        val entityFactory = EntityFactory(entityManager, staticWorld, textureCache)
+        val mapLoader = MapLoader(map, entityManager, textureCache, staticWorld)
         // TODO: Creating an entity just for this is wasteful.
-        val aiEntity = entityFactory.createCharacter("characters/thug.json", Vector3(), Alliance.ENEMY)
-        MapLoader(map, entityFactory).createStaticObjects()
+        val aiEntity = mapLoader.createCharacter("characters/thug.json", Vector3(), Alliance.ENEMY)
+        mapLoader.createStaticObjects()
         val agentSize = aiEntity[TransformPart::class].transform.size
         val movementPart = aiEntity[MovementPart::class]
         val speed = Vector2(movementPart.moveSpeed, movementPart.jumpSpeed)
