@@ -32,6 +32,7 @@ import dclib.epf.graphics.EntitySpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
+import dclib.graphics.ConvexHullCache
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 import dclib.mechanics.DamageOnCollided
@@ -58,6 +59,7 @@ class LevelController(
 
 	private val entityFactory: EntityFactory
 	private val entityManager = createEntityManager()
+	private val convexHullCache = ConvexHullCache(textureCache)
 	private val world = PhysicsUtils.createWorld()
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
@@ -70,7 +72,7 @@ class LevelController(
 
 	init {
 		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-		entityFactory = EntityFactory(entityManager, world, textureCache)
+		entityFactory = EntityFactory(entityManager, world, convexHullCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()

@@ -19,7 +19,6 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.inv
 import dclib.geometry.toVector3
 import dclib.graphics.ConvexHullCache
-import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
@@ -28,10 +27,8 @@ import dclib.util.FloatRange
 class EntityFactory(
         private val entityManager: EntityManager,
         private val world: World,
-        private val textureCache: TextureCache
+        private val convexHullCache: ConvexHullCache
 ) {
-    private val convexHullCache = ConvexHullCache(textureCache)
-
     fun createBullet(bullet: Bullet, muzzleTransform: Transform, angleOffset: Float, speed: Float, alliance: Alliance) {
         val relativeCenter = PolygonUtils.relativeCenter(muzzleTransform.position, bullet.size)
         val position3 = relativeCenter.toVector3()
@@ -69,7 +66,7 @@ class EntityFactory(
         entity.addAttributes(*attributes)
         val transform = Box2dTransform(position.z, body)
         transform.position = Vector2(position.x, position.y)
-        val region = textureCache.getPolygonRegion(regionName)
+        val region = convexHullCache.create(regionName).region
         entity.attach(TransformPart(transform), SpritePart(region))
         EntityUtils.filterSameAlliance(entity)
         return entity
