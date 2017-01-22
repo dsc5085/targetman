@@ -1,7 +1,8 @@
-package dc.targetman.mechanics
+package dc.targetman.character
 
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.WeaponPart
+import dc.targetman.mechanics.Direction
 import dclib.epf.Entity
 
 object StickActions {

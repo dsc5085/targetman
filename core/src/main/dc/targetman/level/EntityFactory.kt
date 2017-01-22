@@ -16,13 +16,13 @@ import dclib.epf.EntityManager
 import dclib.epf.parts.*
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
-import dclib.geometry.inv
 import dclib.geometry.toVector3
 import dclib.graphics.ConvexHullCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
+import dclib.util.inv
 
 class EntityFactory(
         private val entityManager: EntityManager,

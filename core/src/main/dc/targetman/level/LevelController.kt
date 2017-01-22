@@ -11,9 +11,16 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
+import dc.targetman.character.CorpseOnLimbRemoved
+import dc.targetman.character.MovementSystem
+import dc.targetman.character.StickActions
+import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.GetDrawEntities
-import dc.targetman.mechanics.*
+import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.Direction
+import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.ScaleSystem
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater

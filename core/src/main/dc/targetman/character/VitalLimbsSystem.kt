@@ -1,4 +1,4 @@
-package dc.targetman.mechanics
+package dc.targetman.character
 
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.VitalLimbsPart

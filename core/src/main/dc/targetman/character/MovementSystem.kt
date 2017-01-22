@@ -1,4 +1,4 @@
-package dc.targetman.mechanics
+package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.mechanics.Direction
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem

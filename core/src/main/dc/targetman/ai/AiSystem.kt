@@ -2,12 +2,12 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import dc.targetman.character.StickActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
-import dc.targetman.mechanics.StickActions
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem

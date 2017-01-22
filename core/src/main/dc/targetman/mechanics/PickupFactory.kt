@@ -15,6 +15,7 @@ import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.system.io.FileUtils
+import dclib.util.or
 
 class PickupFactory(
         private val entityManager: EntityManager,
@@ -29,7 +30,7 @@ class PickupFactory(
         val vertices = PolygonUtils.createRectangleVertices(weapon.width, heightWidthRatio * weapon.width)
         val body = Box2dUtils.createDynamicBody(world, vertices)
         body.userData = entity
-        Box2dUtils.setFilter(body, CollisionCategory.ALL)
+        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.STATIC.or(CollisionCategory.BOUNDS))
         val transform = Box2dTransform(position.z, body)
         transform.setLocalToWorld(transform.center, position.toVector2())
         entity.attach(TransformPart(transform), SpritePart(region))

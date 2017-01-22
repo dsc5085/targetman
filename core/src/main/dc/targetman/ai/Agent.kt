@@ -4,10 +4,10 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
+import dc.targetman.character.StickActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Direction
-import dc.targetman.mechanics.StickActions
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 

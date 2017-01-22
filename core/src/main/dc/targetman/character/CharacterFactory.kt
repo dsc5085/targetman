@@ -14,7 +14,6 @@ import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
 import dc.targetman.mechanics.Alliance
-import dc.targetman.mechanics.DeathForm
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
@@ -24,12 +23,16 @@ import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.*
+import dclib.geometry.PolygonUtils
+import dclib.geometry.VectorUtils
+import dclib.geometry.abs
+import dclib.geometry.size
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.system.io.FileUtils
+import dclib.util.inv
 
 class CharacterFactory(private val textureCache: TextureCache, private val world: World) {
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
