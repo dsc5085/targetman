@@ -15,6 +15,7 @@ import dc.targetman.ai.AiProfile
 import dc.targetman.epf.parts.*
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
+import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.bounds
@@ -49,12 +50,14 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         entity.attach(TransformPart(transform))
         val limbEntities = createLimbs(character, skeleton, alliance, entity, baseScale)
         entity.attach(SkeletonPart(skeleton, limbEntities))
-        entity.attach(WeaponPart(character.weapon, character.rotatorName, character.muzzleName))
+        entity.attach(FiringPart(character.rotatorName, character.muzzleName))
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
         val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
+        val inventoryPart = InventoryPart(1, Weapon(character.weaponData))
+        entity.attach(inventoryPart)
         if (alliance === Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
@@ -165,6 +168,7 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         val body = Box2dUtils.createDynamicBody(world, vertices, true)
         body.gravityScale = 0f
         body.userData = entity
+        Box2dUtils.setFilter(body, CollisionCategory.ALL)
         val transform = Box2dTransform(body)
         transform.scale = scale
         entity.attach(TransformPart(transform), SpritePart(region))

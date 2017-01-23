@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.character.StickActions
 import dc.targetman.epf.parts.AiPart
+import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.SkeletonPart
-import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
 import dclib.epf.Entity
@@ -34,7 +34,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
     }
 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
-        val muzzleName = entity.get(WeaponPart::class).muzzleName
+        val muzzleName = entity.get(FiringPart::class).muzzleName
         val skeletonPart = entity.get(SkeletonPart::class)
         val muzzleEntity = skeletonPart[muzzleName].entity
         val muzzleTransform = muzzleEntity[TransformPart::class].transform

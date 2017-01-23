@@ -1,7 +1,8 @@
 package dc.targetman.character
 
+import dc.targetman.epf.parts.FiringPart
+import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.MovementPart
-import dc.targetman.epf.parts.WeaponPart
 import dc.targetman.mechanics.Direction
 import dclib.epf.Entity
 
@@ -15,10 +16,14 @@ object StickActions {
     }
 
     fun aim(entity: Entity, direction: Int) {
-        entity[WeaponPart::class].aimDirection = direction
+        entity[FiringPart::class].aimDirection = direction
     }
 
     fun trigger(entity: Entity) {
-        entity[WeaponPart::class].setTriggered(true)
+        entity[FiringPart::class].triggered = true
+    }
+
+    fun pickup(entity: Entity) {
+        entity[InventoryPart::class].pickup = true
     }
 }

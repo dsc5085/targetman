@@ -1,6 +1,6 @@
 package dc.targetman.character
 
-import dc.targetman.mechanics.weapon.Weapon
+import dc.targetman.mechanics.weapon.WeaponData
 
 data class Character(
         val skeletonPath: String = "",
@@ -9,4 +9,4 @@ data class Character(
         val muzzleName: String = "",
         val atlasName: String = "",
         val health: Float = 1f,
-        val weapon: Weapon = Weapon())
+        val weaponData: WeaponData = WeaponData())

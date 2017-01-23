@@ -2,7 +2,9 @@ package dc.targetman.mechanics
 
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.World
+import dc.targetman.epf.parts.PickupPart
 import dc.targetman.mechanics.weapon.Weapon
+import dc.targetman.mechanics.weapon.WeaponData
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.util.Json
 import dclib.epf.Entity
@@ -15,7 +17,7 @@ import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.system.io.FileUtils
-import dclib.util.or
+import dclib.util.inv
 
 class PickupFactory(
         private val entityManager: EntityManager,
@@ -23,17 +25,20 @@ class PickupFactory(
         private val world: World
 ) {
     fun create(weaponPath: String, position: Vector3) {
-        val weapon = Json.toObject<Weapon>(FileUtils.toFileHandle(weaponPath))
+        val weaponData = Json.toObject<WeaponData>(FileUtils.toFileHandle(weaponPath))
         val entity = Entity()
-        val region = textureCache.getPolygonRegion(weapon.regionName)
+        val region = textureCache.getPolygonRegion(weaponData.regionName)
         val heightWidthRatio = region.region.regionHeight.toFloat() / region.region.regionWidth
-        val vertices = PolygonUtils.createRectangleVertices(weapon.width, heightWidthRatio * weapon.width)
+        val vertices = PolygonUtils.createRectangleVertices(weaponData.width, heightWidthRatio * weaponData.width)
         val body = Box2dUtils.createDynamicBody(world, vertices)
         body.userData = entity
-        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.STATIC.or(CollisionCategory.BOUNDS))
+        // Ensure that the pickup is always detectable by the characters' collision sensors
+        body.isSleepingAllowed = false
+        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.BOUNDS.inv())
         val transform = Box2dTransform(position.z, body)
         transform.setLocalToWorld(transform.center, position.toVector2())
-        entity.attach(TransformPart(transform), SpritePart(region))
+        val weapon = Weapon(weaponData)
+        entity.attach(TransformPart(transform), SpritePart(region), PickupPart(weapon))
         entityManager.add(entity)
     }
 }

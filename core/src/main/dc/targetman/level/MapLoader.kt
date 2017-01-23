@@ -35,7 +35,7 @@ class MapLoader(
     val pickupFactory = PickupFactory(entityManager, textureCache, world)
 
     fun createObjects() {
-        pickupFactory.create("weapons/peashooter.json", Vector3(0.5f, 5f, 0f))
+        pickupFactory.create("weapons/peashooter.json", Vector3(0.5f, 8f, 0f))
         createStaticObjects()
         createActors()
     }

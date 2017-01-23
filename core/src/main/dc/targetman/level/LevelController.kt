@@ -17,10 +17,7 @@ import dc.targetman.character.StickActions
 import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.GetDrawEntities
-import dc.targetman.mechanics.Alliance
-import dc.targetman.mechanics.Direction
-import dc.targetman.mechanics.EntityFinder
-import dc.targetman.mechanics.ScaleSystem
+import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater
@@ -50,8 +47,8 @@ import dclib.physics.AutoRotateSystem
 import dclib.physics.ParticlesManager
 import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
+import dclib.physics.collision.CollisionChecker
 import dclib.physics.collision.ContactChecker
-import dclib.physics.collision.EntityCollisionChecker
 import dclib.system.Advancer
 import dclib.system.Updater
 
@@ -129,6 +126,8 @@ class LevelController(
 	}
 
 	private fun createAdvancer(): Advancer {
+		val contactChecker = ContactChecker(world)
+		val collisionChecker = createCollisionChecker(contactChecker)
 		val limbRemovedChecker = LimbRemovedChecker(entityManager)
 		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
 		return Advancer(
@@ -139,9 +138,11 @@ class LevelController(
 				TranslateSystem(entityManager),
 				PhysicsUpdater(world, entityManager),
 				createSkeletonSystem(),
-				createContactChecker(),
+                collisionChecker,
+				contactChecker,
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
+				InventorySystem(entityManager, collisionChecker),
 				WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
@@ -159,16 +160,15 @@ class LevelController(
 		return skeletonSystem
 	}
 
-	private fun createContactChecker(): ContactChecker {
-		val contactChecker = ContactChecker(world)
-		val entityCollisionChecker = EntityCollisionChecker(contactChecker)
+	private fun createCollisionChecker(contactChecker: ContactChecker): CollisionChecker {
+		val collisionChecker = CollisionChecker(contactChecker)
 		val filter = getCollisionFilter()
-        entityCollisionChecker.collided.on(StainOnCollided(entityManager))
-		entityCollisionChecker.collided.on(ForceOnCollided(entityManager, filter))
-		entityCollisionChecker.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
-		entityCollisionChecker.collided.on(DamageOnCollided(filter))
-		entityCollisionChecker.collided.on(RemoveOnCollided(entityManager, filter))
-		return contactChecker
+        collisionChecker.collided.on(StainOnCollided(entityManager))
+        collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
+        collisionChecker.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
+        collisionChecker.collided.on(DamageOnCollided(filter))
+        collisionChecker.collided.on(RemoveOnCollided(entityManager, filter))
+		return collisionChecker
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
@@ -208,6 +208,9 @@ class LevelController(
 		}
 		if (Gdx.input.isKeyPressed(Keys.J)) {
 			StickActions.trigger(player)
+		}
+		if (Gdx.input.isKeyPressed(Keys.X)) {
+			StickActions.pickup(player)
 		}
 	}
 

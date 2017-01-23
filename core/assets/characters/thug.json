@@ -92,5 +92,5 @@
   "muzzleName": "muzzle",
   "atlasName": "skins/man",
   "health": 300,
-  "weapon": "weapons/peashooter.json"
+  "weaponData": "weapons/peashooter.json"
 }
