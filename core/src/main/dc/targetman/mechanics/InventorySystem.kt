@@ -17,6 +17,7 @@ class InventorySystem(
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
+            inventoryPart.pickupTimer.tick(delta)
             if (inventoryPart.pickup) {
                 tryPickup(entity[SkeletonPart::class], inventoryPart)
                 inventoryPart.pickup = false
@@ -28,7 +29,7 @@ class InventorySystem(
         for (limb in skeletonPart.getActiveLimbs()) {
             val targets = collisionChecker.getTargets(limb.entity)
             val pickup = targets.firstOrNull { it.entity.has(PickupPart::class) }
-            if (pickup != null) {
+            if (pickup != null && inventoryPart.pickupTimer.check()) {
                 val weapon = pickup.entity[PickupPart::class].weapon
                 val removedWeapon = inventoryPart.pickup(weapon)
                 if (removedWeapon != null) {
