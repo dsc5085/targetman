@@ -5,5 +5,7 @@
   "minSpeed": 15,
   "maxSpeed": 18,
   "recoil": 0.2,
+  "width": 0.8,
+  "regionName": "skins/man/walther_p99",
   "bullet": "weapons/pellet.json"
 }

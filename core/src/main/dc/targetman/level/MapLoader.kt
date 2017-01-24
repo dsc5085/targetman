@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.character.CharacterFactory
 import dc.targetman.geometry.PolygonOperations
 import dc.targetman.mechanics.Alliance
-import dc.targetman.mechanics.PickupFactory
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
@@ -32,10 +31,8 @@ class MapLoader(
     // TODO: Use screenhelper to encapsulate unit conversion logic
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
     private val characterFactory = CharacterFactory(textureCache, world)
-    val pickupFactory = PickupFactory(entityManager, textureCache, world)
 
     fun createObjects() {
-        pickupFactory.create("weapons/peashooter.json", Vector3(0.5f, 8f, 0f))
         createStaticObjects()
         createActors()
     }

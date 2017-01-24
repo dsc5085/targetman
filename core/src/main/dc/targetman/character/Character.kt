@@ -6,7 +6,8 @@ data class Character(
         val skeletonPath: String = "",
         val limbs: List<CharacterLimb> = listOf(),
         val rotatorName: String = "",
-        val muzzleName: String = "",
+        val weaponLimbName: String = "weapon",
+        val muzzleName: String = "muzzle",
         val atlasName: String = "",
         val health: Float = 1f,
         val weaponData: WeaponData = WeaponData())

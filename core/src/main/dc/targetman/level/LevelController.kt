@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
@@ -19,6 +20,8 @@ import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
+import dc.targetman.mechanics.weapon.Weapon
+import dc.targetman.mechanics.weapon.WeaponData
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.PhysicsUtils
@@ -29,6 +32,7 @@ import dc.targetman.skeleton.AddLimbsOnEntityAdded
 import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
 import dc.targetman.skeleton.LimbRemovedChecker
 import dc.targetman.skeleton.SkeletonSyncSystem
+import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
@@ -51,6 +55,7 @@ import dclib.physics.collision.CollisionChecker
 import dclib.physics.collision.ContactChecker
 import dclib.system.Advancer
 import dclib.system.Updater
+import dclib.system.io.FileUtils
 
 class LevelController(
 		private val textureCache: TextureCache,
@@ -61,26 +66,27 @@ class LevelController(
 ) {
 	val levelFinished = EventDelegate<LevelFinishedEvent>()
 
-	private val entityFactory: EntityFactory
 	private val entityManager = createEntityManager()
 	private val convexHullCache = ConvexHullCache(textureCache)
 	private val world = PhysicsUtils.createWorld()
+	private val entityFactory = EntityFactory(entityManager, world, convexHullCache)
+	private val pickupFactory = PickupFactory(entityManager, textureCache, world)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
 	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
-	private val particlesManager: ParticlesManager
+	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawers = mutableListOf<EntityDrawer>()
 	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private var isRunning = true
 
 	init {
-		particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-		entityFactory = EntityFactory(entityManager, world, convexHullCache)
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, entityManager, textureCache, world).createObjects()
+		val weaponData = Json.toObject<WeaponData>(FileUtils.toFileHandle("weapons/peashooter.json"))
+		pickupFactory.create(Weapon(weaponData), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
 	}
@@ -142,7 +148,7 @@ class LevelController(
 				contactChecker,
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
-				InventorySystem(entityManager, collisionChecker),
+				InventorySystem(entityManager, collisionChecker, pickupFactory),
 				WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
@@ -209,7 +215,7 @@ class LevelController(
 		if (Gdx.input.isKeyPressed(Keys.J)) {
 			StickActions.trigger(player)
 		}
-		if (Gdx.input.isKeyPressed(Keys.X)) {
+		if (Gdx.input.isKeyJustPressed(Keys.X)) {
 			StickActions.pickup(player)
 		}
 	}
