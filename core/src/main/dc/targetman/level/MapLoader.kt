@@ -56,7 +56,6 @@ class MapLoader(
     fun createWall(vertices: List<Vector2>) {
         val entity = Entity()
         val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
-        body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         val transform = Box2dTransform(body)
         entity.attach(TransformPart(transform))

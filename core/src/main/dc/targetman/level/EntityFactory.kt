@@ -62,7 +62,6 @@ class EntityFactory(
 
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
         val entity = Entity()
-        body.userData = entity
         entity.addAttributes(*attributes)
         val transform = Box2dTransform(body, position.z)
         transform.position = Vector2(position.x, position.y)

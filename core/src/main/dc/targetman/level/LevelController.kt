@@ -76,7 +76,7 @@ class LevelController(
 	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawers = mutableListOf<EntityDrawer>()
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/test_level.tmx")
 	private var isRunning = true
 
 	init {
@@ -166,7 +166,7 @@ class LevelController(
 	}
 
 	private fun createCollisionChecker(contactChecker: ContactChecker): CollisionChecker {
-		val collisionChecker = CollisionChecker(contactChecker)
+		val collisionChecker = CollisionChecker(entityManager, contactChecker)
 		val filter = getCollisionFilter()
         collisionChecker.collided.on(StainOnCollided(entityManager))
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))

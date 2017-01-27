@@ -40,7 +40,6 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         val skeletonScale = height / skeleton.bounds.size.y
         val size = skeleton.bounds.size.scl(skeletonScale)
         val body = createBody(size, position)
-        body.userData = entity
         val transform = Box2dTransform(body, position.z)
         entity.attach(TransformPart(transform))
         entity.attach(createSkeletonPart(skeleton, character, alliance, size))
@@ -69,10 +68,6 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         for (limb in skeletonPart.getAllLimbs()) {
             val entity = limb.entity
             entity.addAttributes(DeathForm.CORPSE, alliance)
-            val transform = entity[TransformPart::class].transform
-            if (transform is Box2dTransform) {
-                transform.body.userData = entity
-            }
             val characterLimb = character.limbs.firstOrNull { it.name == limb.name }
             if (characterLimb != null) {
                 setup(entity, characterLimb)

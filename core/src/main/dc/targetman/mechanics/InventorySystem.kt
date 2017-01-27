@@ -46,7 +46,6 @@ class InventorySystem(
 
     private fun grip(weapon: Weapon, skeletonPart: SkeletonPart, inventoryPart: InventoryPart) {
         // TODO:
-        //val weaponEntity = SkeletonUtils.createEntity()
         // Make the gun a separate entity
         // 1. Lets get the hand bone position from the skeleton
         // 2. Put the gun's grip position at the hand bone position.  Make the rotation and scale the same as the hand's

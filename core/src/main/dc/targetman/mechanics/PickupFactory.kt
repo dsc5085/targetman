@@ -46,7 +46,6 @@ class PickupFactory(
     }
 
     private fun setup(body: Body, entity: Entity) {
-        body.userData = entity
         for (fixture in body.fixtureList) {
             fixture.isSensor = false
         }
