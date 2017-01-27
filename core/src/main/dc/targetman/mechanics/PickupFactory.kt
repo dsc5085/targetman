@@ -1,6 +1,7 @@
 package dc.targetman.mechanics
 
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.PickupPart
 import dc.targetman.mechanics.weapon.Weapon
@@ -27,13 +28,31 @@ class PickupFactory(
         val heightWidthRatio = region.region.regionHeight.toFloat() / region.region.regionWidth
         val vertices = PolygonUtils.createRectangleVertices(weapon.data.width, heightWidthRatio * weapon.data.width)
         val body = Box2dUtils.createDynamicBody(world, vertices)
-        body.userData = entity
-        // Ensure that the pickup is always detectable by the characters' collision sensors
-        body.isSleepingAllowed = false
-        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.BOUNDS.inv())
-        val transform = Box2dTransform(position.z, body)
+        setup(body, entity)
+        val transform = Box2dTransform(body, position.z)
         transform.setLocalToWorld(transform.center, position.toVector2())
         entity.attach(TransformPart(transform), SpritePart(region), PickupPart(weapon))
         entityManager.add(entity)
+    }
+
+    fun create(weapon: Weapon, weaponTransform: Box2dTransform) {
+        // TODO: Combine code with other create method
+        val entity = Entity()
+        val region = textureCache.getPolygonRegion(weapon.data.regionName)
+        val transform = Box2dTransform(weaponTransform)
+        setup(transform.body, entity)
+        entity.attach(TransformPart(transform), SpritePart(region), PickupPart(weapon))
+        entityManager.add(entity)
+    }
+
+    private fun setup(body: Body, entity: Entity) {
+        body.userData = entity
+        for (fixture in body.fixtureList) {
+            fixture.isSensor = false
+        }
+        // Ensure that the pickup is always detectable by the characters' collision sensors
+        body.isSleepingAllowed = false
+        body.gravityScale = 1f
+        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.BOUNDS.inv(), 0)
     }
 }

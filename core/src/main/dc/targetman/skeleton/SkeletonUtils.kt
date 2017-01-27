@@ -1,13 +1,25 @@
 package dc.targetman.skeleton
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.Bone
+import com.esotericsoftware.spine.Skeleton
+import com.esotericsoftware.spine.SkeletonBinary
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
+import dclib.system.io.FileUtils
 
 object SkeletonUtils {
+    fun createSkeleton(skeletonPath: String, atlas: TextureAtlas): Skeleton {
+        val skeletonBinary = SkeletonBinary(atlas)
+        val skeletonFile = FileUtils.toFileHandle(skeletonPath)
+        val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
+        skeleton.updateWorldTransform()
+        return skeleton
+    }
+
     fun getOffset(from: Bone, to: RegionAttachment, toScale: Vector2): Vector2 {
         // TODO: see if its better to calculate scale or pass it in, e.g. toScale
         val attachmentScale = calculateAttachmentScale(toScale, to.rotation)

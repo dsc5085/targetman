@@ -9,7 +9,7 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 import dclib.physics.Transform
 
-class Limb(val name: String, val entity: Entity, val container: Entity) {
+class Limb(val name: String, val entity: Entity, private val skeletonPart: SkeletonPart) {
     val isActive: Boolean
         get() = entity.isActive
 
@@ -26,9 +26,6 @@ class Limb(val name: String, val entity: Entity, val container: Entity) {
             val flipScale = VectorUtils.sign(rootScale)
             return Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
         }
-
-    private val skeletonPart: SkeletonPart
-        get() = container[SkeletonPart::class]
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need

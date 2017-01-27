@@ -64,7 +64,7 @@ class EntityFactory(
         val entity = Entity()
         body.userData = entity
         entity.addAttributes(*attributes)
-        val transform = Box2dTransform(position.z, body)
+        val transform = Box2dTransform(body, position.z)
         transform.position = Vector2(position.x, position.y)
         val region = convexHullCache.create(regionName).region
         entity.attach(TransformPart(transform), SpritePart(region))

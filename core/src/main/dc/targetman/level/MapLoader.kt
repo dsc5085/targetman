@@ -58,7 +58,7 @@ class MapLoader(
         val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
         body.userData = entity
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
-        val transform = Box2dTransform(0f, body)
+        val transform = Box2dTransform(body)
         entity.attach(TransformPart(transform))
         entity.addAttributes(Material.METAL)
         entityManager.add(entity)

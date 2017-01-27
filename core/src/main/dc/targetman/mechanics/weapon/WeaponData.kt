@@ -8,5 +8,6 @@ data class WeaponData(
         val maxSpeed: Float = 1f,
         val recoil: Float = 0f,
         val width: Float = 1f,
+        val skeletonPath: String = "",
         val regionName: String = "",
         var bullet: Bullet = Bullet())

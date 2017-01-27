@@ -7,9 +7,11 @@ import com.esotericsoftware.spine.Skeleton
 import dc.targetman.skeleton.Limb
 import dclib.epf.Entity
 
-class SkeletonPart(skeleton: Skeleton, private val limbs: List<Limb>) {
+class SkeletonPart(skeleton: Skeleton) {
     var skeleton: Skeleton = Skeleton(skeleton)
     val animationState = createAnimationState()
+
+    private val limbs = mutableListOf<Limb>()
 
     val baseScale: Vector2
         get() {
@@ -41,6 +43,10 @@ class SkeletonPart(skeleton: Skeleton, private val limbs: List<Limb>) {
 
     fun getActiveLimbs(): Collection<Limb> {
         return getAllLimbs().filter { it.isActive }
+    }
+
+    fun add(limb: Limb) {
+        limbs.add(limb)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

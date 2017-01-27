@@ -55,7 +55,6 @@ import dclib.physics.collision.CollisionChecker
 import dclib.physics.collision.ContactChecker
 import dclib.system.Advancer
 import dclib.system.Updater
-import dclib.system.io.FileUtils
 
 class LevelController(
 		private val textureCache: TextureCache,
@@ -85,7 +84,7 @@ class LevelController(
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, entityManager, textureCache, world).createObjects()
-		val weaponData = Json.toObject<WeaponData>(FileUtils.toFileHandle("weapons/peashooter.json"))
+		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
 		pickupFactory.create(Weapon(weaponData), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
@@ -215,7 +214,7 @@ class LevelController(
 		if (Gdx.input.isKeyPressed(Keys.J)) {
 			StickActions.trigger(player)
 		}
-		if (Gdx.input.isKeyJustPressed(Keys.X)) {
+		if (Gdx.input.isKeyJustPressed(Keys.Q)) {
 			StickActions.pickup(player)
 		}
 	}

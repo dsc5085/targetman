@@ -9,7 +9,8 @@ object Json {
      * @return the serialized object.  This function automatically resolves links to other json files,
      * e.g. "address": "addresses/delivery_address.json"
      */
-    inline fun <reified T : Any> toObject(file: FileHandle): T {
+    inline fun <reified T : Any> toObject(path: String): T {
+        val file = FileUtils.toFileHandle(path)
         val json = com.badlogic.gdx.utils.Json()
         val jsonString = toString(file)
         return json.fromJson(T::class.java, jsonString)

@@ -1,5 +1,5 @@
 {
-  "skeletonPath": "skeletons/man_original.skel",
+  "skeletonPath": "skeletons/man.skel",
   "limbs": [
     {
       "name": "head",
