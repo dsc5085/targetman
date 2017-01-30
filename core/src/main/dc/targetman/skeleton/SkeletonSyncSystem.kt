@@ -21,14 +21,14 @@ class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityMana
             removeInactiveSlots(skeletonPart)
             updateBounds(entity)
             updateRootPosition(entity)
-            for (limb in skeletonPart.getActiveLimbs()) {
+            for (limb in skeletonPart.getLimbs()) {
                 updateTransform(limb, skeletonPart.baseScale)
             }
         }
     }
 
     private fun removeInactiveSlots(skeletonPart: SkeletonPart) {
-        val inactiveLimbs = skeletonPart.getAllLimbs().filter { !it.isActive }
+        val inactiveLimbs = skeletonPart.getLimbs(true).filter { !it.isActive }
         for (limb in inactiveLimbs) {
             skeletonPart.skeleton.drawOrder.removeAll { it.attachment === limb.getRegionAttachment() }
         }

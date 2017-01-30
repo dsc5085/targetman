@@ -8,7 +8,7 @@ class AddLimbsOnEntityAdded(private val entityManager: EntityManager) : (EntityA
     override fun invoke(event: EntityAddedEvent) {
         val skeletonPart = event.entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
-            val limbEntities = skeletonPart.getAllLimbs().map { it.entity }
+            val limbEntities = skeletonPart.getLimbs(true).map { it.entity }
             entityManager.addAll(limbEntities)
         }
     }

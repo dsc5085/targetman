@@ -2,35 +2,42 @@ package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.World
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.*
 import dclib.graphics.TextureCache
+import dclib.physics.Box2dTransform
+import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
-class SkeletonPartFactory(
-        private val textureCache: TextureCache,
-        private val createLimbTransform: (vertices: FloatArray) -> Transform
-) {
+class SkeletonPartFactory(private val textureCache: TextureCache, private val world: World) {
     fun create(skeleton: Skeleton, atlasName: String, size: Vector2): SkeletonPart {
+        val skeletonCopy = Skeleton(skeleton)
         val baseScale = size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
-        val skeletonPart = SkeletonPart(skeleton)
-        for (bone in skeletonPart.skeleton.bones) {
-            val regionAttachment = getRegionAttachments(skeletonPart.skeleton, bone).firstOrNull()
-            val entity = createLimbEntity(regionAttachment, baseScale, atlasName)
-            skeletonPart.add(Limb(bone.data.name, entity, skeletonPart))
-        }
-        return skeletonPart
+        val root = createLimb(skeletonCopy.rootBone, baseScale, atlasName)
+        return SkeletonPart(skeletonCopy, root)
     }
 
-    private fun getRegionAttachments(skeleton: Skeleton, bone: Bone): List<RegionAttachment> {
-        val boneSlots = skeleton.slots.filter { it.bone == bone }
+    private fun createLimb(bone: Bone, baseScale: Vector2, atlasName: String): Limb {
+        val regionAttachment = getRegionAttachments(bone).firstOrNull()
+        val entity = createLimbEntity(regionAttachment, baseScale, atlasName)
+        val limb = Limb(bone, entity)
+        for (childBone in bone.children) {
+            limb.addChild(createLimb(childBone, baseScale, atlasName))
+        }
+        return limb
+    }
+
+    private fun getRegionAttachments(bone: Bone): List<RegionAttachment> {
+        val boneSlots = bone.skeleton.slots.filter { it.bone == bone }
         return boneSlots.map { it.attachment }.filterIsInstance<RegionAttachment>()
     }
 
@@ -62,6 +69,13 @@ class SkeletonPartFactory(
         transform.scale = scale
         entity.attach(TransformPart(transform), SpritePart(region))
         return entity
+    }
+
+    private fun createLimbTransform(vertices: FloatArray): Transform {
+        val body = Box2dUtils.createDynamicBody(world, vertices, true)
+        body.gravityScale = 0f
+        Box2dUtils.setFilter(body, CollisionCategory.ALL)
+        return Box2dTransform(body)
     }
 
     private fun createPointEntity(scale: Vector2): Entity {

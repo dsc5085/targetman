@@ -29,7 +29,7 @@ class GetDrawEntities(private val entityManager: EntityManager) : () -> List<Ent
     }
 
     private fun getSortedChildren(skeletonPart: SkeletonPart): List<Entity> {
-        val activeLimbs = skeletonPart.getActiveLimbs()
+        val activeLimbs = skeletonPart.getLimbs()
         var sortedLimbs = skeletonPart.skeleton.drawOrder.map {
             slot -> activeLimbs.firstOrNull { limb -> limb.name == slot.data.name }
         }.filterNotNull()

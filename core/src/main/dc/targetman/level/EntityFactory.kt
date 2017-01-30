@@ -53,6 +53,7 @@ class EntityFactory(
 
     fun createBloodParticle(size: Float, position: Vector3, velocity: Vector2) {
         val body = createBody("objects/blood", Vector2(size, size), true)
+        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.STATIC)
         body.linearVelocity = velocity
         val entity = createBaseEntity(body, position, "objects/blood")
         entity.addAttributes(Material.STICKY)

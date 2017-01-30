@@ -27,7 +27,7 @@ class InventorySystem(
     }
 
     private fun tryPickup(skeletonPart: SkeletonPart, inventoryPart: InventoryPart) {
-        for (limb in skeletonPart.getActiveLimbs()) {
+        for (limb in skeletonPart.getLimbs()) {
             val targets = collisionChecker.getTargets(limb.entity)
             val pickup = targets.firstOrNull { it.entity.has(PickupPart::class) }
             if (pickup != null && inventoryPart.pickupTimer.check()) {
@@ -45,6 +45,11 @@ class InventorySystem(
     }
 
     private fun grip(weapon: Weapon, skeletonPart: SkeletonPart, inventoryPart: InventoryPart) {
+//        val skeleton = SkeletonUtils.createSkeleton(weapon.data.skeletonPath, weapon.data.atlasName)
+//        val skeletonPartFactory = SkeletonPartFactory()
+//        val skeletonScale = weapon.data.width / skeleton.bounds.size.x
+//        val size = skeleton.bounds.size.scl(skeletonScale)
+//        val weaponSkeletonPart = skeletonPartFactory.create(skeleton, weapon.data.atlasName, size)
         // TODO:
         // Make the gun a separate entity
         // 1. Lets get the hand bone position from the skeleton

@@ -5,13 +5,9 @@ import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import com.esotericsoftware.spine.Skeleton
 import dc.targetman.skeleton.Limb
-import dclib.epf.Entity
 
-class SkeletonPart(skeleton: Skeleton) {
-    var skeleton: Skeleton = Skeleton(skeleton)
+class SkeletonPart(val skeleton: Skeleton, val root: Limb) {
     val animationState = createAnimationState()
-
-    private val limbs = mutableListOf<Limb>()
 
     val baseScale: Vector2
         get() {
@@ -26,27 +22,12 @@ class SkeletonPart(skeleton: Skeleton) {
             root.transform.scale = scale
         }
 
-    val root: Limb
-        get() = get(skeleton.rootBone.data.name)
-
     operator fun get(name: String): Limb {
-        return limbs.single { it.name == name }
+        return getLimbs(true).single { it.name == name }
     }
 
-    operator fun get(entity: Entity): Limb? {
-        return limbs.singleOrNull { it.entity === entity }
-    }
-
-    fun getAllLimbs(): Collection<Limb> {
-        return limbs.toList()
-    }
-
-    fun getActiveLimbs(): Collection<Limb> {
-        return getAllLimbs().filter { it.isActive }
-    }
-
-    fun add(limb: Limb) {
-        limbs.add(limb)
+    fun getLimbs(includeInactive: Boolean = false): Collection<Limb> {
+        return root.getDescendants(includeInactive)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

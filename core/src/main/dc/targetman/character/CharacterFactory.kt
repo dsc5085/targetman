@@ -29,7 +29,7 @@ import dclib.physics.Transform
 import dclib.util.inv
 
 class CharacterFactory(private val textureCache: TextureCache, private val world: World) {
-    private val skeletonPartFactory = SkeletonPartFactory(textureCache, { createLimbTransform(it) })
+    private val skeletonPartFactory = SkeletonPartFactory(textureCache, world)
 
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
@@ -65,7 +65,7 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
             size: Vector2
     ): SkeletonPart {
         val skeletonPart = skeletonPartFactory.create(skeleton, character.atlasName, size)
-        for (limb in skeletonPart.getAllLimbs()) {
+        for (limb in skeletonPart.getLimbs()) {
             val entity = limb.entity
             entity.addAttributes(DeathForm.CORPSE, alliance)
             val characterLimb = character.limbs.firstOrNull { it.name == limb.name }
