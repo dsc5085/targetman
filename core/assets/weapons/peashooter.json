@@ -6,6 +6,7 @@
   "maxSpeed": 9,
   "recoil": 0.1,
   "width": 0.4,
-  "regionName": "skins/man/walther_p99",
+  "skeletonPath": "skeletons/walther_p99.skel",
+  "atlasName": "objects",
   "bullet": "weapons/pellet.json"
 }

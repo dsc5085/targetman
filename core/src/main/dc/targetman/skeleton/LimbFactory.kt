@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
+import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
-import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
 import dclib.epf.parts.SpritePart
@@ -18,12 +18,38 @@ import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
-class SkeletonPartFactory(private val textureCache: TextureCache, private val world: World) {
-    fun create(skeleton: Skeleton, atlasName: String, size: Vector2): SkeletonPart {
+class LimbFactory(private val textureCache: TextureCache, private val world: World) {
+    fun create(skeleton: Skeleton, atlasName: String, size: Vector2): Limb {
+        val baseScale = getBaseScale(skeleton, size)
         val skeletonCopy = Skeleton(skeleton)
-        val baseScale = size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
-        val root = createLimb(skeletonCopy.rootBone, baseScale, atlasName)
-        return SkeletonPart(skeletonCopy, root)
+        return createLimb(skeletonCopy.rootBone, baseScale, atlasName)
+    }
+
+    fun append(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb) {
+        val baseScale = getBaseScale(childSkeleton, size)
+        val newBone = append(parentLimb.bone, childSkeleton.rootBone)
+        parentLimb.skeleton.updateCache()
+        val limb = createLimb(newBone, baseScale, atlasName)
+        parentLimb.addChild(limb)
+    }
+
+    private fun getBaseScale(skeleton: Skeleton, size: Vector2): Vector2 {
+        return size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+    }
+
+    private fun append(parentBone: Bone, bone: Bone): Bone {
+        val parentSkeleton = parentBone.skeleton
+        val newChildBone = Bone(bone.data, parentSkeleton, parentBone)
+        parentSkeleton.bones.add(newChildBone)
+        for (slot in bone.skeleton.slots.filter { it.bone === bone }) {
+            val newSlot = Slot(slot, newChildBone)
+            parentSkeleton.slots.add(newSlot)
+            parentSkeleton.drawOrder.add(newSlot)
+        }
+        for (child in bone.children) {
+            newChildBone.children.add(append(newChildBone, child))
+        }
+        return newChildBone
     }
 
     private fun createLimb(bone: Bone, baseScale: Vector2, atlasName: String): Limb {
@@ -38,7 +64,7 @@ class SkeletonPartFactory(private val textureCache: TextureCache, private val wo
 
     private fun getRegionAttachments(bone: Bone): List<RegionAttachment> {
         val boneSlots = bone.skeleton.slots.filter { it.bone == bone }
-        return boneSlots.map { it.attachment }.filterIsInstance<RegionAttachment>()
+        return SkeletonUtils.getRegionAttachments(boneSlots)
     }
 
     private fun createLimbEntity(

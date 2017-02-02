@@ -9,6 +9,8 @@ import dclib.geometry.VectorUtils
 import dclib.physics.Transform
 
 class Limb(val bone: Bone, val entity: Entity) {
+    val skeleton = bone.skeleton
+
     val isActive: Boolean
         get() = entity.isActive
 
@@ -20,7 +22,6 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     val scale: Vector2
         get() {
-            val skeleton = bone.skeleton
             val rootScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
             val flipScale = VectorUtils.sign(rootScale)
             return Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
@@ -30,8 +31,8 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
-        val attachments = bone.skeleton.slots.filter { it.bone.data.name == name }.map { it.attachment }
-        return attachments.filterIsInstance<RegionAttachment>().singleOrNull()
+        val slots = skeleton.slots.filter { it.bone.data.name == name }
+        return SkeletonUtils.getRegionAttachments(slots).singleOrNull()
     }
 
     fun getChildren(includeInactive: Boolean = false): Set<Limb> {

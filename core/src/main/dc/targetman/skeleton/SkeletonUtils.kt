@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.SkeletonBinary
+import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
@@ -18,6 +19,10 @@ object SkeletonUtils {
         val skeleton = Skeleton(skeletonBinary.readSkeletonData(skeletonFile))
         skeleton.updateWorldTransform()
         return skeleton
+    }
+
+    fun getRegionAttachments(slots: Iterable<Slot>): List<RegionAttachment> {
+        return slots.map { it.attachment }.filterIsInstance<RegionAttachment>()
     }
 
     fun getOffset(from: Bone, to: RegionAttachment, toScale: Vector2): Vector2 {

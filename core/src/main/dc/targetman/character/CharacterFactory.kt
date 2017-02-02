@@ -13,7 +13,7 @@ import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
-import dc.targetman.skeleton.SkeletonPartFactory
+import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.SkeletonUtils
 import dc.targetman.skeleton.bounds
 import dc.targetman.util.Json
@@ -25,11 +25,10 @@ import dclib.geometry.size
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import dclib.physics.Transform
 import dclib.util.inv
 
 class CharacterFactory(private val textureCache: TextureCache, private val world: World) {
-    private val skeletonPartFactory = SkeletonPartFactory(textureCache, world)
+    private val limbFactory = LimbFactory(textureCache, world)
 
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
@@ -42,19 +41,23 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         val body = createBody(size, position)
         val transform = Box2dTransform(body, position.z)
         entity.attach(TransformPart(transform))
-        entity.attach(createSkeletonPart(skeleton, character, alliance, size))
+        val skeletonPart = createSkeletonPart(skeleton, character, alliance, size)
+        entity.attach(skeletonPart)
         entity.attach(FiringPart(character.rotatorName, character.muzzleName))
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
         val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
-        val inventoryPart = InventoryPart(1, character.weaponLimbName, Weapon(character.weaponData))
+        val weaponAtlas = textureCache.getAtlas(character.weaponData.atlasName)
+        val weapon = Weapon(character.weaponData, weaponAtlas)
+        val inventoryPart = InventoryPart(1, "grip", weapon)
         entity.attach(inventoryPart)
         if (alliance === Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
         }
+        limbFactory.append(weapon.skeleton, weapon.data.atlasName, weapon.size, skeletonPart[character.gripperName])
         return entity
     }
 
@@ -64,7 +67,8 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
             alliance: Alliance,
             size: Vector2
     ): SkeletonPart {
-        val skeletonPart = skeletonPartFactory.create(skeleton, character.atlasName, size)
+        val root = limbFactory.create(skeleton, character.atlasName, size)
+        val skeletonPart = SkeletonPart(root)
         for (limb in skeletonPart.getLimbs()) {
             val entity = limb.entity
             entity.addAttributes(DeathForm.CORPSE, alliance)
@@ -118,12 +122,5 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
             baseFixture.friction = 0.1f
             baseShape.dispose()
         }
-    }
-
-    private fun createLimbTransform(vertices: FloatArray): Transform {
-        val body = Box2dUtils.createDynamicBody(world, vertices, true)
-        body.gravityScale = 0f
-        Box2dUtils.setFilter(body, CollisionCategory.ALL)
-        return Box2dTransform(body)
     }
 }

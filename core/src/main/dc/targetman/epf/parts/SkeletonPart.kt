@@ -3,10 +3,11 @@ package dc.targetman.epf.parts
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
-import com.esotericsoftware.spine.Skeleton
 import dc.targetman.skeleton.Limb
 
-class SkeletonPart(val skeleton: Skeleton, val root: Limb) {
+class SkeletonPart(val root: Limb) {
+    val skeleton = root.skeleton
+
     val animationState = createAnimationState()
 
     val baseScale: Vector2

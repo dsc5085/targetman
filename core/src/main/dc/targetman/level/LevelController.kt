@@ -85,7 +85,8 @@ class LevelController(
 		advancer = createAdvancer()
 		MapLoader(map, entityManager, textureCache, world).createObjects()
 		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
-		pickupFactory.create(Weapon(weaponData), Vector3(0.5f, 8f, 0f))
+		val atlas = textureCache.getAtlas(weaponData.atlasName)
+		pickupFactory.create(Weapon(weaponData, atlas), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
 	}

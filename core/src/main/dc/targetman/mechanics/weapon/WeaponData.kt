@@ -9,5 +9,5 @@ data class WeaponData(
         val recoil: Float = 0f,
         val width: Float = 1f,
         val skeletonPath: String = "",
-        val regionName: String = "",
+        val atlasName: String = "",
         var bullet: Bullet = Bullet())

@@ -3,7 +3,6 @@ package dc.targetman.mechanics
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.PickupPart
 import dc.targetman.epf.parts.SkeletonPart
-import dc.targetman.mechanics.weapon.Weapon
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
@@ -34,25 +33,12 @@ class InventorySystem(
                 val weapon = pickup.entity[PickupPart::class].weapon
                 val removedWeapon = inventoryPart.pickup(weapon)
                 if (removedWeapon != null) {
-                    grip(weapon, skeletonPart, inventoryPart)
                     val weaponLimb = skeletonPart[inventoryPart.weaponLimbName]
                     val removedWeaponTransform = weaponLimb.transform as Box2dTransform
-                    pickupFactory.create(removedWeapon, removedWeaponTransform)
+                    pickupFactory.create(removedWeapon, Box2dTransform(removedWeaponTransform))
                 }
                 entityManager.remove(pickup.entity)
             }
         }
-    }
-
-    private fun grip(weapon: Weapon, skeletonPart: SkeletonPart, inventoryPart: InventoryPart) {
-//        val skeleton = SkeletonUtils.createSkeleton(weapon.data.skeletonPath, weapon.data.atlasName)
-//        val skeletonPartFactory = SkeletonPartFactory()
-//        val skeletonScale = weapon.data.width / skeleton.bounds.size.x
-//        val size = skeleton.bounds.size.scl(skeletonScale)
-//        val weaponSkeletonPart = skeletonPartFactory.create(skeleton, weapon.data.atlasName, size)
-        // TODO:
-        // Make the gun a separate entity
-        // 1. Lets get the hand bone position from the skeleton
-        // 2. Put the gun's grip position at the hand bone position.  Make the rotation and scale the same as the hand's
     }
 }
