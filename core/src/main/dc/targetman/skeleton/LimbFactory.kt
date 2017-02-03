@@ -9,6 +9,7 @@ import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
+import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.*
@@ -18,7 +19,12 @@ import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
-class LimbFactory(private val textureCache: TextureCache, private val world: World) {
+// TODO: probably don't need textureCache since we can just reuse existing texture
+class LimbFactory(
+        private val entityManager: EntityManager,
+        private val world: World,
+        private val textureCache: TextureCache
+) {
     fun create(skeleton: Skeleton, atlasName: String, size: Vector2): Limb {
         val baseScale = getBaseScale(skeleton, size)
         val skeletonCopy = Skeleton(skeleton)
@@ -27,14 +33,36 @@ class LimbFactory(private val textureCache: TextureCache, private val world: Wor
 
     fun append(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb) {
         val baseScale = getBaseScale(childSkeleton, size)
+        val duplicateChildLimb = parentLimb.getChildren(true)
+                .firstOrNull { it.name == childSkeleton.rootBone.data.name }
+        if (duplicateChildLimb != null) {
+            remove(parentLimb, duplicateChildLimb)
+        }
         val newBone = append(parentLimb.bone, childSkeleton.rootBone)
         parentLimb.skeleton.updateCache()
-        val limb = createLimb(newBone, baseScale, atlasName)
-        parentLimb.addChild(limb)
+        parentLimb.addChild(createLimb(newBone, baseScale, atlasName))
     }
 
     private fun getBaseScale(skeleton: Skeleton, size: Vector2): Vector2 {
         return size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+    }
+
+    private fun remove(parentLimb: Limb, limb: Limb) {
+        parentLimb.removeChild(limb)
+        parentLimb.bone.children.removeValue(limb.bone, true)
+        remove(limb)
+    }
+
+    private fun remove(limb: Limb) {
+        val bone = limb.bone
+        for (child in limb.getChildren(true)) {
+            remove(child)
+        }
+        val skeleton = bone.skeleton
+        skeleton.slots.removeAll { it.bone === bone }
+        skeleton.drawOrder.removeAll { it.bone === bone }
+        skeleton.bones.removeValue(bone, true)
+        entityManager.remove(limb.entity)
     }
 
     private fun append(parentBone: Bone, bone: Bone): Bone {
@@ -59,6 +87,7 @@ class LimbFactory(private val textureCache: TextureCache, private val world: Wor
         for (childBone in bone.children) {
             limb.addChild(createLimb(childBone, baseScale, atlasName))
         }
+        entityManager.add(entity)
         return limb
     }
 
@@ -77,13 +106,13 @@ class LimbFactory(private val textureCache: TextureCache, private val world: Wor
             val size = Vector2(regionAttachment.width, regionAttachment.height).scl(baseScale).scl(regionScale.abs())
             val regionName = "$atlasName/${regionAttachment.path}"
             val scale = VectorUtils.sign(regionScale)
-            return createLimbEntity(size, scale, regionName)
+            return createBoneEntity(size, scale, regionName)
         } else {
             return createPointEntity(baseScale)
         }
     }
 
-    private fun createLimbEntity(
+    private fun createBoneEntity(
             size: Vector2,
             scale: Vector2,
             regionName: String

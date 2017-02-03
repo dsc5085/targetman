@@ -3,6 +3,7 @@ package dc.targetman.mechanics
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.PickupPart
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.skeleton.LimbFactory
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
@@ -12,7 +13,8 @@ import dclib.physics.collision.CollisionChecker
 class InventorySystem(
         private val entityManager: EntityManager,
         private val collisionChecker: CollisionChecker,
-        private val pickupFactory: PickupFactory
+        private val pickupFactory: PickupFactory,
+        private val limbFactory: LimbFactory
 ) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
@@ -35,6 +37,8 @@ class InventorySystem(
                 if (removedWeapon != null) {
                     val weaponLimb = skeletonPart[inventoryPart.weaponLimbName]
                     val removedWeaponTransform = weaponLimb.transform as Box2dTransform
+                    val gripper = skeletonPart[inventoryPart.gripperName]
+                    limbFactory.append(weapon.skeleton, weapon.data.atlasName, weapon.size, gripper)
                     pickupFactory.create(removedWeapon, Box2dTransform(removedWeaponTransform))
                 }
                 entityManager.remove(pickup.entity)

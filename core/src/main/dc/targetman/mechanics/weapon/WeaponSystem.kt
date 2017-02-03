@@ -18,13 +18,15 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         val firingPart = entity.tryGet(FiringPart::class)
-        val skeletonPart = entity.tryGet(SkeletonPart::class)
-        if (inventoryPart != null && firingPart != null && hasFiringLimbs(firingPart, skeletonPart!!)) {
+        if (inventoryPart != null && firingPart != null) {
+            val skeletonPart = entity[SkeletonPart::class]
             skeletonPart.playAnimation("aim", 1)
             aim(delta, firingPart)
-            fire(entity)
-            inventoryPart.equippedWeapon.reloadTimer.tick(delta)
-            firingPart.triggered = false
+            if (hasFiringLimbs(firingPart, skeletonPart)) {
+                fire(entity)
+                inventoryPart.equippedWeapon.reloadTimer.tick(delta)
+                firingPart.triggered = false
+            }
         }
     }
 

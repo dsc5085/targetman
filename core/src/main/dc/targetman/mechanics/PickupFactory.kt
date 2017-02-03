@@ -21,8 +21,8 @@ import dclib.util.inv
 
 class PickupFactory(
         private val entityManager: EntityManager,
-        private val textureCache: TextureCache,
-        private val world: World
+        private val world: World,
+        private val textureCache: TextureCache
 ) {
     fun create(weapon: Weapon, position: Vector3) {
         val size = weapon.size

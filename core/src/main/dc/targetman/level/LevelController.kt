@@ -28,8 +28,8 @@ import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StainOnCollided
-import dc.targetman.skeleton.AddLimbsOnEntityAdded
 import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
+import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.LimbRemovedChecker
 import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.util.Json
@@ -69,7 +69,8 @@ class LevelController(
 	private val convexHullCache = ConvexHullCache(textureCache)
 	private val world = PhysicsUtils.createWorld()
 	private val entityFactory = EntityFactory(entityManager, world, convexHullCache)
-	private val pickupFactory = PickupFactory(entityManager, textureCache, world)
+	private val pickupFactory = PickupFactory(entityManager, world, textureCache)
+	private val limbFactory: LimbFactory = LimbFactory(entityManager, world, textureCache)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
@@ -83,7 +84,7 @@ class LevelController(
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
-		MapLoader(map, entityManager, textureCache, world).createObjects()
+		MapLoader(map, entityManager, textureCache, world, limbFactory).createObjects()
 		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
 		val atlas = textureCache.getAtlas(weaponData.atlasName)
 		pickupFactory.create(Weapon(weaponData, atlas), Vector3(0.5f, 8f, 0f))
@@ -126,7 +127,6 @@ class LevelController(
 	private fun createEntityManager(): EntityManager {
 		val entityManager = DefaultEntityManager()
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
-		entityManager.entityAdded.on(AddLimbsOnEntityAdded(entityManager))
 		entityManager.entityAdded.on(ChangeContainerHealthOnEntityAdded(entityManager))
 		return entityManager
 	}
@@ -148,7 +148,7 @@ class LevelController(
 				contactChecker,
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
-				InventorySystem(entityManager, collisionChecker, pickupFactory),
+				InventorySystem(entityManager, collisionChecker, pickupFactory, limbFactory),
 				WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),

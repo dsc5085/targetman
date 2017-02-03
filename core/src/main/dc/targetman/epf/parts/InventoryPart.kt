@@ -3,7 +3,12 @@ package dc.targetman.epf.parts
 import dc.targetman.mechanics.weapon.Weapon
 import dclib.util.Timer
 
-class InventoryPart(val maxNumWeapons: Int, val weaponLimbName: String, weaponToEquip: Weapon) {
+class InventoryPart(
+        val maxNumWeapons: Int,
+        val weaponLimbName: String,
+        val gripperName: String,
+        weaponToEquip: Weapon
+) {
     var pickup = false
     val pickupTimer = Timer(0.5f, 0.5f)
 

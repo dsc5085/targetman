@@ -27,9 +27,11 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.util.inv
 
-class CharacterFactory(private val textureCache: TextureCache, private val world: World) {
-    private val limbFactory = LimbFactory(textureCache, world)
-
+class CharacterFactory(
+        private val textureCache: TextureCache,
+        private val world: World,
+        private val limbFactory: LimbFactory
+) {
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
         val entity = Entity()
@@ -51,7 +53,7 @@ class CharacterFactory(private val textureCache: TextureCache, private val world
         entity.attach(HealthPart(character.health))
         val weaponAtlas = textureCache.getAtlas(character.weaponData.atlasName)
         val weapon = Weapon(character.weaponData, weaponAtlas)
-        val inventoryPart = InventoryPart(1, "grip", weapon)
+        val inventoryPart = InventoryPart(1, "grip", character.gripperName, weapon)
         entity.attach(inventoryPart)
         if (alliance === Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)

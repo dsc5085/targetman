@@ -11,6 +11,7 @@ import dc.targetman.geometry.PolygonOperations
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
+import dc.targetman.skeleton.LimbFactory
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.TransformPart
@@ -25,12 +26,13 @@ class MapLoader(
         private val map: TiledMap,
         private val entityManager: EntityManager,
         textureCache: TextureCache,
-        private val world: World
+        private val world: World,
+        limbFactory: LimbFactory
 ) {
     private val collisionLayer = MapUtils.getCollisionLayer(map)
     // TODO: Use screenhelper to encapsulate unit conversion logic
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
-    private val characterFactory = CharacterFactory(textureCache, world)
+    private val characterFactory = CharacterFactory(textureCache, world, limbFactory)
 
     fun createObjects() {
         createStaticObjects()

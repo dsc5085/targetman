@@ -47,4 +47,8 @@ class Limb(val bone: Bone, val entity: Entity) {
     fun addChild(limb: Limb) {
         children.add(limb)
     }
+
+    fun removeChild(limb: Limb) {
+        children.remove(limb)
+    }
 }
