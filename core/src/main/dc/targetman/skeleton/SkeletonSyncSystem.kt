@@ -78,7 +78,7 @@ class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityMana
             transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
             transform.scale = attachmentScale
         }
-        val origin = SkeletonUtils.getOrigin(transform.size)
+        val origin = SkeletonUtils.getOrigin(transform.localSize)
         transform.setLocalToWorld(origin, world)
     }
 }

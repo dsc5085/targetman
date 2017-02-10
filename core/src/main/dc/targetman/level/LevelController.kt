@@ -37,6 +37,7 @@ import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntitySpriteDrawer
+import dclib.epf.graphics.EntityTransformDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
@@ -82,6 +83,7 @@ class LevelController(
 
 	init {
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
+		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, entityManager, textureCache, world, limbFactory).createObjects()

@@ -33,12 +33,13 @@ class LimbFactory(
 
     fun append(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb) {
         val baseScale = getBaseScale(childSkeleton, size)
+        val skeletonCopy = Skeleton(childSkeleton)
         val duplicateChildLimb = parentLimb.getChildren(true)
-                .firstOrNull { it.name == childSkeleton.rootBone.data.name }
+                .firstOrNull { it.name == skeletonCopy.rootBone.data.name }
         if (duplicateChildLimb != null) {
             remove(parentLimb, duplicateChildLimb)
         }
-        val newBone = append(parentLimb.bone, childSkeleton.rootBone)
+        val newBone = append(parentLimb.bone, skeletonCopy.rootBone)
         parentLimb.skeleton.updateCache()
         parentLimb.addChild(createLimb(newBone, baseScale, atlasName))
     }
@@ -105,8 +106,8 @@ class LimbFactory(
             val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
             val size = Vector2(regionAttachment.width, regionAttachment.height).scl(baseScale).scl(regionScale.abs())
             val regionName = "$atlasName/${regionAttachment.path}"
-            val scale = VectorUtils.sign(regionScale)
-            return createBoneEntity(size, scale, regionName)
+            val flipScale = VectorUtils.sign(regionScale)
+            return createBoneEntity(size, flipScale, regionName)
         } else {
             return createPointEntity(baseScale)
         }
