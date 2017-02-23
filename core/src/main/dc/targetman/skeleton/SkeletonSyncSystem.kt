@@ -11,7 +11,7 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.geometry.base
 
-class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
+class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entityManager) {
     val animationApplied = EventDelegate<AnimationAppliedEvent>()
 
     override fun update(delta: Float, entity: Entity) {
@@ -19,10 +19,11 @@ class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityMana
         if (skeletonPart != null) {
             updateSkeleton(delta, entity)
             removeInactiveSlots(skeletonPart)
-            updateBounds(entity)
+            updateSize(entity)
             updateRootPosition(entity)
             for (limb in skeletonPart.getLimbs()) {
                 updateTransform(limb, skeletonPart.baseScale)
+                updateSkeletonLinks(limb)
             }
         }
     }
@@ -47,7 +48,7 @@ class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityMana
         skeleton.updateWorldTransform()
     }
 
-    private fun updateBounds(entity: Entity) {
+    private fun updateSize(entity: Entity) {
         val skeleton = entity[SkeletonPart::class].skeleton
         val transform = entity[TransformPart::class].transform
         val size = Vector2(transform.size.x, skeleton.bounds.height)
@@ -57,10 +58,16 @@ class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityMana
     private fun updateRootPosition(entity: Entity) {
         val skeleton = entity[SkeletonPart::class].skeleton
         val transform = entity[TransformPart::class].transform
-        val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
-        val newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
-        skeleton.rootBone.x = newRootPosition.x
-        skeleton.rootBone.y = newRootPosition.y
+        // TODO: Make this generic, or move this to a more specific system
+        if (entity[SkeletonPart::class].getLimbs().any { it.name == "muzzle" }) {
+            skeleton.rootBone.x = transform.center.x
+            skeleton.rootBone.y = transform.center.y
+        } else {
+            val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
+            val newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
+            skeleton.rootBone.x = newRootPosition.x
+            skeleton.rootBone.y = newRootPosition.y
+        }
         skeleton.updateWorldTransform()
     }
 
@@ -75,10 +82,22 @@ class SkeletonSyncSystem(entityManager: EntityManager) : EntitySystem(entityMana
             world.add(offsetFromBone)
             val boneScale = limb.scale.scl(VectorUtils.inv(baseScale.abs()))
             val attachmentScale = SkeletonUtils.calculateAttachmentScale(boneScale, attachment.rotation)
-            transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
             transform.scale = attachmentScale
+            transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
         }
         val origin = SkeletonUtils.getOrigin(transform.localSize)
         transform.setLocalToWorld(origin, world)
+    }
+
+    private fun updateSkeletonLinks(limb: Limb) {
+        for (skeletonLink in limb.getSkeletonLinks()) {
+            val childRoot = skeletonLink.linkedEntity[SkeletonPart::class].root
+            // TODO: This is too verbose, to just change the scale's sign to match its parent's scale's sign
+            childRoot.transform.scale = childRoot.transform.scale.abs().scl(limb.flipScale)
+            val childTransform = skeletonLink.linkedEntity[TransformPart::class].transform
+            childTransform.rotation = limb.transform.rotation
+            SkeletonUtils.setWorldRotationX(childRoot.bone, limb.bone.worldRotationX)
+            childTransform.setWorld(childTransform.center, limb.transform.center)
+        }
     }
 }

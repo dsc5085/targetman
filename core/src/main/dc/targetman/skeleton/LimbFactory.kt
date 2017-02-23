@@ -118,13 +118,11 @@ class LimbFactory(
             scale: Vector2,
             regionName: String
     ): Entity {
-        val entity = Entity()
         val region = textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
         val transform = createLimbTransform(vertices)
         transform.scale = scale
-        entity.attach(TransformPart(transform), SpritePart(region))
-        return entity
+        return Entity(TransformPart(transform), SpritePart(region))
     }
 
     private fun createLimbTransform(vertices: FloatArray): Transform {
@@ -135,7 +133,6 @@ class LimbFactory(
     }
 
     private fun createPointEntity(scale: Vector2): Entity {
-        val entity = Entity()
         // TODO: Is there a better solution for the comment below?
         // The width and height are fairly arbitrary, but the limb should be large enough such that its geometry
         // contains the bone positions of its children.  Meeting this constraint ensures things work correctly such as
@@ -143,7 +140,6 @@ class LimbFactory(
         val polygon = Polygon(PolygonUtils.createRectangleVertices(0.1f, 0.1f))
         val transform = DefaultTransform(polygon, 0f)
         transform.scale = scale
-        entity.attach(TransformPart(transform))
-        return entity
+        return Entity(TransformPart(transform))
     }
 }

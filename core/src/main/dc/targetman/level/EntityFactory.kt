@@ -63,12 +63,11 @@ class EntityFactory(
     }
 
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
-        val entity = Entity()
-        entity.addAttributes(*attributes)
         val transform = Box2dTransform(body, position.z)
         transform.position = Vector2(position.x, position.y)
         val region = convexHullCache.create(regionName).region
-        entity.attach(TransformPart(transform), SpritePart(region))
+        val entity = Entity(TransformPart(transform), SpritePart(region))
+        entity.addAttributes(*attributes)
         EntityUtils.filterSameAlliance(entity)
         return entity
     }

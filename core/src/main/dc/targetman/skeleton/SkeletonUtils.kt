@@ -45,4 +45,8 @@ object SkeletonUtils {
     fun getOrigin(size: Vector2): Vector2 {
         return size.cpy().scl(0.5f)
     }
+
+    fun setWorldRotationX(bone: Bone, worldRotationX: Float) {
+        bone.rotation += worldRotationX - bone.worldRotationX
+    }
 }

@@ -22,12 +22,17 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     val scale: Vector2
         get() {
-            val rootScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
-            val flipScale = VectorUtils.sign(rootScale)
             return Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
         }
 
+    val flipScale: Vector2
+        get() {
+            val rootScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+           return VectorUtils.sign(rootScale)
+        }
+
     private val children = mutableSetOf<Limb>()
+    private val skeletonLinks = mutableSetOf<SkeletonLink>()
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
@@ -50,5 +55,13 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     fun removeChild(limb: Limb) {
         children.remove(limb)
+    }
+
+    fun getSkeletonLinks(): Set<SkeletonLink> {
+        return skeletonLinks.toSet()
+    }
+
+    fun add(skeletonLink: SkeletonLink) {
+        skeletonLinks.add(skeletonLink)
     }
 }

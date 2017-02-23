@@ -28,7 +28,7 @@ class SkeletonPart(val root: Limb) {
     }
 
     fun getLimbs(includeInactive: Boolean = false): Collection<Limb> {
-        return root.getDescendants(includeInactive)
+        return root.getDescendants(includeInactive).plus(root)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

@@ -32,7 +32,7 @@ class MapLoader(
     private val collisionLayer = MapUtils.getCollisionLayer(map)
     // TODO: Use screenhelper to encapsulate unit conversion logic
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
-    private val characterFactory = CharacterFactory(textureCache, world, limbFactory)
+    private val characterFactory = CharacterFactory(entityManager, textureCache, world, limbFactory)
 
     fun createObjects() {
         createStaticObjects()
@@ -56,19 +56,17 @@ class MapLoader(
     }
 
     fun createWall(vertices: List<Vector2>) {
-        val entity = Entity()
         val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         val transform = Box2dTransform(body)
-        entity.attach(TransformPart(transform))
+        val entity = Entity(TransformPart(transform))
         entity.addAttributes(Material.METAL)
         entityManager.add(entity)
     }
 
+    // TODO: This is unneccesary, being a simple one-liner
     fun createCharacter(characterPath: String, position: Vector3, alliance: Alliance): Entity {
-        val entity = characterFactory.create(characterPath, 2f, position, alliance)
-        entityManager.add(entity)
-        return entity
+        return characterFactory.create(characterPath, 2f, position, alliance)
     }
 
     private fun createTileVertices(x: Int, y: Int, cell: TiledMapTileLayer.Cell): List<Vector2> {

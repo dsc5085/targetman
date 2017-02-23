@@ -13,11 +13,10 @@ import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
-import dc.targetman.skeleton.LimbFactory
-import dc.targetman.skeleton.SkeletonUtils
-import dc.targetman.skeleton.bounds
+import dc.targetman.skeleton.*
 import dc.targetman.util.Json
 import dclib.epf.Entity
+import dclib.epf.EntityManager
 import dclib.epf.parts.HealthPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
@@ -25,9 +24,11 @@ import dclib.geometry.size
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
+import dclib.physics.DefaultTransform
 import dclib.util.inv
 
 class CharacterFactory(
+        private val entityManager: EntityManager,
         private val textureCache: TextureCache,
         private val world: World,
         private val limbFactory: LimbFactory
@@ -59,7 +60,8 @@ class CharacterFactory(
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
         }
-        limbFactory.append(weapon.skeleton, weapon.data.atlasName, weapon.size, skeletonPart[character.gripperName])
+        entityManager.add(entity)
+        entityManager.add(createWeaponEntity(skeletonPart["gripper"], weapon))
         return entity
     }
 
@@ -124,5 +126,13 @@ class CharacterFactory(
             baseFixture.friction = 0.1f
             baseShape.dispose()
         }
+    }
+
+    private fun createWeaponEntity(gripper: Limb, weapon: Weapon): Entity {
+        val root = limbFactory.create(weapon.skeleton, weapon.data.atlasName, weapon.size)
+        val transform = DefaultTransform()
+        val entity = Entity(SkeletonPart(root), TransformPart(transform))
+        gripper.add(SkeletonLink(entity))
+        return entity
     }
 }
