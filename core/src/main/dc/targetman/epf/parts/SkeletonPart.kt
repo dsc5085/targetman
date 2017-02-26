@@ -5,9 +5,9 @@ import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
 
+// TODO: Remove helper methods.  Just call the root methods
 class SkeletonPart(val root: Limb) {
     val skeleton = root.skeleton
-
     val animationState = createAnimationState()
 
     val baseScale: Vector2
@@ -20,7 +20,7 @@ class SkeletonPart(val root: Limb) {
         set(value) {
             val scale = baseScale
             scale.x = Math.abs(scale.x) * if (value) -1 else 1
-            root.transform.scale = scale
+            root.transform.setScale(scale)
         }
 
     operator fun get(name: String): Limb {

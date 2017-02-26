@@ -121,7 +121,7 @@ class LimbFactory(
         val region = textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
         val transform = createLimbTransform(vertices)
-        transform.scale = scale
+        transform.setScale(scale)
         return Entity(TransformPart(transform), SpritePart(region))
     }
 
@@ -139,7 +139,7 @@ class LimbFactory(
         // Box2D joint connections.
         val polygon = Polygon(PolygonUtils.createRectangleVertices(0.1f, 0.1f))
         val transform = DefaultTransform(polygon, 0f)
-        transform.scale = scale
+        transform.setScale(scale)
         return Entity(TransformPart(transform))
     }
 }

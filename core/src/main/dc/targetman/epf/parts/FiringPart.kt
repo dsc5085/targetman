@@ -1,6 +1,8 @@
 package dc.targetman.epf.parts
 
-class FiringPart(val rotatorName: String, val muzzleName: String) {
+import dc.targetman.skeleton.Limb
+
+class FiringPart(val rotatorName: String, val muzzle: Limb) {
     var aimDirection = 0
     var aimRotation = 0f
     var triggered = false

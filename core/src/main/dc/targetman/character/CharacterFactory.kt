@@ -46,22 +46,24 @@ class CharacterFactory(
         entity.attach(TransformPart(transform))
         val skeletonPart = createSkeletonPart(skeleton, character, alliance, size)
         entity.attach(skeletonPart)
-        entity.attach(FiringPart(character.rotatorName, character.muzzleName))
+        val weaponAtlas = textureCache.getAtlas(character.weaponData.atlasName)
+        val weapon = Weapon(character.weaponData, weaponAtlas)
+        val weaponEntity = createWeaponEntity(skeletonPart["gripper"], weapon)
+        val muzzle = weaponEntity[SkeletonPart::class]["muzzle"]
+        entity.attach(FiringPart(character.rotatorName, muzzle))
+        val inventoryPart = InventoryPart(1, "grip", character.gripperName, weapon)
+        entity.attach(inventoryPart)
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
         val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
-        val weaponAtlas = textureCache.getAtlas(character.weaponData.atlasName)
-        val weapon = Weapon(character.weaponData, weaponAtlas)
-        val inventoryPart = InventoryPart(1, "grip", character.gripperName, weapon)
-        entity.attach(inventoryPart)
         if (alliance === Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
         }
         entityManager.add(entity)
-        entityManager.add(createWeaponEntity(skeletonPart["gripper"], weapon))
+        entityManager.add(weaponEntity)
         return entity
     }
 
@@ -131,8 +133,7 @@ class CharacterFactory(
     private fun createWeaponEntity(gripper: Limb, weapon: Weapon): Entity {
         val root = limbFactory.create(weapon.skeleton, weapon.data.atlasName, weapon.size)
         val transform = DefaultTransform()
-        val entity = Entity(SkeletonPart(root), TransformPart(transform))
-        gripper.add(SkeletonLink(entity))
-        return entity
+        gripper.add(SkeletonLink(root, transform))
+        return Entity(SkeletonPart(root), TransformPart(transform))
     }
 }

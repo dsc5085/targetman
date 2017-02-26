@@ -34,9 +34,8 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
     }
 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
-        val muzzleName = entity.get(FiringPart::class).muzzleName
         val skeletonPart = entity.get(SkeletonPart::class)
-        val muzzleEntity = skeletonPart[muzzleName].entity
+        val muzzleEntity = entity.get(FiringPart::class).muzzle.entity
         val muzzleTransform = muzzleEntity[TransformPart::class].transform
         val direction = getAimRotateDirection(muzzleTransform, targetBounds.center, skeletonPart.flipX)
         StickActions.aim(entity, direction)

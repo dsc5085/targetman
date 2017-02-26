@@ -82,7 +82,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
             world.add(offsetFromBone)
             val boneScale = limb.scale.scl(VectorUtils.inv(baseScale.abs()))
             val attachmentScale = SkeletonUtils.calculateAttachmentScale(boneScale, attachment.rotation)
-            transform.scale = attachmentScale
+            transform.setScale(attachmentScale)
             transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
         }
         val origin = SkeletonUtils.getOrigin(transform.localSize)
@@ -91,10 +91,10 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
 
     private fun updateSkeletonLinks(limb: Limb) {
         for (skeletonLink in limb.getSkeletonLinks()) {
-            val childRoot = skeletonLink.linkedEntity[SkeletonPart::class].root
-            // TODO: This is too verbose, to just change the scale's sign to match its parent's scale's sign
-            childRoot.transform.scale = childRoot.transform.scale.abs().scl(limb.flipScale)
-            val childTransform = skeletonLink.linkedEntity[TransformPart::class].transform
+            val childRoot = skeletonLink.root
+            val newScale = childRoot.transform.scale.abs().scl(limb.flipScale)
+            childRoot.transform.setScale(newScale)
+            val childTransform = skeletonLink.transform
             childTransform.rotation = limb.transform.rotation
             SkeletonUtils.setWorldRotationX(childRoot.bone, limb.bone.worldRotationX)
             childTransform.setWorld(childTransform.center, limb.transform.center)

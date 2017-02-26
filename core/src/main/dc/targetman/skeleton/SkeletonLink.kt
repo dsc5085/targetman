@@ -1,5 +1,5 @@
 package dc.targetman.skeleton
 
-import dclib.epf.Entity
+import dclib.physics.Transform
 
-data class SkeletonLink(val linkedEntity: Entity)
+data class SkeletonLink(val root: Limb, val transform: Transform)

@@ -13,7 +13,7 @@ class ScaleSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
         if (scalePart != null) {
             scalePart.scaleTimer.tick(delta)
             val transform = entity[TransformPart::class].transform
-            transform.scale = Vector2(scalePart.scaleX, transform.scale.y)
+            transform.setScale(Vector2(scalePart.scaleX, transform.scale.y))
         }
     }
 }

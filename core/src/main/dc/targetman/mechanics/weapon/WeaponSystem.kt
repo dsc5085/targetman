@@ -33,7 +33,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
     private fun hasFiringLimbs(firingPart: FiringPart, skeletonPart: SkeletonPart): Boolean {
         val rotatorName = firingPart.rotatorName
         val rotatorLimb = skeletonPart[rotatorName]
-        return rotatorLimb.getDescendants().any { it.name == firingPart.muzzleName }
+        return rotatorLimb.getDescendants(includeLinked = true).contains(firingPart.muzzle)
     }
 
     private fun aim(delta: Float, firingPart: FiringPart) {
@@ -45,8 +45,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
         val weapon = entity[InventoryPart::class].equippedWeapon
         val firingPart = entity[FiringPart::class]
         if (weapon.reloadTimer.isElapsed && firingPart.triggered) {
-            val muzzleLimb = entity[SkeletonPart::class][firingPart.muzzleName]
-            val muzzleTransform = muzzleLimb.transform
+            val muzzleTransform = firingPart.muzzle.transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.data.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.all, entity, recoil)
             createBullets(muzzleTransform, weapon, entity.getAttribute(Alliance::class)!!)

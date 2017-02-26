@@ -32,6 +32,7 @@ class Limb(val bone: Bone, val entity: Entity) {
         }
 
     private val children = mutableSetOf<Limb>()
+    // TODO: Merge skeleton links list with children list
     private val skeletonLinks = mutableSetOf<SkeletonLink>()
 
     fun getRegionAttachment(): RegionAttachment? {
@@ -40,12 +41,17 @@ class Limb(val bone: Bone, val entity: Entity) {
         return SkeletonUtils.getRegionAttachments(slots).singleOrNull()
     }
 
-    fun getChildren(includeInactive: Boolean = false): Set<Limb> {
-        return children.filter { includeInactive || it.isActive }.toSet()
+    fun getChildren(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
+        val all = children.toMutableList()
+        if (includeLinked) {
+            all.addAll(skeletonLinks.map { it.root })
+        }
+        return all.filter { includeInactive || it.isActive }.toSet()
     }
 
-    fun getDescendants(includeInactive: Boolean = false): Set<Limb> {
-        val descendants = getChildren(includeInactive).flatMap { it.getDescendants(includeInactive).plus(it) }
+    fun getDescendants(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
+        val descendants = getChildren(includeInactive, includeLinked)
+                .flatMap { it.getDescendants(includeInactive, includeLinked).plus(it) }
         return descendants.toSet()
     }
 
