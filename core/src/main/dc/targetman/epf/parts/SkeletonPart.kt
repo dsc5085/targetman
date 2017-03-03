@@ -5,7 +5,7 @@ import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
 
-// TODO: Remove helper methods.  Just call the root methods
+// TODO: Remove helper methods.  Just call the root limb methods
 class SkeletonPart(val root: Limb) {
     val skeleton = root.skeleton
     val animationState = createAnimationState()
@@ -24,11 +24,11 @@ class SkeletonPart(val root: Limb) {
         }
 
     operator fun get(name: String): Limb {
-        return getLimbs(true).single { it.name == name }
+        return getLimbs(true, true).single { it.name == name }
     }
 
-    fun getLimbs(includeInactive: Boolean = false): Collection<Limb> {
-        return root.getDescendants(includeInactive).plus(root)
+    fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {
+        return root.getDescendants(includeInactive, includeLinked).plus(root)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

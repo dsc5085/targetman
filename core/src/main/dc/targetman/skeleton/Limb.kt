@@ -61,6 +61,7 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     fun removeChild(limb: Limb) {
         children.remove(limb)
+        skeletonLinks.removeAll { it.root === limb }
     }
 
     fun getSkeletonLinks(): Set<SkeletonLink> {

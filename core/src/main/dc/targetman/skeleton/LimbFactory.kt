@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
-import com.esotericsoftware.spine.Slot
 import com.esotericsoftware.spine.attachments.RegionAttachment
 import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
@@ -31,17 +30,16 @@ class LimbFactory(
         return createLimb(skeletonCopy.rootBone, baseScale, atlasName)
     }
 
-    fun append(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb) {
-        val baseScale = getBaseScale(childSkeleton, size)
-        val skeletonCopy = Skeleton(childSkeleton)
-        val duplicateChildLimb = parentLimb.getChildren(true)
-                .firstOrNull { it.name == skeletonCopy.rootBone.data.name }
+    fun link(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb): SkeletonLink {
+        val duplicateChildLimb = parentLimb.getChildren(true, true)
+                .firstOrNull { it.name == childSkeleton.rootBone.data.name }
         if (duplicateChildLimb != null) {
             remove(parentLimb, duplicateChildLimb)
         }
-        val newBone = append(parentLimb.bone, skeletonCopy.rootBone)
-        parentLimb.skeleton.updateCache()
-        parentLimb.addChild(createLimb(newBone, baseScale, atlasName))
+        val root = create(childSkeleton, atlasName, size)
+        val skeletonLink = SkeletonLink(root, DefaultTransform())
+        parentLimb.add(skeletonLink)
+        return skeletonLink
     }
 
     private fun getBaseScale(skeleton: Skeleton, size: Vector2): Vector2 {
@@ -49,36 +47,12 @@ class LimbFactory(
     }
 
     private fun remove(parentLimb: Limb, limb: Limb) {
+        val container = LimbUtils.findContainer(entityManager.all, limb.entity)
+        if (limb.bone === limb.skeleton.rootBone && container != null) {
+            entityManager.remove(container)
+        }
         parentLimb.removeChild(limb)
-        parentLimb.bone.children.removeValue(limb.bone, true)
-        remove(limb)
-    }
-
-    private fun remove(limb: Limb) {
-        val bone = limb.bone
-        for (child in limb.getChildren(true)) {
-            remove(child)
-        }
-        val skeleton = bone.skeleton
-        skeleton.slots.removeAll { it.bone === bone }
-        skeleton.drawOrder.removeAll { it.bone === bone }
-        skeleton.bones.removeValue(bone, true)
         entityManager.remove(limb.entity)
-    }
-
-    private fun append(parentBone: Bone, bone: Bone): Bone {
-        val parentSkeleton = parentBone.skeleton
-        val newChildBone = Bone(bone.data, parentSkeleton, parentBone)
-        parentSkeleton.bones.add(newChildBone)
-        for (slot in bone.skeleton.slots.filter { it.bone === bone }) {
-            val newSlot = Slot(slot, newChildBone)
-            parentSkeleton.slots.add(newSlot)
-            parentSkeleton.drawOrder.add(newSlot)
-        }
-        for (child in bone.children) {
-            newChildBone.children.add(append(newChildBone, child))
-        }
-        return newChildBone
     }
 
     private fun createLimb(bone: Bone, baseScale: Vector2, atlasName: String): Limb {

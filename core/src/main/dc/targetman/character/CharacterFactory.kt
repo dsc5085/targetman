@@ -13,7 +13,9 @@ import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
-import dc.targetman.skeleton.*
+import dc.targetman.skeleton.LimbFactory
+import dc.targetman.skeleton.SkeletonUtils
+import dc.targetman.skeleton.bounds
 import dc.targetman.util.Json
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -24,7 +26,6 @@ import dclib.geometry.size
 import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import dclib.physics.DefaultTransform
 import dclib.util.inv
 
 class CharacterFactory(
@@ -48,10 +49,8 @@ class CharacterFactory(
         entity.attach(skeletonPart)
         val weaponAtlas = textureCache.getAtlas(character.weaponData.atlasName)
         val weapon = Weapon(character.weaponData, weaponAtlas)
-        val weaponEntity = createWeaponEntity(skeletonPart["gripper"], weapon)
-        val muzzle = weaponEntity[SkeletonPart::class]["muzzle"]
-        entity.attach(FiringPart(character.rotatorName, muzzle))
-        val inventoryPart = InventoryPart(1, "grip", character.gripperName, weapon)
+        entity.attach(FiringPart(character.rotatorName, "muzzle"))
+        val inventoryPart = InventoryPart(1, character.gripperName, weapon)
         entity.attach(inventoryPart)
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
@@ -63,7 +62,6 @@ class CharacterFactory(
             entity.attach(AiPart(aiProfile))
         }
         entityManager.add(entity)
-        entityManager.add(weaponEntity)
         return entity
     }
 
@@ -128,12 +126,5 @@ class CharacterFactory(
             baseFixture.friction = 0.1f
             baseShape.dispose()
         }
-    }
-
-    private fun createWeaponEntity(gripper: Limb, weapon: Weapon): Entity {
-        val root = limbFactory.create(weapon.skeleton, weapon.data.atlasName, weapon.size)
-        val transform = DefaultTransform()
-        gripper.add(SkeletonLink(root, transform))
-        return Entity(SkeletonPart(root), TransformPart(transform))
     }
 }

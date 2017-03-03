@@ -58,16 +58,16 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
     private fun updateRootPosition(entity: Entity) {
         val skeleton = entity[SkeletonPart::class].skeleton
         val transform = entity[TransformPart::class].transform
+        val newRootPosition: Vector2
         // TODO: Make this generic, or move this to a more specific system
         if (entity[SkeletonPart::class].getLimbs().any { it.name == "muzzle" }) {
-            skeleton.rootBone.x = transform.center.x
-            skeleton.rootBone.y = transform.center.y
+            newRootPosition = transform.center
         } else {
             val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
-            val newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
-            skeleton.rootBone.x = newRootPosition.x
-            skeleton.rootBone.y = newRootPosition.y
+            newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
         }
+        skeleton.rootBone.x = newRootPosition.x
+        skeleton.rootBone.y = newRootPosition.y
         skeleton.updateWorldTransform()
     }
 

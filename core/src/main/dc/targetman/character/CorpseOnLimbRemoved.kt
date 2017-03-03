@@ -22,14 +22,14 @@ import dclib.util.FloatRange
 import dclib.util.Maths
 
 class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : (LimbRemovedEvent) -> Unit {
-	override fun invoke(event: LimbRemovedEvent) {
+    override fun invoke(event: LimbRemovedEvent) {
         val limb = event.limb
         val corpseTransform = createCorpseChain(limb)
         if (corpseTransform != null) {
             val container = LimbUtils.findContainer(entityManager.all, limb.entity)!!
             corpseTransform.velocity = container[TransformPart::class].transform.velocity
         }
-	}
+    }
 
     private fun createCorpseChain(limb: Limb): Box2dTransform? {
         var corpseTransform: Box2dTransform? = null

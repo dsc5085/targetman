@@ -5,7 +5,6 @@ import dclib.util.Timer
 
 class InventoryPart(
         val maxNumWeapons: Int,
-        val weaponLimbName: String,
         val gripperName: String,
         weaponToEquip: Weapon
 ) {

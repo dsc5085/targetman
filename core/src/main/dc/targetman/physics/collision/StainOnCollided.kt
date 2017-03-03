@@ -31,7 +31,7 @@ class StainOnCollided(val entityManager: EntityManager) : (CollidedEvent) -> Uni
         val stain = Entity()
         val transform = particle[TransformPart::class].transform
         val stainTransform = DefaultTransform(transform)
-        stainTransform.scale = stainTransform.scale.scl(stainScale)
+        stainTransform.setScale(stainTransform.scale.scl(stainScale))
         stainTransform.rotation = edgeContact.edge.angle
         stainTransform.setWorld(stainTransform.center, edgeContact.intersection)
         val timedDeathPart = TimedDeathPart(deathTimeRange.random())
