@@ -5,20 +5,19 @@ import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
 
-// TODO: Remove helper methods.  Just call the root limb methods
 class SkeletonPart(val root: Limb) {
     val skeleton = root.skeleton
     val animationState = createAnimationState()
 
-    val baseScale: Vector2
+    val rootScale: Vector2
         get() {
             return root.transform.scale
         }
 
     var flipX: Boolean
-        get() = baseScale.x < 0
+        get() = rootScale.x < 0
         set(value) {
-            val scale = baseScale
+            val scale = rootScale
             scale.x = Math.abs(scale.x) * if (value) -1 else 1
             root.transform.setScale(scale)
         }

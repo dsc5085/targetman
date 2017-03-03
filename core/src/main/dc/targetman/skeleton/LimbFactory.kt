@@ -25,9 +25,9 @@ class LimbFactory(
         private val textureCache: TextureCache
 ) {
     fun create(skeleton: Skeleton, atlasName: String, size: Vector2): Limb {
-        val baseScale = getBaseScale(skeleton, size)
+        val rootScale = size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
         val skeletonCopy = Skeleton(skeleton)
-        return createLimb(skeletonCopy.rootBone, baseScale, atlasName)
+        return createLimb(skeletonCopy.rootBone, rootScale, atlasName)
     }
 
     fun link(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb): SkeletonLink {
@@ -42,10 +42,6 @@ class LimbFactory(
         return skeletonLink
     }
 
-    private fun getBaseScale(skeleton: Skeleton, size: Vector2): Vector2 {
-        return size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
-    }
-
     private fun remove(parentLimb: Limb, limb: Limb) {
         val container = LimbUtils.findContainer(entityManager.all, limb.entity)
         if (limb.bone === limb.skeleton.rootBone && container != null) {
@@ -55,12 +51,12 @@ class LimbFactory(
         entityManager.remove(limb.entity)
     }
 
-    private fun createLimb(bone: Bone, baseScale: Vector2, atlasName: String): Limb {
+    private fun createLimb(bone: Bone, rootScale: Vector2, atlasName: String): Limb {
         val regionAttachment = getRegionAttachments(bone).firstOrNull()
-        val entity = createLimbEntity(regionAttachment, baseScale, atlasName)
+        val entity = createLimbEntity(regionAttachment, rootScale, atlasName)
         val limb = Limb(bone, entity)
         for (childBone in bone.children) {
-            limb.addChild(createLimb(childBone, baseScale, atlasName))
+            limb.addChild(createLimb(childBone, rootScale, atlasName))
         }
         entityManager.add(entity)
         return limb
@@ -73,17 +69,17 @@ class LimbFactory(
 
     private fun createLimbEntity(
             regionAttachment: RegionAttachment?,
-            baseScale: Vector2,
+            rootScale: Vector2,
             atlasName: String
     ): Entity {
         if (regionAttachment != null) {
             val regionScale = Vector2(regionAttachment.scaleX, regionAttachment.scaleY)
-            val size = Vector2(regionAttachment.width, regionAttachment.height).scl(baseScale).scl(regionScale.abs())
+            val size = Vector2(regionAttachment.width, regionAttachment.height).scl(rootScale).scl(regionScale.abs())
             val regionName = "$atlasName/${regionAttachment.path}"
             val flipScale = VectorUtils.sign(regionScale)
             return createBoneEntity(size, flipScale, regionName)
         } else {
-            return createPointEntity(baseScale)
+            return createPointEntity(rootScale)
         }
     }
 
