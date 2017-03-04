@@ -2,28 +2,24 @@ package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.World
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
 import com.esotericsoftware.spine.attachments.RegionAttachment
+import dc.targetman.level.FactoryTools
 import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
-import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.*
-import dclib.graphics.TextureCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
 // TODO: probably don't need textureCache since we can just reuse existing texture
-class LimbFactory(
-        private val entityManager: EntityManager,
-        private val world: World,
-        private val textureCache: TextureCache
-) {
+class LimbFactory(private val factoryTools: FactoryTools) {
+    private val entityManager = factoryTools.entityManager
+
     fun create(skeleton: Skeleton, atlasName: String, size: Vector2): Limb {
         val rootScale = size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
         val skeletonCopy = Skeleton(skeleton)
@@ -88,7 +84,7 @@ class LimbFactory(
             scale: Vector2,
             regionName: String
     ): Entity {
-        val region = textureCache.getPolygonRegion(regionName)
+        val region = factoryTools.textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
         val transform = createLimbTransform(vertices)
         transform.setScale(scale)
@@ -96,7 +92,7 @@ class LimbFactory(
     }
 
     private fun createLimbTransform(vertices: FloatArray): Transform {
-        val body = Box2dUtils.createDynamicBody(world, vertices, true)
+        val body = Box2dUtils.createDynamicBody(factoryTools.world, vertices, true)
         body.gravityScale = 0f
         Box2dUtils.setFilter(body, CollisionCategory.ALL)
         return Box2dTransform(body)

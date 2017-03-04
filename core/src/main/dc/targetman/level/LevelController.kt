@@ -29,8 +29,8 @@ import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StainOnCollided
 import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
-import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.LimbRemovedChecker
+import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
@@ -41,7 +41,6 @@ import dclib.epf.graphics.EntityTransformDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
-import dclib.graphics.ConvexHullCache
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 import dclib.mechanics.DamageOnCollided
@@ -67,11 +66,9 @@ class LevelController(
 	val levelFinished = EventDelegate<LevelFinishedEvent>()
 
 	private val entityManager = createEntityManager()
-	private val convexHullCache = ConvexHullCache(textureCache)
 	private val world = PhysicsUtils.createWorld()
-	private val entityFactory = EntityFactory(entityManager, world, convexHullCache)
-	private val pickupFactory = PickupFactory(entityManager, world, textureCache)
-	private val limbFactory: LimbFactory = LimbFactory(entityManager, world, textureCache)
+	private val factoryTools = FactoryTools(entityManager, textureCache, world)
+	private val entityFactory = EntityFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
@@ -86,10 +83,12 @@ class LevelController(
 		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
-		MapLoader(map, entityManager, textureCache, world, limbFactory).createObjects()
+		MapLoader(map, factoryTools).createObjects()
 		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
-		val atlas = textureCache.getAtlas(weaponData.atlasName)
-		pickupFactory.create(Weapon(weaponData, atlas), Vector3(0.5f, 8f, 0f))
+		val pickupFactory = PickupFactory(factoryTools)
+		val skeletonFactory = SkeletonFactory(textureCache)
+		val weaponSkeleton = skeletonFactory.create(weaponData.skeletonPath, weaponData.atlasName)
+		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
 	}
@@ -150,7 +149,7 @@ class LevelController(
 				contactChecker,
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
-				InventorySystem(entityManager, collisionChecker, pickupFactory, limbFactory),
+				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),

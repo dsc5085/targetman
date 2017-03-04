@@ -5,34 +5,24 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.character.CharacterFactory
 import dc.targetman.geometry.PolygonOperations
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
-import dc.targetman.skeleton.LimbFactory
 import dclib.epf.Entity
-import dclib.epf.EntityManager
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.geometry.toVector3
-import dclib.graphics.TextureCache
 import dclib.graphics.TextureUtils
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
-class MapLoader(
-        private val map: TiledMap,
-        private val entityManager: EntityManager,
-        textureCache: TextureCache,
-        private val world: World,
-        limbFactory: LimbFactory
-) {
+class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTools) {
     private val collisionLayer = MapUtils.getCollisionLayer(map)
     // TODO: Use screenhelper to encapsulate unit conversion logic
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
-    private val characterFactory = CharacterFactory(entityManager, textureCache, world, limbFactory)
+    private val characterFactory = CharacterFactory(factoryTools)
 
     fun createObjects() {
         createStaticObjects()
@@ -56,12 +46,12 @@ class MapLoader(
     }
 
     fun createWall(vertices: List<Vector2>) {
-        val body = Box2dUtils.createStaticBody(world, PolygonUtils.toFloats(vertices))
+        val body = Box2dUtils.createStaticBody(factoryTools.world, PolygonUtils.toFloats(vertices))
         Box2dUtils.setFilter(body, CollisionCategory.STATIC, CollisionCategory.ALL)
         val transform = Box2dTransform(body)
         val entity = Entity(TransformPart(transform))
         entity.addAttributes(Material.METAL)
-        entityManager.add(entity)
+        factoryTools.entityManager.add(entity)
     }
 
     // TODO: This is unneccesary, being a simple one-liner

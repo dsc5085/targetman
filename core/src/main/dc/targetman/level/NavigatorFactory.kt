@@ -13,7 +13,6 @@ import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.JumpChecker
 import dc.targetman.physics.JumpVelocitySolver
 import dc.targetman.physics.PhysicsUtils
-import dc.targetman.skeleton.LimbFactory
 import dclib.epf.DefaultEntityManager
 import dclib.epf.parts.TransformPart
 import dclib.graphics.TextureCache
@@ -27,8 +26,8 @@ object NavigatorFactory {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
-        val limbFactory = LimbFactory(entityManager, staticWorld, textureCache)
-        val mapLoader = MapLoader(map, entityManager, textureCache, staticWorld, limbFactory)
+        val factoryTools = FactoryTools(entityManager, textureCache, staticWorld)
+        val mapLoader = MapLoader(map, factoryTools)
         // TODO: Creating an entity just for this is wasteful.
         val aiEntity = mapLoader.createCharacter("characters/thug.json", Vector3(), Alliance.ENEMY)
         mapLoader.createStaticObjects()

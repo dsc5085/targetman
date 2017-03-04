@@ -3,22 +3,22 @@ package dc.targetman.mechanics
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.PickupPart
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.level.FactoryTools
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.skeleton.LimbFactory
 import dclib.epf.Entity
-import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.collision.CollisionChecker
 
-class InventorySystem(
-        private val entityManager: EntityManager,
-        private val collisionChecker: CollisionChecker,
-        private val pickupFactory: PickupFactory,
-        private val limbFactory: LimbFactory
-) : EntitySystem(entityManager) {
+class InventorySystem(factoryTools: FactoryTools, private val collisionChecker: CollisionChecker)
+    : EntitySystem(factoryTools.entityManager) {
+    private val entityManager = factoryTools.entityManager
+    private val limbFactory = LimbFactory(factoryTools)
+    private val pickupFactory = PickupFactory(factoryTools)
+
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {

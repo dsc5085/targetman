@@ -3,7 +3,6 @@ package dc.targetman.level
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.ScalePart
 import dc.targetman.mechanics.Alliance
@@ -12,23 +11,20 @@ import dc.targetman.mechanics.weapon.Bullet
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
-import dclib.epf.EntityManager
 import dclib.epf.parts.*
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
 import dclib.geometry.toVector3
-import dclib.graphics.ConvexHullCache
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
 import dclib.util.inv
 
-class EntityFactory(
-        private val entityManager: EntityManager,
-        private val world: World,
-        private val convexHullCache: ConvexHullCache
-) {
+class EntityFactory(private val factoryTools: FactoryTools) {
+    private val entityManager = factoryTools.entityManager
+    private val textureCache = factoryTools.textureCache
+
     // TODO: Use center instead of position
     fun createBullet(bullet: Bullet, muzzleTransform: Transform, angleOffset: Float, speed: Float, alliance: Alliance) {
         val relativeCenter = PolygonUtils.relativeCenter(muzzleTransform.center, bullet.size)
@@ -65,7 +61,7 @@ class EntityFactory(
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
         val transform = Box2dTransform(body, position.z)
         transform.position = Vector2(position.x, position.y)
-        val region = convexHullCache.create(regionName).region
+        val region = textureCache.createHull(regionName).region
         val entity = Entity(TransformPart(transform), SpritePart(region))
         entity.addAttributes(*attributes)
         EntityUtils.filterSameAlliance(entity)
@@ -73,7 +69,7 @@ class EntityFactory(
     }
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {
-        val hull = convexHullCache.create(regionName, size).hull
-        return Box2dUtils.createDynamicBody(world, hull, sensor)
+        val hull = textureCache.createHull(regionName, size).hull
+        return Box2dUtils.createDynamicBody(factoryTools.world, hull, sensor)
     }
 }
