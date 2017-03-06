@@ -52,7 +52,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
-        if (alliance === Alliance.ENEMY) {
+        if (alliance == Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
         }

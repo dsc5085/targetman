@@ -23,7 +23,11 @@ class SkeletonPart(val root: Limb) {
         }
 
     operator fun get(name: String): Limb {
-        return getLimbs(true, true).single { it.name == name }
+        val limb =  getLimbs(true, true).singleOrNull { it.name == name }
+        if (limb == null) {
+            throw IllegalArgumentException("Could not find limb ${name}")
+        }
+        return limb
     }
 
     fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {
