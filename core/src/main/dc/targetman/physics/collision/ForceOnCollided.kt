@@ -16,7 +16,7 @@ class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<Co
         val forcePart = sourceEntity.tryGet(ForcePart::class)
 		if (forcePart != null && filter.apply(event)) {
 			val force = getForce(sourceEntity)
-			PhysicsUtils.applyForce(entityManager.all, event.target.entity, force)
+			PhysicsUtils.applyForce(entityManager.getAll(), event.target.entity, force)
 		}
 	}
 

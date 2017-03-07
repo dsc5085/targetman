@@ -4,7 +4,7 @@ import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 
 object LimbUtils {
-    fun find(entities: List<Entity>, limbEntity: Entity): Limb? {
+    fun find(entities: Collection<Entity>, limbEntity: Entity): Limb? {
         var limb: Limb? = null
         val container = findContainer(entities, limbEntity)
         if (container != null) {
@@ -15,7 +15,7 @@ object LimbUtils {
         return limb
     }
 
-    fun findContainer(entities: List<Entity>, limbEntity: Entity): Entity? {
+    fun findContainer(entities: Collection<Entity>, limbEntity: Entity): Entity? {
         return if (limbEntity.has(SkeletonPart::class)) limbEntity
         else entities.firstOrNull {
             val skeletonPart = it.tryGet(SkeletonPart::class)

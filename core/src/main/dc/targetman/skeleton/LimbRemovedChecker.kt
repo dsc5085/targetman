@@ -15,7 +15,7 @@ class LimbRemovedChecker(entityManager: EntityManager) {
     }
 
     private fun handleEntityRemoved(entity: Entity) {
-        val limb = LimbUtils.find(entityManager.all, entity)
+        val limb = LimbUtils.find(entityManager.getAll(), entity)
         if (limb != null && !ignoredLimbs.remove(limb)) {
             limbRemoved.notify(LimbRemovedEvent(limb))
             val descendants = limb.getDescendants()

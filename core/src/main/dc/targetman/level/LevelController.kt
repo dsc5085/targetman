@@ -52,7 +52,6 @@ import dclib.physics.ParticlesManager
 import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
-import dclib.physics.collision.ContactChecker
 import dclib.system.Advancer
 import dclib.system.Updater
 
@@ -133,8 +132,7 @@ class LevelController(
 	}
 
 	private fun createAdvancer(): Advancer {
-		val contactChecker = ContactChecker(world)
-		val collisionChecker = createCollisionChecker(contactChecker)
+		val collisionChecker = createCollisionChecker()
 		val limbRemovedChecker = LimbRemovedChecker(entityManager)
 		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
 		return Advancer(
@@ -145,8 +143,7 @@ class LevelController(
 				TranslateSystem(entityManager),
 				PhysicsUpdater(world, entityManager),
 				createSkeletonSystem(),
-                collisionChecker,
-				contactChecker,
+				collisionChecker,
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
@@ -167,8 +164,8 @@ class LevelController(
 		return skeletonSystem
 	}
 
-	private fun createCollisionChecker(contactChecker: ContactChecker): CollisionChecker {
-		val collisionChecker = CollisionChecker(entityManager, contactChecker)
+	private fun createCollisionChecker(): CollisionChecker {
+		val collisionChecker = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
         collisionChecker.collided.on(StainOnCollided(entityManager))
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
@@ -222,7 +219,7 @@ class LevelController(
 	}
 
 	private fun renderEntities() {
-		val entities = entityManager.all
+		val entities = entityManager.getAll()
 		for (entityDrawer in entityDrawers) {
 			entityDrawer.draw(entities)
 		}

@@ -11,7 +11,7 @@ object PhysicsUtils {
         return World(Vector2(0f, -10f), true)
     }
 
-    fun applyForce(entities: List<Entity>, target: Entity, force: Vector2) {
+    fun applyForce(entities: Collection<Entity>, target: Entity, force: Vector2) {
         val targetContainer = LimbUtils.findContainer(entities, target)
         val actualTarget = targetContainer ?: target
         val transform = actualTarget[TransformPart::class].transform

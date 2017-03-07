@@ -8,7 +8,7 @@ import dclib.epf.graphics.EntityZComparator
 class GetDrawEntities(private val entityManager: EntityManager) : () -> List<Entity> {
     override fun invoke(): List<Entity> {
         val drawGroups = mutableMapOf<Entity, Iterable<Entity>>()
-        val entities = entityManager.all.toMutableList()
+        val entities = entityManager.getAll().toMutableList()
         addContainerGroups(drawGroups, entities)
         for (entity in entities) {
             drawGroups[entity] = listOf(entity)

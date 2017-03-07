@@ -26,7 +26,7 @@ class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : 
         val limb = event.limb
         val corpseTransform = createCorpseChain(limb)
         if (corpseTransform != null) {
-            val container = LimbUtils.findContainer(entityManager.all, limb.entity)!!
+            val container = LimbUtils.findContainer(entityManager.getAll(), limb.entity)!!
             corpseTransform.velocity = container[TransformPart::class].transform.velocity
         }
     }

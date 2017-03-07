@@ -48,7 +48,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
             val skeletonPart = entity[SkeletonPart::class]
             val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.data.recoil).scl(-1f)
-            PhysicsUtils.applyForce(entityManager.all, entity, recoil)
+            PhysicsUtils.applyForce(entityManager.getAll(), entity, recoil)
             createBullets(muzzleTransform, weapon, entity.getAttribute(Alliance::class)!!)
             weapon.reloadTimer.reset()
         }
