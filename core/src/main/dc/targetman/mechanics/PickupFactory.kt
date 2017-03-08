@@ -47,6 +47,6 @@ class PickupFactory(private val factoryTools: FactoryTools) {
         // Ensure that the pickup is always detectable by the characters' collision sensors
         body.isSleepingAllowed = false
         body.gravityScale = 1f
-        Box2dUtils.setFilter(body, CollisionCategory.ALL, CollisionCategory.BOUNDS.inv(), 0)
+        Box2dUtils.setFilter(body, mask = CollisionCategory.BOUNDS.inv(), group = 0)
     }
 }

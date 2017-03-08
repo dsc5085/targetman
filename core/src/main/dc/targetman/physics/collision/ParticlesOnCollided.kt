@@ -39,7 +39,8 @@ class ParticlesOnCollided(val particlesManager: ParticlesManager, val entityFact
             sourceEntity: Entity,
             targetEntity: Entity,
             position: Vector3,
-            velocity: Vector2) {
+            velocity: Vector2
+	) {
 		val numParticles = 10
 		val sizeRange = FloatRange(0.03f, 0.08f)
 		val rotationDiffRange = FloatRange(-10f, 10f)
