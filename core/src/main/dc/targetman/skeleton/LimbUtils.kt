@@ -10,7 +10,7 @@ object LimbUtils {
         if (container != null) {
             val skeletonPart = container[SkeletonPart::class]
             limb = if (limbEntity == container) skeletonPart.root
-            else skeletonPart.getLimbs().singleOrNull { it.entity === limbEntity }
+            else skeletonPart.getLimbs(true, true).singleOrNull { it.entity === limbEntity }
         }
         return limb
     }
@@ -19,7 +19,7 @@ object LimbUtils {
         return if (limbEntity.has(SkeletonPart::class)) limbEntity
         else entities.firstOrNull {
             val skeletonPart = it.tryGet(SkeletonPart::class)
-            skeletonPart?.getLimbs().orEmpty().any { it.entity === limbEntity }
+            skeletonPart?.getLimbs(true).orEmpty().any { it.entity === limbEntity }
         }
     }
 }

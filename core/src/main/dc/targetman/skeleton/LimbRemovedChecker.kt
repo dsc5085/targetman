@@ -4,10 +4,9 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.eventing.EventDelegate
 
-class LimbRemovedChecker(entityManager: EntityManager) {
+class LimbRemovedChecker(private val entityManager: EntityManager) {
     val limbRemoved = EventDelegate<LimbRemovedEvent>()
 
-    private val entityManager = entityManager
     private val ignoredLimbs = mutableListOf<Limb>()
 
     init {

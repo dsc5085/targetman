@@ -68,7 +68,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     ): SkeletonPart {
         val root = limbFactory.create(skeleton, character.atlasName, size)
         val skeletonPart = SkeletonPart(root)
-        for (limb in skeletonPart.getLimbs()) {
+        for (limb in skeletonPart.getLimbs(true)) {
             val entity = limb.entity
             entity.addAttributes(DeathForm.CORPSE, alliance)
             val characterLimb = character.limbs.firstOrNull { it.name == limb.name }

@@ -54,7 +54,6 @@ class LimbFactory(private val factoryTools: FactoryTools) {
         for (childBone in bone.children) {
             limb.addChild(createLimb(childBone, rootScale, atlasName))
         }
-        entityManager.add(limbEntity)
         return limb
     }
 

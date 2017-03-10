@@ -28,10 +28,7 @@ import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.physics.collision.StainOnCollided
-import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
-import dc.targetman.skeleton.LimbRemovedChecker
-import dc.targetman.skeleton.SkeletonFactory
-import dc.targetman.skeleton.SkeletonSyncSystem
+import dc.targetman.skeleton.*
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
@@ -128,6 +125,7 @@ class LevelController(
 		val entityManager = DefaultEntityManager()
 		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
 		entityManager.entityAdded.on(ChangeContainerHealthOnEntityAdded(entityManager))
+		entityManager.entityAdded.on(AddLimbEntitiesOnEntityAdded(entityManager))
 		return entityManager
 	}
 

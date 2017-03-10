@@ -7,7 +7,6 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbRemovedEvent
-import dc.targetman.skeleton.LimbUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
@@ -23,12 +22,7 @@ import dclib.util.Maths
 
 class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : (LimbRemovedEvent) -> Unit {
     override fun invoke(event: LimbRemovedEvent) {
-        val limb = event.limb
-        val corpseTransform = createCorpseChain(limb)
-        if (corpseTransform != null) {
-            val container = LimbUtils.findContainer(entityManager.getAll(), limb.entity)!!
-            corpseTransform.velocity = container[TransformPart::class].transform.velocity
-        }
+        createCorpseChain(event.limb)
     }
 
     private fun createCorpseChain(limb: Limb): Box2dTransform? {
