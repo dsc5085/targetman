@@ -7,55 +7,64 @@ import dc.targetman.level.FactoryTools
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
+import dc.targetman.skeleton.LimbUtils
 import dclib.epf.Entity
 import dclib.epf.EntitySystem
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
+import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
 
-class InventorySystem(factoryTools: FactoryTools, private val collisionChecker: CollisionChecker)
+class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChecker)
     : EntitySystem(factoryTools.entityManager) {
     private val entityManager = factoryTools.entityManager
     private val limbFactory = LimbFactory(factoryTools)
     private val pickupFactory = PickupFactory(factoryTools)
 
     init {
-        entityManager.entityAdded.on {
-            val inventoryPart = it.entity.tryGet(InventoryPart::class)
-            if (inventoryPart != null) {
-                val gripper = it.entity[SkeletonPart::class][inventoryPart.gripperName]
-                equipCurrentWeapon(inventoryPart, gripper)
-            }
-        }
+        entityManager.entityAdded.on { tryEquipCurrentWeapon(it.entity) }
+        collisionChecker.collided.on { tryPickup(it) }
     }
 
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
             inventoryPart.pickupTimer.tick(delta)
-            if (inventoryPart.pickup) {
-                tryPickup(entity[SkeletonPart::class], inventoryPart)
-                inventoryPart.pickup = false
+            inventoryPart.pickup = false
+        }
+    }
+
+    private fun tryEquipCurrentWeapon(entity: Entity) {
+        val inventoryPart = entity.tryGet(InventoryPart::class)
+        if (inventoryPart != null) {
+            val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
+            equipCurrentWeapon(inventoryPart, gripper)
+        }
+    }
+
+    private fun tryPickup(collidedEvent: CollidedEvent) {
+        val pickupEntity = collidedEvent.target.entity
+        if (pickupEntity.has(PickupPart::class)) {
+            val sourceEntity = LimbUtils.findContainer(entityManager.getAll(), collidedEvent.source.entity)
+            if (sourceEntity != null) {
+                val inventoryPart = sourceEntity.tryGet(InventoryPart::class)
+                if (inventoryPart != null && inventoryPart.pickup && inventoryPart.pickupTimer.check()) {
+                    pickup(inventoryPart, sourceEntity[SkeletonPart::class], pickupEntity)
+                }
             }
         }
     }
 
-    private fun tryPickup(skeletonPart: SkeletonPart, inventoryPart: InventoryPart) {
-        for (limb in skeletonPart.getLimbs()) {
-            val targets = collisionChecker.getTargets(limb.entity)
-            val pickup = targets.firstOrNull { it.entity.has(PickupPart::class) }
-            if (pickup != null && inventoryPart.pickupTimer.check()) {
-                val newWeapon = pickup.entity[PickupPart::class].weapon
-                val removedWeapon = inventoryPart.pickup(newWeapon)
-                val gripper = skeletonPart[inventoryPart.gripperName]
-                equipCurrentWeapon(inventoryPart, gripper)
-                if (removedWeapon != null) {
-                    drop(removedWeapon, gripper)
-                }
-                entityManager.remove(pickup.entity)
-            }
+    private fun pickup(inventoryPart: InventoryPart, skeletonPart: SkeletonPart, pickupEntity: Entity) {
+        val pickupPart = pickupEntity[PickupPart::class]
+        val removedWeapon = inventoryPart.pickup(pickupPart.weapon)
+        val gripper = skeletonPart[inventoryPart.gripperName]
+        equipCurrentWeapon(inventoryPart, gripper)
+        if (removedWeapon != null) {
+            drop(removedWeapon, gripper)
         }
+        entityManager.remove(pickupEntity)
     }
 
     private fun equipCurrentWeapon(inventoryPart: InventoryPart, gripper: Limb) {
