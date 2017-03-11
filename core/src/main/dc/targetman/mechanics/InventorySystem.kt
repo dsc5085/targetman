@@ -31,7 +31,6 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
             inventoryPart.pickupTimer.tick(delta)
-            inventoryPart.pickup = false
         }
     }
 
