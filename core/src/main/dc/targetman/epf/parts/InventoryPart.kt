@@ -8,7 +8,7 @@ class InventoryPart(
         val gripperName: String,
         weaponToEquip: Weapon
 ) {
-    var pickup = false
+    var tryPickup = false
     val pickupTimer = Timer(0.5f, 0.5f)
 
     val equippedWeapon: Weapon

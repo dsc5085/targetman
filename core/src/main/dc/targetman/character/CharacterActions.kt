@@ -6,7 +6,7 @@ import dc.targetman.epf.parts.MovementPart
 import dc.targetman.mechanics.Direction
 import dclib.epf.Entity
 
-object StickActions {
+object CharacterActions {
     fun move(entity: Entity, direction: Direction) {
         entity[MovementPart::class].direction = direction
     }
@@ -24,6 +24,6 @@ object StickActions {
     }
 
     fun pickup(entity: Entity) {
-        entity[InventoryPart::class].pickup = true
+        entity[InventoryPart::class].tryPickup = true
     }
 }

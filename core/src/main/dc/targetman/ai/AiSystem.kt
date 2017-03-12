@@ -2,7 +2,7 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import dc.targetman.character.StickActions
+import dc.targetman.character.CharacterActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.SkeletonPart
@@ -17,6 +17,7 @@ import dclib.geometry.center
 import dclib.physics.Transform
 import dclib.util.Maths
 
+// TODO: Combine with InputUpdater.  Pipe actions into InputUpdater
 class AiSystem(private val entityManager: EntityManager, private val navigator: Navigator)
     : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
@@ -28,7 +29,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
                 val targetBounds = target[TransformPart::class].transform.bounds
                 navigator.navigate(entity, targetBounds)
                 aim(entity, targetBounds)
-                StickActions.trigger(entity)
+                CharacterActions.trigger(entity)
             }
         }
     }
@@ -38,7 +39,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
         val muzzleName = entity[FiringPart::class].muzzleName
         val muzzleTransform = skeletonPart[muzzleName].transform
         val direction = getAimRotateDirection(muzzleTransform, targetBounds.center, skeletonPart.flipX)
-        StickActions.aim(entity, direction)
+        CharacterActions.aim(entity, direction)
     }
 
     /**

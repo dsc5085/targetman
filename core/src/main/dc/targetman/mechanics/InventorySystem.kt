@@ -48,7 +48,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
             val sourceEntity = LimbUtils.findContainer(entityManager.getAll(), collidedEvent.source.entity)
             if (sourceEntity != null) {
                 val inventoryPart = sourceEntity.tryGet(InventoryPart::class)
-                if (inventoryPart != null && inventoryPart.pickup && inventoryPart.pickupTimer.check()) {
+                if (inventoryPart != null && inventoryPart.tryPickup && inventoryPart.pickupTimer.check()) {
                     pickup(inventoryPart, sourceEntity[SkeletonPart::class], pickupEntity)
                 }
             }

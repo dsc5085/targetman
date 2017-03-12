@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
-import dc.targetman.character.StickActions
+import dc.targetman.character.CharacterActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Direction
@@ -42,10 +42,10 @@ class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery:
     }
 
     fun move(direction: Direction) {
-        StickActions.move(entity, direction)
+        CharacterActions.move(entity, direction)
     }
 
     fun jump() {
-        StickActions.jump(entity)
+        CharacterActions.jump(entity)
     }
 }

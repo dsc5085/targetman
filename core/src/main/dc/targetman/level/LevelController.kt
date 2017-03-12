@@ -12,10 +12,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.character.CorpseOnLimbRemoved
-import dc.targetman.character.MovementSystem
-import dc.targetman.character.StickActions
-import dc.targetman.character.VitalLimbsSystem
+import dc.targetman.character.*
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.mechanics.*
@@ -134,6 +131,7 @@ class LevelController(
 		val limbRemovedChecker = LimbRemovedChecker(entityManager)
 		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
 		return Advancer(
+				ActionsResetter(entityManager),
 				createInputUpdater(),
 				createAiSystem(),
 				ScaleSystem(entityManager),
@@ -197,22 +195,22 @@ class LevelController(
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			moveDirection = Direction.RIGHT
 		}
-		StickActions.move(player, moveDirection)
+		CharacterActions.move(player, moveDirection)
 		var aimDirection = 0
 		if (Gdx.input.isKeyPressed(Keys.W)) {
 			aimDirection = 1
 		} else if (Gdx.input.isKeyPressed(Keys.S)) {
 			aimDirection = -1
 		}
-		StickActions.aim(player, aimDirection)
+		CharacterActions.aim(player, aimDirection)
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-			StickActions.jump(player)
+			CharacterActions.jump(player)
 		}
 		if (Gdx.input.isKeyPressed(Keys.J)) {
-			StickActions.trigger(player)
+			CharacterActions.trigger(player)
 		}
-		if (Gdx.input.isKeyJustPressed(Keys.Q)) {
-			StickActions.pickup(player)
+		if (Gdx.input.isKeyPressed(Keys.Q)) {
+			CharacterActions.pickup(player)
 		}
 	}
 

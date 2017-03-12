@@ -25,7 +25,6 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
             if (hasFiringLimbs(firingPart, skeletonPart)) {
                 fire(entity)
                 inventoryPart.equippedWeapon.reloadTimer.tick(delta)
-                firingPart.triggered = false
             }
         }
     }

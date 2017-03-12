@@ -56,7 +56,6 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         } else if (movementPart.tryJumping && (isGrounded(entity) || jumpIncreaseTimer.isStarted)) {
             jump(entity, delta)
         }
-        movementPart.tryJumping = false
     }
 
     private fun jump(entity: Entity, delta: Float) {
