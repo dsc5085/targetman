@@ -59,10 +59,10 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         val pickupPart = pickupEntity[PickupPart::class]
         val removedWeapon = inventoryPart.pickup(pickupPart.weapon)
         val gripper = skeletonPart[inventoryPart.gripperName]
-        equipCurrentWeapon(inventoryPart, gripper)
         if (removedWeapon != null) {
             drop(removedWeapon, gripper)
         }
+        equipCurrentWeapon(inventoryPart, gripper)
         entityManager.remove(pickupEntity)
     }
 

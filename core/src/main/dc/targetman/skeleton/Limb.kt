@@ -42,11 +42,11 @@ class Limb(val bone: Bone, val entity: Entity) {
     }
 
     fun getChildren(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
-        val all = children.toMutableList()
+        val allChildren = children.toMutableList()
         if (includeLinked) {
-            all.addAll(skeletonLinks.map { it.root })
+            allChildren.addAll(skeletonLinks.map { it.root })
         }
-        return all.filter { includeInactive || it.isActive }.toSet()
+        return allChildren.filter { includeInactive || it.isActive }.toSet()
     }
 
     fun getDescendants(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
