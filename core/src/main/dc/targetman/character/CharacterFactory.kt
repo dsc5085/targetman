@@ -96,7 +96,6 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val def = BodyDef()
         def.type = BodyDef.BodyType.DynamicBody
         val body = factoryTools.world.createBody(def)
-        body.isBullet = true
         body.isFixedRotation = true
         body.setTransform(position.x, position.y, 0f)
         val basePosition = Vector2(0f, -boxHalfHeight)
