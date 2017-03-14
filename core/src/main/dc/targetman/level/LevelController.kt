@@ -112,9 +112,10 @@ class LevelController(
 
 	fun draw() {
 		particlesManager.draw()
-		renderEntities()
 		mapRenderer.setView(camera)
-		mapRenderer.render()
+		renderMapLayer(MapUtils.backgroundIndex)
+		renderEntities()
+		renderMapLayer(MapUtils.getForegroundIndex(map))
 		renderBox2D()
 	}
 
@@ -212,6 +213,11 @@ class LevelController(
 		if (Gdx.input.isKeyPressed(Keys.Q)) {
 			CharacterActions.pickup(player)
 		}
+	}
+
+	private fun renderMapLayer(layerIndex: Int) {
+		mapRenderer.setView(camera)
+		mapRenderer.render(intArrayOf(layerIndex))
 	}
 
 	private fun renderEntities() {

@@ -37,7 +37,7 @@ class EntityFactory(private val factoryTools: FactoryTools) {
         Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.PROJECTILE.inv())
         val entity = createBaseEntity(bulletBody, position3, bullet.regionName, alliance, Material.METAL)
         // Dampen the y-force to simulate more realistic bullet physics
-        val forceScale = Vector2(1f, 0.5f)
+        val forceScale = Vector2(1f, 0.3f)
         entity.attach(
                 AutoRotatePart(),
                 CollisionRemovePart(),

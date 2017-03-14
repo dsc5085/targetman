@@ -76,11 +76,9 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
 
     private fun isGrounded(entity: Entity): Boolean {
         val body = Box2dUtils.getBody(entity)!!
-        return body.linearVelocity.y === 0f && world.contactList.any {
-            val fixtureA = it.fixtureA
-            val fixtureB = it.fixtureB
-            it.isTouching && (isGroundedContact(body, fixtureA, fixtureB, it)
-                    || isGroundedContact(body, fixtureB, fixtureA, it))
+        return body.linearVelocity.y == 0f && world.contactList.any {
+            it.isTouching && (isGroundedContact(body, it.fixtureA, it.fixtureB, it)
+                    || isGroundedContact(body, it.fixtureB, it.fixtureA, it))
         }
     }
 

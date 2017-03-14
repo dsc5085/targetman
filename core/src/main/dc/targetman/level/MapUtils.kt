@@ -5,22 +5,24 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.math.Rectangle
 
 object MapUtils {
-    fun getCollisionLayer(map: TiledMap): TiledMapTileLayer {
-        return map.layers.get(0) as TiledMapTileLayer
+    val backgroundIndex = 0
+
+    fun getForegroundIndex(map: TiledMap): Int {
+        return map.layers.count - 1
     }
 
     fun getPixelsPerUnit(map: TiledMap): Float {
-        val collisionLayer = getCollisionLayer(map)
-        return Math.max(collisionLayer.tileWidth, collisionLayer.tileHeight)
+        val layer = map.layers.first() as TiledMapTileLayer
+        return Math.max(layer.tileWidth, layer.tileHeight)
     }
 
     fun createSegmentBoundsList(map: TiledMap): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
-        val collisionLayer = getCollisionLayer(map)
-        for (y in 0..collisionLayer.height - 1 - 1) {
+        val foregroundLayer = map.layers[getForegroundIndex(map)] as TiledMapTileLayer
+        for (y in 0..foregroundLayer.height - 1 - 1) {
             var x = 0
-            while (x < collisionLayer.width) {
-                val floorLength = getFloorLength(collisionLayer, x, y)
+            while (x < foregroundLayer.width) {
+                val floorLength = getFloorLength(foregroundLayer, x, y)
                 if (floorLength > 0) {
                     val bounds = Rectangle(x.toFloat(), y.toFloat(), floorLength.toFloat(), 1f)
                     boundsList.add(bounds)

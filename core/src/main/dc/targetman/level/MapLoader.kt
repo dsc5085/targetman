@@ -19,7 +19,7 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
 class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTools) {
-    private val collisionLayer = MapUtils.getCollisionLayer(map)
+    private val foregroundLayer = map.layers[MapUtils.getForegroundIndex(map)] as TiledMapTileLayer
     // TODO: Use screenhelper to encapsulate unit conversion logic
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
     private val characterFactory = CharacterFactory(factoryTools)
@@ -31,9 +31,9 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
 
     fun createStaticObjects() {
         val tilesVertices = mutableListOf<List<Vector2>>()
-        for (x in 0..collisionLayer.width - 1) {
-            for (y in 0..collisionLayer.height - 1) {
-                val cell = collisionLayer.getCell(x, y)
+        for (x in 0..foregroundLayer.width - 1) {
+            for (y in 0..foregroundLayer.height - 1) {
+                val cell = foregroundLayer.getCell(x, y)
                 if (cell != null) {
                     tilesVertices.add(createTileVertices(x, y, cell))
                 }
