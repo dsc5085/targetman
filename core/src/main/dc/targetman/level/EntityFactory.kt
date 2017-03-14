@@ -36,12 +36,14 @@ class EntityFactory(private val factoryTools: FactoryTools) {
         bulletBody.linearVelocity = velocity
         Box2dUtils.setFilter(bulletBody, CollisionCategory.PROJECTILE, CollisionCategory.PROJECTILE.inv())
         val entity = createBaseEntity(bulletBody, position3, bullet.regionName, alliance, Material.METAL)
+        // Dampen the y-force to simulate more realistic bullet physics
+        val forceScale = Vector2(1f, 0.5f)
         entity.attach(
                 AutoRotatePart(),
                 CollisionRemovePart(),
                 TimedDeathPart(bullet.deathTime),
                 CollisionDamagePart(bullet.damage),
-                ForcePart(bullet.force))
+                ForcePart(bullet.force, forceScale))
         if (bullet.scaleTime != null) {
             entity.attach(ScalePart(FloatRange(0f, 1f), bullet.scaleTime))
         }
