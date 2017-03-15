@@ -6,30 +6,24 @@ import dclib.util.Timer
 class InventoryPart(
         val maxNumWeapons: Int,
         val gripperName: String,
-        weaponToEquip: Weapon
+        weapon: Weapon
 ) {
     var tryPickup = false
     val pickupTimer = Timer(0.5f, 0.5f)
 
-    val equippedWeapon: Weapon
-        get() = weapons[equippedWeaponIndex]
+    val equippedWeapon
+        get() = weapons.getOrNull(0)
+
+    val isFull
+        get() = weapons.size >= maxNumWeapons && equippedWeapon != null
 
     private val weapons = mutableListOf<Weapon>()
-    private var equippedWeaponIndex: Int
 
     init {
-        weapons.add(weaponToEquip)
-        equippedWeaponIndex = weapons.indexOf(weaponToEquip)
+        weapons.add(weapon)
     }
 
-    fun pickup(weapon: Weapon): Weapon? {
-        var removedWeapon: Weapon? = null
-        val index = weapons.indexOf(equippedWeapon)
-        weapons.add(index + 1, weapon)
-        if (weapons.size >= maxNumWeapons) {
-            removedWeapon = equippedWeapon
-            weapons.remove(removedWeapon)
-        }
-        return removedWeapon
+    fun pickup(weapon: Weapon) {
+        weapons.add(0, weapon)
     }
 }

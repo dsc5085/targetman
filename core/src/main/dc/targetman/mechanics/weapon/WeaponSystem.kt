@@ -20,11 +20,12 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
         val firingPart = entity.tryGet(FiringPart::class)
         if (inventoryPart != null && firingPart != null) {
             val skeletonPart = entity[SkeletonPart::class]
+            val equippedWeapon = inventoryPart.equippedWeapon
             skeletonPart.playAnimation("aim", 1)
             aim(delta, firingPart)
-            if (hasFiringLimbs(firingPart, skeletonPart)) {
+            if (equippedWeapon != null && hasFiringLimbs(firingPart, skeletonPart)) {
                 fire(entity)
-                inventoryPart.equippedWeapon.reloadTimer.tick(delta)
+                equippedWeapon.reloadTimer.tick(delta)
             }
         }
     }
@@ -43,7 +44,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
     private fun fire(entity: Entity) {
         val weapon = entity[InventoryPart::class].equippedWeapon
         val firingPart = entity[FiringPart::class]
-        if (weapon.reloadTimer.isElapsed && firingPart.triggered) {
+        if (weapon != null && weapon.reloadTimer.isElapsed && firingPart.triggered) {
             val skeletonPart = entity[SkeletonPart::class]
             val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.data.recoil).scl(-1f)

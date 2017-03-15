@@ -4,7 +4,6 @@ import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.PickupPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.level.FactoryTools
-import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.LimbUtils
@@ -24,6 +23,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
 
     init {
         entityManager.entityAdded.on { tryEquipCurrentWeapon(it.entity) }
+        entityManager.entityRemoved.on { tryDropEquippedWeapon(it.entity) }
         collisionChecker.collided.on { tryPickup(it) }
     }
 
@@ -38,7 +38,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
             val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
-            equipCurrentWeapon(inventoryPart, gripper)
+            gripEquippedWeapon(inventoryPart, gripper)
         }
     }
 
@@ -55,21 +55,29 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         }
     }
 
+    private fun tryDropEquippedWeapon(entity: Entity) {
+        val inventoryPart = entity.tryGet(InventoryPart::class)
+        if (inventoryPart != null) {
+            val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
+            dropEquippedWeapon(inventoryPart, gripper)
+        }
+    }
+
     private fun pickup(inventoryPart: InventoryPart, skeletonPart: SkeletonPart, pickupEntity: Entity) {
         val pickupPart = pickupEntity[PickupPart::class]
-        val removedWeapon = inventoryPart.pickup(pickupPart.weapon)
         val gripper = skeletonPart[inventoryPart.gripperName]
-        if (removedWeapon != null) {
-            drop(removedWeapon, gripper)
+        if (inventoryPart.isFull) {
+            dropEquippedWeapon(inventoryPart, gripper)
         }
-        equipCurrentWeapon(inventoryPart, gripper)
+        inventoryPart.pickup(pickupPart.weapon)
+        gripEquippedWeapon(inventoryPart, gripper)
         entityManager.remove(pickupEntity)
     }
 
-    private fun equipCurrentWeapon(inventoryPart: InventoryPart, gripper: Limb) {
+    private fun gripEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
         val equippedWeapon = inventoryPart.equippedWeapon
         val weaponLink = limbFactory.link(
-                equippedWeapon.skeleton,
+                equippedWeapon!!.skeleton,
                 equippedWeapon.data.atlasName,
                 equippedWeapon.size,
                 gripper)
@@ -77,13 +85,15 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         entityManager.add(newWeaponEntity)
     }
 
-    private fun drop(weapon: Weapon, gripper: Limb) {
+    private fun dropEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
         val gripperDescendants = gripper.getDescendants(includeLinked = true)
         // TODO: Implement better check to get weapon transform
         val transformLimb = gripperDescendants.firstOrNull { it.entity.has(SpritePart::class) }
-        if (transformLimb != null) {
+        val equippedWeapon = inventoryPart.equippedWeapon
+        if (transformLimb != null && equippedWeapon != null) {
             val removedWeaponTransform = transformLimb.transform as Box2dTransform
-            pickupFactory.create(weapon, Box2dTransform(removedWeaponTransform))
+            pickupFactory.create(equippedWeapon, Box2dTransform(removedWeaponTransform))
         }
+        limbFactory.removeChildren(gripper)
     }
 }

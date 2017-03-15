@@ -27,15 +27,16 @@ class LimbFactory(private val factoryTools: FactoryTools) {
     }
 
     fun link(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb): SkeletonLink {
-        val duplicateChildLimb = parentLimb.getChildren(true, true)
-                .firstOrNull { it.name == childSkeleton.rootBone.data.name }
-        if (duplicateChildLimb != null) {
-            remove(parentLimb, duplicateChildLimb)
-        }
         val root = create(childSkeleton, atlasName, size)
         val skeletonLink = SkeletonLink(root, DefaultTransform())
         parentLimb.add(skeletonLink)
         return skeletonLink
+    }
+
+    fun removeChildren(parentLimb: Limb) {
+        for (child in parentLimb.getChildren(includeLinked = true)) {
+            remove(parentLimb, child)
+        }
     }
 
     private fun remove(parentLimb: Limb, limb: Limb) {
