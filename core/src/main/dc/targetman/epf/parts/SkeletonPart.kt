@@ -1,6 +1,5 @@
 package dc.targetman.epf.parts
 
-import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
@@ -8,13 +7,9 @@ import dc.targetman.skeleton.Limb
 class SkeletonPart(val root: Limb) {
     val skeleton = root.skeleton
     val animationState = createAnimationState()
+    val rootScale get() = root.transform.scale
 
-    val rootScale: Vector2
-        get() {
-            return root.transform.scale
-        }
-
-    var flipX: Boolean
+    var flipX
         get() = rootScale.x < 0
         set(value) {
             val scale = rootScale

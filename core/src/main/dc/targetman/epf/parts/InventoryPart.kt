@@ -10,12 +10,8 @@ class InventoryPart(
 ) {
     var tryPickup = false
     val pickupTimer = Timer(0.5f, 0.5f)
-
-    val equippedWeapon
-        get() = weapons.getOrNull(0)
-
-    val isFull
-        get() = weapons.size >= maxNumWeapons && equippedWeapon != null
+    val equippedWeapon get() = weapons.getOrNull(0)
+    val isFull get() = weapons.size >= maxNumWeapons && equippedWeapon != null
 
     private val weapons = mutableListOf<Weapon>()
 

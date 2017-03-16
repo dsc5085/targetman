@@ -7,19 +7,13 @@ import dclib.util.CollectionUtils
 import dclib.util.Maths
 
 class Segment(val bounds: Rectangle) {
-    private val nodes: MutableSet<DefaultNode>
-
     val leftNode = DefaultNode(bounds.x, y)
     val rightNode = DefaultNode(bounds.right, y)
+    val left get() = leftNode.x
+    val right get() = rightNode.x
+    val y get() = bounds.top
 
-    val left: Float
-        get() = leftNode.x
-
-    val right: Float
-        get() = rightNode.x
-
-    val y: Float
-        get() = bounds.top
+    private val nodes: MutableSet<DefaultNode>
 
     init {
         nodes = mutableSetOf(leftNode, rightNode)

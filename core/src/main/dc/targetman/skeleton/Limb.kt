@@ -6,24 +6,13 @@ import com.esotericsoftware.spine.attachments.RegionAttachment
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
-import dclib.physics.Transform
 
 class Limb(val bone: Bone, val entity: Entity) {
     val skeleton = bone.skeleton
-
-    val isActive: Boolean
-        get() = entity.isActive
-
-    val name: String
-        get() = bone.data.name
-
-    val transform: Transform
-        get() = entity[TransformPart::class].transform
-
-    val scale: Vector2
-        get() {
-            return Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
-        }
+    val isActive get() = entity.isActive
+    val name get() = bone.data.name
+    val transform get() = entity[TransformPart::class].transform
+    val scale get() = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
 
     val flipScale: Vector2
         get() {
