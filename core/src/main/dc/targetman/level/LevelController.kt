@@ -68,7 +68,7 @@ class LevelController(
 	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawers = mutableListOf<EntityDrawer>()
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/test_level.tmx")
 	private var isRunning = true
 
 	init {
@@ -111,10 +111,10 @@ class LevelController(
 	}
 
 	fun draw() {
-		particlesManager.draw()
 		mapRenderer.setView(camera)
 		renderMapLayer(MapUtils.backgroundIndex)
 		renderEntities()
+		particlesManager.draw()
 		renderMapLayer(MapUtils.getForegroundIndex(map))
 		renderBox2D()
 	}

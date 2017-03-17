@@ -3,18 +3,18 @@
   "limbs": [
     {
       "name": "head",
-      "health": 50,
+      "health": 500,
       "material": "FLESH",
       "isVital": true
     },
     {
       "name": "neck",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "torso",
-      "health": 100,
+      "health": 1000,
       "material": "FLESH",
       "isVital": true
     },
@@ -25,71 +25,71 @@
     },
     {
       "name": "right_hand",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "right_forearm",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "right_bicep",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "right_foot",
-      "health": 50,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_shin",
-      "health": 50,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_thigh",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_hand",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_forearm",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_bicep",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_foot",
-      "health": 50,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_shin",
-      "health": 50,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_thigh",
-      "health": 50,
+      "health": 500,
       "material": "FLESH"
     }
   ],
   "rotatorName": "right_bicep",
   "atlasName": "skins/man",
-  "health": 300,
+  "health": 1500,
   "weaponData": "weapons/shotgun.json"
 }

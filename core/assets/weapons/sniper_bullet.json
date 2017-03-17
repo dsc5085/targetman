@@ -1,0 +1,12 @@
+{
+  "size": {
+    "x": 0.5,
+    "y": 0.04
+  },
+  "regionName": "objects/bullet",
+  "gravityScale": 0.1,
+  "deathTime": 3,
+  "damage": 50,
+  "force": 18,
+  "scaleTime": 0.02
+}

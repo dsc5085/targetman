@@ -1,12 +1,12 @@
 {
   "reloadTime": 2,
   "numBullets": 1,
-  "spread": 5,
-  "minSpeed": 8,
-  "maxSpeed": 9,
-  "recoil": 0.1,
-  "width": 0.4,
-  "skeletonPath": "skeletons/test_gun.skel",
+  "spread": 2,
+  "minSpeed": 20,
+  "maxSpeed": 22,
+  "recoil": 0.3,
+  "width": 1.2,
+  "skeletonPath": "skeletons/ts-23.skel",
   "atlasName": "objects",
-  "bullet": "weapons/pellet.json"
+  "bullet": "weapons/sniper_bullet.json"
 }
