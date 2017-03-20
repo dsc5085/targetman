@@ -16,7 +16,7 @@ import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
-// TODO: probably don't need textureCache since we can just reuse existing texture..
+// TODO: probably don't need textureCache since we can just reuse existing texture.
 class LimbFactory(private val factoryTools: FactoryTools) {
     private val entityManager = factoryTools.entityManager
 
