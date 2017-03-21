@@ -2,7 +2,7 @@ package dc.targetman.mechanics.weapon
 
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.Skeleton
-import dc.targetman.skeleton.bounds
+import dc.targetman.skeleton.getBounds
 import dclib.geometry.size
 import dclib.util.FloatRange
 import dclib.util.Timer
@@ -13,7 +13,7 @@ class Weapon(val data: WeaponData, val skeleton: Skeleton) {
 
     val size: Vector2
         get() {
-            val size = skeleton.bounds.size
+            val size = skeleton.getBounds().size
             val weaponHeight = data.width * size.y / size.x
             return Vector2(data.width, weaponHeight)
         }

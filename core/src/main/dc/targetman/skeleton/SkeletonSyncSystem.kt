@@ -1,5 +1,6 @@
 package dc.targetman.skeleton
 
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
@@ -10,6 +11,7 @@ import dclib.eventing.EventDelegate
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.geometry.base
+import dclib.geometry.size
 
 class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entityManager) {
     val animationApplied = EventDelegate<AnimationAppliedEvent>()
@@ -21,10 +23,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
             removeInactiveSlots(skeletonPart)
             updateSize(entity)
             updateRootPosition(entity)
-            for (limb in skeletonPart.getLimbs()) {
-                updateTransform(limb, skeletonPart.rootScale)
-                updateSkeletonLinks(limb)
-            }
+            updateLimbs(skeletonPart)
         }
     }
 
@@ -48,27 +47,11 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         skeleton.updateWorldTransform()
     }
 
-    private fun updateSize(entity: Entity) {
-        val skeleton = entity[SkeletonPart::class].skeleton
-        val transform = entity[TransformPart::class].transform
-        val size = Vector2(transform.size.x, skeleton.bounds.height)
-        transform.setSize(size)
-    }
-
-    private fun updateRootPosition(entity: Entity) {
-        val skeleton = entity[SkeletonPart::class].skeleton
-        val transform = entity[TransformPart::class].transform
-        val newRootPosition: Vector2
-        // TODO: Make this generic, or move this to a more specific system
-        if (entity[SkeletonPart::class].getLimbs().any { it.name == "muzzle" }) {
-            newRootPosition = transform.center
-        } else {
-            val rootYToMinYOffset = skeleton.rootBone.y - skeleton.bounds.y
-            newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
+    private fun updateLimbs(skeletonPart: SkeletonPart) {
+        for (limb in skeletonPart.getLimbs()) {
+            updateTransform(limb, skeletonPart.rootScale)
+            updateSkeletonLinks(limb)
         }
-        skeleton.rootBone.x = newRootPosition.x
-        skeleton.rootBone.y = newRootPosition.y
-        skeleton.updateWorldTransform()
     }
 
     private fun updateTransform(limb: Limb, rootScale: Vector2) {
@@ -99,5 +82,36 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
             SkeletonUtils.setWorldRotationX(childRoot.bone, limb.bone.worldRotationX)
             childTransform.setWorld(childTransform.center, limb.transform.center)
         }
+    }
+
+    private fun updateSize(entity: Entity) {
+        val boundingLimbsPart = entity.tryGet(BoundingSlotsPart::class)
+        if (boundingLimbsPart != null) {
+            val skeletonBounds = getSkeletonBounds(entity)
+            entity[TransformPart::class].transform.setSize(skeletonBounds.size)
+        }
+    }
+
+    private fun updateRootPosition(entity: Entity) {
+        val skeleton = entity[SkeletonPart::class].skeleton
+        val transform = entity[TransformPart::class].transform
+        val newRootPosition: Vector2
+        if (entity.has(BoundingSlotsPart::class)) {
+            val skeletonBounds = getSkeletonBounds(entity)
+            val rootYToMinYOffset = skeleton.rootBone.y - skeletonBounds.y
+            newRootPosition = transform.bounds.base.add(0f, rootYToMinYOffset)
+        } else {
+            newRootPosition = transform.center
+        }
+        skeleton.rootBone.x = newRootPosition.x
+        skeleton.rootBone.y = newRootPosition.y
+        skeleton.updateWorldTransform()
+    }
+
+    private fun getSkeletonBounds(entity: Entity): Rectangle {
+        val skeletonPart = entity[SkeletonPart::class]
+        val boundingSlotNames = entity[BoundingSlotsPart::class].slotNames
+        val boundingSlots = skeletonPart.skeleton.slots.filter { boundingSlotNames.contains(it.data.name) }
+        return skeletonPart.skeleton.getBounds(boundingSlots)
     }
 }

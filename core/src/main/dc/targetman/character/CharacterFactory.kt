@@ -13,9 +13,10 @@ import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
+import dc.targetman.skeleton.BoundingSlotsPart
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.SkeletonFactory
-import dc.targetman.skeleton.bounds
+import dc.targetman.skeleton.getBounds
 import dc.targetman.util.Json
 import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
@@ -35,8 +36,8 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val entity = Entity()
         entity.addAttributes(alliance)
         val skeleton = skeletonFactory.create(character.skeletonPath, character.atlasName)
-        val skeletonScale = height / skeleton.bounds.size.y
-        val size = skeleton.bounds.size.scl(skeletonScale)
+        val skeletonScale = height / skeleton.getBounds().size.y
+        val size = skeleton.getBounds().size.scl(skeletonScale)
         val body = createBody(size, position)
         val transform = Box2dTransform(body, position.z)
         entity.attach(TransformPart(transform))
@@ -52,6 +53,8 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
+        val boundingSlotNames = listOf("head", "left_foot", "right_foot", "torso")
+        entity.attach(BoundingSlotsPart(boundingSlotNames))
         if (alliance == Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
