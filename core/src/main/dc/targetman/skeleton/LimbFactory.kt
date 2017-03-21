@@ -21,7 +21,7 @@ class LimbFactory(private val factoryTools: FactoryTools) {
     private val entityManager = factoryTools.entityManager
 
     fun create(skeleton: Skeleton, atlasName: String, size: Vector2): Limb {
-        val rootScale = size.div(skeleton.bounds.size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+        val rootScale = size.div(skeleton.getBounds().size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
         val skeletonCopy = Skeleton(skeleton)
         return createLimb(skeletonCopy.rootBone, rootScale, atlasName)
     }
