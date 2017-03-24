@@ -41,7 +41,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         skeletonPart.animationState.apply(skeleton)
         skeleton.updateWorldTransform()
         animationApplied.notify(AnimationAppliedEvent(entity))
-        // TODO: Need to be able to handle scale timelines.  Currently the scale gets reset to the root scale
+        // TODO: Need to be able to handle scale timelines.  Currently the scale gets reset to the root scale.
         skeleton.rootBone.scaleX = skeletonPart.rootScale.x
         skeleton.rootBone.scaleY = skeletonPart.rootScale.y
         skeleton.updateWorldTransform()
