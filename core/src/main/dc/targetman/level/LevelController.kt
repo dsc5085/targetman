@@ -116,7 +116,7 @@ class LevelController(
 		renderEntities()
 		particlesManager.draw()
 		renderMapLayer(MapUtils.getForegroundIndex(map))
-		renderBox2D()
+//		renderBox2D()
 	}
 
 	private fun createEntityManager(): EntityManager {
