@@ -25,6 +25,7 @@ import dclib.geometry.PolygonUtils
 import dclib.geometry.size
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
+import dclib.util.FloatRange
 import dclib.util.inv
 
 class CharacterFactory(private val factoryTools: FactoryTools) {
@@ -55,6 +56,9 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         entity.attach(HealthPart(character.health))
         val boundingSlotNames = listOf("head", "left_foot", "right_foot", "torso")
         entity.attach(BoundingSlotsPart(boundingSlotNames))
+        val shadowValueRange = FloatRange(0.9f, 1f)
+        val keyLimbNames = listOf("left_hand", "left_foot", "right_thigh")
+        entity.attach(LimbsShadowingPart(shadowValueRange, keyLimbNames))
         if (alliance == Alliance.ENEMY) {
             val aiProfile = AiProfile(2f, 4.5f)
             entity.attach(AiPart(aiProfile))
