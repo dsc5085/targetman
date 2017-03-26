@@ -15,6 +15,7 @@ import dc.targetman.ai.AiSystem
 import dc.targetman.character.*
 import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.GetDrawEntities
+import dc.targetman.graphics.LimbsShadowingSystem
 import dc.targetman.mechanics.*
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.Weapon
@@ -146,6 +147,7 @@ class LevelController(
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
+				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
 	}

@@ -33,7 +33,7 @@ class GetDrawEntities(private val entityManager: EntityManager) : () -> List<Ent
         var sortedLimbs = skeletonPart.skeleton.drawOrder.map {
             slot -> activeLimbs.firstOrNull { limb -> limb.name == slot.data.name }
         }.filterNotNull()
-        if (skeletonPart.flipX) {
+        if (!skeletonPart.flipX) {
             sortedLimbs = sortedLimbs.reversed()
         }
         return sortedLimbs.map { it.entity }
