@@ -147,6 +147,7 @@ class LevelController(
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, entityFactory),
 				VitalLimbsSystem(entityManager),
+				StaggerSystem(entityManager, world, collisionChecker),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
@@ -192,13 +193,11 @@ class LevelController(
 		if (player == null) {
 			return
 		}
-		var moveDirection = Direction.NONE
 		if (Gdx.input.isKeyPressed(Keys.A)) {
-			moveDirection = Direction.LEFT
+			CharacterActions.move(player, Direction.LEFT)
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-			moveDirection = Direction.RIGHT
+			CharacterActions.move(player, Direction.RIGHT)
 		}
-		CharacterActions.move(player, moveDirection)
 		var aimDirection = 0
 		if (Gdx.input.isKeyPressed(Keys.W)) {
 			aimDirection = 1

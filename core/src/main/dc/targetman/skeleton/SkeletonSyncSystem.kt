@@ -18,9 +18,9 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
 
     override fun update(delta: Float, entity: Entity) {
         val skeletonPart = entity.tryGet(SkeletonPart::class)
-        if (skeletonPart != null) {
-            updateSkeleton(delta, entity)
+        if (skeletonPart != null && skeletonPart.isEnabled) {
             removeInactiveSlots(skeletonPart)
+            updateSkeleton(delta, entity)
             updateSize(entity)
             updateRootPosition(entity)
             updateLimbs(skeletonPart)
