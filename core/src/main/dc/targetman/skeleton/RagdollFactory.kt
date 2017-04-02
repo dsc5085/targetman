@@ -4,13 +4,11 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
-import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.physics.Box2dTransform
-import dclib.physics.Box2dUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
 import dclib.util.Maths
@@ -108,7 +106,6 @@ class RagdollFactory(private val world: World) {
         }
         val body = newTransform.body
         body.gravityScale = 1f
-        Box2dUtils.setFilter(body, mask = CollisionCategory.STATIC)
         for (fixture in body.fixtureList) {
             fixture.isSensor = false
         }
