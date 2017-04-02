@@ -15,22 +15,40 @@ import dclib.util.Maths
 
 class RagdollFactory(private val world: World) {
     fun create(limb: Limb): Limb {
-        val transform = createLimbTransform(limb.transform)
-        val entity = Entity(TransformPart(transform))
+        val newTransform = createLimbTransform(limb.transform)
+        val entity = Entity(TransformPart(newTransform))
         val newLimb = Limb(limb.bone, entity)
         for (childLimb in limb.getChildren()) {
             val newChildLimb = create(childLimb)
             newLimb.addChild(newChildLimb)
             val newChildTransform = newChildLimb.transform as Box2dTransform
-            createJoint(transform, newChildTransform, childLimb)
+            val jointAnchor = getJointAnchor(limb, childLimb)
+            createJoint(newTransform, newChildTransform, childLimb, jointAnchor)
         }
         return newLimb
     }
 
-    private fun createJoint(parentTransform: Box2dTransform, childTransform: Box2dTransform, childLimb: Limb) {
+    private fun getJointAnchor(parentLimb: Limb, childLimb: Limb): Vector2 {
+        var anchor = Vector2(childLimb.bone.worldX, childLimb.bone.worldY)
+        val parentTransform = parentLimb.transform as? Box2dTransform
+        val childTransform = childLimb.transform as? Box2dTransform
+        if (parentTransform != null && childTransform != null) {
+            val joint = parentTransform.body.jointList.firstOrNull { it.other === childTransform.body }?.joint
+            if (joint != null) {
+                anchor = joint.anchorA
+            }
+        }
+        return anchor
+    }
+
+    private fun createJoint(
+            parentTransform: Box2dTransform,
+            childTransform: Box2dTransform,
+            childLimb: Limb,
+            anchor: Vector2
+    ) {
         val jointDef = RevoluteJointDef()
-        val boneWorld = Vector2(childLimb.bone.worldX, childLimb.bone.worldY)
-        jointDef.initialize(parentTransform.body, childTransform.body, boneWorld)
+        jointDef.initialize(parentTransform.body, childTransform.body, anchor)
         jointDef.collideConnected = true
         jointDef.enableLimit = true
         val angleRange = getAngleRange(childLimb.name)
