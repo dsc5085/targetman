@@ -10,7 +10,7 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
-import dclib.physics.Box2dTransform
+import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
 
@@ -26,9 +26,7 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         val staggerPart = entity.tryGet(StaggerPart::class)
         if (staggerPart != null && staggerPart.isStaggered) {
             if (staggerPart.staggerTimer.check()) {
-                staggerPart.isStaggered = false
-                // turn limbs back into skeleton limbs
-                // animate to standing back up
+                recover(entity)
             }
             staggerPart.staggerTimer.tick(delta)
         }
@@ -43,7 +41,7 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
                 val skeletonPart = container[SkeletonPart::class]
                 staggerPart.isStaggered = true
                 skeletonPart.isEnabled = false
-                (container[TransformPart::class].transform as Box2dTransform).body.isActive = false
+                Box2dUtils.getBody(container)!!.isActive = false
                 ragdoll(skeletonPart)
             }
         }
@@ -53,12 +51,15 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         val ragdollLimbs = ragdollFactory.create(skeletonPart.root).getDescendants(includeInactive = true)
         for (limb in skeletonPart.getLimbs()) {
             val transformPart = limb.entity[TransformPart::class]
-            val oldTransform = transformPart.transform
+            Box2dUtils.getBody(limb.entity)?.isActive = false
             transformPart.transform = ragdollLimbs.first { it.name == limb.name }.transform
-            if (oldTransform is Box2dTransform) {
-                oldTransform.body.isActive = false
-            }
         }
         skeletonPart.isEnabled = false
+    }
+
+    private fun recover(entity: Entity) {
+        entity[StaggerPart::class].isStaggered = false
+        // turn limbs back into skeleton limbs
+        // animate to standing back up
     }
 }

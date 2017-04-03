@@ -9,6 +9,7 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.physics.Box2dTransform
+import dclib.physics.Box2dUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
 import dclib.util.Maths
@@ -30,10 +31,10 @@ class RagdollFactory(private val world: World) {
 
     private fun getJointAnchor(parentLimb: Limb, childLimb: Limb): Vector2 {
         var anchor = Vector2(childLimb.bone.worldX, childLimb.bone.worldY)
-        val parentTransform = parentLimb.transform as? Box2dTransform
-        val childTransform = childLimb.transform as? Box2dTransform
-        if (parentTransform != null && childTransform != null) {
-            val joint = parentTransform.body.jointList.firstOrNull { it.other === childTransform.body }?.joint
+        val parentBody = Box2dUtils.getBody(parentLimb.entity)
+        val childBody = Box2dUtils.getBody(childLimb.entity)
+        if (parentBody != null && childBody != null) {
+            val joint = parentBody.jointList.firstOrNull { it.other === childBody }?.joint
             if (joint != null) {
                 anchor = joint.anchorA
             }
