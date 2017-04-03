@@ -42,24 +42,37 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
                 staggerPart.isStaggered = true
                 skeletonPart.isEnabled = false
                 Box2dUtils.getBody(container)!!.isActive = false
-                ragdoll(skeletonPart)
+                ragdoll(skeletonPart, staggerPart)
             }
         }
     }
 
-    private fun ragdoll(skeletonPart: SkeletonPart) {
+    private fun ragdoll(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
         val ragdollLimbs = ragdollFactory.create(skeletonPart.root).getDescendants(includeInactive = true)
         for (limb in skeletonPart.getLimbs()) {
-            val transformPart = limb.entity[TransformPart::class]
             Box2dUtils.getBody(limb.entity)?.isActive = false
+            staggerPart.oldLimbTransforms.put(limb.name, limb.transform)
+            val transformPart = limb.entity[TransformPart::class]
             transformPart.transform = ragdollLimbs.first { it.name == limb.name }.transform
         }
-        skeletonPart.isEnabled = false
     }
 
     private fun recover(entity: Entity) {
-        entity[StaggerPart::class].isStaggered = false
-        // turn limbs back into skeleton limbs
+        val skeletonPart = entity[SkeletonPart::class]
+        val staggerPart = entity[StaggerPart::class]
+        restoreSkeletonLimbs(skeletonPart, staggerPart)
+        Box2dUtils.getBody(entity)!!.isActive = true
+        skeletonPart.isEnabled = true
+        staggerPart.isStaggered = false
         // animate to standing back up
+    }
+
+    private fun restoreSkeletonLimbs(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
+        for (limb in skeletonPart.getLimbs()) {
+            val transformPart = limb.entity[TransformPart::class]
+            Box2dUtils.tryDestroyBody(transformPart.transform)
+            transformPart.transform = staggerPart.oldLimbTransforms[limb.name]!!
+        }
+        staggerPart.oldLimbTransforms.clear()
     }
 }
