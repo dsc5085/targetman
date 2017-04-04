@@ -11,6 +11,7 @@ import dclib.epf.EntityManager
 import dclib.epf.EntityRemovedEvent
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
+import dclib.geometry.base
 import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
@@ -50,10 +51,10 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         if (forcePart != null && staggerPart != null) {
             if (!staggerPart.isStaggered && forcePart.force >= staggerPart.minForce) {
                 val skeletonPart = container[SkeletonPart::class]
+                ragdoll(skeletonPart, staggerPart)
                 staggerPart.isStaggered = true
                 skeletonPart.isEnabled = false
                 Box2dUtils.getBody(container)!!.isActive = false
-                ragdoll(skeletonPart, staggerPart)
             }
         }
     }
@@ -71,11 +72,12 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
     private fun recover(entity: Entity) {
         val skeletonPart = entity[SkeletonPart::class]
         val staggerPart = entity[StaggerPart::class]
-        restoreSkeletonLimbs(skeletonPart, staggerPart)
         Box2dUtils.getBody(entity)!!.isActive = true
+        val transform = entity[TransformPart::class].transform
+        transform.setWorld(transform.bounds.base, skeletonPart.root.transform.center)
         skeletonPart.isEnabled = true
         staggerPart.isStaggered = false
-        // animate to standing back up
+        restoreSkeletonLimbs(skeletonPart, staggerPart)
     }
 
     private fun restoreSkeletonLimbs(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
