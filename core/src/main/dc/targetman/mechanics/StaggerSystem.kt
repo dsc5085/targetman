@@ -8,6 +8,7 @@ import dc.targetman.skeleton.LimbUtils
 import dc.targetman.skeleton.RagdollFactory
 import dclib.epf.Entity
 import dclib.epf.EntityManager
+import dclib.epf.EntityRemovedEvent
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dUtils
@@ -19,6 +20,7 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
     val ragdollFactory = RagdollFactory(world)
 
     init {
+        entityManager.entityRemoved.on { handleEntityRemoved(it) }
         collisionChecker.collided.on { handleCollided(it) }
     }
 
@@ -29,6 +31,15 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
                 recover(entity)
             }
             staggerPart.staggerTimer.tick(delta)
+        }
+    }
+
+    private fun handleEntityRemoved(event: EntityRemovedEvent) {
+        val staggerPart = event.entity.tryGet(StaggerPart::class)
+        if (staggerPart != null) {
+            for (limbTransform in staggerPart.oldLimbTransforms.values) {
+                Box2dUtils.tryDestroyBody(limbTransform)
+            }
         }
     }
 
@@ -72,6 +83,7 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
             val transformPart = limb.entity[TransformPart::class]
             Box2dUtils.tryDestroyBody(transformPart.transform)
             transformPart.transform = staggerPart.oldLimbTransforms[limb.name]!!
+            Box2dUtils.getBody(limb.entity)?.isActive = true
         }
         staggerPart.oldLimbTransforms.clear()
     }
