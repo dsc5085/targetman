@@ -5,6 +5,7 @@ import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.mechanics.Direction
+import dc.targetman.mechanics.StaggerState
 import dclib.epf.Entity
 
 object CharacterActions {
@@ -29,7 +30,7 @@ object CharacterActions {
     }
 
     private fun tryExecute(entity: Entity, action: (Entity) -> Unit) {
-        if (!entity[StaggerPart::class].isStaggered) {
+        if (entity[StaggerPart::class].state == StaggerState.OK) {
             action.invoke(entity)
         }
     }

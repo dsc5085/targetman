@@ -198,13 +198,11 @@ class LevelController(
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			CharacterActions.move(player, Direction.RIGHT)
 		}
-		var aimDirection = 0
 		if (Gdx.input.isKeyPressed(Keys.W)) {
-			aimDirection = 1
+            CharacterActions.aim(player, 1)
 		} else if (Gdx.input.isKeyPressed(Keys.S)) {
-			aimDirection = -1
+            CharacterActions.aim(player, -1)
 		}
-		CharacterActions.aim(player, aimDirection)
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			CharacterActions.jump(player)
 		}

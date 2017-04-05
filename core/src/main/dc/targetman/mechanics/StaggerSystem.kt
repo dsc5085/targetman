@@ -27,11 +27,8 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
 
     override fun update(delta: Float, entity: Entity) {
         val staggerPart = entity.tryGet(StaggerPart::class)
-        if (staggerPart != null && staggerPart.isStaggered) {
-            if (staggerPart.staggerTimer.check()) {
-                recover(entity)
-            }
-            staggerPart.staggerTimer.tick(delta)
+        if (staggerPart != null) {
+            changeStaggerAmount(entity, -staggerPart.recoverySpeed * delta)
         }
     }
 
@@ -49,14 +46,27 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         val container = LimbUtils.findContainer(entityManager.getAll(), event.target.entity)
         val staggerPart = container?.tryGet(StaggerPart::class)
         if (forcePart != null && staggerPart != null) {
-            if (!staggerPart.isStaggered && forcePart.force >= staggerPart.minForce) {
-                val skeletonPart = container[SkeletonPart::class]
-                ragdoll(skeletonPart, staggerPart)
-                staggerPart.isStaggered = true
-                skeletonPart.isEnabled = false
-                Box2dUtils.getBody(container)!!.isActive = false
-            }
+            changeStaggerAmount(container, forcePart.force)
         }
+    }
+
+    private fun changeStaggerAmount(entity: Entity, offset: Float) {
+        val staggerPart = entity[StaggerPart::class]
+        val oldState = staggerPart.state
+        staggerPart.amount = Math.max(staggerPart.amount + offset, 0f)
+        val newState = staggerPart.state
+        if (oldState == StaggerState.DOWN && newState != oldState) {
+            recover(entity)
+        } else if (newState == StaggerState.DOWN && oldState != newState) {
+            knockdown(entity, staggerPart)
+        }
+    }
+
+    private fun knockdown(entity: Entity, staggerPart: StaggerPart) {
+        val skeletonPart = entity[SkeletonPart::class]
+        ragdoll(skeletonPart, staggerPart)
+        skeletonPart.isEnabled = false
+        Box2dUtils.getBody(entity)!!.isActive = false
     }
 
     private fun ragdoll(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
@@ -76,7 +86,6 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         val transform = entity[TransformPart::class].transform
         transform.setWorld(transform.bounds.base, skeletonPart.root.transform.center)
         skeletonPart.isEnabled = true
-        staggerPart.isStaggered = false
         restoreSkeletonLimbs(skeletonPart, staggerPart)
     }
 

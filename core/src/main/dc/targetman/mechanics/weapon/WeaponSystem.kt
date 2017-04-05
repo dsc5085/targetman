@@ -23,6 +23,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
             val equippedWeapon = inventoryPart.equippedWeapon
             skeletonPart.playAnimation("aim", 1)
             aim(delta, firingPart)
+            firingPart.aimDirection = 0
             if (equippedWeapon != null && hasFiringLimbs(firingPart, skeletonPart)) {
                 fire(entity)
                 equippedWeapon.reloadTimer.tick(delta)
