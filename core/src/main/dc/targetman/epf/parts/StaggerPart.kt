@@ -14,7 +14,7 @@ class StaggerPart(val recoverySpeed: Float, val minStunAmount: Float, val minKno
             if (amount < minStunAmount) {
                 state = StaggerState.OK
             } else if (Maths.between(amount, minStunAmount, minKnockdownAmount)) {
-                state = StaggerState.STUNNED
+                state = StaggerState.HURT
             } else {
                 state = StaggerState.DOWN
             }

@@ -1,7 +1,6 @@
 package dc.targetman.mechanics
 
 import com.badlogic.gdx.physics.box2d.World
-import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.skeleton.LimbUtils
@@ -10,6 +9,7 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntityRemovedEvent
 import dclib.epf.EntitySystem
+import dclib.epf.parts.CollisionDamagePart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.base
 import dclib.physics.Box2dUtils
@@ -42,11 +42,11 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
     }
 
     private fun handleCollided(event: CollidedEvent) {
-        val forcePart = event.source.entity.tryGet(ForcePart::class)
+        val damagePart = event.source.entity.tryGet(CollisionDamagePart::class)
         val container = LimbUtils.findContainer(entityManager.getAll(), event.target.entity)
         val staggerPart = container?.tryGet(StaggerPart::class)
-        if (forcePart != null && staggerPart != null) {
-            changeStaggerAmount(container, forcePart.force)
+        if (damagePart != null && staggerPart != null) {
+            changeStaggerAmount(container, damagePart.damage)
         }
     }
 
@@ -60,22 +60,8 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         } else if (newState == StaggerState.DOWN && oldState != newState) {
             knockdown(entity, staggerPart)
         }
-    }
-
-    private fun knockdown(entity: Entity, staggerPart: StaggerPart) {
-        val skeletonPart = entity[SkeletonPart::class]
-        ragdoll(skeletonPart, staggerPart)
-        skeletonPart.isEnabled = false
-        Box2dUtils.getBody(entity)!!.isActive = false
-    }
-
-    private fun ragdoll(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
-        val ragdollLimbs = ragdollFactory.create(skeletonPart.root).getDescendants(includeInactive = true)
-        for (limb in skeletonPart.getLimbs()) {
-            Box2dUtils.getBody(limb.entity)?.isActive = false
-            staggerPart.oldLimbTransforms.put(limb.name, limb.transform)
-            val transformPart = limb.entity[TransformPart::class]
-            transformPart.transform = ragdollLimbs.first { it.name == limb.name }.transform
+        if (newState == StaggerState.HURT) {
+            stun(entity)
         }
     }
 
@@ -97,5 +83,26 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
             Box2dUtils.getBody(limb.entity)?.isActive = true
         }
         staggerPart.oldLimbTransforms.clear()
+    }
+
+    private fun knockdown(entity: Entity, staggerPart: StaggerPart) {
+        val skeletonPart = entity[SkeletonPart::class]
+        ragdoll(skeletonPart, staggerPart)
+        skeletonPart.isEnabled = false
+        Box2dUtils.getBody(entity)!!.isActive = false
+    }
+
+    private fun ragdoll(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
+        val ragdollLimbs = ragdollFactory.create(skeletonPart.root).getDescendants(includeInactive = true)
+        for (limb in skeletonPart.getLimbs()) {
+            Box2dUtils.getBody(limb.entity)?.isActive = false
+            staggerPart.oldLimbTransforms.put(limb.name, limb.transform)
+            val transformPart = limb.entity[TransformPart::class]
+            transformPart.transform = ragdollLimbs.first { it.name == limb.name }.transform
+        }
+    }
+
+    private fun stun(entity: Entity) {
+        entity[SkeletonPart::class].playAnimation("hurt", 1)
     }
 }
