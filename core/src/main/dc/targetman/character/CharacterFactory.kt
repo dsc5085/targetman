@@ -35,7 +35,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
         val entity = Entity()
-        entity.addAttributes(alliance)
+        entity.addAttributes(DeathForm.CORPSE, alliance)
         val skeleton = skeletonFactory.create(character.skeletonPath, character.atlasName)
         val skeletonScale = height / skeleton.getBounds().size.y
         val size = skeleton.getBounds().size.scl(skeletonScale)
@@ -54,6 +54,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
+        entity.attach(StaggerPart(10f, 50f, 100f))
         val boundingSlotNames = listOf("head", "left_foot", "right_foot", "torso")
         entity.attach(BoundingSlotsPart(boundingSlotNames))
         val shadowValueRange = FloatRange(0.9f, 1f)

@@ -40,8 +40,8 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     fun getDescendants(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
         val descendants = getChildren(includeInactive, includeLinked)
-                .flatMap { it.getDescendants(includeInactive, includeLinked).plus(it) }
-        return descendants.toSet()
+                .flatMap { it.getDescendants(includeInactive, includeLinked) }
+        return descendants.plus(this).toSet()
     }
 
     fun addChild(limb: Limb) {

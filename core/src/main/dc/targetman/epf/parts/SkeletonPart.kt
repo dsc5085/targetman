@@ -5,6 +5,7 @@ import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
 
 class SkeletonPart(val root: Limb) {
+    var isEnabled = true
     val skeleton = root.skeleton
     val animationState = createAnimationState()
     val rootScale get() = root.transform.scale
@@ -26,7 +27,7 @@ class SkeletonPart(val root: Limb) {
     }
 
     fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {
-        return root.getDescendants(includeInactive, includeLinked).plus(root)
+        return root.getDescendants(includeInactive, includeLinked)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {
