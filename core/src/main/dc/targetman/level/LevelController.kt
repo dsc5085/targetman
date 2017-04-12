@@ -25,14 +25,12 @@ import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
-import dc.targetman.physics.collision.StainOnCollided
 import dc.targetman.skeleton.*
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntitySpriteDrawer
-import dclib.epf.graphics.EntityTransformDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
@@ -69,12 +67,12 @@ class LevelController(
 	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawers = mutableListOf<EntityDrawer>()
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/simple.tmx")
 	private var isRunning = true
 
 	init {
 		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
-		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
+//		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
 		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
@@ -167,9 +165,8 @@ class LevelController(
 	private fun createCollisionChecker(): CollisionChecker {
 		val collisionChecker = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
-        collisionChecker.collided.on(StainOnCollided(entityManager))
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
-        collisionChecker.collided.on(ParticlesOnCollided(particlesManager, entityFactory))
+        collisionChecker.collided.on(ParticlesOnCollided(screenHelper, entityManager, particlesManager))
         collisionChecker.collided.on(DamageOnCollided(filter))
         collisionChecker.collided.on(RemoveOnCollided(entityManager, filter))
 		return collisionChecker
