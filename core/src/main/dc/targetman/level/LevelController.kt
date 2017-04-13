@@ -114,7 +114,7 @@ class LevelController(
 		renderMapLayer(MapUtils.backgroundIndex)
 		renderEntities()
 		particlesManager.draw()
-		renderMapLayer(MapUtils.getForegroundIndex(map))
+        renderMapLayer(MapUtils.getForegroundIndex(map))
 //		renderBox2D()
 	}
 
@@ -166,7 +166,7 @@ class LevelController(
 		val collisionChecker = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
-        collisionChecker.collided.on(ParticlesOnCollided(screenHelper, entityManager, particlesManager))
+        collisionChecker.collided.on(ParticlesOnCollided(entityManager, particlesManager))
         collisionChecker.collided.on(DamageOnCollided(filter))
         collisionChecker.collided.on(RemoveOnCollided(entityManager, filter))
 		return collisionChecker

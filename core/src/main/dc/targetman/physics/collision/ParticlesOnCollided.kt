@@ -2,7 +2,6 @@ package dc.targetman.physics.collision
 
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import dc.targetman.mechanics.Alliance
@@ -13,7 +12,7 @@ import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.geometry.toVector2
-import dclib.graphics.ScreenHelper
+import dclib.geometry.toVector3
 import dclib.graphics.TextureUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.ParticleCollidedEvent
@@ -23,14 +22,13 @@ import dclib.physics.collision.CollidedEvent
 import dclib.util.FloatRange
 
 class ParticlesOnCollided(
-		private val screenHelper: ScreenHelper,
 		private val entityManager: EntityManager,
 		private val particlesManager: ParticlesManager
 ) : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
 		val sourceEntity = event.source.entity
 		val targetEntity = event.target.entity
-        val position = sourceEntity[TransformPart::class].transform.position3
+        val position = targetEntity[TransformPart::class].transform.center.toVector3()
 		position.z += MathUtils.FLOAT_ROUNDING_ERROR
 		val velocity = event.source.body.linearVelocity
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
@@ -75,20 +73,16 @@ class ParticlesOnCollided(
 		val stainScale = Vector2(2f, 0.5f)
 		val deathTimeRange = FloatRange(10f, 120f)
 		val stain = Entity()
-		val position = screenHelper.toWorldUnits(particle.x, particle.y)
-		val size = screenHelper.toWorldUnits(particle.width, particle.height)
-		val vertices = PolygonUtils.createRectangleVertices(Rectangle(position.x, position.y, size.x, size.y))
+		val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
+		val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
 		val transform = DefaultTransform(PolygonUtils.toPolygon(vertices), 5f)
 		transform.rotation = particle.rotation
 		val stainTransform = DefaultTransform(transform)
 		stainTransform.setScale(stainTransform.scale.scl(stainScale))
-//		stainTransform.rotation = edgeContact.edge.angle
 		stainTransform.setWorld(stainTransform.center, point)
 		val timedDeathPart = TimedDeathPart(deathTimeRange.random())
 		val region = TextureUtils.createPolygonRegion(particle)
-//		val region = textureCache.getPolygonRegion("objects/blood")
 		stain.attach(TransformPart(stainTransform), SpritePart(region), timedDeathPart)
-		println(stainTransform.center)
 		entityManager.add(stain)
 	}
 }
