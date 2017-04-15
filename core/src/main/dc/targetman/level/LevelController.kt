@@ -60,7 +60,7 @@ class LevelController(
 	private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
-	private val entityFactory = EntityFactory(factoryTools)
+	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
@@ -143,7 +143,7 @@ class LevelController(
 				MovementSystem(entityManager, world),
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
-				WeaponSystem(entityManager, entityFactory),
+				WeaponSystem(entityManager, bulletFactory),
 				VitalLimbsSystem(entityManager),
 				StaggerSystem(entityManager, world, collisionChecker),
 				LimbsShadowingSystem(entityManager),

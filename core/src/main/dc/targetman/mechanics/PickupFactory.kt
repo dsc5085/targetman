@@ -16,7 +16,6 @@ import dclib.geometry.toVector2
 import dclib.graphics.TextureUtils
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import dclib.util.inv
 
 class PickupFactory(private val factoryTools: FactoryTools) {
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)
@@ -47,6 +46,6 @@ class PickupFactory(private val factoryTools: FactoryTools) {
         // Ensure that the pickup is always detectable by the characters' collision sensors
         body.isSleepingAllowed = false
         body.gravityScale = 1f
-        Box2dUtils.setFilter(body, mask = CollisionCategory.BOUNDS.inv(), group = 0)
+        Box2dUtils.setFilter(body, mask = CollisionCategory.STATIC, group = 0)
     }
 }

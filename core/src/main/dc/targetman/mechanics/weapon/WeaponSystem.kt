@@ -3,7 +3,7 @@ package dc.targetman.mechanics.weapon
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.SkeletonPart
-import dc.targetman.level.EntityFactory
+import dc.targetman.level.BulletFactory
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.PhysicsUtils
 import dclib.epf.Entity
@@ -13,7 +13,7 @@ import dclib.geometry.VectorUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
 
-class WeaponSystem(private val entityManager: EntityManager, private val entityFactory: EntityFactory)
+class WeaponSystem(private val entityManager: EntityManager, private val bulletFactory: BulletFactory)
 : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
@@ -61,7 +61,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val entityF
         for (i in 0..weaponData.numBullets - 1) {
             val angleOffset = spreadRange.random()
             val speed = weapon.speedRange.random()
-            entityFactory.createBullet(weaponData.bullet, muzzleTransform, angleOffset, speed, alliance)
+            bulletFactory.createBullet(weaponData.bullet, muzzleTransform, angleOffset, speed, alliance)
         }
     }
 }
