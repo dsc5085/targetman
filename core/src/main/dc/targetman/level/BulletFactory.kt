@@ -19,9 +19,9 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
-import dclib.util.inv
+import kotlin.experimental.inv
 
-class EntityFactory(private val factoryTools: FactoryTools) {
+class BulletFactory(private val factoryTools: FactoryTools) {
     private val entityManager = factoryTools.entityManager
     private val textureCache = factoryTools.textureCache
 
