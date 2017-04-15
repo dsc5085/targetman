@@ -26,14 +26,6 @@ object SkeletonUtils {
         return matrix.getScale(Vector2()).abs().scl(boneFlipScale)
     }
 
-    /**
-     * @param size object's size
-     * @return origin used by Spine runtimes, which is the object's local center
-     */
-    fun getOrigin(size: Vector2): Vector2 {
-        return size.cpy().scl(0.5f)
-    }
-
     fun setWorldRotationX(bone: Bone, worldRotationX: Float) {
         bone.rotation += worldRotationX - bone.worldRotationX
     }

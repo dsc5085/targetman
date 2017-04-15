@@ -11,7 +11,6 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.graphics.TextureUtils
 import dclib.physics.DefaultTransform
-import dclib.physics.Transform
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.particles.*
 import dclib.util.FloatRange
@@ -28,8 +27,7 @@ class ParticlesOnCollided(
 			createSparks(event)
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
 			if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
-				val transform = targetEntity[TransformPart::class].transform
-				createBloodParticles(transform, velocity.angle())
+				createBloodParticles(targetEntity, velocity.angle())
 			}
 		}
 	}
@@ -44,8 +42,8 @@ class ParticlesOnCollided(
 		}
 	}
 
-    private fun createBloodParticles(parentTransform: Transform, angle: Float) {
-		val effect = particlesManager.createEffect("blood", TransformPositionGetter(parentTransform))
+    private fun createBloodParticles(parentEntity: Entity, angle: Float) {
+		val effect = particlesManager.createEffect("blood", EntityPositionGetter(parentEntity))
 		for (emitter in effect.emitters) {
 			val angleHighHalfDifference = (emitter.angle.highMax - emitter.angle.highMin) / 2
 			emitter.angle.highMin = angle - angleHighHalfDifference
