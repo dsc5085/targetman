@@ -41,10 +41,10 @@ import dclib.mechanics.RemoveOnCollided
 import dclib.mechanics.RemoveOnNoHealthEntityAdded
 import dclib.mechanics.TimedDeathSystem
 import dclib.physics.AutoRotateSystem
-import dclib.physics.ParticlesManager
 import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
+import dclib.physics.particles.ParticlesManager
 import dclib.system.Advancer
 import dclib.system.Updater
 

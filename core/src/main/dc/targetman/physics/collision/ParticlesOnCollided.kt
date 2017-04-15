@@ -1,9 +1,7 @@
 package dc.targetman.physics.collision
 
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.math.Vector3
 import dc.targetman.mechanics.Alliance
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -11,14 +9,11 @@ import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
-import dclib.geometry.toVector2
-import dclib.geometry.toVector3
 import dclib.graphics.TextureUtils
 import dclib.physics.DefaultTransform
-import dclib.physics.ParticleCollidedEvent
-import dclib.physics.ParticleEmitterBox2d
-import dclib.physics.ParticlesManager
+import dclib.physics.Transform
 import dclib.physics.collision.CollidedEvent
+import dclib.physics.particles.*
 import dclib.util.FloatRange
 
 class ParticlesOnCollided(
@@ -28,14 +23,13 @@ class ParticlesOnCollided(
 	override fun invoke(event: CollidedEvent) {
 		val sourceEntity = event.source.entity
 		val targetEntity = event.target.entity
-        val position = targetEntity[TransformPart::class].transform.center.toVector3()
-		position.z += MathUtils.FLOAT_ROUNDING_ERROR
 		val velocity = event.source.body.linearVelocity
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
 			createSparks(event)
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
 			if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
-				createBloodParticles(position, velocity.angle())
+				val transform = targetEntity[TransformPart::class].transform
+				createBloodParticles(transform, velocity.angle())
 			}
 		}
 	}
@@ -46,12 +40,12 @@ class ParticlesOnCollided(
         val notTargetAlliance = targetAlliance == null || !event.source.entity.of(targetAlliance)
 		val contactPoint = event.contactPoint
         if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL) && contactPoint != null) {
-			particlesManager.createEffect("spark", contactPoint)
+			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint))
 		}
 	}
 
-    private fun createBloodParticles(position: Vector3, angle: Float) {
-		val effect = particlesManager.createEffect("blood", position.toVector2())
+    private fun createBloodParticles(parentTransform: Transform, angle: Float) {
+		val effect = particlesManager.createEffect("blood", TransformPositionGetter(parentTransform))
 		for (emitter in effect.emitters) {
 			val angleHighHalfDifference = (emitter.angle.highMax - emitter.angle.highMin) / 2
 			emitter.angle.highMin = angle - angleHighHalfDifference
