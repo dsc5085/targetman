@@ -53,7 +53,7 @@ class LimbsShadowingSystem(entityManager: EntityManager) : EntitySystem(entityMa
 
     private fun validateSlotIndex(index: Int, slotName: String) {
         if (index < 0) {
-            throw IllegalArgumentException("Entity does not contain slot ${slotName}")
+            throw IllegalArgumentException("Entity does not contain slot $slotName")
         }
     }
 }

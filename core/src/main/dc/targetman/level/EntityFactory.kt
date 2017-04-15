@@ -50,16 +50,6 @@ class EntityFactory(private val factoryTools: FactoryTools) {
         entityManager.add(entity)
     }
 
-    fun createBloodParticle(size: Float, position: Vector3, velocity: Vector2) {
-        val body = createBody("objects/blood", Vector2(size, size), true)
-        Box2dUtils.setFilter(body, mask = CollisionCategory.STATIC)
-        body.linearVelocity = velocity
-        val entity = createBaseEntity(body, position, "objects/blood")
-        entity.addAttributes(Material.STICKY)
-        entity.attach(CollisionRemovePart(), TimedDeathPart(3f))
-        entityManager.add(entity)
-    }
-
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
         val transform = Box2dTransform(body, position.z)
         transform.position = Vector2(position.x, position.y)
