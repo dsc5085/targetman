@@ -19,18 +19,10 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
     override fun update(delta: Float, entity: Entity) {
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null && skeletonPart.isEnabled) {
-            removeInactiveSlots(skeletonPart)
             updateSkeleton(delta, entity)
             updateSize(entity)
             updateRootPosition(entity)
             updateLimbs(skeletonPart)
-        }
-    }
-
-    private fun removeInactiveSlots(skeletonPart: SkeletonPart) {
-        val inactiveLimbs = skeletonPart.getLimbs(true).filter { !it.isActive }
-        for (limb in inactiveLimbs) {
-            skeletonPart.skeleton.drawOrder.removeAll { it.attachment === limb.getRegionAttachment() }
         }
     }
 
