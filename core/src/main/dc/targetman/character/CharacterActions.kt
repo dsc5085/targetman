@@ -25,6 +25,10 @@ object CharacterActions {
         tryExecute(entity, { entity[FiringPart::class].triggered = true })
     }
 
+    fun switchWeapon(entity: Entity) {
+        tryExecute(entity, { entity[InventoryPart::class].trySwitchWeapon = true })
+    }
+
     fun pickup(entity: Entity) {
         tryExecute(entity, { entity[InventoryPart::class].tryPickup = true })
     }

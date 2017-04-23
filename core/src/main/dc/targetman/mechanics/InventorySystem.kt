@@ -30,6 +30,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
+            updateSwitching(delta, inventoryPart, entity[SkeletonPart::class])
             inventoryPart.pickupTimer.tick(delta)
         }
     }
@@ -74,7 +75,17 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         entityManager.remove(pickupEntity)
     }
 
+    private fun updateSwitching(delta: Float, inventoryPart: InventoryPart, skeletonPart: SkeletonPart) {
+        inventoryPart.switchTimer.tick(delta)
+        if (inventoryPart.trySwitchWeapon && inventoryPart.switchTimer.check()) {
+            inventoryPart.switchWeapon()
+            val gripper = skeletonPart[inventoryPart.gripperName]
+            gripEquippedWeapon(inventoryPart, gripper)
+        }
+    }
+
     private fun gripEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
+        limbFactory.removeChildren(gripper)
         val equippedWeapon = inventoryPart.equippedWeapon
         val weaponLink = limbFactory.link(
                 equippedWeapon!!.skeleton,
@@ -94,6 +105,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
             val removedWeaponTransform = transformLimb.transform as Box2dTransform
             pickupFactory.create(equippedWeapon, Box2dTransform(removedWeaponTransform))
         }
+        inventoryPart.dropEquippedWeapon()
         limbFactory.removeChildren(gripper)
     }
 }

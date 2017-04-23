@@ -207,6 +207,9 @@ class LevelController(
 			CharacterActions.trigger(player)
 		}
 		if (Gdx.input.isKeyPressed(Keys.Q)) {
+			CharacterActions.switchWeapon(player)
+		}
+		if (Gdx.input.isKeyPressed(Keys.X)) {
 			CharacterActions.pickup(player)
 		}
 	}
