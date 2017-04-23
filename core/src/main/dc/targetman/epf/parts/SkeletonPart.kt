@@ -21,7 +21,7 @@ class SkeletonPart(val root: Limb) {
     operator fun get(name: String): Limb {
         val limb =  getLimbs(true, true).singleOrNull { it.name == name }
         if (limb == null) {
-            throw IllegalArgumentException("Could not find limb $name")
+            throw IllegalArgumentException("Could not find limb or there were multiple limbs called $name")
         }
         return limb
     }

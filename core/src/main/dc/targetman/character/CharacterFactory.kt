@@ -47,7 +47,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val weaponSkeleton = skeletonFactory.create(character.weaponData.skeletonPath, character.weaponData.atlasName)
         val weapon = Weapon(character.weaponData, weaponSkeleton)
         entity.attach(FiringPart(character.rotatorName, "muzzle"))
-        val inventoryPart = InventoryPart(1, character.gripperName, weapon)
+        val inventoryPart = InventoryPart(2, character.gripperName, weapon)
         entity.attach(inventoryPart)
         val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))

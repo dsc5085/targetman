@@ -236,7 +236,6 @@
  </layer>
  <objectgroup color="#000000" name="Actors">
   <object id="63" gid="1" x="256" y="24832" width="32" height="32"/>
-  <object id="79" gid="2" x="2304" y="24576" width="32" height="32"/>
  </objectgroup>
  <layer name="Foreground" width="100" height="100">
   <data encoding="csv">
