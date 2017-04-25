@@ -37,7 +37,7 @@ class ParticlesOnCollided(
         val targetAlliance = target.entity.getAttribute(Alliance::class)
         val notTargetAlliance = targetAlliance == null || !event.source.entity.of(targetAlliance)
 		val contactPoint = event.contactPoint
-        if (notTargetAlliance && !target.fixture.isSensor && target.entity.of(Material.METAL) && contactPoint != null) {
+        if (notTargetAlliance && target.entity.of(Material.METAL) && contactPoint != null) {
 			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint))
 		}
 	}
