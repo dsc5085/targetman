@@ -1,12 +1,11 @@
 package dc.targetman.mechanics
 
-import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
+import dc.targetman.level.FactoryTools
 import dc.targetman.skeleton.LimbUtils
 import dc.targetman.skeleton.RagdollFactory
 import dclib.epf.Entity
-import dclib.epf.EntityManager
 import dclib.epf.EntityRemovedEvent
 import dclib.epf.EntitySystem
 import dclib.epf.parts.CollisionDamagePart
@@ -16,12 +15,13 @@ import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
 
-class StaggerSystem(private val entityManager: EntityManager, world: World, collisionChecker: CollisionChecker)
-    : EntitySystem(entityManager) {
-    val ragdollFactory = RagdollFactory(world)
+class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: CollisionChecker)
+    : EntitySystem(factoryTools.entityManager) {
+    val ragdollFactory = RagdollFactory(factoryTools.world)
+    val inventoryActions = InventoryActions(factoryTools)
 
     init {
-        entityManager.entityRemoved.on { handleEntityRemoved(it) }
+        factoryTools.entityManager.entityRemoved.on { handleEntityRemoved(it) }
         collisionChecker.collided.on { handleCollided(it) }
     }
 
@@ -43,7 +43,8 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
 
     private fun handleCollided(event: CollidedEvent) {
         val damagePart = event.source.entity.tryGet(CollisionDamagePart::class)
-        val container = LimbUtils.findContainer(entityManager.getAll(), event.target.entity)
+        val entities = factoryTools.entityManager.getAll()
+        val container = LimbUtils.findContainer(entities, event.target.entity)
         val staggerPart = container?.tryGet(StaggerPart::class)
         if (damagePart != null && staggerPart != null) {
             changeStaggerAmount(container, damagePart.damage)
@@ -58,7 +59,7 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         if (oldState == StaggerState.DOWN && newState != oldState) {
             recover(entity)
         } else if (newState == StaggerState.DOWN && oldState != newState) {
-            knockdown(entity, staggerPart)
+            knockdown(entity)
         }
         if (newState == StaggerState.HURT) {
             stun(entity)
@@ -85,9 +86,10 @@ class StaggerSystem(private val entityManager: EntityManager, world: World, coll
         staggerPart.oldLimbTransforms.clear()
     }
 
-    private fun knockdown(entity: Entity, staggerPart: StaggerPart) {
+    private fun knockdown(entity: Entity) {
         val skeletonPart = entity[SkeletonPart::class]
-        ragdoll(skeletonPart, staggerPart)
+        inventoryActions.tryDropEquippedWeapon(entity)
+        ragdoll(skeletonPart, entity[StaggerPart::class])
         skeletonPart.isEnabled = false
         Box2dUtils.getBody(entity)!!.isActive = false
     }

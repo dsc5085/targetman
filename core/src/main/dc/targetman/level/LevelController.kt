@@ -145,7 +145,7 @@ class LevelController(
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, bulletFactory),
 				VitalLimbsSystem(entityManager),
-				StaggerSystem(entityManager, world, collisionChecker),
+				StaggerSystem(factoryTools, collisionChecker),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
