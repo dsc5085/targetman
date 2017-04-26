@@ -37,9 +37,11 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
         val skeletonPart = entity.get(SkeletonPart::class)
         val muzzleName = entity[FiringPart::class].muzzleName
-        val muzzleTransform = skeletonPart[muzzleName].transform
-        val direction = getAimRotateDirection(muzzleTransform, targetBounds.center, skeletonPart.flipX)
-        CharacterActions.aim(entity, direction)
+        val muzzle = skeletonPart.tryGet(muzzleName)
+        if (muzzle != null) {
+            val direction = getAimRotateDirection(muzzle.transform, targetBounds.center, skeletonPart.flipX)
+            CharacterActions.aim(entity, direction)
+        }
     }
 
     /**
