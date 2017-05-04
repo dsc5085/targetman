@@ -29,9 +29,7 @@ import dc.targetman.skeleton.*
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
-import dclib.epf.graphics.EntityDrawer
-import dclib.epf.graphics.EntitySpriteDrawer
-import dclib.epf.graphics.SpriteSyncSystem
+import dclib.epf.graphics.*
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
 import dclib.graphics.ScreenHelper
@@ -66,14 +64,11 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-	private val entityDrawers = mutableListOf<EntityDrawer>()
+	private val entityDrawerManager = createEntityDrawerManager(spriteBatch, shapeRenderer)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private var isRunning = true
 
 	init {
-		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
-//		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
-		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
 		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
@@ -112,7 +107,8 @@ class LevelController(
 	fun draw() {
 		mapRenderer.setView(camera)
 		renderMapLayer(MapUtils.backgroundIndex)
-		renderEntities()
+		val entities = entityManager.getAll()
+		entityDrawerManager.draw(entities)
 		particlesManager.draw()
         renderMapLayer(MapUtils.getForegroundIndex(map))
 //		renderBox2D()
@@ -172,6 +168,15 @@ class LevelController(
 		return collisionChecker
 	}
 
+	private fun createEntityDrawerManager(spriteBatch: PolygonSpriteBatch, shapeRenderer: ShapeRenderer)
+			: EntityDrawerManager {
+		val entityDrawers = mutableListOf<EntityDrawer>()
+		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
+		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
+		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
+		return EntityDrawerManager(entityDrawers)
+	}
+
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate<CollidedEvent> {
 			val targetEntity = it!!.target.entity
@@ -217,13 +222,6 @@ class LevelController(
 	private fun renderMapLayer(layerIndex: Int) {
 		mapRenderer.setView(camera)
 		mapRenderer.render(intArrayOf(layerIndex))
-	}
-
-	private fun renderEntities() {
-		val entities = entityManager.getAll()
-		for (entityDrawer in entityDrawers) {
-			entityDrawer.draw(entities)
-		}
 	}
 
 	private fun renderBox2D() {
