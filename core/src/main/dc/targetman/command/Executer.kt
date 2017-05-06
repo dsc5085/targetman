@@ -1,6 +1,6 @@
 package dc.targetman.command
 
-interface Executer<T> {
+interface Executer {
     val verb: String
     fun execute(params: Map<String, String>)
 }

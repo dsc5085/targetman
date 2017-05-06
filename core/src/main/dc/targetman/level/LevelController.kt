@@ -13,7 +13,10 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.character.*
+import dc.targetman.command.CommandModule
+import dc.targetman.command.CommandProcessor
 import dc.targetman.epf.graphics.EntityGraphDrawer
+import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.graphics.LimbsShadowingSystem
 import dc.targetman.mechanics.*
@@ -46,7 +49,9 @@ import dclib.physics.particles.ParticlesManager
 import dclib.system.Advancer
 import dclib.system.Updater
 
+// TODO: Put rendering related classes in a single object
 class LevelController(
+        commandProcessor: CommandProcessor,
 		private val textureCache: TextureCache,
 		spriteBatch: PolygonSpriteBatch,
 		shapeRenderer: ShapeRenderer,
@@ -55,7 +60,7 @@ class LevelController(
 ) {
 	val levelFinished = EventDelegate<LevelFinishedEvent>()
 
-	private val entityManager = createEntityManager()
+    private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
@@ -66,6 +71,8 @@ class LevelController(
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(spriteBatch, shapeRenderer)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val commandModule = createCommandModule()
+
 	private var isRunning = true
 
 	init {
@@ -78,6 +85,7 @@ class LevelController(
 		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
+		commandProcessor.add(commandModule)
 	}
 
 	fun toggleRunning() {
@@ -85,6 +93,7 @@ class LevelController(
 	}
 
 	fun dispose() {
+		commandModule.dispose()
 		map.dispose()
 		entityManager.dispose()
 		box2DRenderer.dispose()
@@ -217,6 +226,11 @@ class LevelController(
 		if (Gdx.input.isKeyPressed(Keys.X)) {
 			CharacterActions.pickup(player)
 		}
+	}
+
+	private fun createCommandModule(): CommandModule {
+		val executers = listOf(EnableDrawerExecuter(entityDrawerManager))
+		return CommandModule(executers)
 	}
 
 	private fun renderMapLayer(layerIndex: Int) {

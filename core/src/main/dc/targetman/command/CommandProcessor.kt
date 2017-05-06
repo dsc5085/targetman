@@ -1,16 +1,19 @@
 package dc.targetman.command
 
 class CommandProcessor {
-    private val executers = mutableListOf<Executer<*>>()
+    private val modules = mutableListOf<CommandModule>()
     private val parser = CommandParser()
 
-    fun add(executer: Executer<*>) {
-        executers.add(executer)
+    fun add(module: CommandModule) {
+        module.disposed.on { modules.remove(module) }
+        modules.add(module)
     }
 
     fun execute(text: String) {
         val command = parser.parseCommand(text)
-        val executer = executers.single { it.verb == command.verb }
-        executer.execute(command.params)
+        val executers = modules.flatMap { it.executers }
+        for (executer in executers) {
+            executer.execute(command.params)
+        }
     }
 }
