@@ -58,6 +58,7 @@ class LevelController(
 		pixelsPerUnit: Float,
 		private val camera: OrthographicCamera
 ) {
+	val stateChanged = EventDelegate<StateChangedEvent>()
 	val levelFinished = EventDelegate<LevelFinishedEvent>()
 
     private val entityManager = createEntityManager()
@@ -90,6 +91,7 @@ class LevelController(
 
 	fun toggleRunning() {
 		isRunning = !isRunning
+		stateChanged.notify(StateChangedEvent(isRunning))
 	}
 
 	fun dispose() {

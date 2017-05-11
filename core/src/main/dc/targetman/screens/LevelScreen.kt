@@ -44,6 +44,7 @@ class LevelScreen(private val controller: LevelController, private val viewport:
         override fun keyUp(keycode: Int): Boolean {
             when (keycode) {
                 Keys.ESCAPE -> {
+                    // TODO: Implement pause/resume instead
                     controller.toggleRunning()
                     return true
                 }
