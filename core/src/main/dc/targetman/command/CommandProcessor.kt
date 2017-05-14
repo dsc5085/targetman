@@ -1,6 +1,10 @@
 package dc.targetman.command
 
+import dclib.eventing.EventDelegate
+
 class CommandProcessor {
+    val commandExecuted = EventDelegate<CommandExecutedEvent>()
+
     private val modules = mutableListOf<CommandModule>()
     private val parser = CommandParser()
 
@@ -15,5 +19,6 @@ class CommandProcessor {
         for (executer in executers) {
             executer.execute(command.params)
         }
+        commandExecuted.notify(CommandExecutedEvent(text))
     }
 }

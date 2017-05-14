@@ -2,18 +2,30 @@ package dc.targetman.screens
 
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import dc.targetman.command.CommandProcessor
+import dclib.eventing.DefaultEvent
+import dclib.eventing.EventDelegate
 import dclib.system.Input
+import dclib.ui.FontSize
 import dclib.ui.StageUtils
 import dclib.ui.UiPack
+import dclib.ui.UiUtils
 
-class ConsoleScreen(private val commandProcessor: CommandProcessor, private val uiPack: UiPack) : Screen {
+class ConsoleScreen(
+        private val commandProcessor: CommandProcessor,
+        private val uiPack: UiPack
+) : Screen {
+    private val shown = EventDelegate<DefaultEvent>()
+
     private val input = Input()
     private val stage = createStage()
     private var isShown = false
+
 
     init {
         input.add(stage)
@@ -25,6 +37,7 @@ class ConsoleScreen(private val commandProcessor: CommandProcessor, private val 
 
     override fun show() {
         isShown = true
+        shown.notify(DefaultEvent())
     }
 
     override fun render(delta: Float) {
@@ -51,25 +64,56 @@ class ConsoleScreen(private val commandProcessor: CommandProcessor, private val 
 
     private fun createStage(): Stage {
         val stage = Stage(ScreenViewport())
-        val mainTable = createMainTable()
-        stage.addActor(mainTable)
+        stage.addActor(createMainTable())
+        stage.setDebugAll(true)
         return stage
     }
 
     private fun createMainTable(): Table {
         val mainTable = uiPack.table()
+        mainTable.setBackground("default-pane")
         mainTable.setFillParent(true)
-        val textField = uiPack.textField()
-        textField.setTextFieldListener(this::handleKeyTyped)
-        mainTable.add(textField)
+        mainTable.add(createMainScrollPane()).expand().fill()
         return mainTable
+    }
+
+    private fun createMainScrollPane(): ScrollPane {
+        val innerTable = uiPack.table().top()
+        innerTable.add(createHistoryLabel()).expandX().fillX().row()
+        innerTable.add(createCommandField()).expandX().fillX().top().row()
+        val scrollPane = uiPack.scrollPane(innerTable)
+        scrollPane.setSmoothScrolling(false)
+        // TODO:
+//        scrollPane.addListener({
+//            scrollPane.scrollPercentY = 1f
+//            false
+//        })
+        return scrollPane
+    }
+
+    private fun createHistoryLabel(): Label {
+        val historyLabel = uiPack.label("", FontSize.SMALL)
+        historyLabel.setWrap(true)
+        commandProcessor.commandExecuted.on {
+            historyLabel.text.appendln(it.text)
+            historyLabel.invalidateHierarchy()
+        }
+        return historyLabel
+    }
+
+    private fun createCommandField(): TextField {
+        val commandField = uiPack.textField(FontSize.SMALL)
+        UiUtils.hideBackground(commandField)
+        commandField.setTextFieldListener(this::handleKeyTyped)
+        shown.on { stage.keyboardFocus = commandField }
+        return commandField
     }
 
     private fun handleKeyTyped(textField: TextField, c: Char) {
         val isLineBreakChar = c == '\n' || c == '\r'
         if (isLineBreakChar) {
             commandProcessor.execute(textField.text)
-            textField.clear()
+            textField.text = ""
         }
     }
 }

@@ -35,8 +35,9 @@ class TargetmanGame : ApplicationAdapter() {
 		shapeRenderer = ShapeRenderer()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
         consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		screenManager.add(createLevelScreen())
-        screenManager.addHidden(consoleScreen)
+		// TODO:
+//		screenManager.add(createLevelScreen())
+        screenManager.add(consoleScreen)
 	}
 
 	override fun render() {
