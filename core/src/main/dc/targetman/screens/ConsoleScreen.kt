@@ -26,7 +26,6 @@ class ConsoleScreen(
     private val stage = createStage()
     private var isShown = false
 
-
     init {
         input.add(stage)
     }
@@ -79,26 +78,14 @@ class ConsoleScreen(
 
     private fun createMainScrollPane(): ScrollPane {
         val innerTable = uiPack.table().top()
-        innerTable.add(createHistoryLabel()).expandX().fillX().row()
+        val historyLabel = uiPack.label("", FontSize.SMALL)
+        historyLabel.setWrap(true)
+        innerTable.add(historyLabel).expandX().fillX().row()
         innerTable.add(createCommandField()).expandX().fillX().top().row()
         val scrollPane = uiPack.scrollPane(innerTable)
         scrollPane.setSmoothScrolling(false)
-        // TODO:
-//        scrollPane.addListener({
-//            scrollPane.scrollPercentY = 1f
-//            false
-//        })
+        commandProcessor.commandExecuted.on { handleCommandExecuted(historyLabel, it.text, scrollPane) }
         return scrollPane
-    }
-
-    private fun createHistoryLabel(): Label {
-        val historyLabel = uiPack.label("", FontSize.SMALL)
-        historyLabel.setWrap(true)
-        commandProcessor.commandExecuted.on {
-            historyLabel.text.appendln(it.text)
-            historyLabel.invalidateHierarchy()
-        }
-        return historyLabel
     }
 
     private fun createCommandField(): TextField {
@@ -115,5 +102,12 @@ class ConsoleScreen(
             commandProcessor.execute(textField.text)
             textField.text = ""
         }
+    }
+
+    private fun handleCommandExecuted(historyLabel: Label, commandText: String, scrollPane: ScrollPane) {
+        historyLabel.text.appendln(commandText)
+        historyLabel.invalidateHierarchy()
+        scrollPane.validate()
+        scrollPane.scrollPercentY = 1f
     }
 }
