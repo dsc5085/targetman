@@ -105,7 +105,10 @@ class ConsoleScreen(
     }
 
     private fun handleCommandExecuted(historyLabel: Label, commandText: String, scrollPane: ScrollPane) {
-        historyLabel.text.appendln(commandText)
+        if (historyLabel.text.isNotEmpty()) {
+            historyLabel.text.appendln()
+        }
+        historyLabel.text.append(commandText)
         historyLabel.invalidateHierarchy()
         scrollPane.validate()
         scrollPane.scrollPercentY = 1f
