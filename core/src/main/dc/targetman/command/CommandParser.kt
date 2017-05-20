@@ -26,14 +26,15 @@ class CommandParser {
         if (remainingText.startsWith(literalToken)) {
             parsedValue = parse(remainingText, literalToken, literalToken)
         } else {
-            parsedValue = parse(remainingText, ' ')
+            parsedValue = parse(remainingText, ' ', endTokenRequired = false)
         }
         return parsedValue
     }
 
-    private fun parse(text: String, endToken: Char, startToken: Char? = null): ParseResult {
+    private fun parse(text: String, endToken: Char, startToken: Char? = null, endTokenRequired: Boolean = true)
+            : ParseResult {
         val startIndex = if (startToken == null) 0 else text.indexOf(startToken)
-        val endIndex = text.indexOf(endToken, startIndex + 1)
+        val endIndex = if (endTokenRequired) text.indexOf(endToken, startIndex + 1) else text.length
         val foundTokens = startIndex >= 0 && endIndex >= 0
         return if (foundTokens) parse(endIndex, startIndex, startToken, text) else ParseResult(false, "", "")
     }
