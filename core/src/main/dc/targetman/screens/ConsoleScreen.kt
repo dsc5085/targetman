@@ -7,15 +7,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import dc.targetman.command.CommandExecutedEvent
 import dc.targetman.command.CommandProcessor
 import dclib.eventing.DefaultEvent
 import dclib.eventing.EventDelegate
 import dclib.system.Input
 import dclib.ui.FontSize
-import dclib.ui.StageUtils
 import dclib.ui.UiPack
 import dclib.ui.UiUtils
 
+// TODO: Taking input even while inactive
 class ConsoleScreen(
         private val commandProcessor: CommandProcessor,
         private val uiPack: UiPack
@@ -53,7 +54,6 @@ class ConsoleScreen(
     }
 
     override fun resize(width: Int, height: Int) {
-        StageUtils.resize(stage, width, height)
     }
 
     override fun dispose() {
@@ -84,7 +84,7 @@ class ConsoleScreen(
         innerTable.add(createCommandField()).expandX().fillX().top().row()
         val scrollPane = uiPack.scrollPane(innerTable)
         scrollPane.setSmoothScrolling(false)
-        commandProcessor.commandExecuted.on { handleCommandExecuted(historyLabel, it.text, scrollPane) }
+        commandProcessor.commandExecuted.on { handleCommandExecuted(historyLabel, it, scrollPane) }
         return scrollPane
     }
 
@@ -104,11 +104,11 @@ class ConsoleScreen(
         }
     }
 
-    private fun handleCommandExecuted(historyLabel: Label, commandText: String, scrollPane: ScrollPane) {
+    private fun handleCommandExecuted(historyLabel: Label, event: CommandExecutedEvent, scrollPane: ScrollPane) {
         if (historyLabel.text.isNotEmpty()) {
             historyLabel.text.appendln()
         }
-        historyLabel.text.append(commandText)
+        historyLabel.text.append(event.text)
         historyLabel.invalidateHierarchy()
         scrollPane.validate()
         scrollPane.scrollPercentY = 1f

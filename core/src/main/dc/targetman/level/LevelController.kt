@@ -16,6 +16,7 @@ import dc.targetman.character.*
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.epf.graphics.EntityGraphDrawer
+import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.graphics.LimbsShadowingSystem
@@ -231,7 +232,9 @@ class LevelController(
 	}
 
 	private fun createCommandModule(): CommandModule {
-		val executers = listOf(EnableDrawerExecuter(entityDrawerManager))
+		val executers = listOf(
+				EnableDrawerExecuter(entityDrawerManager),
+				DisableDrawerExecuter(entityDrawerManager))
 		return CommandModule(executers)
 	}
 
