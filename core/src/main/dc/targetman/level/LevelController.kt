@@ -59,8 +59,7 @@ class LevelController(
 		pixelsPerUnit: Float,
 		private val camera: OrthographicCamera
 ) {
-	val stateChanged = EventDelegate<StateChangedEvent>()
-	val levelFinished = EventDelegate<LevelFinishedEvent>()
+	val finished = EventDelegate<LevelFinishedEvent>()
 
     private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
@@ -75,8 +74,6 @@ class LevelController(
 	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val commandModule = createCommandModule()
 
-	private var isRunning = true
-
 	init {
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
@@ -90,11 +87,6 @@ class LevelController(
 		commandProcessor.add(commandModule)
 	}
 
-	fun toggleRunning() {
-		isRunning = !isRunning
-		stateChanged.notify(StateChangedEvent(isRunning))
-	}
-
 	fun dispose() {
 		commandModule.dispose()
 		map.dispose()
@@ -104,15 +96,13 @@ class LevelController(
 	}
 
 	fun update(delta: Float) {
-		if (isRunning) {
-			advancer.advance(delta)
-			val player = EntityFinder.find(entityManager, Alliance.PLAYER)
-			if (player != null) {
-				CameraUtils.follow(player, screenHelper, camera)
-			}
-			if (player == null || Gdx.input.isKeyPressed(Keys.R)) {
-				levelFinished.notify(LevelFinishedEvent())
-			}
+		advancer.advance(delta)
+		val player = EntityFinder.find(entityManager, Alliance.PLAYER)
+		if (player != null) {
+			CameraUtils.follow(player, screenHelper, camera)
+		}
+		if (player == null || Gdx.input.isKeyPressed(Keys.R)) {
+			finished.notify(LevelFinishedEvent())
 		}
 	}
 

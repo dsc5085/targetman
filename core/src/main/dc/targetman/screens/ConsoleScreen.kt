@@ -1,5 +1,6 @@
 package dc.targetman.screens
 
+import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -16,35 +17,31 @@ import dclib.ui.FontSize
 import dclib.ui.UiPack
 import dclib.ui.UiUtils
 
-// TODO: Taking input even while inactive
 class ConsoleScreen(
         private val commandProcessor: CommandProcessor,
         private val uiPack: UiPack
 ) : Screen {
-    private val shown = EventDelegate<DefaultEvent>()
+    val closed = EventDelegate<DefaultEvent>()
 
     private val input = Input()
     private val stage = createStage()
-    private var isShown = false
 
     init {
         input.add(stage)
+        input.add(ScreenInputAdapter())
     }
 
     override fun hide() {
-        isShown = false
+        input.disable()
     }
 
     override fun show() {
-        isShown = true
-        shown.notify(DefaultEvent())
+        input.enable()
     }
 
     override fun render(delta: Float) {
-        if (isShown) {
-            stage.act(delta)
-            stage.draw()
-        }
+        stage.act(delta)
+        stage.draw()
     }
 
     override fun pause() {
@@ -57,31 +54,32 @@ class ConsoleScreen(
     }
 
     override fun dispose() {
-        input.dispose()
         stage.dispose()
     }
 
     private fun createStage(): Stage {
         val stage = Stage(ScreenViewport())
-        stage.addActor(createMainTable())
+        stage.addActor(createMainTable(stage))
         stage.setDebugAll(true)
         return stage
     }
 
-    private fun createMainTable(): Table {
+    private fun createMainTable(stage: Stage): Table {
         val mainTable = uiPack.table()
         mainTable.setBackground("default-pane")
         mainTable.setFillParent(true)
-        mainTable.add(createMainScrollPane()).expand().fill()
+        mainTable.add(createMainScrollPane(stage)).expand().fill()
         return mainTable
     }
 
-    private fun createMainScrollPane(): ScrollPane {
+    private fun createMainScrollPane(stage: Stage): ScrollPane {
         val innerTable = uiPack.table().top()
         val historyLabel = uiPack.label("", FontSize.SMALL)
         historyLabel.setWrap(true)
         innerTable.add(historyLabel).expandX().fillX().row()
-        innerTable.add(createCommandField()).expandX().fillX().top().row()
+        val commandField = createCommandField()
+        innerTable.add(commandField).expandX().fillX().top().row()
+        stage.keyboardFocus = commandField
         val scrollPane = uiPack.scrollPane(innerTable)
         scrollPane.setSmoothScrolling(false)
         commandProcessor.commandExecuted.on { handleCommandExecuted(historyLabel, it, scrollPane) }
@@ -92,7 +90,6 @@ class ConsoleScreen(
         val commandField = uiPack.textField(FontSize.SMALL)
         UiUtils.hideBackground(commandField)
         commandField.setTextFieldListener(this::handleKeyTyped)
-        shown.on { stage.keyboardFocus = commandField }
         return commandField
     }
 
@@ -112,5 +109,17 @@ class ConsoleScreen(
         historyLabel.invalidateHierarchy()
         scrollPane.validate()
         scrollPane.scrollPercentY = 1f
+    }
+
+    private inner class ScreenInputAdapter : InputAdapter() {
+        override fun keyUp(keycode: Int): Boolean {
+            when (keycode) {
+                com.badlogic.gdx.Input.Keys.ESCAPE -> {
+                    closed.notify(DefaultEvent())
+                    return true
+                }
+            }
+            return false
+        }
     }
 }

@@ -2,7 +2,6 @@ package dc.targetman
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
@@ -10,7 +9,6 @@ import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import dc.targetman.command.CommandProcessor
 import dc.targetman.level.LevelController
-import dc.targetman.level.StateChangedEvent
 import dc.targetman.screens.ConsoleScreen
 import dc.targetman.screens.LevelScreen
 import dclib.graphics.RenderUtils
@@ -27,16 +25,28 @@ class TargetmanGame : ApplicationAdapter() {
 	private lateinit var spriteBatch: PolygonSpriteBatch
 	private lateinit var shapeRenderer: ShapeRenderer
 	private lateinit var uiPack: UiPack
-    private lateinit var consoleScreen: ConsoleScreen
 	
 	override fun create() {
 		textureCache = createTextureCache()
 		spriteBatch = PolygonSpriteBatch()
 		shapeRenderer = ShapeRenderer()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
-        consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		screenManager.add(createLevelScreen())
-        screenManager.addHidden(consoleScreen)
+		val consoleScreen = ConsoleScreen(commandProcessor, uiPack)
+		val levelScreen = createLevelScreen()
+		link(consoleScreen, levelScreen)
+		screenManager.add(levelScreen)
+        screenManager.add(consoleScreen, false)
+	}
+
+	private fun link(consoleScreen: ConsoleScreen, levelScreen: LevelScreen) {
+		consoleScreen.closed.on {
+			screenManager.disable(consoleScreen)
+			screenManager.enable(levelScreen)
+		}
+		levelScreen.paused.on {
+			screenManager.disable(levelScreen)
+			screenManager.enable(consoleScreen)
+		}
 	}
 
 	override fun render() {
@@ -62,13 +72,12 @@ class TargetmanGame : ApplicationAdapter() {
 		return textureCache
 	}
 
-	private fun createLevelScreen(): Screen {
+	private fun createLevelScreen(): LevelScreen {
 		val viewport = createViewport()
 		val camera = viewport.camera as OrthographicCamera
 		val controller = LevelController(commandProcessor, textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT,
                 camera)
-        controller.levelFinished.on { screenManager.swap(createLevelScreen()) }
-		controller.stateChanged.on(this::handleStateChanged)
+        controller.finished.on { screenManager.swap(createLevelScreen()) }
 		return LevelScreen(controller, viewport)
 	}
 
@@ -80,12 +89,4 @@ class TargetmanGame : ApplicationAdapter() {
         viewport.update(Gdx.graphics.width, Gdx.graphics.height)
         return viewport
     }
-
-	private fun handleStateChanged(event: StateChangedEvent) {
-        if (event.isRunning) {
-			consoleScreen.hide()
-        } else {
-			consoleScreen.show()
-        }
-	}
 }

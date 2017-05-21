@@ -5,9 +5,13 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.utils.viewport.Viewport
 import dc.targetman.level.LevelController
+import dclib.eventing.DefaultEvent
+import dclib.eventing.EventDelegate
 import dclib.system.Input
 
 class LevelScreen(private val controller: LevelController, private val viewport: Viewport) : Screen {
+    val paused = EventDelegate<DefaultEvent>()
+
     private val input = Input()
 
     init {
@@ -15,6 +19,11 @@ class LevelScreen(private val controller: LevelController, private val viewport:
     }
 
     override fun show() {
+        input.enable()
+    }
+
+    override fun hide() {
+        input.disable()
     }
 
     override fun render(delta: Float) {
@@ -32,11 +41,7 @@ class LevelScreen(private val controller: LevelController, private val viewport:
     override fun resume() {
     }
 
-    override fun hide() {
-    }
-
     override fun dispose() {
-        input.dispose()
         controller.dispose()
     }
 
@@ -45,7 +50,7 @@ class LevelScreen(private val controller: LevelController, private val viewport:
             when (keycode) {
                 Keys.ESCAPE -> {
                     // TODO: Implement pause/resume instead
-                    controller.toggleRunning()
+                    paused.notify(DefaultEvent())
                     return true
                 }
             }
