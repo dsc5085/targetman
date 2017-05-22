@@ -40,12 +40,12 @@ class TargetmanGame : ApplicationAdapter() {
 
 	private fun link(consoleScreen: ConsoleScreen, levelScreen: LevelScreen) {
 		consoleScreen.closed.on {
-			screenManager.disable(consoleScreen)
-			screenManager.enable(levelScreen)
+			consoleScreen.hide()
+			levelScreen.show()
 		}
 		levelScreen.paused.on {
-			screenManager.disable(levelScreen)
-			screenManager.enable(consoleScreen)
+			levelScreen.pause()
+			consoleScreen.show()
 		}
 	}
 

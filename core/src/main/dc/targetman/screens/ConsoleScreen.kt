@@ -1,7 +1,6 @@
 package dc.targetman.screens
 
 import com.badlogic.gdx.InputAdapter
-import com.badlogic.gdx.Screen
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
@@ -12,7 +11,7 @@ import dc.targetman.command.CommandExecutedEvent
 import dc.targetman.command.CommandProcessor
 import dclib.eventing.DefaultEvent
 import dclib.eventing.EventDelegate
-import dclib.system.Input
+import dclib.system.Screen
 import dclib.ui.FontSize
 import dclib.ui.UiPack
 import dclib.ui.UiUtils
@@ -20,37 +19,23 @@ import dclib.ui.UiUtils
 class ConsoleScreen(
         private val commandProcessor: CommandProcessor,
         private val uiPack: UiPack
-) : Screen {
+) : Screen() {
     val closed = EventDelegate<DefaultEvent>()
 
-    private val input = Input()
+    // TODO: Move to Screen class?
     private val stage = createStage()
 
     init {
-        input.add(stage)
-        input.add(ScreenInputAdapter())
+        add(stage)
+        add(ScreenInputAdapter())
     }
 
-    override fun hide() {
-        input.disable()
-    }
-
-    override fun show() {
-        input.enable()
-    }
-
-    override fun render(delta: Float) {
+    override fun update(delta: Float) {
         stage.act(delta)
+    }
+
+    override fun draw() {
         stage.draw()
-    }
-
-    override fun pause() {
-    }
-
-    override fun resume() {
-    }
-
-    override fun resize(width: Int, height: Int) {
     }
 
     override fun dispose() {
