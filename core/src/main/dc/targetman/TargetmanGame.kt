@@ -1,14 +1,9 @@
 package dc.targetman
 
 import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.utils.viewport.StretchViewport
-import com.badlogic.gdx.utils.viewport.Viewport
 import dc.targetman.command.CommandProcessor
-import dc.targetman.level.LevelController
 import dc.targetman.screens.ConsoleScreen
 import dc.targetman.screens.LevelScreen
 import dclib.graphics.RenderUtils
@@ -32,7 +27,7 @@ class TargetmanGame : ApplicationAdapter() {
 		shapeRenderer = ShapeRenderer()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
 		val consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		val levelScreen = createLevelScreen()
+		val levelScreen = LevelScreen(commandProcessor, textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT)
 		link(consoleScreen, levelScreen)
 		screenManager.add(levelScreen)
         screenManager.add(consoleScreen, false)
@@ -71,22 +66,4 @@ class TargetmanGame : ApplicationAdapter() {
         textureCache.loadTexturesIntoAtlas("textures/skins/man", "skins/man")
 		return textureCache
 	}
-
-	private fun createLevelScreen(): LevelScreen {
-		val viewport = createViewport()
-		val camera = viewport.camera as OrthographicCamera
-		val controller = LevelController(commandProcessor, textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT,
-                camera)
-        controller.finished.on { screenManager.swap(createLevelScreen()) }
-		return LevelScreen(controller, viewport)
-	}
-
-    private fun createViewport(): Viewport {
-        val aspectRatio = 16f / 9f
-        val viewWidth = 20f * PIXELS_PER_UNIT
-        val camera = OrthographicCamera()
-        val viewport = StretchViewport(viewWidth, viewWidth / aspectRatio, camera)
-        viewport.update(Gdx.graphics.width, Gdx.graphics.height)
-        return viewport
-    }
 }
