@@ -12,6 +12,10 @@ import dclib.graphics.ScreenHelper
 
 class EntityGraphDrawer(private val shapeRenderer: ShapeRenderer, private val screenHelper: ScreenHelper)
     : EntityDrawer {
+    override fun getName(): String {
+        return "graph"
+    }
+
     override fun draw(entities: Collection<Entity>) {
         screenHelper.setScaledProjectionMatrix(shapeRenderer)
         shapeRenderer.color = Color.CYAN

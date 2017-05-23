@@ -13,7 +13,11 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.character.*
+import dc.targetman.command.CommandModule
+import dc.targetman.command.CommandProcessor
 import dc.targetman.epf.graphics.EntityGraphDrawer
+import dc.targetman.graphics.DisableDrawerExecuter
+import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.graphics.LimbsShadowingSystem
 import dc.targetman.mechanics.*
@@ -29,9 +33,7 @@ import dc.targetman.skeleton.*
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
-import dclib.epf.graphics.EntityDrawer
-import dclib.epf.graphics.EntitySpriteDrawer
-import dclib.epf.graphics.SpriteSyncSystem
+import dclib.epf.graphics.*
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
 import dclib.graphics.ScreenHelper
@@ -48,16 +50,18 @@ import dclib.physics.particles.ParticlesManager
 import dclib.system.Advancer
 import dclib.system.Updater
 
+// TODO: Put rendering related classes in a single object
 class LevelController(
+        commandProcessor: CommandProcessor,
 		private val textureCache: TextureCache,
 		spriteBatch: PolygonSpriteBatch,
 		shapeRenderer: ShapeRenderer,
 		pixelsPerUnit: Float,
 		private val camera: OrthographicCamera
 ) {
-	val levelFinished = EventDelegate<LevelFinishedEvent>()
+	val finished = EventDelegate<LevelFinishedEvent>()
 
-	private val entityManager = createEntityManager()
+    private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
@@ -66,14 +70,11 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-	private val entityDrawers = mutableListOf<EntityDrawer>()
+	private val entityDrawerManager = createEntityDrawerManager(spriteBatch, shapeRenderer)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
-	private var isRunning = true
+	private val commandModule = createCommandModule()
 
 	init {
-		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
-//		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
-		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
 		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
@@ -83,13 +84,11 @@ class LevelController(
 		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
-	}
-
-	fun toggleRunning() {
-		isRunning = !isRunning
+		commandProcessor.add(commandModule)
 	}
 
 	fun dispose() {
+		commandModule.dispose()
 		map.dispose()
 		entityManager.dispose()
 		box2DRenderer.dispose()
@@ -97,22 +96,21 @@ class LevelController(
 	}
 
 	fun update(delta: Float) {
-		if (isRunning) {
-			advancer.advance(delta)
-			val player = EntityFinder.find(entityManager, Alliance.PLAYER)
-			if (player != null) {
-				CameraUtils.follow(player, screenHelper, camera)
-			}
-			if (player == null || Gdx.input.isKeyPressed(Keys.R)) {
-				levelFinished.notify(LevelFinishedEvent())
-			}
+		advancer.advance(delta)
+		val player = EntityFinder.find(entityManager, Alliance.PLAYER)
+		if (player != null) {
+			CameraUtils.follow(player, screenHelper, camera)
+		}
+		if (player == null || Gdx.input.isKeyPressed(Keys.R)) {
+			finished.notify(LevelFinishedEvent())
 		}
 	}
 
 	fun draw() {
 		mapRenderer.setView(camera)
 		renderMapLayer(MapUtils.backgroundIndex)
-		renderEntities()
+		val entities = entityManager.getAll()
+		entityDrawerManager.draw(entities)
 		particlesManager.draw()
         renderMapLayer(MapUtils.getForegroundIndex(map))
 //		renderBox2D()
@@ -172,6 +170,15 @@ class LevelController(
 		return collisionChecker
 	}
 
+	private fun createEntityDrawerManager(spriteBatch: PolygonSpriteBatch, shapeRenderer: ShapeRenderer)
+			: EntityDrawerManager {
+		val entityDrawers = mutableListOf<EntityDrawer>()
+		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
+		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
+		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
+		return EntityDrawerManager(entityDrawers)
+	}
+
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate<CollidedEvent> {
 			val targetEntity = it!!.target.entity
@@ -214,16 +221,16 @@ class LevelController(
 		}
 	}
 
+	private fun createCommandModule(): CommandModule {
+		val executers = listOf(
+				EnableDrawerExecuter(entityDrawerManager),
+				DisableDrawerExecuter(entityDrawerManager))
+		return CommandModule(executers)
+	}
+
 	private fun renderMapLayer(layerIndex: Int) {
 		mapRenderer.setView(camera)
 		mapRenderer.render(intArrayOf(layerIndex))
-	}
-
-	private fun renderEntities() {
-		val entities = entityManager.getAll()
-		for (entityDrawer in entityDrawers) {
-			entityDrawer.draw(entities)
-		}
 	}
 
 	private fun renderBox2D() {
