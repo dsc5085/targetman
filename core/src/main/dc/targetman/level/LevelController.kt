@@ -12,7 +12,11 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
-import dc.targetman.character.*
+import dc.targetman.character.ActionsResetter
+import dc.targetman.character.CharacterActions
+import dc.targetman.character.CorpseOnLimbRemoved
+import dc.targetman.character.MovementSystem
+import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.epf.graphics.EntityGraphDrawer
@@ -20,7 +24,13 @@ import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.graphics.LimbsShadowingSystem
-import dc.targetman.mechanics.*
+import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.Direction
+import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.InventorySystem
+import dc.targetman.mechanics.PickupFactory
+import dc.targetman.mechanics.ScaleSystem
+import dc.targetman.mechanics.StaggerSystem
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.mechanics.weapon.WeaponData
@@ -29,11 +39,19 @@ import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
-import dc.targetman.skeleton.*
+import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
+import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
+import dc.targetman.skeleton.LimbRemovedChecker
+import dc.targetman.skeleton.SkeletonFactory
+import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
-import dclib.epf.graphics.*
+import dclib.epf.graphics.EntityDrawer
+import dclib.epf.graphics.EntityDrawerManager
+import dclib.epf.graphics.EntitySpriteDrawer
+import dclib.epf.graphics.EntityTransformDrawer
+import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
 import dclib.graphics.ScreenHelper
@@ -50,7 +68,7 @@ import dclib.physics.particles.ParticlesManager
 import dclib.system.Advancer
 import dclib.system.Updater
 
-// TODO: Put rendering related classes in a single object
+// TODO: Put rendering related classes in a single object.
 class LevelController(
         commandProcessor: CommandProcessor,
 		private val textureCache: TextureCache,
