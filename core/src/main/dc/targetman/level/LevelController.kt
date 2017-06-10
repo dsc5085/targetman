@@ -90,7 +90,7 @@ class LevelController(
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(spriteBatch, shapeRenderer)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
-	private val commandModule = createCommandModule()
+	private val commandModule: CommandModule
 
 	init {
 		advancer = createAdvancer()
@@ -102,6 +102,7 @@ class LevelController(
 		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
 		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
+		commandModule = createCommandModule()
 		commandProcessor.add(commandModule)
 	}
 
@@ -241,6 +242,7 @@ class LevelController(
 
 	private fun createCommandModule(): CommandModule {
 		val executers = listOf(
+				SetSpeedExecuter(advancer),
 				EnableDrawerExecuter(entityDrawerManager),
 				DisableDrawerExecuter(entityDrawerManager))
 		return CommandModule(executers)
