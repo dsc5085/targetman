@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.level.LevelController
+import dc.targetman.level.executers.RestartExecuter
 import dclib.eventing.DefaultEvent
 import dclib.eventing.EventDelegate
 import dclib.graphics.TextureCache
@@ -26,10 +28,18 @@ class LevelScreen(
 
     private val viewport = createViewport(pixelsPerUnit)
     private lateinit var controller: LevelController
+    private val commandModule: CommandModule
 
     init {
         setupController()
         add(LevelInputAdapter())
+        commandModule = createCommandModule()
+        commandProcessor.add(commandModule)
+    }
+
+    fun restart() {
+        controller.dispose()
+        setupController()
     }
 
     override fun update(delta: Float) {
@@ -45,6 +55,7 @@ class LevelScreen(
     }
 
     override fun dispose() {
+        commandModule.dispose()
         controller.dispose()
     }
 
@@ -61,9 +72,13 @@ class LevelScreen(
         controller = LevelController(commandProcessor, textureCache, spriteBatch, shapeRenderer, pixelsPerUnit,
                 viewport.camera as OrthographicCamera)
         controller.finished.on {
-            controller.dispose()
-            setupController()
+            restart()
         }
+    }
+
+    private fun createCommandModule(): CommandModule {
+        val executers = listOf(RestartExecuter(this))
+        return CommandModule(executers)
     }
 
     private inner class LevelInputAdapter : InputAdapter() {

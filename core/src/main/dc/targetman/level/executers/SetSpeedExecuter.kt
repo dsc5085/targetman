@@ -1,4 +1,4 @@
-package dc.targetman.level
+package dc.targetman.level.executers
 
 import dc.targetman.command.Executer
 import dclib.system.Advancer

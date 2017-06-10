@@ -24,6 +24,8 @@ import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.graphics.LimbsShadowingSystem
+import dc.targetman.level.executers.SetSpeedExecuter
+import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityFinder
