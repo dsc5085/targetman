@@ -61,6 +61,7 @@ class LevelScreen(
         controller = LevelController(commandProcessor, textureCache, spriteBatch, shapeRenderer, pixelsPerUnit,
                 viewport.camera as OrthographicCamera)
         controller.finished.on {
+            controller.dispose()
             setupController()
         }
     }

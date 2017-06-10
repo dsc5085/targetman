@@ -243,6 +243,7 @@ class LevelController(
 	private fun createCommandModule(): CommandModule {
 		val executers = listOf(
 				SetSpeedExecuter(advancer),
+				StepExecuter(advancer),
 				EnableDrawerExecuter(entityDrawerManager),
 				DisableDrawerExecuter(entityDrawerManager))
 		return CommandModule(executers)
