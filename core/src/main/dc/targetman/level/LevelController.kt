@@ -76,8 +76,7 @@ class LevelController(
 		private val textureCache: TextureCache,
 		spriteBatch: PolygonSpriteBatch,
 		shapeRenderer: ShapeRenderer,
-		pixelsPerUnit: Float,
-		private val camera: OrthographicCamera
+		private val screenHelper: ScreenHelper
 ) {
 	val finished = EventDelegate<LevelFinishedEvent>()
 
@@ -88,7 +87,7 @@ class LevelController(
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
-	private val screenHelper = ScreenHelper(pixelsPerUnit, camera)
+	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(spriteBatch, shapeRenderer)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
@@ -102,7 +101,7 @@ class LevelController(
 		val skeletonFactory = SkeletonFactory(textureCache)
 		val weaponSkeleton = skeletonFactory.create(weaponData.skeletonPath, weaponData.atlasName)
 		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
-		val scale = pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
+		val scale = screenHelper.pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
 		commandModule = createCommandModule()
 		commandProcessor.add(commandModule)

@@ -27,7 +27,7 @@ class TargetmanGame : ApplicationAdapter() {
 		shapeRenderer = ShapeRenderer()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
 		val consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		val levelScreen = LevelScreen(commandProcessor, textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT)
+		val levelScreen = LevelScreen(commandProcessor, textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT, uiPack)
 		link(consoleScreen, levelScreen)
 		screenManager.add(levelScreen)
         screenManager.add(consoleScreen, false)
