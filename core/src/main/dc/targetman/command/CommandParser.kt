@@ -3,7 +3,7 @@ package dc.targetman.command
 class CommandParser {
     fun parseCommand(text: String): Command {
         val paramToken = '-'
-        val verbParseResult = parse(text, paramToken)
+        val verbParseResult = parse(text, paramToken, canSkipEndToken = true)
         val params = mutableMapOf<String, String>()
         var remainingText = verbParseResult.remaining
         do {
@@ -26,15 +26,18 @@ class CommandParser {
         if (remainingText.startsWith(literalToken)) {
             parsedValue = parse(remainingText, literalToken, literalToken)
         } else {
-            parsedValue = parse(remainingText, ' ', endTokenRequired = false)
+            parsedValue = parse(remainingText)
         }
         return parsedValue
     }
 
-    private fun parse(text: String, endToken: Char, startToken: Char? = null, endTokenRequired: Boolean = true)
+    private fun parse(text: String, endToken: Char? = null, startToken: Char? = null, canSkipEndToken: Boolean = false)
             : ParseResult {
         val startIndex = if (startToken == null) 0 else text.indexOf(startToken)
-        val endIndex = if (endTokenRequired) text.indexOf(endToken, startIndex + 1) else text.length
+        var endIndex = if (endToken == null) text.length else text.indexOf(endToken, startIndex + 1)
+        if (endIndex < 0 && canSkipEndToken) {
+            endIndex = text.length
+        }
         val foundTokens = startIndex >= 0 && endIndex >= 0
         return if (foundTokens) parse(endIndex, startIndex, startToken, text) else ParseResult(false, "", "")
     }

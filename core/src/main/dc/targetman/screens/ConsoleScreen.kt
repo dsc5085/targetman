@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import dc.targetman.command.CommandExecutedEvent
 import dc.targetman.command.CommandProcessor
 import dclib.eventing.DefaultEvent
@@ -22,34 +21,12 @@ class ConsoleScreen(
 ) : Screen() {
     val closed = EventDelegate<DefaultEvent>()
 
-    // TODO: Move to Screen class?
-    private val stage = createStage()
-
     init {
-        add(stage)
+        stage.addActor(createMainTable())
         add(ScreenInputAdapter())
     }
 
-    override fun update(delta: Float) {
-        stage.act(delta)
-    }
-
-    override fun draw() {
-        stage.draw()
-    }
-
-    override fun dispose() {
-        stage.dispose()
-    }
-
-    private fun createStage(): Stage {
-        val stage = Stage(ScreenViewport())
-        stage.addActor(createMainTable(stage))
-        stage.setDebugAll(true)
-        return stage
-    }
-
-    private fun createMainTable(stage: Stage): Table {
+    fun createMainTable(): Table {
         val mainTable = uiPack.table()
         mainTable.setBackground("default-pane")
         mainTable.setFillParent(true)
