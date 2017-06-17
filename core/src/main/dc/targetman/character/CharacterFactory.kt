@@ -7,7 +7,14 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.esotericsoftware.spine.Skeleton
 import dc.targetman.ai.AiProfile
-import dc.targetman.epf.parts.*
+import dc.targetman.epf.parts.AiPart
+import dc.targetman.epf.parts.FiringPart
+import dc.targetman.epf.parts.InventoryPart
+import dc.targetman.epf.parts.LimbsShadowingPart
+import dc.targetman.epf.parts.MovementPart
+import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.epf.parts.StaggerPart
+import dc.targetman.epf.parts.VitalLimbsPart
 import dc.targetman.level.FactoryTools
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
@@ -26,7 +33,7 @@ import dclib.geometry.size
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.util.FloatRange
-import dclib.util.inv
+import kotlin.experimental.inv
 
 class CharacterFactory(private val factoryTools: FactoryTools) {
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)

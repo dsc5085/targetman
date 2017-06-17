@@ -20,7 +20,6 @@ import dclib.physics.Box2dUtils
 
 class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTools) {
     private val foregroundLayer = map.layers[MapUtils.getForegroundIndex(map)] as TiledMapTileLayer
-    // TODO: Use screenhelper to encapsulate unit conversion logic
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
     private val characterFactory = CharacterFactory(factoryTools)
 
@@ -54,7 +53,6 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
         factoryTools.entityManager.add(entity)
     }
 
-    // TODO: This is unneccesary, being a simple one-liner
     fun createCharacter(characterPath: String, position: Vector3, alliance: Alliance): Entity {
         return characterFactory.create(characterPath, 2f, position, alliance)
     }

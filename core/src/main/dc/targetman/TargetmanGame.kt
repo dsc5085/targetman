@@ -22,7 +22,7 @@ class TargetmanGame : ApplicationAdapter() {
 		render = Render()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
 		val consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		val levelScreen = LevelScreen(commandProcessor, textureCache, render, uiPack)
+		val levelScreen = LevelScreen(commandProcessor, textureCache, uiPack, render)
 		link(consoleScreen, levelScreen)
 		screenManager.add(levelScreen)
         screenManager.add(consoleScreen, false)
