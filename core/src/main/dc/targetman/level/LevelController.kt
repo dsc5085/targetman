@@ -3,8 +3,6 @@ package dc.targetman.level
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
@@ -56,6 +54,7 @@ import dclib.epf.graphics.EntityTransformDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
+import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 import dclib.mechanics.DamageOnCollided
@@ -70,12 +69,10 @@ import dclib.physics.particles.ParticlesManager
 import dclib.system.Advancer
 import dclib.system.Updater
 
-// TODO: Put rendering related classes in a single object.
 class LevelController(
         commandProcessor: CommandProcessor,
 		private val textureCache: TextureCache,
-		spriteBatch: PolygonSpriteBatch,
-		shapeRenderer: ShapeRenderer,
+		render: Render,
 		private val screenHelper: ScreenHelper
 ) {
 	val finished = EventDelegate<LevelFinishedEvent>()
@@ -88,8 +85,8 @@ class LevelController(
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
-	private val particlesManager = ParticlesManager(textureCache, spriteBatch, screenHelper, world)
-	private val entityDrawerManager = createEntityDrawerManager(spriteBatch, shapeRenderer)
+	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
+	private val entityDrawerManager = createEntityDrawerManager(render)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val commandModule: CommandModule
 
@@ -102,7 +99,7 @@ class LevelController(
 		val weaponSkeleton = skeletonFactory.create(weaponData.skeletonPath, weaponData.atlasName)
 		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
 		val scale = screenHelper.pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
-		mapRenderer = OrthogonalTiledMapRenderer(map, scale, spriteBatch)
+		mapRenderer = OrthogonalTiledMapRenderer(map, scale, render.sprite)
 		commandModule = createCommandModule()
 		commandProcessor.add(commandModule)
 	}
@@ -190,12 +187,12 @@ class LevelController(
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(spriteBatch: PolygonSpriteBatch, shapeRenderer: ShapeRenderer)
+	private fun createEntityDrawerManager(render: Render)
 			: EntityDrawerManager {
 		val entityDrawers = mutableListOf<EntityDrawer>()
-		entityDrawers.add(EntitySpriteDrawer(spriteBatch, screenHelper, GetDrawEntities(entityManager), entityManager))
-		entityDrawers.add(EntityTransformDrawer(shapeRenderer, screenHelper))
-		entityDrawers.add(EntityGraphDrawer(shapeRenderer, screenHelper))
+		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, GetDrawEntities(entityManager), entityManager))
+		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
+		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
 		return EntityDrawerManager(entityDrawers)
 	}
 

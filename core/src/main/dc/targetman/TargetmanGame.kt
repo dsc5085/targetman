@@ -1,33 +1,28 @@
 package dc.targetman
 
 import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import dc.targetman.command.CommandProcessor
 import dc.targetman.screens.ConsoleScreen
 import dc.targetman.screens.LevelScreen
+import dclib.graphics.Render
 import dclib.graphics.RenderUtils
 import dclib.graphics.TextureCache
 import dclib.system.ScreenManager
 import dclib.ui.UiPack
 
 class TargetmanGame : ApplicationAdapter() {
-    private val PIXELS_PER_UNIT = 32f
-
 	private val commandProcessor = CommandProcessor()
 	private val screenManager = ScreenManager()
 	private lateinit var textureCache: TextureCache
-	private lateinit var spriteBatch: PolygonSpriteBatch
-	private lateinit var shapeRenderer: ShapeRenderer
+	private lateinit var render: Render
 	private lateinit var uiPack: UiPack
 	
 	override fun create() {
 		textureCache = createTextureCache()
-		spriteBatch = PolygonSpriteBatch()
-		shapeRenderer = ShapeRenderer()
+		render = Render()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
 		val consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		val levelScreen = LevelScreen(commandProcessor, textureCache, spriteBatch, shapeRenderer, PIXELS_PER_UNIT, uiPack)
+		val levelScreen = LevelScreen(commandProcessor, textureCache, render, uiPack)
 		link(consoleScreen, levelScreen)
 		screenManager.add(levelScreen)
         screenManager.add(consoleScreen, false)
@@ -56,8 +51,7 @@ class TargetmanGame : ApplicationAdapter() {
 	override fun dispose() {
 		uiPack.dispose()
 		textureCache.dispose()
-		spriteBatch.dispose()
-		shapeRenderer.dispose()
+		render.dispose()
 	}
 
 	private fun createTextureCache(): TextureCache {

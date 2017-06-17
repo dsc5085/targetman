@@ -4,13 +4,10 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.viewport.StretchViewport
-import com.badlogic.gdx.utils.viewport.Viewport
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.level.LevelController
@@ -18,6 +15,7 @@ import dc.targetman.level.executers.DrawDebugExecuter
 import dc.targetman.level.executers.RestartExecuter
 import dclib.eventing.DefaultEvent
 import dclib.eventing.EventDelegate
+import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 import dclib.system.Screen
@@ -27,16 +25,14 @@ import dclib.ui.UiPack
 class LevelScreen(
         private val commandProcessor: CommandProcessor,
         private val textureCache: TextureCache,
-        private val spriteBatch: PolygonSpriteBatch,
-        private val shapeRenderer: ShapeRenderer,
-        val pixelsPerUnit: Float,
+        private val render: Render,
+        // TODO: create the uiPack within levelScreen?
         private val uiPack: UiPack
 ) : Screen() {
     val paused = EventDelegate<DefaultEvent>()
 
     private val camera = OrthographicCamera()
-    private val viewport = createViewport(pixelsPerUnit)
-    private val screenHelper = ScreenHelper(pixelsPerUnit, viewport)
+    private val screenHelper = createScreenHelper(render)
     private lateinit var controller: LevelController
     private val commandModule: CommandModule
     private lateinit var fpsLabel: Label
@@ -73,7 +69,7 @@ class LevelScreen(
     }
 
     override fun resize(width: Int, height: Int) {
-        viewport.update(width, height)
+        screenHelper.viewport.update(width, height)
     }
 
     override fun dispose() {
@@ -81,16 +77,16 @@ class LevelScreen(
         controller.dispose()
     }
 
-    private fun createViewport(pixelsPerUnit: Float): Viewport {
+    private fun createScreenHelper(render: Render): ScreenHelper {
         val aspectRatio = 16f / 9f
-        val viewWidth = 20f * pixelsPerUnit
+        val viewWidth = 20f * render.pixelsPerUnit
         val viewport = StretchViewport(viewWidth, viewWidth / aspectRatio, camera)
         viewport.update(Gdx.graphics.width, Gdx.graphics.height)
-        return viewport
+        return ScreenHelper(render.pixelsPerUnit, viewport)
     }
 
     private fun setupController() {
-        controller = LevelController(commandProcessor, textureCache, spriteBatch, shapeRenderer, screenHelper)
+        controller = LevelController(commandProcessor, textureCache, render, screenHelper)
         controller.finished.on {
             restart()
         }
@@ -113,6 +109,7 @@ class LevelScreen(
     }
 
     private fun drawDebug() {
+        val spriteBatch = render.sprite
         spriteBatch.projectionMatrix = stage.camera.combined
         spriteBatch.begin()
         val inputCoords = Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
