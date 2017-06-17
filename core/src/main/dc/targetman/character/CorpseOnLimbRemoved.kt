@@ -12,7 +12,6 @@ import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
-// TODO: Use kotlin.experiment.inv in all other places as well instead of native .inv
 class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : (LimbRemovedEvent) -> Unit {
     private val ragdollFactory = RagdollFactory(world)
 

@@ -15,26 +15,23 @@ class CommandProcessor {
 
     fun execute(commandText: String) {
         val command = parser.parseCommand(commandText)
-        // TODO: Ensure only one executer is found?
-        val executers = modules.flatMap { it.executers }.filter { it.verb == command.verb }
+        val executer = modules.flatMap { it.executers }.singleOrNull { it.verb == command.verb }
         val textBuilder = StringBuilder()
-        if (executers.isEmpty()) {
+        if (executer == null) {
             textBuilder.append("\"${commandText}\" is an invalid command")
         } else {
             textBuilder.append(commandText)
-            execute(command, executers, textBuilder)
+            execute(command, executer, textBuilder)
         }
         commandExecuted.notify(CommandExecutedEvent(textBuilder.toString()))
     }
 
-    private fun execute(command: Command, executers: List<Executer>, textBuilder: StringBuilder) {
-        for (executer in executers) {
-            try {
-                executer.execute(command.params)
-            } catch (ex: Exception) {
-                textBuilder.appendln()
-                textBuilder.append("Error: ${ex.message}")
-            }
+    private fun execute(command: Command, executer: Executer, textBuilder: StringBuilder) {
+        try {
+            executer.execute(command.params)
+        } catch (ex: Exception) {
+            textBuilder.appendln()
+            textBuilder.append("Error: ${ex.message}")
         }
     }
 }
