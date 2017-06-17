@@ -90,6 +90,6 @@
   ],
   "rotatorName": "right_bicep",
   "atlasName": "skins/man",
-  "health": 300,
+  "health": 500,
   "weaponData": "weapons/peashooter.json"
 }

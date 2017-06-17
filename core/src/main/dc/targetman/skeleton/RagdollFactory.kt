@@ -59,43 +59,24 @@ class RagdollFactory(private val world: World) {
 
     // TODO: Put these values in a file
     private fun getAngleRange(limbName: String): FloatRange {
-        val lowerAngle = when (limbName) {
-            "head" -> -30f
-            "neck" -> -60f
-            "torso" -> 15f
-            "right_hand" -> -85f
-            "right_forearm" -> 0f
-            "right_bicep" -> -180f
-            "right_foot" -> 45f
-            "right_shin" -> -135f
-            "right_thigh" -> 200f
-            "left_hand" -> -85f
-            "left_forearm" -> 0f
-            "left_bicep" -> -180f
-            "left_foot" -> 45f
-            "left_shin" -> -135f
-            "left_thigh" -> 200f
-            else -> 0f
+        return when (limbName) {
+            "head" -> FloatRange(-30f, 30f)
+            "neck" -> FloatRange(-60f, 15f)
+            "torso" -> FloatRange(15f, 100f)
+            "right_hand" -> FloatRange(-85f, 85f)
+            "right_forearm" -> FloatRange(0f, 150f)
+            "right_bicep" -> FloatRange(-180f, 180f)
+            "right_foot" -> FloatRange(45f, 100f)
+            "right_shin" -> FloatRange(-135f, 0f)
+            "right_thigh" -> FloatRange(200f, 360f)
+            "left_hand" -> FloatRange(-85f, 85f)
+            "left_forearm" -> FloatRange(0f, 150f)
+            "left_bicep" -> FloatRange(-180f, 180f)
+            "left_foot" -> FloatRange(45f, 100f)
+            "left_shin" -> FloatRange(-135f, 0f)
+            "left_thigh" -> FloatRange(200f, 360f)
+            else -> FloatRange(0f, 0f)
         }
-        val upperAngle = when (limbName) {
-            "head" -> 30f
-            "neck" -> 15f
-            "torso" -> 100f
-            "right_hand" -> 85f
-            "right_forearm" -> 150f
-            "right_bicep" -> 180f
-            "right_foot" -> 100f
-            "right_shin" -> 0f
-            "right_thigh" -> 360f
-            "left_hand" -> 85f
-            "left_forearm" -> 150f
-            "left_bicep" -> 180f
-            "left_foot" -> 100f
-            "left_shin" -> 0f
-            "left_thigh" -> 360f
-            else -> 0f
-        }
-        return FloatRange(lowerAngle, upperAngle)
     }
 
     private fun setJointAngleRange(
