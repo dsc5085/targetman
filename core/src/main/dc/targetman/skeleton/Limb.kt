@@ -16,13 +16,13 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     val flipScale: Vector2
         get() {
-            val rootScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
-           return VectorUtils.sign(rootScale)
+            val rootBoneScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+            return VectorUtils.sign(rootBoneScale)
         }
 
     private val children = mutableSetOf<Limb>()
     // TODO: Merge skeleton links list with children list
-    private val skeletonLinks = mutableSetOf<SkeletonLink>()
+    private val skeletonLinks = mutableSetOf<SkeletonRoot>()
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
@@ -33,7 +33,7 @@ class Limb(val bone: Bone, val entity: Entity) {
     fun getChildren(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
         val allChildren = children.toMutableList()
         if (includeLinked) {
-            allChildren.addAll(skeletonLinks.map { it.root })
+            allChildren.addAll(skeletonLinks.map { it.limb })
         }
         return allChildren.filter { includeInactive || it.isActive }.toSet()
     }
@@ -50,14 +50,14 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     fun removeChild(limb: Limb) {
         children.remove(limb)
-        skeletonLinks.removeAll { it.root === limb }
+        skeletonLinks.removeAll { it.limb === limb }
     }
 
-    fun getSkeletonLinks(): Set<SkeletonLink> {
+    fun getSkeletonLinks(): Set<SkeletonRoot> {
         return skeletonLinks.toSet()
     }
 
-    fun add(skeletonLink: SkeletonLink) {
+    fun add(skeletonLink: SkeletonRoot) {
         skeletonLinks.add(skeletonLink)
     }
 }

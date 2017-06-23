@@ -3,19 +3,17 @@ package dc.targetman.epf.parts
 import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
+import dc.targetman.skeleton.SkeletonRoot
 
-class SkeletonPart(val root: Limb) {
+class SkeletonPart(val root: SkeletonRoot) {
     var isEnabled = true
-    val skeleton = root.skeleton
+    val skeleton = root.limb.skeleton
     val animationState = createAnimationState()
-    val rootScale get() = root.transform.scale
 
     var flipX
-        get() = rootScale.x < 0
+        get() = root.scale.x < 0
         set(value) {
-            val scale = rootScale
-            scale.x = Math.abs(scale.x) * if (value) -1 else 1
-            root.transform.setScale(scale)
+            root.scale.x = Math.abs(root.scale.x) * if (value) -1 else 1
         }
 
     operator fun get(name: String): Limb {
@@ -28,7 +26,7 @@ class SkeletonPart(val root: Limb) {
     }
 
     fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {
-        return root.getDescendants(includeInactive, includeLinked)
+        return root.limb.getDescendants(includeInactive, includeLinked)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

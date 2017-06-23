@@ -10,7 +10,9 @@ import dc.targetman.physics.collision.CollisionCategory
 import dclib.epf.Entity
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.*
+import dclib.geometry.PolygonUtils
+import dclib.geometry.VectorUtils
+import dclib.geometry.abs
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
@@ -20,17 +22,16 @@ import dclib.physics.Transform
 class LimbFactory(private val factoryTools: FactoryTools) {
     private val entityManager = factoryTools.entityManager
 
-    fun create(skeleton: Skeleton, atlasName: String, size: Vector2): Limb {
-        val rootScale = size.div(skeleton.getBounds().size).scl(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+    fun create(skeleton: Skeleton, atlasName: String, rootScale: Vector2): Limb {
         val skeletonCopy = Skeleton(skeleton)
         return createLimb(skeletonCopy.rootBone, rootScale, atlasName)
     }
 
-    fun link(childSkeleton: Skeleton, atlasName: String, size: Vector2, parentLimb: Limb): SkeletonLink {
-        val root = create(childSkeleton, atlasName, size)
-        val skeletonLink = SkeletonLink(root, DefaultTransform())
-        parentLimb.add(skeletonLink)
-        return skeletonLink
+    fun link(childSkeleton: Skeleton, atlasName: String, rootScale: Vector2, parentLimb: Limb): SkeletonRoot {
+        val rootLimb = create(childSkeleton, atlasName, rootScale)
+        val root = SkeletonRoot(rootLimb, rootScale)
+        parentLimb.add(root)
+        return root
     }
 
     fun removeChildren(parentLimb: Limb) {
@@ -81,13 +82,13 @@ class LimbFactory(private val factoryTools: FactoryTools) {
 
     private fun createBoneEntity(
             size: Vector2,
-            scale: Vector2,
+            flipScale: Vector2,
             regionName: String
     ): Entity {
         val region = factoryTools.textureCache.getPolygonRegion(regionName)
         val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
         val transform = createLimbTransform(vertices)
-        transform.setScale(scale)
+        transform.setScale(flipScale)
         return Entity(TransformPart(transform), SpritePart(region))
     }
 

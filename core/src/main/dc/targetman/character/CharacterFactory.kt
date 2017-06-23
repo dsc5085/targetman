@@ -23,6 +23,8 @@ import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.BoundingSlotsPart
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.SkeletonFactory
+import dc.targetman.skeleton.SkeletonRoot
+import dc.targetman.skeleton.SkeletonUtils
 import dc.targetman.skeleton.getBounds
 import dc.targetman.util.Json
 import dclib.epf.Entity
@@ -81,8 +83,9 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
             alliance: Alliance,
             size: Vector2
     ): SkeletonPart {
-        val root = limbFactory.create(skeleton, character.atlasName, size)
-        val skeletonPart = SkeletonPart(root)
+        val rootScale = SkeletonUtils.calculateRootScale(skeleton, size)
+        val rootLimb = limbFactory.create(skeleton, character.atlasName, rootScale)
+        val skeletonPart = SkeletonPart(SkeletonRoot(rootLimb, rootScale))
         for (limb in skeletonPart.getLimbs(true)) {
             val entity = limb.entity
             entity.addAttributes(DeathForm.CORPSE, alliance)

@@ -9,7 +9,7 @@ object LimbUtils {
         val container = findContainer(entities, limbEntity)
         if (container != null) {
             val skeletonPart = container[SkeletonPart::class]
-            limb = if (limbEntity == container) skeletonPart.root
+            limb = if (limbEntity == container) skeletonPart.root.limb
             else skeletonPart.getLimbs(true, true).singleOrNull { it.entity === limbEntity }
         }
         return limb

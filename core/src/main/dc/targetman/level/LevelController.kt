@@ -87,7 +87,7 @@ class LevelController(
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(render)
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/simple.tmx")
 	private val commandModule: CommandModule
 
 	init {
@@ -130,7 +130,7 @@ class LevelController(
 		entityDrawerManager.draw(entities)
 		particlesManager.draw()
         renderMapLayer(MapUtils.getForegroundIndex(map))
-//		renderBox2D()
+		renderBox2D()
 	}
 
 	private fun createEntityManager(): EntityManager {

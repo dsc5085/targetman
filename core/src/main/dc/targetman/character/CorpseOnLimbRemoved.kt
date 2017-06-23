@@ -3,7 +3,7 @@ package dc.targetman.character
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.LimbRemovedEvent
-import dc.targetman.skeleton.RagdollFactory
+import dc.targetman.skeleton.Ragdoller
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.parts.SpritePart
@@ -13,14 +13,14 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
 class CorpseOnLimbRemoved(val entityManager: EntityManager, val world: World) : (LimbRemovedEvent) -> Unit {
-    private val ragdollFactory = RagdollFactory(world)
+    private val ragdoller = Ragdoller()
 
     override fun invoke(event: LimbRemovedEvent) {
         val corpseLiveTime = 30f
         if (event.limb.entity.of(DeathForm.CORPSE)) {
-            val ragdoll = ragdollFactory.create(event.limb)
+            ragdoller.ragdoll(event.limb)
             val oldLimbs = event.limb.getDescendants()
-            for (limb in ragdoll.getDescendants(includeInactive = true)) {
+            for (limb in event.limb.getDescendants(includeInactive = true)) {
                 val oldEntity = oldLimbs.first { it.name == limb.name }.entity
                 createCorpseLimb(corpseLiveTime, limb.entity, oldEntity)
             }

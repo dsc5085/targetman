@@ -7,6 +7,7 @@ import dc.targetman.level.FactoryTools
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.LimbUtils
+import dc.targetman.skeleton.SkeletonUtils
 import dclib.epf.Entity
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
@@ -50,12 +51,13 @@ class InventoryActions(factoryTools: FactoryTools) {
     fun gripEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
         limbFactory.removeChildren(gripper)
         val equippedWeapon = inventoryPart.equippedWeapon
-        val weaponLink = limbFactory.link(
-                equippedWeapon!!.skeleton,
+        val rootScale = SkeletonUtils.calculateRootScale(equippedWeapon!!.skeleton, equippedWeapon.size)
+        val weaponRoot = limbFactory.link(
+                equippedWeapon.skeleton,
                 equippedWeapon.data.atlasName,
-                equippedWeapon.size,
+                rootScale,
                 gripper)
-        val newWeaponEntity = Entity(SkeletonPart(weaponLink.root), TransformPart(weaponLink.transform))
+        val newWeaponEntity = Entity(SkeletonPart(weaponRoot), TransformPart(weaponRoot.limb.transform))
         entityManager.add(newWeaponEntity)
     }
 

@@ -2,10 +2,7 @@ package dc.targetman.skeleton
 
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
-import dclib.epf.Entity
-import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.physics.Box2dTransform
@@ -14,19 +11,14 @@ import dclib.physics.Transform
 import dclib.util.FloatRange
 import dclib.util.Maths
 
-class RagdollFactory(private val world: World) {
-    fun create(limb: Limb): Limb {
-        val newTransform = createLimbTransform(limb.transform)
-        val entity = Entity(TransformPart(newTransform))
-        val newLimb = Limb(limb.bone, entity)
+class Ragdoller {
+    fun ragdoll(limb: Limb) {
+        ragdoll(limb.transform)
         for (childLimb in limb.getChildren()) {
-            val newChildLimb = create(childLimb)
-            newLimb.addChild(newChildLimb)
-            val newChildTransform = newChildLimb.transform as Box2dTransform
+            ragdoll(childLimb)
             val jointAnchor = getJointAnchor(limb, childLimb)
-            createJoint(newTransform, newChildTransform, childLimb, jointAnchor)
+            createJoint(limb.transform as Box2dTransform, childLimb.transform as Box2dTransform, childLimb, jointAnchor)
         }
-        return newLimb
     }
 
     private fun getJointAnchor(parentLimb: Limb, childLimb: Limb): Vector2 {
@@ -97,18 +89,12 @@ class RagdollFactory(private val world: World) {
         jointDef.upperAngle = jointRange.max() * MathUtils.degRad
     }
 
-    private fun createLimbTransform(transform: Transform): Box2dTransform {
-        val newTransform: Box2dTransform
+    private fun ragdoll(transform: Transform) {
         if (transform is Box2dTransform) {
-            newTransform = Box2dTransform(transform)
-        } else {
-            newTransform = Box2dTransform(transform, world)
+            transform.body.gravityScale = 1f
+            for (fixture in transform.body.fixtureList) {
+                fixture.isSensor = false
+            }
         }
-        val body = newTransform.body
-        body.gravityScale = 1f
-        for (fixture in body.fixtureList) {
-            fixture.isSensor = false
-        }
-        return newTransform
     }
 }

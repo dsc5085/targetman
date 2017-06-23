@@ -34,14 +34,14 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         skeleton.updateWorldTransform()
         animationApplied.notify(AnimationAppliedEvent(entity))
         // TODO: Need to be able to handle scale timelines.  Currently the scale gets reset to the root scale.
-        skeleton.rootBone.scaleX = skeletonPart.rootScale.x
-        skeleton.rootBone.scaleY = skeletonPart.rootScale.y
+        skeleton.rootBone.scaleX = skeletonPart.root.scale.x
+        skeleton.rootBone.scaleY = skeletonPart.root.scale.y
         skeleton.updateWorldTransform()
     }
 
     private fun updateLimbs(skeletonPart: SkeletonPart) {
         for (limb in skeletonPart.getLimbs()) {
-            updateTransform(limb, skeletonPart.rootScale)
+            updateTransform(limb, skeletonPart.root.scale)
             updateSkeletonLinks(limb)
         }
     }
@@ -66,12 +66,12 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
 
     private fun updateSkeletonLinks(limb: Limb) {
         for (skeletonLink in limb.getSkeletonLinks()) {
-            val childRoot = skeletonLink.root
-            val newScale = childRoot.transform.scale.abs().scl(limb.flipScale)
-            childRoot.transform.setScale(newScale)
-            val childTransform = skeletonLink.transform
+            val linkRootLimb = skeletonLink.limb
+            val newScale = linkRootLimb.transform.scale.abs().scl(limb.flipScale)
+            linkRootLimb.transform.setScale(newScale)
+            val childTransform = skeletonLink.limb.transform
             childTransform.rotation = limb.transform.rotation
-            SkeletonUtils.setWorldRotationX(childRoot.bone, limb.bone.worldRotationX)
+            SkeletonUtils.setWorldRotationX(linkRootLimb.bone, limb.bone.worldRotationX)
             childTransform.setWorld(childTransform.center, limb.transform.center)
         }
     }

@@ -29,7 +29,7 @@ object NavigatorFactory {
         val factoryTools = FactoryTools(entityManager, textureCache, staticWorld)
         val mapLoader = MapLoader(map, factoryTools)
         // TODO: Creating an entity just for this is wasteful.
-        val aiEntity = mapLoader.createCharacter("characters/thug.json", Vector3(), Alliance.ENEMY)
+        val aiEntity = mapLoader.createCharacter("characters/dummy.json", Vector3(), Alliance.ENEMY)
         mapLoader.createStaticObjects()
         val agentSize = aiEntity[TransformPart::class].transform.size
         val movementPart = aiEntity[MovementPart::class]
