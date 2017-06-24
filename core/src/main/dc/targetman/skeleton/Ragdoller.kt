@@ -45,7 +45,7 @@ class Ragdoller {
         jointDef.collideConnected = true
         jointDef.enableLimit = true
         val angleRange = getAngleRange(childLimb.name)
-        setJointAngleRange(jointDef, angleRange, childLimb.bone.rotation, childLimb.scale)
+        setJointAngleRange(jointDef, angleRange, childLimb.bone.rotation, childLimb.spineScale)
         parentTransform.body.world.createJoint(jointDef)
     }
 

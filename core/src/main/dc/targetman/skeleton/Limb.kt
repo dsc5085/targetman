@@ -12,7 +12,10 @@ class Limb(val bone: Bone, val entity: Entity) {
     val isActive get() = entity.isActive
     val name get() = bone.data.name
     val transform get() = entity[TransformPart::class].transform
-    val scale get() = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
+    /**
+     * Scale used for Spine bone manipulations.
+     */
+    val spineScale get() = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
 
     val flipScale: Vector2
         get() {

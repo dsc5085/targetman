@@ -53,9 +53,9 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         val world = Vector2(bone.worldX, bone.worldY)
         transform.rotation = limb.bone.worldRotationX
         if (attachment != null) {
-            val offsetFromBone = SkeletonUtils.getOffset(bone, attachment, limb.scale)
+            val offsetFromBone = SkeletonUtils.getOffset(bone, attachment, limb.spineScale)
             world.add(offsetFromBone)
-            val boneScale = limb.scale.scl(VectorUtils.inv(rootScale.abs()))
+            val boneScale = limb.spineScale.scl(VectorUtils.inv(rootScale.abs()))
             val attachmentScale = SkeletonUtils.calculateAttachmentScale(boneScale, attachment.rotation)
             transform.setScale(attachmentScale)
             transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
@@ -67,8 +67,8 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
     private fun updateSkeletonLinks(limb: Limb) {
         for (skeletonLink in limb.getSkeletonLinks()) {
             val linkRootLimb = skeletonLink.limb
-            val newScale = linkRootLimb.transform.scale.abs().scl(limb.flipScale)
-            linkRootLimb.transform.setScale(newScale)
+            val newScale = skeletonLink.scale.abs().scl(limb.flipScale)
+            skeletonLink.scale.set(newScale)
             val childTransform = skeletonLink.limb.transform
             childTransform.rotation = limb.transform.rotation
             SkeletonUtils.setWorldRotationX(linkRootLimb.bone, limb.bone.worldRotationX)

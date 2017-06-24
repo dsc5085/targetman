@@ -11,7 +11,7 @@ class AimOnAnimationApplied : (AnimationAppliedEvent) -> Unit {
         if (firingPart != null) {
             val skeletonPart = event.entity[SkeletonPart::class]
             val rotator = skeletonPart[firingPart.rotatorName]
-            val muzzleBoneRotation = VectorUtils.getScaledRotation(rotator.bone.worldRotationX, rotator.scale)
+            val muzzleBoneRotation = VectorUtils.getScaledRotation(rotator.bone.worldRotationX, rotator.spineScale)
             val rotationOffset = firingPart.aimRotation - muzzleBoneRotation
             rotator.bone.rotation += rotationOffset
             skeletonPart.skeleton.updateWorldTransform()
