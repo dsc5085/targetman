@@ -25,7 +25,8 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     private val children = mutableSetOf<Limb>()
     // TODO: Merge skeleton links list with children list
-    private val skeletonLinks = mutableSetOf<SkeletonRoot>()
+    // TODO: links must be of List type. Weird edge case where when skeleton is flipped, can't remove elements from links as a set. Figure out why this happens.
+    private val links = mutableListOf<SkeletonRoot>()
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
@@ -36,7 +37,7 @@ class Limb(val bone: Bone, val entity: Entity) {
     fun getChildren(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
         val allChildren = children.toMutableList()
         if (includeLinked) {
-            allChildren.addAll(skeletonLinks.map { it.limb })
+            allChildren.addAll(links.map { it.limb })
         }
         return allChildren.filter { includeInactive || it.isActive }.toSet()
     }
@@ -47,20 +48,20 @@ class Limb(val bone: Bone, val entity: Entity) {
         return descendants.plus(this).toSet()
     }
 
-    fun addChild(limb: Limb) {
+    fun append(limb: Limb) {
         children.add(limb)
     }
 
-    fun removeChild(limb: Limb) {
+    fun append(link: SkeletonRoot) {
+        links.add(link)
+    }
+
+    fun detach(limb: Limb) {
         children.remove(limb)
-        skeletonLinks.removeAll { it.limb === limb }
+        links.removeAll { it.limb === limb }
     }
 
-    fun getSkeletonLinks(): Set<SkeletonRoot> {
-        return skeletonLinks.toSet()
-    }
-
-    fun add(skeletonLink: SkeletonRoot) {
-        skeletonLinks.add(skeletonLink)
+    fun getLinks(): Set<SkeletonRoot> {
+        return links.toSet()
     }
 }

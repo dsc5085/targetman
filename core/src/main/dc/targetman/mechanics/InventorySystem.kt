@@ -30,7 +30,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         if (inventoryPart.trySwitchWeapon && inventoryPart.switchTimer.check()) {
             inventoryPart.switchWeapon()
             val gripper = skeletonPart[inventoryPart.gripperName]
-            inventoryActions.gripEquippedWeapon(inventoryPart, gripper)
+            inventoryActions.gripCurrentWeapon(inventoryPart, gripper)
         }
     }
 }

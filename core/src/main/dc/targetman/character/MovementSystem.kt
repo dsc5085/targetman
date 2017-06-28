@@ -28,7 +28,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         val movementPart = entity[MovementPart::class]
         val direction = movementPart.direction
         val skeletonPart = entity[SkeletonPart::class]
-        var targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
+        val targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
         if (direction == Direction.NONE) {
             skeletonPart.playAnimation("idle")
         } else {

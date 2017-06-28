@@ -23,7 +23,7 @@ class InventoryActions(factoryTools: FactoryTools) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
             val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
-            gripEquippedWeapon(inventoryPart, gripper)
+            gripCurrentWeapon(inventoryPart, gripper)
         }
     }
 
@@ -48,7 +48,7 @@ class InventoryActions(factoryTools: FactoryTools) {
         }
     }
 
-    fun gripEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
+    fun gripCurrentWeapon(inventoryPart: InventoryPart, gripper: Limb) {
         limbFactory.removeChildren(gripper)
         val equippedWeapon = inventoryPart.equippedWeapon
         val rootScale = SkeletonUtils.calculateRootScale(equippedWeapon!!.skeleton, equippedWeapon.size)
@@ -68,7 +68,7 @@ class InventoryActions(factoryTools: FactoryTools) {
             dropEquippedWeapon(inventoryPart, gripper)
         }
         inventoryPart.pickup(pickupPart.weapon)
-        gripEquippedWeapon(inventoryPart, gripper)
+        gripCurrentWeapon(inventoryPart, gripper)
         entityManager.remove(pickupEntity)
     }
 

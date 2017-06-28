@@ -17,12 +17,17 @@ class SkeletonPart(val root: SkeletonRoot) {
         }
 
     operator fun get(name: String): Limb {
-        val limb =  tryGet(name)
-        return limb ?: throw IllegalArgumentException("Could not find limb or there were multiple limbs called $name")
+        return tryGet(name)!!
     }
 
     fun tryGet(name: String): Limb? {
-        return getLimbs(true, true).singleOrNull { it.name == name }
+        val matchingLimbs = getLimbs(true, true).filter { it.name == name }
+        val numMatchingLimbs = matchingLimbs.count()
+        // TODO: Prevent this state from happening in the first place, then delete this if block
+        if (numMatchingLimbs > 1) {
+            throw IllegalStateException("There are $numMatchingLimbs limbs with name $name")
+        }
+        return matchingLimbs.firstOrNull()
     }
 
     fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {

@@ -9,6 +9,5 @@ class CommandParserTest {
     @Test
     fun parseCommand() {
         val command = parser.parseCommand("open file -path \"C:/david files/poop.txt\" -what jee")
-        println()
     }
 }

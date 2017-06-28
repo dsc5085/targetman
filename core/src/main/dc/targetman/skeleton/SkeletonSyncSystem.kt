@@ -42,7 +42,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
     private fun updateLimbs(skeletonPart: SkeletonPart) {
         for (limb in skeletonPart.getLimbs()) {
             updateTransform(limb, skeletonPart.root.scale)
-            updateSkeletonLinks(limb)
+            updateLinks(limb)
         }
     }
 
@@ -64,12 +64,12 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         transform.setLocalToWorld(origin, world)
     }
 
-    private fun updateSkeletonLinks(limb: Limb) {
-        for (skeletonLink in limb.getSkeletonLinks()) {
-            val linkRootLimb = skeletonLink.limb
-            val newScale = skeletonLink.scale.abs().scl(limb.flipScale)
-            skeletonLink.scale.set(newScale)
-            val childTransform = skeletonLink.limb.transform
+    private fun updateLinks(limb: Limb) {
+        for (link in limb.getLinks()) {
+            val linkRootLimb = link.limb
+            val newScale = link.scale.abs().scl(limb.flipScale)
+            link.scale.set(newScale)
+            val childTransform = link.limb.transform
             childTransform.rotation = limb.transform.rotation
             SkeletonUtils.setWorldRotationX(linkRootLimb.bone, limb.bone.worldRotationX)
             childTransform.setWorld(childTransform.center, limb.transform.center)

@@ -1,5 +1,6 @@
 package dc.targetman.skeleton
 
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.spine.Bone
 import com.esotericsoftware.spine.Skeleton
@@ -14,12 +15,11 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
+import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
 // TODO: probably don't need textureCache since we can just reuse existing texture.
 class LimbFactory(private val factoryTools: FactoryTools) {
-    private val entityManager = factoryTools.entityManager
-
     fun create(skeleton: Skeleton, atlasName: String, rootScale: Vector2): Limb {
         val skeletonCopy = Skeleton(skeleton)
         return createLimb(skeletonCopy.rootBone, rootScale, atlasName)
@@ -28,22 +28,23 @@ class LimbFactory(private val factoryTools: FactoryTools) {
     fun link(childSkeleton: Skeleton, atlasName: String, rootScale: Vector2, parentLimb: Limb): SkeletonRoot {
         val rootLimb = create(childSkeleton, atlasName, rootScale)
         val root = SkeletonRoot(rootLimb, rootScale)
-        parentLimb.add(root)
+        parentLimb.append(root)
         return root
     }
 
     fun removeChildren(parentLimb: Limb) {
-        for (child in parentLimb.getChildren(includeLinked = true)) {
+        for (child in parentLimb.getChildren(true, true)) {
             remove(parentLimb, child)
         }
     }
 
     private fun remove(parentLimb: Limb, limb: Limb) {
+        val entityManager = factoryTools.entityManager
         val container = LimbUtils.findContainer(entityManager.getAll(), limb.entity)
         if (limb.bone === limb.skeleton.rootBone && container != null) {
             entityManager.remove(container)
         }
-        parentLimb.removeChild(limb)
+        parentLimb.detach(limb)
         entityManager.remove(limb.entity)
     }
 
@@ -52,7 +53,7 @@ class LimbFactory(private val factoryTools: FactoryTools) {
         val limbEntity = createLimbEntity(regionAttachment, rootScale, atlasName)
         val limb = Limb(bone, limbEntity)
         for (childBone in bone.children) {
-            limb.addChild(createLimb(childBone, rootScale, atlasName))
+            limb.append(createLimb(childBone, rootScale, atlasName))
         }
         return limb
     }
@@ -90,19 +91,15 @@ class LimbFactory(private val factoryTools: FactoryTools) {
         return Entity(TransformPart(transform), SpritePart(region))
     }
 
-    private fun createPointEntity(): Entity {
-        // TODO: Is there a better solution for the comment below?
-        // The width and height are fairly arbitrary, but the limb should be large enough such that its geometry
-        // contains the bone positions of its children.  Meeting this constraint ensures things work correctly such as
-        // Box2D joint connections.
-        val transform = createLimbTransform(PolygonUtils.createRectangleVertices(0.1f, 0.1f))
-        return Entity(TransformPart(transform))
-    }
-
     private fun createLimbTransform(vertices: FloatArray): Transform {
         val body = Box2dUtils.createDynamicBody(factoryTools.world, vertices, true)
-        body.gravityScale = 0f
         Box2dUtils.setFilter(body, CollisionCategory.ALL)
         return Box2dTransform(body)
+    }
+
+    private fun createPointEntity(): Entity {
+        val polygon = Polygon(PolygonUtils.createRectangleVertices(0.1f, 0.1f))
+        val transform = DefaultTransform(polygon, 0f)
+        return Entity(TransformPart(transform))
     }
 }
