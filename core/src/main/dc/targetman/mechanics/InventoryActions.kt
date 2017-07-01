@@ -43,8 +43,10 @@ class InventoryActions(factoryTools: FactoryTools) {
     fun tryDropEquippedWeapon(entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null && inventoryPart.equippedWeapon != null) {
-            val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
-            dropEquippedWeapon(inventoryPart, gripper)
+            val gripper = entity[SkeletonPart::class].tryGet(inventoryPart.gripperName)
+            if (gripper != null) {
+                dropEquippedWeapon(inventoryPart, gripper)
+            }
         }
     }
 

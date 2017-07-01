@@ -1,6 +1,6 @@
 {
   "skeletonPath": "skeletons/man.skel",
-  "limbs": [
+  "limbDatas": [
     {
       "name": "head",
       "health": 50,

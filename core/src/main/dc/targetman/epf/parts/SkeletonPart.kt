@@ -16,22 +16,24 @@ class SkeletonPart(val root: SkeletonRoot) {
             root.scale.x = Math.abs(root.scale.x) * if (value) -1 else 1
         }
 
+    fun has(name: String): Boolean {
+        return tryGet(name) != null
+    }
+
     operator fun get(name: String): Limb {
         return tryGet(name)!!
     }
 
     fun tryGet(name: String): Limb? {
-        val matchingLimbs = getLimbs(true, true).filter { it.name == name }
-        val numMatchingLimbs = matchingLimbs.count()
-        // TODO: Prevent this state from happening in the first place, then delete this if block
-        if (numMatchingLimbs > 1) {
-            throw IllegalStateException("There are $numMatchingLimbs limbs with name $name")
-        }
-        return matchingLimbs.firstOrNull()
+        return getLimbs(true, true).filter { it.name == name }.firstOrNull()
     }
 
     fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {
         return root.limb.getDescendants(includeInactive, includeLinked)
+    }
+
+    fun findParent(limb: Limb): Limb? {
+        return getLimbs(true).firstOrNull { it.getChildren().contains(limb) }
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

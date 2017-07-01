@@ -1,6 +1,6 @@
 {
   "skeletonPath": "skeletons/man.skel",
-  "limbs": [
+  "limbDatas": [
     {
       "name": "head",
       "health": 100,
@@ -25,66 +25,66 @@
     },
     {
       "name": "right_hand",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "right_forearm",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "right_bicep",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "right_foot",
-      "health": 100,
+      "health": 5,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_shin",
-      "health": 100,
+      "health": 5,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_thigh",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "left_hand",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "left_forearm",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "left_bicep",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "left_foot",
-      "health": 100,
+      "health": 5,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_shin",
-      "health": 100,
+      "health": 5,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_thigh",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     }
   ],

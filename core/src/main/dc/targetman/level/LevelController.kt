@@ -41,7 +41,7 @@ import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
 import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
-import dc.targetman.skeleton.LimbRemovedChecker
+import dc.targetman.skeleton.LimbBranchRemovedChecker
 import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.util.Json
@@ -87,7 +87,7 @@ class LevelController(
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(render)
-	private val map = TmxMapLoader().load("maps/simple.tmx")
+	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val commandModule: CommandModule
 
 	init {
@@ -143,8 +143,8 @@ class LevelController(
 
 	private fun createAdvancer(): Advancer {
 		val collisionChecker = createCollisionChecker()
-		val limbRemovedChecker = LimbRemovedChecker(entityManager)
-		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
+		val limbRemovedChecker = LimbBranchRemovedChecker(entityManager)
+		limbRemovedChecker.branchRemoved.on(CorpseOnLimbRemoved(entityManager, world))
 		return Advancer(
 				ActionsResetter(entityManager),
 				createInputUpdater(),

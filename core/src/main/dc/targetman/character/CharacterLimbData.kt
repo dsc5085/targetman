@@ -2,7 +2,7 @@ package dc.targetman.character
 
 import dc.targetman.physics.collision.Material
 
-data class CharacterLimb(
+data class CharacterLimbData(
         val name: String = "",
         val health: Float = 100f,
         val material: Material = Material.FLESH,

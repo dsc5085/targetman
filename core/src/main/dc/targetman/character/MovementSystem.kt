@@ -96,7 +96,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     private fun getMoveStrength(entity: Entity): Float {
         val movementLimbNames = entity[MovementPart::class].limbNames
         val skeletonPart = entity[SkeletonPart::class]
-        val numActiveMovementLimbs = movementLimbNames.count { skeletonPart[it].isActive }
+        val numActiveMovementLimbs = movementLimbNames.count { skeletonPart.has(it) }
         return numActiveMovementLimbs.toFloat() / movementLimbNames.size
     }
 }

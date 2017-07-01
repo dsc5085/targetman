@@ -7,17 +7,36 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import dclib.physics.Transform
 import dclib.util.FloatRange
 import dclib.util.Maths
 
-class Ragdoller {
-    fun ragdoll(limb: Limb) {
-        ragdoll(limb.transform)
-        for (childLimb in limb.getChildren()) {
-            ragdoll(childLimb)
-            val jointAnchor = getJointAnchor(limb, childLimb)
-            createJoint(limb.transform as Box2dTransform, childLimb.transform as Box2dTransform, childLimb, jointAnchor)
+object Ragdoller {
+    fun ragdoll(rootLimb: Limb) {
+        for (descendant in rootLimb.getDescendants()) {
+            val transform = descendant.transform
+            if (transform is Box2dTransform) {
+                Box2dUtils.setSensor(transform.body, false)
+                destroyJoints(transform)
+            }
+        }
+        addJointsToDescendants(rootLimb)
+    }
+
+    private fun destroyJoints(transform: Box2dTransform) {
+        for (joint in transform.body.jointList) {
+            transform.body.world.destroyJoint(joint.joint)
+        }
+        transform.body.jointList.clear()
+    }
+
+    private fun addJointsToDescendants(limb: Limb) {
+        for (childLimb in limb.getChildren(true)) {
+            val childTransform = childLimb.transform
+            if (childTransform is Box2dTransform) {
+                val jointAnchor = getJointAnchor(limb, childLimb)
+                createJoint(limb.transform as Box2dTransform, childTransform, childLimb, jointAnchor)
+            }
+            addJointsToDescendants(childLimb)
         }
     }
 
@@ -42,7 +61,7 @@ class Ragdoller {
     ) {
         val jointDef = RevoluteJointDef()
         jointDef.initialize(parentTransform.body, childTransform.body, anchor)
-        jointDef.collideConnected = true
+//        jointDef.collideConnected = true
         jointDef.enableLimit = true
         val angleRange = getAngleRange(childLimb.name)
         setJointAngleRange(jointDef, angleRange, childLimb.bone.rotation, childLimb.spineScale)
@@ -87,14 +106,5 @@ class Ragdoller {
         val jointRange = FloatRange(lowerAngleDeg * angleFlipMultiplier, upperAngleDeg * angleFlipMultiplier)
         jointDef.lowerAngle = jointRange.min() * MathUtils.degRad
         jointDef.upperAngle = jointRange.max() * MathUtils.degRad
-    }
-
-    private fun ragdoll(transform: Transform) {
-        if (transform is Box2dTransform) {
-            transform.body.gravityScale = 1f
-            for (fixture in transform.body.fixtureList) {
-                fixture.isSensor = false
-            }
-        }
     }
 }

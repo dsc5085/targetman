@@ -21,6 +21,7 @@ import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.BoundingSlotsPart
+import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonRoot
@@ -58,9 +59,9 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         entity.attach(FiringPart(character.rotatorName, "muzzle"))
         val inventoryPart = InventoryPart(2, character.gripperName, weapon)
         entity.attach(inventoryPart)
-        val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
+        val movementLimbNames = character.limbDatas.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
-        val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
+        val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
         entity.attach(StaggerPart(10f, 50f, 100f))
@@ -85,25 +86,26 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     ): SkeletonPart {
         val rootScale = SkeletonUtils.calculateRootScale(skeleton, size)
         val rootLimb = limbFactory.create(skeleton, character.atlasName, rootScale)
-        val skeletonPart = SkeletonPart(SkeletonRoot(rootLimb, rootScale))
-        for (limb in skeletonPart.getLimbs(true)) {
-            val entity = limb.entity
-            entity.addAttributes(DeathForm.CORPSE, alliance)
-            val characterLimb = character.limbs.firstOrNull { it.name == limb.name }
-            if (characterLimb != null) {
-                setup(entity, characterLimb)
-            }
-        }
-        return skeletonPart
+        characterizeDescendants(rootLimb, character.limbDatas, alliance)
+        return SkeletonPart(SkeletonRoot(rootLimb, rootScale))
     }
 
-    private fun setup(entity: Entity, characterLimb: CharacterLimb) {
-        entity.addAttributes(characterLimb.material)
-        if (characterLimb.isPassive) {
-            entity.removeAttributes(Alliance::class)
+    private fun characterizeDescendants(rootLimb: Limb, limbDatas: List<CharacterLimbData>, alliance: Alliance) {
+        for (limb in rootLimb.getDescendants(true)) {
+            val limbData = limbDatas.firstOrNull { it.name == limb.name }
+            if (limbData != null) {
+                characterize(limb.entity, limbData, alliance)
+            }
         }
-        entity.attach(HealthPart(characterLimb.health))
-        EntityUtils.filterSameAlliance(entity)
+    }
+
+    private fun characterize(limbEntity: Entity, limbData: CharacterLimbData, alliance: Alliance) {
+        limbEntity.addAttributes(DeathForm.CORPSE, limbData.material)
+        if (!limbData.isPassive) {
+            limbEntity.addAttributes(alliance)
+        }
+        limbEntity.attach(HealthPart(limbData.health))
+        EntityUtils.filterSameAlliance(limbEntity)
     }
 
     private fun createBody(size: Vector2, position: Vector3): Body {

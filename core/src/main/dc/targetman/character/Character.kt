@@ -4,7 +4,7 @@ import dc.targetman.mechanics.weapon.WeaponData
 
 data class Character(
         val skeletonPath: String = "",
-        val limbs: List<CharacterLimb> = listOf(),
+        val limbDatas: List<CharacterLimbData> = listOf(),
         val rotatorName: String = "",
         val gripperName: String = "gripper",
         val muzzleName: String = "muzzle",

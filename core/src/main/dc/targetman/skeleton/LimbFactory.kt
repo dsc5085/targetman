@@ -19,6 +19,7 @@ import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
 // TODO: probably don't need textureCache since we can just reuse existing texture.
+// TODO: Rename LimbFactory. It is misleading
 class LimbFactory(private val factoryTools: FactoryTools) {
     fun create(skeleton: Skeleton, atlasName: String, rootScale: Vector2): Limb {
         val skeletonCopy = Skeleton(skeleton)

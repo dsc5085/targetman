@@ -17,7 +17,6 @@ import dclib.physics.collision.CollisionChecker
 
 class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: CollisionChecker)
     : EntitySystem(factoryTools.entityManager) {
-    val ragdoller = Ragdoller()
     val inventoryActions = InventoryActions(factoryTools)
 
     init {
@@ -70,10 +69,7 @@ class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: Co
         for (limb in skeletonPart.getLimbs()) {
             val transform = limb.transform
             if (transform is Box2dTransform) {
-                transform.body.gravityScale = 0f
-                for (fixture in transform.body.fixtureList) {
-                    fixture.isSensor = true
-                }
+                Box2dUtils.setSensor(transform.body, true)
             }
         }
     }
@@ -81,7 +77,7 @@ class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: Co
     private fun knockdown(entity: Entity) {
         val skeletonPart = entity[SkeletonPart::class]
         inventoryActions.tryDropEquippedWeapon(entity)
-        ragdoller.ragdoll(skeletonPart.root.limb)
+        Ragdoller.ragdoll(skeletonPart.root.limb)
         skeletonPart.isEnabled = false
         Box2dUtils.getBody(entity)!!.isActive = false
     }
