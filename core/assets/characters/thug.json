@@ -19,6 +19,12 @@
       "isVital": true
     },
     {
+      "name": "hip",
+      "health": 50,
+      "material": "FLESH",
+      "isVital": false
+    },
+    {
       "name": "weapon",
       "material": "METAL",
       "isPassive": true

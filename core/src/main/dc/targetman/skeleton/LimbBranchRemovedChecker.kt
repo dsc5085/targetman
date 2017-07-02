@@ -15,20 +15,20 @@ class LimbBranchRemovedChecker(private val entityManager: EntityManager) {
         val limb = LimbUtils.find(entityManager.getAll(), entity)
         if (limb != null) {
             // TODO: Remove the need for skeletonroot entities to need a SkeletonPart
-            val container = LimbUtils.findContainer(entityManager.getAll(), limb.entity)
+            val container = LimbUtils.findContainer(entityManager.getAll(), entity)
             if (limb.bone === limb.skeleton.rootBone && container != null) {
                 entityManager.remove(container)
             }
+            destroyBranch(limb)
             val parentLimb = LimbUtils.findParent(entityManager.getAll(), limb)
             if (parentLimb != null) {
-                destroyBranch(limb, parentLimb)
+                parentLimb.detach(limb)
             }
         }
     }
 
-    private fun destroyBranch(limb: Limb, parentLimb: Limb) {
+    private fun destroyBranch(limb: Limb) {
         branchRemoved.notify(LimbBranchRemovedEvent(limb))
-        parentLimb.detach(limb)
         val branchDescendants = limb.getDescendants(includeLinked = true).minus(limb)
         entityManager.removeAll(branchDescendants.map { it.entity })
     }

@@ -3,20 +3,26 @@
   "limbDatas": [
     {
       "name": "head",
-      "health": 100,
+      "health": 5,
       "material": "FLESH",
       "isVital": true
     },
     {
       "name": "neck",
-      "health": 100,
+      "health": 5,
       "material": "FLESH"
     },
     {
       "name": "torso",
-      "health": 100,
+      "health": 1000,
       "material": "FLESH",
       "isVital": true
+    },
+    {
+      "name": "hip",
+      "health": 500,
+      "material": "FLESH",
+      "isVital": false
     },
     {
       "name": "weapon",
@@ -25,66 +31,66 @@
     },
     {
       "name": "right_hand",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "right_forearm",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "right_bicep",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "right_foot",
-      "health": 5,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_shin",
-      "health": 5,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_thigh",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_hand",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_forearm",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_bicep",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     },
     {
       "name": "left_foot",
-      "health": 5,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_shin",
-      "health": 5,
+      "health": 500,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_thigh",
-      "health": 5,
+      "health": 500,
       "material": "FLESH"
     }
   ],
