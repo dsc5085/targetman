@@ -45,7 +45,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
         val entity = Entity()
-        entity.addAttributes(DeathForm.CORPSE, alliance)
+        entity.addAttributes(alliance)
         val skeleton = skeletonFactory.create(character.skeletonPath, character.atlasName)
         val skeletonScale = height / skeleton.getBounds().size.y
         val size = skeleton.getBounds().size.scl(skeletonScale)
