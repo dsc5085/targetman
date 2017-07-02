@@ -32,10 +32,6 @@ class SkeletonPart(val root: SkeletonRoot) {
         return root.limb.getDescendants(includeInactive, includeLinked)
     }
 
-    fun findParent(limb: Limb): Limb? {
-        return getLimbs(true).firstOrNull { it.getChildren().contains(limb) }
-    }
-
     fun playAnimation(name: String, trackIndex: Int = 0) {
         val indexExists = trackIndex < animationState.tracks.size
         if (!indexExists || animationState.tracks[trackIndex].animation.name != name) {

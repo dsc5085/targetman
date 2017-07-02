@@ -33,22 +33,6 @@ class LimbFactory(private val factoryTools: FactoryTools) {
         return root
     }
 
-    fun removeChildren(parentLimb: Limb) {
-        for (child in parentLimb.getChildren(true, true)) {
-            remove(parentLimb, child)
-        }
-    }
-
-    private fun remove(parentLimb: Limb, limb: Limb) {
-        val entityManager = factoryTools.entityManager
-        val container = LimbUtils.findContainer(entityManager.getAll(), limb.entity)
-        if (limb.bone === limb.skeleton.rootBone && container != null) {
-            entityManager.remove(container)
-        }
-        parentLimb.detach(limb)
-        entityManager.remove(limb.entity)
-    }
-
     private fun createLimb(bone: Bone, rootScale: Vector2, atlasName: String): Limb {
         val regionAttachment = getRegionAttachments(bone).firstOrNull()
         val limbEntity = createLimbEntity(regionAttachment, rootScale, atlasName)

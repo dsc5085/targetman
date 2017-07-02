@@ -51,7 +51,7 @@ class InventoryActions(factoryTools: FactoryTools) {
     }
 
     fun gripCurrentWeapon(inventoryPart: InventoryPart, gripper: Limb) {
-        limbFactory.removeChildren(gripper)
+        removeChildren(gripper)
         val equippedWeapon = inventoryPart.equippedWeapon
         val rootScale = SkeletonUtils.calculateRootScale(equippedWeapon!!.skeleton, equippedWeapon.size)
         val weaponRoot = limbFactory.link(
@@ -84,6 +84,12 @@ class InventoryActions(factoryTools: FactoryTools) {
             pickupFactory.create(equippedWeapon, Box2dTransform(removedWeaponTransform))
         }
         inventoryPart.dropEquippedWeapon()
-        limbFactory.removeChildren(gripper)
+        removeChildren(gripper)
+    }
+
+    private fun removeChildren(limb: Limb) {
+        for (child in limb.getChildren(true, true)) {
+            entityManager.remove(child.entity)
+        }
     }
 }
