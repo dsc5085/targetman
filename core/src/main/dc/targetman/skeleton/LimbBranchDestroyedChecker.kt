@@ -4,20 +4,20 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.eventing.EventDelegate
 
-class LimbBranchRemovedChecker(private val entityManager: EntityManager) {
-    val branchRemoved = EventDelegate<LimbBranchRemovedEvent>()
+class LimbBranchDestroyedChecker(private val entityManager: EntityManager) {
+    val destroyed = EventDelegate<LimbBranchDestroyedEvent>()
 
     init {
-        entityManager.entityRemoved.on { handleEntityRemoved(it.entity) }
+        entityManager.entityDestroyed.on { handleEntityDestroyed(it.entity) }
     }
 
-    private fun handleEntityRemoved(entity: Entity) {
+    private fun handleEntityDestroyed(entity: Entity) {
         val limb = LimbUtils.find(entityManager.getAll(), entity)
         if (limb != null) {
             // TODO: Remove the need for skeletonroot entities to need a SkeletonPart
             val container = LimbUtils.findContainer(entityManager.getAll(), entity)
             if (limb.bone === limb.skeleton.rootBone && container != null) {
-                entityManager.remove(container)
+                entityManager.destroy(container)
             }
             destroyBranch(limb)
             val parentLimb = LimbUtils.findParent(entityManager.getAll(), limb)
@@ -28,8 +28,8 @@ class LimbBranchRemovedChecker(private val entityManager: EntityManager) {
     }
 
     private fun destroyBranch(limb: Limb) {
-        branchRemoved.notify(LimbBranchRemovedEvent(limb))
+        destroyed.notify(LimbBranchDestroyedEvent(limb))
         val branchDescendants = limb.getDescendants(includeLinked = true).minus(limb)
-        entityManager.removeAll(branchDescendants.map { it.entity })
+        entityManager.destroyAll(branchDescendants.map { it.entity })
     }
 }

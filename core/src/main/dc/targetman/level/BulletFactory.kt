@@ -11,7 +11,12 @@ import dc.targetman.mechanics.weapon.Bullet
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
-import dclib.epf.parts.*
+import dclib.epf.parts.AutoRotatePart
+import dclib.epf.parts.CollisionDamagePart
+import dclib.epf.parts.CollisionDestroyPart
+import dclib.epf.parts.SpritePart
+import dclib.epf.parts.TimedDeathPart
+import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
 import dclib.geometry.toVector3
@@ -40,7 +45,7 @@ class BulletFactory(private val factoryTools: FactoryTools) {
         val forceScale = Vector2(1f, 0.3f)
         entity.attach(
                 AutoRotatePart(),
-                CollisionRemovePart(),
+                CollisionDestroyPart(),
                 TimedDeathPart(bullet.deathTime),
                 CollisionDamagePart(bullet.damage),
                 ForcePart(bullet.force, forceScale))

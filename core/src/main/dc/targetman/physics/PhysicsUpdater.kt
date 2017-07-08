@@ -8,23 +8,23 @@ import dclib.physics.Box2dUtils
 import dclib.system.Updater
 
 class PhysicsUpdater(private val world: World, entityManager: EntityManager) : Updater {
-    private val removedBodies = mutableListOf<Body>()
+    private val bodiesToDestroy = mutableListOf<Body>()
 
     init {
-        entityManager.entityRemoved.on {
+        entityManager.entityDestroyed.on {
             val body = Box2dUtils.getBody(it.entity)
             // TODO: pass in the business-specific CORPSE check to this constructor to avoid mixing of business logic
             if (body != null && !it.entity.of(DeathForm.CORPSE)) {
-                removedBodies.add(body)
+                bodiesToDestroy.add(body)
             }
         }
     }
 
     override fun update(delta: Float) {
-        for (body in removedBodies) {
+        for (body in bodiesToDestroy) {
             world.destroyBody(body)
         }
-        removedBodies.clear()
+        bodiesToDestroy.clear()
         world.step(delta, Box2dUtils.VELOCITY_ITERATIONS, Box2dUtils.POSITION_ITERATIONS)
     }
 }
