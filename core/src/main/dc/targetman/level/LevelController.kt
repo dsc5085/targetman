@@ -21,6 +21,7 @@ import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
+import dc.targetman.graphics.JointsDrawer
 import dc.targetman.graphics.LimbsShadowingSystem
 import dc.targetman.level.executers.SetSpeedExecuter
 import dc.targetman.level.executers.StepExecuter
@@ -82,6 +83,7 @@ class LevelController(
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
+	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
@@ -131,6 +133,7 @@ class LevelController(
 		particlesManager.draw()
         renderMapLayer(MapUtils.getForegroundIndex(map))
 		renderBox2D()
+		jointsDrawer.draw()
 	}
 
 	private fun createEntityManager(): EntityManager {

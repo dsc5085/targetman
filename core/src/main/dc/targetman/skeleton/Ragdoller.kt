@@ -33,35 +33,31 @@ object Ragdoller {
         for (childLimb in limb.getChildren(true)) {
             val childTransform = childLimb.transform
             if (childTransform is Box2dTransform) {
-                val jointAnchor = getJointAnchor(limb, childLimb)
-                createJoint(limb.transform as Box2dTransform, childTransform, childLimb, jointAnchor)
+                val anchorCoords = getAnchorCoords(childLimb)
+                createJoint(limb.transform as Box2dTransform, childTransform, childLimb, anchorCoords)
             }
             addJointsToDescendants(childLimb)
         }
     }
 
-    private fun getJointAnchor(parentLimb: Limb, childLimb: Limb): Vector2 {
-        var anchor = Vector2(childLimb.bone.worldX, childLimb.bone.worldY)
-        val parentBody = Box2dUtils.getBody(parentLimb.entity)
-        val childBody = Box2dUtils.getBody(childLimb.entity)
-        if (parentBody != null && childBody != null) {
-            val joint = parentBody.jointList.firstOrNull { it.other === childBody }?.joint
-            if (joint != null) {
-                anchor = joint.anchorA
-            }
-        }
-        return anchor
+    private fun getAnchorCoords(childLimb: Limb): Vector2 {
+        val regionAttachment = childLimb.getRegionAttachment()!!
+        val attachmentScale = SkeletonUtils.calculateAttachmentScale(childLimb.spineScale, childLimb.bone.rotation)
+        val localBoneOffsetFromRegion = Vector2(regionAttachment.x, regionAttachment.y)
+                .rotate(regionAttachment.rotation)
+                .scl(attachmentScale)
+        val boneLocal = childLimb.transform.localCenter.add(localBoneOffsetFromRegion)
+        return childLimb.transform.toWorld(boneLocal)
     }
 
     private fun createJoint(
             parentTransform: Box2dTransform,
             childTransform: Box2dTransform,
             childLimb: Limb,
-            anchor: Vector2
+            anchorCoords: Vector2
     ) {
         val jointDef = RevoluteJointDef()
-        jointDef.initialize(parentTransform.body, childTransform.body, anchor)
-//        jointDef.collideConnected = true
+        jointDef.initialize(parentTransform.body, childTransform.body, anchorCoords)
         jointDef.enableLimit = true
         val angleRange = getAngleRange(childLimb.name)
         setJointAngleRange(jointDef, angleRange, childLimb.bone.rotation, childLimb.spineScale)
