@@ -27,7 +27,7 @@ object LimbUtils {
         for (entity in entities) {
             val skeletonPart = entity.tryGet(SkeletonPart::class)
             if (skeletonPart != null) {
-                val limbs = skeletonPart.getLimbs(true, true)
+                val limbs = skeletonPart.getLimbs( includeLinked = true)
                 val parentLimb = limbs.firstOrNull { it.getChildren(true, true).contains(limb) }
                 if (parentLimb != null) {
                     return parentLimb

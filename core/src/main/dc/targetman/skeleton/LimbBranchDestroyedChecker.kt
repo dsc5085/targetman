@@ -28,8 +28,8 @@ class LimbBranchDestroyedChecker(private val entityManager: EntityManager) {
     }
 
     private fun destroyBranch(limb: Limb) {
-        destroyed.notify(LimbBranchDestroyedEvent(limb))
         val branchDescendants = limb.getDescendants(includeLinked = true).minus(limb)
         entityManager.destroyAll(branchDescendants.map { it.entity })
+        destroyed.notify(LimbBranchDestroyedEvent(limb))
     }
 }
