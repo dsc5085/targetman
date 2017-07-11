@@ -15,21 +15,22 @@ class LimbBranchDestroyedChecker(private val entityManager: EntityManager) {
         val limb = LimbUtils.find(entityManager.getAll(), entity)
         if (limb != null) {
             // TODO: Remove the need for skeletonroot entities to need a SkeletonPart
+            val isRoot = limb.bone === limb.skeleton.rootBone
             val container = LimbUtils.findContainer(entityManager.getAll(), entity)
-            if (limb.bone === limb.skeleton.rootBone && container != null) {
+            if (isRoot && container != null) {
                 entityManager.destroy(container)
             }
-            destroyBranch(limb)
             val parentLimb = LimbUtils.findParent(entityManager.getAll(), limb)
-            if (parentLimb != null) {
-                parentLimb.detach(limb)
+            if (parentLimb != null || isRoot) {
+                parentLimb?.detach(limb)
+                destroyBranch(limb)
             }
         }
     }
 
     private fun destroyBranch(limb: Limb) {
+        destroyed.notify(LimbBranchDestroyedEvent(limb))
         val branchDescendants = limb.getDescendants(includeLinked = true).minus(limb)
         entityManager.destroyAll(branchDescendants.map { it.entity })
-        destroyed.notify(LimbBranchDestroyedEvent(limb))
     }
 }

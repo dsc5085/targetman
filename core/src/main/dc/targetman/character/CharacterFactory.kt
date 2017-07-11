@@ -64,7 +64,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
-        entity.attach(StaggerPart(10f, 50f, 100f))
+        entity.attach(StaggerPart(10f, character.stunResist, character.stunResist * 2))
         val boundingSlotNames = listOf("head", "left_foot", "right_foot", "torso")
         entity.attach(BoundingSlotsPart(boundingSlotNames))
         val shadowValueRange = FloatRange(0.9f, 1f)

@@ -10,4 +10,5 @@ data class Character(
         val muzzleName: String = "muzzle",
         val atlasName: String = "",
         val health: Float = 1f,
+        val stunResist: Float = 50f,
         val weaponData: WeaponData = WeaponData())
