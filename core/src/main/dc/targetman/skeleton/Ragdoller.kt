@@ -42,11 +42,10 @@ object Ragdoller {
 
     private fun getAnchorCoords(childLimb: Limb): Vector2 {
         val regionAttachment = childLimb.getRegionAttachment()!!
-        val attachmentScale = SkeletonUtils.calculateAttachmentScale(childLimb.spineScale, childLimb.bone.rotation)
-        val localBoneOffsetFromRegion = Vector2(regionAttachment.x, regionAttachment.y)
-                .rotate(regionAttachment.rotation)
-                .scl(attachmentScale)
-        val boneLocal = childLimb.transform.localCenter.add(localBoneOffsetFromRegion)
+        val regionOffsetFromBone = Vector2(regionAttachment.x, regionAttachment.y)
+                .rotate(-regionAttachment.rotation)
+                .scl(childLimb.spineScale.abs())
+        val boneLocal = childLimb.transform.localCenter.sub(regionOffsetFromBone)
         return childLimb.transform.toWorld(boneLocal)
     }
 
