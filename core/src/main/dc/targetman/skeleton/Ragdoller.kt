@@ -58,6 +58,9 @@ object Ragdoller {
         val jointDef = RevoluteJointDef()
         jointDef.initialize(parentTransform.body, childTransform.body, anchorCoords)
         jointDef.enableLimit = true
+        jointDef.enableMotor = true
+        jointDef.motorSpeed = 0f
+        jointDef.maxMotorTorque = 0.1f
         val angleRange = getAngleRange(childLimb.name)
         setJointAngleRange(jointDef, angleRange, childLimb.bone.rotation, childLimb.spineScale)
         parentTransform.body.world.createJoint(jointDef)
@@ -68,19 +71,19 @@ object Ragdoller {
         return when (limbName) {
             "head" -> FloatRange(-30f, 30f)
             "neck" -> FloatRange(-60f, 15f)
-            "torso" -> FloatRange(15f, 100f)
-            "right_hand" -> FloatRange(-85f, 85f)
-            "right_forearm" -> FloatRange(0f, 150f)
-            "right_bicep" -> FloatRange(-180f, 180f)
+            "torso" -> FloatRange(45f, 100f)
+            "right_hand" -> FloatRange(-30f, 30f)
+            "right_forearm" -> FloatRange(0f, 120f)
+            "right_bicep" -> FloatRange(-120f, 180f)
             "right_foot" -> FloatRange(45f, 100f)
             "right_shin" -> FloatRange(-135f, 0f)
-            "right_thigh" -> FloatRange(200f, 360f)
-            "left_hand" -> FloatRange(-85f, 85f)
-            "left_forearm" -> FloatRange(0f, 150f)
-            "left_bicep" -> FloatRange(-180f, 180f)
+            "right_thigh" -> FloatRange(200f, 300f)
+            "left_hand" -> FloatRange(-30f, 30f)
+            "left_forearm" -> FloatRange(0f, 120f)
+            "left_bicep" -> FloatRange(-120f, 180f)
             "left_foot" -> FloatRange(45f, 100f)
             "left_shin" -> FloatRange(-135f, 0f)
-            "left_thigh" -> FloatRange(200f, 360f)
+            "left_thigh" -> FloatRange(200f, 300f)
             else -> FloatRange(0f, 0f)
         }
     }

@@ -163,7 +163,7 @@ class LevelController(
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, bulletFactory),
 				VitalLimbsSystem(entityManager),
-				StaggerSystem(factoryTools, collisionChecker),
+				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
@@ -190,8 +190,7 @@ class LevelController(
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(render: Render)
-			: EntityDrawerManager {
+	private fun createEntityDrawerManager(render: Render): EntityDrawerManager {
 		val entityDrawers = mutableListOf<EntityDrawer>()
 		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))

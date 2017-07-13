@@ -3,13 +3,13 @@
   "limbDatas": [
     {
       "name": "head",
-      "health": 1,
+      "health": 100,
       "material": "FLESH",
       "isVital": true
     },
     {
       "name": "neck",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
@@ -20,7 +20,7 @@
     },
     {
       "name": "hip",
-      "health": 1,
+      "health": 50,
       "material": "FLESH",
       "isVital": false
     },
@@ -31,71 +31,72 @@
     },
     {
       "name": "right_hand",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "right_forearm",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "right_bicep",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "right_foot",
-      "health": 1,
+      "health": 50,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_shin",
-      "health": 1,
+      "health": 50,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "right_thigh",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "left_hand",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "left_forearm",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "left_bicep",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     },
     {
       "name": "left_foot",
-      "health": 1,
+      "health": 50,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_shin",
-      "health": 1,
+      "health": 50,
       "material": "FLESH",
       "isMovement": true
     },
     {
       "name": "left_thigh",
-      "health": 1,
+      "health": 50,
       "material": "FLESH"
     }
   ],
   "rotatorName": "right_bicep",
   "atlasName": "skins/man",
   "health": 500,
+  "stunResist": 50,
   "weaponData": "weapons/peashooter.json"
 }
