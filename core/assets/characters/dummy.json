@@ -97,6 +97,6 @@
   "rotatorName": "right_bicep",
   "atlasName": "skins/man",
   "health": 500,
-  "stunResist": 40,
+  "stunResist": 10,
   "weaponData": "weapons/peashooter.json"
 }
