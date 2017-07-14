@@ -79,9 +79,6 @@ class LimbFactory(private val factoryTools: FactoryTools) {
     private fun createLimbTransform(vertices: FloatArray): Transform {
         val body = Box2dUtils.createDynamicBody(factoryTools.world, vertices, true)
         Box2dUtils.setFilter(body, CollisionCategory.ALL)
-        // TODO: Move this out since LimbFactory is generic
-        Box2dUtils.setDensity(body, 10f)
-        Box2dUtils.setFriction(body, 0.9f)
         return Box2dTransform(body)
     }
 

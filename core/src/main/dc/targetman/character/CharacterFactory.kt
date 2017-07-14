@@ -39,6 +39,8 @@ import dclib.util.FloatRange
 import kotlin.experimental.inv
 
 class CharacterFactory(private val factoryTools: FactoryTools) {
+    private val DENSITY = 1f
+
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)
     private val limbFactory = LimbFactory(factoryTools)
 
@@ -104,6 +106,11 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         if (!limbData.isPassive) {
             limbEntity.addAttributes(alliance)
         }
+        val transform = limbEntity[TransformPart::class].transform
+        if (transform is Box2dTransform) {
+            Box2dUtils.setDensity(transform.body, DENSITY)
+            Box2dUtils.setFriction(transform.body, 0.9f)
+        }
         limbEntity.attach(HealthPart(limbData.health))
         EntityUtils.filterSameAlliance(limbEntity)
     }
@@ -122,7 +129,8 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         createBaseFixtures(basePosition, body, halfWidth * baseRadiusRatio)
         val boxShape = PolygonShape()
         boxShape.setAsBox(halfWidth, boxHalfHeight)
-        val bodyFixture = body.createFixture(boxShape, 1f)
+        val bodyFixture = body.createFixture(boxShape, DENSITY)
+        // TODO: Make sure the mass of this body is equal to the total mass of the limbs
         bodyFixture.friction = 0f
         boxShape.dispose()
         Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.inv())
@@ -136,7 +144,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         for (baseVerticesPartition in baseVerticesPartitions) {
             val baseShape = PolygonShape()
             baseShape.set(baseVerticesPartition)
-            val baseFixture = body.createFixture(baseShape, 0f)
+            val baseFixture = body.createFixture(baseShape, DENSITY)
             baseFixture.friction = 0.1f
             baseShape.dispose()
         }

@@ -58,6 +58,7 @@ object Ragdoller {
         val jointDef = RevoluteJointDef()
         jointDef.initialize(parentTransform.body, childTransform.body, anchorCoords)
         jointDef.enableLimit = true
+        // Adds a little "friction", preventing joints from swinging around too freely
         jointDef.enableMotor = true
         jointDef.motorSpeed = 0f
         jointDef.maxMotorTorque = 0.1f
