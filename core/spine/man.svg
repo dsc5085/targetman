@@ -26,14 +26,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.24748738"
-     inkscape:cx="290.69587"
-     inkscape:cy="1095.3807"
+     inkscape:cx="295.24363"
+     inkscape:cy="821.48009"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1089"
+     inkscape:window-width="1160"
      inkscape:window-height="1008"
-     inkscape:window-x="14"
+     inkscape:window-x="-3"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
      showguides="false" />
@@ -79,7 +79,7 @@
        ry="11.091686"
        inkscape:label="#rect4511" />
     <rect
-       style="opacity:1;fill:#deaa87;fill-opacity:1;stroke:none;stroke-width:1.21934724;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#800000;fill-opacity:1;stroke:none;stroke-width:1.21934724;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="torso"
        width="42.687138"
        height="136.842"
@@ -88,7 +88,7 @@
        ry="21.343569"
        inkscape:label="#rect4513" />
     <rect
-       style="opacity:1;fill:#deaa87;fill-opacity:1;stroke:none;stroke-width:1.40807259;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:1.40807259;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="thigh"
        width="39.309521"
        height="104.81472"
@@ -97,7 +97,7 @@
        ry="19.65476"
        inkscape:label="#rect4519" />
     <rect
-       style="opacity:1;fill:#deaa87;fill-opacity:1;stroke:none;stroke-width:1.32291663;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#1a1a1a;fill-opacity:1;stroke:none;stroke-width:1.32291663;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="foot"
        width="52.538692"
        height="26.080357"
@@ -106,7 +106,7 @@
        ry="11.717258"
        inkscape:label="#rect4540" />
     <rect
-       style="opacity:1;fill:#deaa87;fill-opacity:1;stroke:none;stroke-width:1.39839458;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#800000;fill-opacity:1;stroke:none;stroke-width:1.39839458;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="bicep"
        width="34.210495"
        height="84.812973"
@@ -126,7 +126,7 @@
        transform="rotate(90)"
        inkscape:label="#rect4546-0-1" />
     <rect
-       style="opacity:1;fill:#deaa87;fill-opacity:1;stroke:none;stroke-width:1.40807259;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:1.40807259;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="shin"
        width="39.309521"
        height="104.81472"
@@ -135,7 +135,7 @@
        ry="19.65476"
        inkscape:label="#rect4519" />
     <rect
-       style="opacity:1;fill:#deaa87;fill-opacity:1;stroke:none;stroke-width:1.39839458;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#800000;fill-opacity:1;stroke:none;stroke-width:1.39839458;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="forearm"
        width="34.210495"
        height="84.812973"

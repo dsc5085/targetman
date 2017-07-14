@@ -1,6 +1,6 @@
 {
   "skeletonPath": "skeletons/man.skel",
-  "limbs": [
+  "limbDatas": [
     {
       "name": "head",
       "health": 50,
@@ -17,6 +17,12 @@
       "health": 100,
       "material": "FLESH",
       "isVital": true
+    },
+    {
+      "name": "hip",
+      "health": 50,
+      "material": "FLESH",
+      "isVital": false
     },
     {
       "name": "weapon",
@@ -90,6 +96,6 @@
   ],
   "rotatorName": "right_bicep",
   "atlasName": "skins/man",
-  "health": 300,
+  "health": 500,
   "weaponData": "weapons/peashooter.json"
 }

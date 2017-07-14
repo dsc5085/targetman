@@ -77,7 +77,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
             val position = Vector2(mapObject.x, mapObject.y).scl(scale).toVector3()
             val allianceString = mapObject.tile.properties.get(Alliance::class.java.simpleName, String::class.java)
             val alliance = Alliance.valueOf(allianceString)
-            val characterPath = if (alliance == Alliance.PLAYER) "characters/cyborg.json" else "characters/thug.json"
+            val characterPath = if (alliance == Alliance.PLAYER) "characters/cyborg.json" else "characters/dummy.json"
             createCharacter(characterPath, position, alliance)
         }
     }

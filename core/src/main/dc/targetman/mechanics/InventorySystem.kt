@@ -13,7 +13,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
 
     init {
         factoryTools.entityManager.entityAdded.on { inventoryActions.tryEquipCurrentWeapon(it.entity) }
-        factoryTools.entityManager.entityRemoved.on { inventoryActions.tryDropEquippedWeapon(it.entity) }
+        factoryTools.entityManager.entityDestroyed.on { inventoryActions.tryDropEquippedWeapon(it.entity) }
         collisionChecker.collided.on { inventoryActions.tryPickup(it) }
     }
 
@@ -30,7 +30,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         if (inventoryPart.trySwitchWeapon && inventoryPart.switchTimer.check()) {
             inventoryPart.switchWeapon()
             val gripper = skeletonPart[inventoryPart.gripperName]
-            inventoryActions.gripEquippedWeapon(inventoryPart, gripper)
+            inventoryActions.gripCurrentWeapon(inventoryPart, gripper)
         }
     }
 }

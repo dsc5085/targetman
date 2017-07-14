@@ -21,8 +21,11 @@ import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.BoundingSlotsPart
+import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.SkeletonFactory
+import dc.targetman.skeleton.SkeletonRoot
+import dc.targetman.skeleton.SkeletonUtils
 import dc.targetman.skeleton.getBounds
 import dc.targetman.util.Json
 import dclib.epf.Entity
@@ -36,13 +39,15 @@ import dclib.util.FloatRange
 import kotlin.experimental.inv
 
 class CharacterFactory(private val factoryTools: FactoryTools) {
+    private val DENSITY = 1f
+
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)
     private val limbFactory = LimbFactory(factoryTools)
 
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
         val entity = Entity()
-        entity.addAttributes(DeathForm.CORPSE, alliance)
+        entity.addAttributes(alliance)
         val skeleton = skeletonFactory.create(character.skeletonPath, character.atlasName)
         val skeletonScale = height / skeleton.getBounds().size.y
         val size = skeleton.getBounds().size.scl(skeletonScale)
@@ -56,12 +61,12 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         entity.attach(FiringPart(character.rotatorName, "muzzle"))
         val inventoryPart = InventoryPart(2, character.gripperName, weapon)
         entity.attach(inventoryPart)
-        val movementLimbNames = character.limbs.filter { it.isMovement }.map { it.name }
+        val movementLimbNames = character.limbDatas.filter { it.isMovement }.map { it.name }
         entity.attach(MovementPart(8f, 9f, movementLimbNames))
-        val vitalLimbNames = character.limbs.filter { it.isVital }.map { it.name }
+        val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
-        entity.attach(StaggerPart(10f, 50f, 100f))
+        entity.attach(StaggerPart(10f, character.stunResist, character.stunResist * 2))
         val boundingSlotNames = listOf("head", "left_foot", "right_foot", "torso")
         entity.attach(BoundingSlotsPart(boundingSlotNames))
         val shadowValueRange = FloatRange(0.9f, 1f)
@@ -81,26 +86,33 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
             alliance: Alliance,
             size: Vector2
     ): SkeletonPart {
-        val root = limbFactory.create(skeleton, character.atlasName, size)
-        val skeletonPart = SkeletonPart(root)
-        for (limb in skeletonPart.getLimbs(true)) {
-            val entity = limb.entity
-            entity.addAttributes(DeathForm.CORPSE, alliance)
-            val characterLimb = character.limbs.firstOrNull { it.name == limb.name }
-            if (characterLimb != null) {
-                setup(entity, characterLimb)
-            }
-        }
-        return skeletonPart
+        val rootScale = SkeletonUtils.calculateRootScale(skeleton, size)
+        val rootLimb = limbFactory.create(skeleton, character.atlasName, rootScale)
+        characterizeDescendants(rootLimb, character.limbDatas, alliance)
+        return SkeletonPart(SkeletonRoot(rootLimb, rootScale))
     }
 
-    private fun setup(entity: Entity, characterLimb: CharacterLimb) {
-        entity.addAttributes(characterLimb.material)
-        if (characterLimb.isPassive) {
-            entity.removeAttributes(Alliance::class)
+    private fun characterizeDescendants(rootLimb: Limb, limbDatas: List<CharacterLimbData>, alliance: Alliance) {
+        for (limb in rootLimb.getDescendants(true)) {
+            val limbData = limbDatas.firstOrNull { it.name == limb.name }
+            if (limbData != null) {
+                characterize(limb.entity, limbData, alliance)
+            }
         }
-        entity.attach(HealthPart(characterLimb.health))
-        EntityUtils.filterSameAlliance(entity)
+    }
+
+    private fun characterize(limbEntity: Entity, limbData: CharacterLimbData, alliance: Alliance) {
+        limbEntity.addAttributes(DeathForm.CORPSE, limbData.material)
+        if (!limbData.isPassive) {
+            limbEntity.addAttributes(alliance)
+        }
+        val transform = limbEntity[TransformPart::class].transform
+        if (transform is Box2dTransform) {
+            Box2dUtils.setDensity(transform.body, DENSITY)
+            Box2dUtils.setFriction(transform.body, 0.9f)
+        }
+        limbEntity.attach(HealthPart(limbData.health))
+        EntityUtils.filterSameAlliance(limbEntity)
     }
 
     private fun createBody(size: Vector2, position: Vector3): Body {
@@ -117,7 +129,8 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         createBaseFixtures(basePosition, body, halfWidth * baseRadiusRatio)
         val boxShape = PolygonShape()
         boxShape.setAsBox(halfWidth, boxHalfHeight)
-        val bodyFixture = body.createFixture(boxShape, 1f)
+        val bodyFixture = body.createFixture(boxShape, DENSITY)
+        // TODO: Make sure the mass of this body is equal to the total mass of the limbs
         bodyFixture.friction = 0f
         boxShape.dispose()
         Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.inv())
@@ -131,7 +144,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         for (baseVerticesPartition in baseVerticesPartitions) {
             val baseShape = PolygonShape()
             baseShape.set(baseVerticesPartition)
-            val baseFixture = body.createFixture(baseShape, 0f)
+            val baseFixture = body.createFixture(baseShape, DENSITY)
             baseFixture.friction = 0.1f
             baseShape.dispose()
         }

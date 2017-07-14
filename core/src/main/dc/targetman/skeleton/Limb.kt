@@ -12,17 +12,21 @@ class Limb(val bone: Bone, val entity: Entity) {
     val isActive get() = entity.isActive
     val name get() = bone.data.name
     val transform get() = entity[TransformPart::class].transform
-    val scale get() = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
+    /**
+     * Scale used for Spine bone manipulations.
+     */
+    val spineScale get() = Vector2(bone.worldScaleX, bone.worldScaleY).scl(flipScale)
 
     val flipScale: Vector2
         get() {
-            val rootScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
-           return VectorUtils.sign(rootScale)
+            val rootBoneScale = Vector2(skeleton.rootBone.scaleX, skeleton.rootBone.scaleY)
+            return VectorUtils.sign(rootBoneScale)
         }
 
     private val children = mutableSetOf<Limb>()
     // TODO: Merge skeleton links list with children list
-    private val skeletonLinks = mutableSetOf<SkeletonLink>()
+    // TODO: links must be of List type. Weird edge case where when skeleton is flipped, can't remove elements from links as a set. Figure out why this happens.
+    private val links = mutableListOf<SkeletonRoot>()
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
@@ -33,31 +37,31 @@ class Limb(val bone: Bone, val entity: Entity) {
     fun getChildren(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
         val allChildren = children.toMutableList()
         if (includeLinked) {
-            allChildren.addAll(skeletonLinks.map { it.root })
+            allChildren.addAll(links.map { it.limb })
         }
         return allChildren.filter { includeInactive || it.isActive }.toSet()
     }
 
+    // TODO: Return to not include this Limb in order for the method name to make more sense. Instead, create a getBranch method for that case
     fun getDescendants(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
         val descendants = getChildren(includeInactive, includeLinked)
                 .flatMap { it.getDescendants(includeInactive, includeLinked) }
         return descendants.plus(this).toSet()
     }
 
-    fun addChild(limb: Limb) {
+    fun append(limb: Limb) {
         children.add(limb)
     }
 
-    fun removeChild(limb: Limb) {
-        children.remove(limb)
-        skeletonLinks.removeAll { it.root === limb }
+    fun append(link: SkeletonRoot) {
+        links.add(link)
     }
 
-    fun getSkeletonLinks(): Set<SkeletonLink> {
-        return skeletonLinks.toSet()
+    fun detach(limb: Limb): Boolean {
+        return children.remove(limb) || links.removeAll { it.limb === limb }
     }
 
-    fun add(skeletonLink: SkeletonLink) {
-        skeletonLinks.add(skeletonLink)
+    fun getLinks(): Set<SkeletonRoot> {
+        return links.toSet()
     }
 }

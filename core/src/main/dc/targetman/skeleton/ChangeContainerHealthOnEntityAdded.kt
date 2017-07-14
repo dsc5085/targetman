@@ -17,7 +17,7 @@ class ChangeContainerHealthOnEntityAdded(private val entityManager: EntityManage
     private fun handleHealthChanged(entity: Entity, event: HealthChangedEvent) {
         val container = LimbUtils.findContainer(entityManager.getAll(), entity)
         if (container != null && container != entity) {
-            container.tryGet(HealthPart::class)?.change(event.change)
+            container.tryGet(HealthPart::class)?.change(event.offset)
         }
     }
 }

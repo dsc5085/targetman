@@ -9,7 +9,7 @@ object LimbUtils {
         val container = findContainer(entities, limbEntity)
         if (container != null) {
             val skeletonPart = container[SkeletonPart::class]
-            limb = if (limbEntity == container) skeletonPart.root
+            limb = if (limbEntity == container) skeletonPart.root.limb
             else skeletonPart.getLimbs(true, true).singleOrNull { it.entity === limbEntity }
         }
         return limb
@@ -21,5 +21,19 @@ object LimbUtils {
             val skeletonPart = it.tryGet(SkeletonPart::class)
             skeletonPart?.getLimbs(true).orEmpty().any { it.entity === limbEntity }
         }
+    }
+
+    fun findParent(entities: Collection<Entity>, limb: Limb): Limb? {
+        for (entity in entities) {
+            val skeletonPart = entity.tryGet(SkeletonPart::class)
+            if (skeletonPart != null) {
+                val limbs = skeletonPart.getLimbs( includeLinked = true)
+                val parentLimb = limbs.firstOrNull { it.getChildren(true, true).contains(limb) }
+                if (parentLimb != null) {
+                    return parentLimb
+                }
+            }
+        }
+        return null
     }
 }

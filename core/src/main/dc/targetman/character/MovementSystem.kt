@@ -28,7 +28,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         val movementPart = entity[MovementPart::class]
         val direction = movementPart.direction
         val skeletonPart = entity[SkeletonPart::class]
-        var targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
+        val targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
         if (direction == Direction.NONE) {
             skeletonPart.playAnimation("idle")
         } else {
@@ -96,7 +96,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     private fun getMoveStrength(entity: Entity): Float {
         val movementLimbNames = entity[MovementPart::class].limbNames
         val skeletonPart = entity[SkeletonPart::class]
-        val numActiveMovementLimbs = movementLimbNames.count { skeletonPart[it].isActive }
+        val numActiveMovementLimbs = movementLimbNames.count { skeletonPart.has(it) }
         return numActiveMovementLimbs.toFloat() / movementLimbNames.size
     }
 }

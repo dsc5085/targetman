@@ -40,12 +40,9 @@ class PickupFactory(private val factoryTools: FactoryTools) {
     }
 
     private fun setup(body: Body) {
-        for (fixture in body.fixtureList) {
-            fixture.isSensor = false
-        }
-        // Ensure that the pickup is always detectable by the characters' collision sensors
+        Box2dUtils.setSensor(body, false)
+        // Ensures that the pickup is always detectable by the characters' collision sensors
         body.isSleepingAllowed = false
-        body.gravityScale = 1f
         Box2dUtils.setFilter(body, mask = CollisionCategory.STATIC, group = 0)
     }
 }

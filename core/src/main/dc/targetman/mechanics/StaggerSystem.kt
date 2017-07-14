@@ -3,26 +3,27 @@ package dc.targetman.mechanics
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.level.FactoryTools
-import dc.targetman.skeleton.LimbUtils
-import dc.targetman.skeleton.RagdollFactory
+import dc.targetman.skeleton.Ragdoller
 import dclib.epf.Entity
-import dclib.epf.EntityRemovedEvent
 import dclib.epf.EntitySystem
-import dclib.epf.parts.CollisionDamagePart
+import dclib.epf.parts.HealthPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.base
+import dclib.mechanics.HealthChangedEvent
+import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
-import dclib.physics.collision.CollidedEvent
-import dclib.physics.collision.CollisionChecker
 
-class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: CollisionChecker)
-    : EntitySystem(factoryTools.entityManager) {
-    val ragdollFactory = RagdollFactory(factoryTools.world)
+class StaggerSystem(factoryTools: FactoryTools) : EntitySystem(factoryTools.entityManager) {
     val inventoryActions = InventoryActions(factoryTools)
 
     init {
-        factoryTools.entityManager.entityRemoved.on { handleEntityRemoved(it) }
-        collisionChecker.collided.on { handleCollided(it) }
+        factoryTools.entityManager.entityAdded.on {
+            val entity = it.entity
+            val healthPart = entity.tryGet(HealthPart::class)
+            if (healthPart != null) {
+                healthPart.healthChanged.on { handleHealthChanged(entity, it) }
+            }
+        }
     }
 
     override fun update(delta: Float, entity: Entity) {
@@ -32,22 +33,10 @@ class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: Co
         }
     }
 
-    private fun handleEntityRemoved(event: EntityRemovedEvent) {
-        val staggerPart = event.entity.tryGet(StaggerPart::class)
-        if (staggerPart != null) {
-            for (limbTransform in staggerPart.oldLimbTransforms.values) {
-                Box2dUtils.tryDestroyBody(limbTransform)
-            }
-        }
-    }
-
-    private fun handleCollided(event: CollidedEvent) {
-        val damagePart = event.source.entity.tryGet(CollisionDamagePart::class)
-        val entities = factoryTools.entityManager.getAll()
-        val container = LimbUtils.findContainer(entities, event.target.entity)
-        val staggerPart = container?.tryGet(StaggerPart::class)
-        if (damagePart != null && staggerPart != null) {
-            changeStaggerAmount(container, damagePart.damage)
+    private fun handleHealthChanged(entity: Entity, event: HealthChangedEvent) {
+        val staggerPart = entity.tryGet(StaggerPart::class)
+        if (staggerPart != null && event.offset < 0) {
+            changeStaggerAmount(entity, -event.offset)
         }
     }
 
@@ -62,7 +51,7 @@ class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: Co
             knockdown(entity)
         }
         if (newState == StaggerState.HURT) {
-            stun(entity)
+            entity[SkeletonPart::class].playAnimation("hurt", 1)
         }
     }
 
@@ -71,40 +60,25 @@ class StaggerSystem(private val factoryTools: FactoryTools, collisionChecker: Co
         val staggerPart = entity[StaggerPart::class]
         Box2dUtils.getBody(entity)!!.isActive = true
         val transform = entity[TransformPart::class].transform
-        transform.setWorld(transform.bounds.base, skeletonPart.root.transform.center)
+        transform.setWorld(transform.bounds.base, skeletonPart.root.limb.transform.center)
         skeletonPart.isEnabled = true
         restoreSkeletonLimbs(skeletonPart, staggerPart)
     }
 
     private fun restoreSkeletonLimbs(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
         for (limb in skeletonPart.getLimbs()) {
-            val transformPart = limb.entity[TransformPart::class]
-            Box2dUtils.tryDestroyBody(transformPart.transform)
-            transformPart.transform = staggerPart.oldLimbTransforms[limb.name]!!
-            Box2dUtils.getBody(limb.entity)?.isActive = true
+            val transform = limb.transform
+            if (transform is Box2dTransform) {
+                Box2dUtils.setSensor(transform.body, true)
+            }
         }
-        staggerPart.oldLimbTransforms.clear()
     }
 
     private fun knockdown(entity: Entity) {
         val skeletonPart = entity[SkeletonPart::class]
         inventoryActions.tryDropEquippedWeapon(entity)
-        ragdoll(skeletonPart, entity[StaggerPart::class])
+        Ragdoller.ragdoll(skeletonPart.root.limb)
         skeletonPart.isEnabled = false
         Box2dUtils.getBody(entity)!!.isActive = false
-    }
-
-    private fun ragdoll(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
-        val ragdollLimbs = ragdollFactory.create(skeletonPart.root).getDescendants(includeInactive = true)
-        for (limb in skeletonPart.getLimbs()) {
-            Box2dUtils.getBody(limb.entity)?.isActive = false
-            staggerPart.oldLimbTransforms.put(limb.name, limb.transform)
-            val transformPart = limb.entity[TransformPart::class]
-            transformPart.transform = ragdollLimbs.first { it.name == limb.name }.transform
-        }
-    }
-
-    private fun stun(entity: Entity) {
-        entity[SkeletonPart::class].playAnimation("hurt", 1)
     }
 }

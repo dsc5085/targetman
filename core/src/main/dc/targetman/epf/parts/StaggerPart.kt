@@ -1,19 +1,17 @@
 package dc.targetman.epf.parts
 
 import dc.targetman.mechanics.StaggerState
-import dclib.physics.Transform
 import dclib.util.Maths
 
-class StaggerPart(val recoverySpeed: Float, val minStunAmount: Float, val minKnockdownAmount: Float) {
+class StaggerPart(val recoverySpeed: Float, val stunResist: Float, val knockDownResist: Float) {
     var amount = 0f
-    val oldLimbTransforms = mutableMapOf<String, Transform>()
 
     val state: StaggerState
         get() {
             val state: StaggerState
-            if (amount < minStunAmount) {
+            if (amount < stunResist) {
                 state = StaggerState.OK
-            } else if (Maths.between(amount, minStunAmount, minKnockdownAmount)) {
+            } else if (Maths.between(amount, stunResist, knockDownResist)) {
                 state = StaggerState.HURT
             } else {
                 state = StaggerState.DOWN

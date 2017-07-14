@@ -7,6 +7,7 @@ import dc.targetman.level.FactoryTools
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.LimbUtils
+import dc.targetman.skeleton.SkeletonUtils
 import dclib.epf.Entity
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
@@ -22,7 +23,7 @@ class InventoryActions(factoryTools: FactoryTools) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
             val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
-            gripEquippedWeapon(inventoryPart, gripper)
+            gripCurrentWeapon(inventoryPart, gripper)
         }
     }
 
@@ -42,20 +43,23 @@ class InventoryActions(factoryTools: FactoryTools) {
     fun tryDropEquippedWeapon(entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null && inventoryPart.equippedWeapon != null) {
-            val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
-            dropEquippedWeapon(inventoryPart, gripper)
+            val gripper = entity[SkeletonPart::class].tryGet(inventoryPart.gripperName)
+            if (gripper != null) {
+                dropEquippedWeapon(inventoryPart, gripper)
+            }
         }
     }
 
-    fun gripEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
-        limbFactory.removeChildren(gripper)
+    fun gripCurrentWeapon(inventoryPart: InventoryPart, gripper: Limb) {
+        destroyChildren(gripper)
         val equippedWeapon = inventoryPart.equippedWeapon
-        val weaponLink = limbFactory.link(
-                equippedWeapon!!.skeleton,
+        val rootScale = SkeletonUtils.calculateRootScale(equippedWeapon!!.skeleton, equippedWeapon.size)
+        val weaponRoot = limbFactory.link(
+                equippedWeapon.skeleton,
                 equippedWeapon.data.atlasName,
-                equippedWeapon.size,
+                rootScale,
                 gripper)
-        val newWeaponEntity = Entity(SkeletonPart(weaponLink.root), TransformPart(weaponLink.transform))
+        val newWeaponEntity = Entity(SkeletonPart(weaponRoot), TransformPart(weaponRoot.limb.transform))
         entityManager.add(newWeaponEntity)
     }
 
@@ -66,8 +70,8 @@ class InventoryActions(factoryTools: FactoryTools) {
             dropEquippedWeapon(inventoryPart, gripper)
         }
         inventoryPart.pickup(pickupPart.weapon)
-        gripEquippedWeapon(inventoryPart, gripper)
-        entityManager.remove(pickupEntity)
+        gripCurrentWeapon(inventoryPart, gripper)
+        entityManager.destroy(pickupEntity)
     }
 
     private fun dropEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
@@ -76,10 +80,16 @@ class InventoryActions(factoryTools: FactoryTools) {
         val transformLimb = gripperDescendants.firstOrNull { it.entity.has(SpritePart::class) }
         val equippedWeapon = inventoryPart.equippedWeapon
         if (transformLimb != null && equippedWeapon != null) {
-            val removedWeaponTransform = transformLimb.transform as Box2dTransform
-            pickupFactory.create(equippedWeapon, Box2dTransform(removedWeaponTransform))
+            val droppedWeaponTransform = transformLimb.transform as Box2dTransform
+            pickupFactory.create(equippedWeapon, Box2dTransform(droppedWeaponTransform))
         }
         inventoryPart.dropEquippedWeapon()
-        limbFactory.removeChildren(gripper)
+        destroyChildren(gripper)
+    }
+
+    private fun destroyChildren(limb: Limb) {
+        for (child in limb.getChildren(true, true)) {
+            entityManager.destroy(child.entity)
+        }
     }
 }

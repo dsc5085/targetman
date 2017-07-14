@@ -34,15 +34,15 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         skeleton.updateWorldTransform()
         animationApplied.notify(AnimationAppliedEvent(entity))
         // TODO: Need to be able to handle scale timelines.  Currently the scale gets reset to the root scale.
-        skeleton.rootBone.scaleX = skeletonPart.rootScale.x
-        skeleton.rootBone.scaleY = skeletonPart.rootScale.y
+        skeleton.rootBone.scaleX = skeletonPart.root.scale.x
+        skeleton.rootBone.scaleY = skeletonPart.root.scale.y
         skeleton.updateWorldTransform()
     }
 
     private fun updateLimbs(skeletonPart: SkeletonPart) {
         for (limb in skeletonPart.getLimbs()) {
-            updateTransform(limb, skeletonPart.rootScale)
-            updateSkeletonLinks(limb)
+            updateTransform(limb, skeletonPart.root.scale)
+            updateLinks(limb)
         }
     }
 
@@ -53,9 +53,9 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         val world = Vector2(bone.worldX, bone.worldY)
         transform.rotation = limb.bone.worldRotationX
         if (attachment != null) {
-            val offsetFromBone = SkeletonUtils.getOffset(bone, attachment, limb.scale)
+            val offsetFromBone = SkeletonUtils.getOffset(bone, attachment, limb.spineScale)
             world.add(offsetFromBone)
-            val boneScale = limb.scale.scl(VectorUtils.inv(rootScale.abs()))
+            val boneScale = limb.spineScale.scl(VectorUtils.inv(rootScale.abs()))
             val attachmentScale = SkeletonUtils.calculateAttachmentScale(boneScale, attachment.rotation)
             transform.setScale(attachmentScale)
             transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
@@ -64,14 +64,14 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         transform.setLocalToWorld(origin, world)
     }
 
-    private fun updateSkeletonLinks(limb: Limb) {
-        for (skeletonLink in limb.getSkeletonLinks()) {
-            val childRoot = skeletonLink.root
-            val newScale = childRoot.transform.scale.abs().scl(limb.flipScale)
-            childRoot.transform.setScale(newScale)
-            val childTransform = skeletonLink.transform
+    private fun updateLinks(limb: Limb) {
+        for (link in limb.getLinks()) {
+            val linkRootLimb = link.limb
+            val newScale = link.scale.abs().scl(limb.flipScale)
+            link.scale.set(newScale)
+            val childTransform = link.limb.transform
             childTransform.rotation = limb.transform.rotation
-            SkeletonUtils.setWorldRotationX(childRoot.bone, limb.bone.worldRotationX)
+            SkeletonUtils.setWorldRotationX(linkRootLimb.bone, limb.bone.worldRotationX)
             childTransform.setWorld(childTransform.center, limb.transform.center)
         }
     }

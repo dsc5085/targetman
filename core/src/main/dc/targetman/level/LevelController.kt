@@ -12,7 +12,7 @@ import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.character.ActionsResetter
 import dc.targetman.character.CharacterActions
-import dc.targetman.character.CorpseOnLimbRemoved
+import dc.targetman.character.CorpseOnLimbBranchDestroyed
 import dc.targetman.character.MovementSystem
 import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
@@ -21,6 +21,7 @@ import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
+import dc.targetman.graphics.JointsDrawer
 import dc.targetman.graphics.LimbsShadowingSystem
 import dc.targetman.level.executers.SetSpeedExecuter
 import dc.targetman.level.executers.StepExecuter
@@ -41,7 +42,7 @@ import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
 import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
-import dc.targetman.skeleton.LimbRemovedChecker
+import dc.targetman.skeleton.LimbBranchDestroyedChecker
 import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.util.Json
@@ -58,8 +59,8 @@ import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 import dclib.mechanics.DamageOnCollided
-import dclib.mechanics.RemoveOnCollided
-import dclib.mechanics.RemoveOnNoHealthEntityAdded
+import dclib.mechanics.DestroyOnCollided
+import dclib.mechanics.DestroyOnNoHealthEntityAdded
 import dclib.mechanics.TimedDeathSystem
 import dclib.physics.AutoRotateSystem
 import dclib.physics.TranslateSystem
@@ -82,6 +83,7 @@ class LevelController(
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
+	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val advancer: Advancer
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
@@ -130,12 +132,13 @@ class LevelController(
 		entityDrawerManager.draw(entities)
 		particlesManager.draw()
         renderMapLayer(MapUtils.getForegroundIndex(map))
-//		renderBox2D()
+		renderBox2D()
+		jointsDrawer.draw()
 	}
 
 	private fun createEntityManager(): EntityManager {
 		val entityManager = DefaultEntityManager()
-		entityManager.entityAdded.on(RemoveOnNoHealthEntityAdded(entityManager))
+		entityManager.entityAdded.on(DestroyOnNoHealthEntityAdded(entityManager))
 		entityManager.entityAdded.on(ChangeContainerHealthOnEntityAdded(entityManager))
 		entityManager.entityAdded.on(AddLimbEntitiesOnEntityAdded(entityManager))
 		return entityManager
@@ -143,8 +146,8 @@ class LevelController(
 
 	private fun createAdvancer(): Advancer {
 		val collisionChecker = createCollisionChecker()
-		val limbRemovedChecker = LimbRemovedChecker(entityManager)
-		limbRemovedChecker.limbRemoved.on(CorpseOnLimbRemoved(entityManager, world))
+		val limbBranchDestroyedChecker = LimbBranchDestroyedChecker(entityManager)
+		limbBranchDestroyedChecker.destroyed.on(CorpseOnLimbBranchDestroyed(entityManager, world))
 		return Advancer(
 				ActionsResetter(entityManager),
 				createInputUpdater(),
@@ -160,7 +163,7 @@ class LevelController(
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, bulletFactory),
 				VitalLimbsSystem(entityManager),
-				StaggerSystem(factoryTools, collisionChecker),
+				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
 				particlesManager)
@@ -183,12 +186,11 @@ class LevelController(
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
         collisionChecker.collided.on(ParticlesOnCollided(entityManager, particlesManager))
         collisionChecker.collided.on(DamageOnCollided(filter))
-        collisionChecker.collided.on(RemoveOnCollided(entityManager, filter))
+        collisionChecker.collided.on(DestroyOnCollided(entityManager, filter))
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(render: Render)
-			: EntityDrawerManager {
+	private fun createEntityDrawerManager(render: Render): EntityDrawerManager {
 		val entityDrawers = mutableListOf<EntityDrawer>()
 		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
