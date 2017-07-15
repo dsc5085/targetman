@@ -208,7 +208,11 @@ class LevelController(
 	}
 
 	private fun createInputUpdater(): Updater {
-		return Updater { processInput() }
+		return object : Updater {
+			override fun update(delta: Float) {
+				processInput()
+			}
+		}
 	}
 
 	private fun processInput() {
