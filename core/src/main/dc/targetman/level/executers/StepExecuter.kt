@@ -8,6 +8,6 @@ class StepExecuter(private val advancer: Advancer) : Executer {
 
     override fun execute(params: Map<String, String>) {
         val stepAmount = params.getValue("amount").toFloat()
-        advancer.forceAdvance(stepAmount)
+        advancer.update(stepAmount)
     }
 }

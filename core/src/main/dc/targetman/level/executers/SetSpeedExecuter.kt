@@ -7,6 +7,6 @@ class SetSpeedExecuter(private val advancer: Advancer) : Executer {
     override val verb = "set speed"
 
     override fun execute(params: Map<String, String>) {
-        advancer.speed = params.getValue("speed").toFloat()
+        advancer.deltaModifier = params.getValue("speed").toFloat()
     }
 }
