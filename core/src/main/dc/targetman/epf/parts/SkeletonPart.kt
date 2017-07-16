@@ -16,6 +16,7 @@ class SkeletonPart(val root: SkeletonRoot) {
             root.scale.x = Math.abs(root.scale.x) * if (value) -1 else 1
         }
 
+    // TODO: Move these getters to Limb
     fun has(name: String): Boolean {
         return tryGet(name) != null
     }

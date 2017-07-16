@@ -6,6 +6,7 @@ import dclib.util.Timer
 class InventoryPart(
         val maxNumWeapons: Int,
         val gripperName: String,
+        val frameName: String,
         weapon: Weapon
 ) {
     var trySwitchWeapon = true
