@@ -9,7 +9,6 @@ import dc.targetman.skeleton.LimbFactory
 import dc.targetman.skeleton.LimbUtils
 import dc.targetman.skeleton.SkeletonUtils
 import dclib.epf.Entity
-import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.collision.CollidedEvent
@@ -43,9 +42,9 @@ class InventoryActions(factoryTools: FactoryTools) {
     fun tryDropEquippedWeapon(entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null && inventoryPart.equippedWeapon != null) {
-            val gripper = entity[SkeletonPart::class].tryGet(inventoryPart.gripperName)
-            if (gripper != null) {
-                dropEquippedWeapon(inventoryPart, gripper)
+            val skeletonPart = entity[SkeletonPart::class]
+            if (skeletonPart.has(inventoryPart.gripperName)) {
+                dropEquippedWeapon(inventoryPart, skeletonPart)
             }
         }
     }
@@ -67,17 +66,16 @@ class InventoryActions(factoryTools: FactoryTools) {
         val pickupPart = pickupEntity[PickupPart::class]
         val gripper = skeletonPart[inventoryPart.gripperName]
         if (inventoryPart.isFull) {
-            dropEquippedWeapon(inventoryPart, gripper)
+            dropEquippedWeapon(inventoryPart, skeletonPart)
         }
         inventoryPart.pickup(pickupPart.weapon)
         gripCurrentWeapon(inventoryPart, gripper)
         entityManager.destroy(pickupEntity)
     }
 
-    private fun dropEquippedWeapon(inventoryPart: InventoryPart, gripper: Limb) {
-        val gripperDescendants = gripper.getDescendants(includeLinked = true)
-        // TODO: Implement better check to get weapon transform
-        val transformLimb = gripperDescendants.firstOrNull { it.entity.has(SpritePart::class) }
+    private fun dropEquippedWeapon(inventoryPart: InventoryPart, skeletonPart: SkeletonPart) {
+        val gripper = skeletonPart[inventoryPart.gripperName]
+        val transformLimb = skeletonPart.tryGet(inventoryPart.frameName)
         val equippedWeapon = inventoryPart.equippedWeapon
         if (transformLimb != null && equippedWeapon != null) {
             val droppedWeaponTransform = transformLimb.transform as Box2dTransform

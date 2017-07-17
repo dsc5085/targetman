@@ -1,5 +1,6 @@
 package dc.targetman.level
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject
@@ -22,6 +23,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     private val foregroundLayer = map.layers[MapUtils.getForegroundIndex(map)] as TiledMapTileLayer
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
     private val characterFactory = CharacterFactory(factoryTools)
+    private val hullCache = mutableMapOf<TextureRegion, FloatArray>()
 
     fun createObjects() {
         createStaticObjects()
@@ -58,8 +60,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     }
 
     private fun createTileVertices(x: Int, y: Int, cell: TiledMapTileLayer.Cell): List<Vector2> {
-        // TODO: Cache convex hull for performance
-        var convexHull = TextureUtils.createConvexHull(cell.tile.textureRegion)
+        var convexHull = getHull(cell.tile.textureRegion)
         PolygonUtils.scale(convexHull, scale)
         if (cell.flipHorizontally) {
             convexHull = PolygonUtils.flipX(convexHull)
@@ -80,5 +81,9 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
             val characterPath = if (alliance == Alliance.PLAYER) "characters/cyborg.json" else "characters/dummy.json"
             createCharacter(characterPath, position, alliance)
         }
+    }
+
+    private fun getHull(region: TextureRegion): FloatArray {
+        return hullCache.getOrPut(region, { TextureUtils.createConvexHull(region) }).copyOf()
     }
 }

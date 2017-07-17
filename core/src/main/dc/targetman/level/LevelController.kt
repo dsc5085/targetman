@@ -13,6 +13,7 @@ import dc.targetman.ai.AiSystem
 import dc.targetman.character.ActionsResetter
 import dc.targetman.character.CharacterActions
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
+import dc.targetman.character.DeathForm
 import dc.targetman.character.MovementSystem
 import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
@@ -155,7 +156,7 @@ class LevelController(
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
-				PhysicsUpdater(world, entityManager),
+				PhysicsUpdater(world, entityManager, { !it.of(DeathForm.CORPSE) }),
 				createSkeletonSystem(),
 				collisionChecker,
 				MovementSystem(entityManager, world),

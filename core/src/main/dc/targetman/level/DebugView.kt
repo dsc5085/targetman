@@ -39,7 +39,7 @@ class DebugView(
             val inputCoords = Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
             val cursorWorldCoords = screenHelper.toWorldCoords(inputCoords)
             val cursorText = "${cursorWorldCoords.x}, ${cursorWorldCoords.y}"
-            val cursorDrawCoords = getDrawCoords(inputCoords)
+            val cursorDrawCoords = stage.screenToStageCoordinates(inputCoords)
             uiPack.getFont(FontSize.SMALL).draw(spriteBatch, cursorText, cursorDrawCoords.x, cursorDrawCoords.y)
             spriteBatch.end()
         }
@@ -51,13 +51,5 @@ class DebugView(
         fpsLabel = uiPack.label("")
         mainTable.add(fpsLabel).expand().top().right()
         return mainTable
-    }
-
-    // TODO: There should already be a utility function to perform this calculation, perhaps using viewport.project or something like that
-    private fun getDrawCoords(coords: Vector2): Vector2 {
-        val screenRatio = Vector2(stage.camera.viewportWidth / Gdx.graphics.width,
-                stage.camera.viewportHeight / Gdx.graphics.height)
-        val cursorCoords = Vector2(screenRatio.x * coords.x, screenRatio.y * coords.y)
-        return Vector2(cursorCoords.x, Gdx.graphics.height * screenRatio.y - cursorCoords.y)
     }
 }
