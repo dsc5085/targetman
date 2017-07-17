@@ -2,19 +2,22 @@ package dc.targetman.physics
 
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
-import dc.targetman.character.DeathForm
+import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.physics.Box2dUtils
 import dclib.system.Updater
 
-class PhysicsUpdater(private val world: World, entityManager: EntityManager) : Updater {
+class PhysicsUpdater(
+        private val world: World,
+        entityManager: EntityManager,
+        bodyDestroyFilter: (Entity) -> Boolean
+) : Updater {
     private val bodiesToDestroy = mutableListOf<Body>()
 
     init {
         entityManager.entityDestroyed.on {
             val body = Box2dUtils.getBody(it.entity)
-            // TODO: pass in the business-specific CORPSE check to this constructor to avoid mixing of business logic
-            if (body != null && !it.entity.of(DeathForm.CORPSE)) {
+            if (body != null && bodyDestroyFilter(it.entity)) {
                 bodiesToDestroy.add(body)
             }
         }
