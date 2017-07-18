@@ -34,18 +34,17 @@ class Limb(val bone: Bone, val entity: Entity) {
         return SkeletonUtils.getRegionAttachments(slots).singleOrNull()
     }
 
-    fun getChildren(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
+    fun getChildren(includeLinked: Boolean = false): Set<Limb> {
         val allChildren = children.toMutableList()
         if (includeLinked) {
             allChildren.addAll(links.map { it.limb })
         }
-        return allChildren.filter { includeInactive || it.isActive }.toSet()
+        return allChildren.toSet()
     }
 
     // TODO: Return to not include this Limb in order for the method name to make more sense. Instead, create a getBranch method for that case
-    fun getDescendants(includeInactive: Boolean = false, includeLinked: Boolean = false): Set<Limb> {
-        val descendants = getChildren(includeInactive, includeLinked)
-                .flatMap { it.getDescendants(includeInactive, includeLinked) }
+    fun getDescendants(includeLinked: Boolean = false): Set<Limb> {
+        val descendants = getChildren(includeLinked).flatMap { it.getDescendants(includeLinked) }
         return descendants.plus(this).toSet()
     }
 

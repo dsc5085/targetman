@@ -23,7 +23,7 @@ class LimbsShadowingSystem(entityManager: EntityManager) : EntitySystem(entityMa
                 val shadowingEnd = calculateShadowingEnd(drawOrder, keyLimbNames, i)
                 val shadowProgress = i.toFloat() / (shadowingPart.keyLimbNames.size - 1)
                 val color = calculateColor(shadowProgress, shadowingPart, skeletonPart.flipX)
-                val limbs = skeletonPart.getLimbs(true)
+                val limbs = skeletonPart.getLimbs()
                 for (j in shadowingStart until shadowingEnd) {
                     val limb = limbs.firstOrNull { it.name == drawOrder[j].data.name }
                     if (limb != null) {

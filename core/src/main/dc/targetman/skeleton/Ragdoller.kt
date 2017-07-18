@@ -30,7 +30,7 @@ object Ragdoller {
     }
 
     private fun addJointsToDescendants(limb: Limb) {
-        for (childLimb in limb.getChildren(true)) {
+        for (childLimb in limb.getChildren()) {
             val childTransform = childLimb.transform
             if (childTransform is Box2dTransform) {
                 val anchorCoords = getAnchorCoords(childLimb)

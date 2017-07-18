@@ -7,13 +7,26 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.esotericsoftware.spine.Skeleton
 import dc.targetman.ai.AiProfile
-import dc.targetman.epf.parts.*
+import dc.targetman.epf.parts.AiPart
+import dc.targetman.epf.parts.FiringPart
+import dc.targetman.epf.parts.InventoryPart
+import dc.targetman.epf.parts.LimbsShadowingPart
+import dc.targetman.epf.parts.MovementPart
+import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.epf.parts.StaggerPart
+import dc.targetman.epf.parts.VitalLimbsPart
 import dc.targetman.level.FactoryTools
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
 import dc.targetman.physics.collision.CollisionCategory
-import dc.targetman.skeleton.*
+import dc.targetman.skeleton.BoundingSlotsPart
+import dc.targetman.skeleton.Limb
+import dc.targetman.skeleton.LimbFactory
+import dc.targetman.skeleton.SkeletonFactory
+import dc.targetman.skeleton.SkeletonRoot
+import dc.targetman.skeleton.SkeletonUtils
+import dc.targetman.skeleton.getBounds
 import dc.targetman.util.Json
 import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
@@ -80,7 +93,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     }
 
     private fun characterizeDescendants(rootLimb: Limb, limbDatas: List<CharacterLimbData>, alliance: Alliance) {
-        for (limb in rootLimb.getDescendants(true)) {
+        for (limb in rootLimb.getDescendants()) {
             val limbData = limbDatas.firstOrNull { it.name == limb.name }
             if (limbData != null) {
                 characterize(limb.entity, limbData, alliance)

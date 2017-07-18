@@ -26,11 +26,11 @@ class SkeletonPart(val root: SkeletonRoot) {
     }
 
     fun tryGet(name: String): Limb? {
-        return getLimbs(true, true).filter { it.name == name }.firstOrNull()
+        return getLimbs(true).filter { it.name == name }.firstOrNull()
     }
 
-    fun getLimbs(includeInactive: Boolean = false, includeLinked: Boolean = false): Collection<Limb> {
-        return root.limb.getDescendants(includeInactive, includeLinked)
+    fun getLimbs(includeLinked: Boolean = false): Collection<Limb> {
+        return root.limb.getDescendants(includeLinked)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {
