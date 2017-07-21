@@ -40,7 +40,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
     }
 
     private fun updateLimbs(skeletonPart: SkeletonPart) {
-        for (limb in skeletonPart.getLimbs()) {
+        for (limb in skeletonPart.getLimbs(LinkType.STRONG)) {
             updateTransform(limb, skeletonPart.root.scale)
             updateLinks(limb)
         }
@@ -65,7 +65,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
     }
 
     private fun updateLinks(limb: Limb) {
-        for (link in limb.getLinks()) {
+        for (link in limb.getLinks(LinkType.WEAK)) {
             val linkRootLimb = link.limb
             val newScale = link.scale.abs().scl(limb.flipScale)
             link.scale.set(newScale)

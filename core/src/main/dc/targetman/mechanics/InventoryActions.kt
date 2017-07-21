@@ -86,7 +86,7 @@ class InventoryActions(factoryTools: FactoryTools) {
     }
 
     private fun destroyChildren(limb: Limb) {
-        for (child in limb.getChildren(true)) {
+        for (child in limb.getChildren()) {
             entityManager.destroy(child.entity)
         }
     }

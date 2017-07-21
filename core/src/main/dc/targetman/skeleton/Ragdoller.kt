@@ -12,7 +12,7 @@ import dclib.util.Maths
 
 object Ragdoller {
     fun ragdoll(rootLimb: Limb) {
-        for (descendant in rootLimb.getDescendants()) {
+        for (descendant in rootLimb.getDescendants(LinkType.STRONG)) {
             val transform = descendant.transform
             if (transform is Box2dTransform) {
                 Box2dUtils.setSensor(transform.body, false)
@@ -30,7 +30,7 @@ object Ragdoller {
     }
 
     private fun addJointsToDescendants(limb: Limb) {
-        for (childLimb in limb.getChildren()) {
+        for (childLimb in limb.getChildren(LinkType.STRONG)) {
             val childTransform = childLimb.transform
             if (childTransform is Box2dTransform) {
                 val anchorCoords = getAnchorCoords(childLimb)

@@ -3,6 +3,7 @@ package dc.targetman.mechanics
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.level.FactoryTools
+import dc.targetman.skeleton.LinkType
 import dc.targetman.skeleton.Ragdoller
 import dclib.epf.Entity
 import dclib.epf.EntitySystem
@@ -66,7 +67,7 @@ class StaggerSystem(factoryTools: FactoryTools) : EntitySystem(factoryTools.enti
     }
 
     private fun restoreSkeletonLimbs(skeletonPart: SkeletonPart, staggerPart: StaggerPart) {
-        for (limb in skeletonPart.getLimbs()) {
+        for (limb in skeletonPart.getLimbs(LinkType.STRONG)) {
             val transform = limb.transform
             if (transform is Box2dTransform) {
                 Box2dUtils.setSensor(transform.body, true)

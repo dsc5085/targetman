@@ -23,8 +23,8 @@ import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.BoundingSlotsPart
 import dc.targetman.skeleton.Limb
 import dc.targetman.skeleton.LimbFactory
+import dc.targetman.skeleton.LinkType
 import dc.targetman.skeleton.SkeletonFactory
-import dc.targetman.skeleton.SkeletonRoot
 import dc.targetman.skeleton.SkeletonUtils
 import dc.targetman.skeleton.getBounds
 import dc.targetman.util.Json
@@ -87,13 +87,13 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
             size: Vector2
     ): SkeletonPart {
         val rootScale = SkeletonUtils.calculateRootScale(skeleton, size)
-        val rootLimb = limbFactory.create(skeleton, character.atlasName, rootScale)
-        characterizeDescendants(rootLimb, character.limbDatas, alliance)
-        return SkeletonPart(SkeletonRoot(rootLimb, rootScale))
+        val root = limbFactory.create(skeleton, character.atlasName, rootScale)
+        characterizeDescendants(root.limb, character.limbDatas, alliance)
+        return SkeletonPart(root)
     }
 
     private fun characterizeDescendants(rootLimb: Limb, limbDatas: List<CharacterLimbData>, alliance: Alliance) {
-        for (limb in rootLimb.getDescendants()) {
+        for (limb in rootLimb.getDescendants(LinkType.STRONG)) {
             val limbData = limbDatas.firstOrNull { it.name == limb.name }
             if (limbData != null) {
                 characterize(limb.entity, limbData, alliance)

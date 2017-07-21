@@ -10,7 +10,7 @@ object LimbUtils {
         if (container != null) {
             val skeletonPart = container[SkeletonPart::class]
             limb = if (limbEntity == container) skeletonPart.root.limb
-            else skeletonPart.getLimbs(true).singleOrNull { it.entity === limbEntity }
+            else skeletonPart.getLimbs().singleOrNull { it.entity === limbEntity }
         }
         return limb
     }
@@ -19,7 +19,7 @@ object LimbUtils {
         return if (limbEntity.has(SkeletonPart::class)) limbEntity
         else entities.firstOrNull {
             val skeletonPart = it.tryGet(SkeletonPart::class)
-            skeletonPart?.getLimbs().orEmpty().any { it.entity === limbEntity }
+            skeletonPart?.getLimbs(LinkType.STRONG).orEmpty().any { it.entity === limbEntity }
         }
     }
 
@@ -27,8 +27,8 @@ object LimbUtils {
         for (entity in entities) {
             val skeletonPart = entity.tryGet(SkeletonPart::class)
             if (skeletonPart != null) {
-                val limbs = skeletonPart.getLimbs(true)
-                val parentLimb = limbs.firstOrNull { it.getChildren(true).contains(limb) }
+                val limbs = skeletonPart.getLimbs()
+                val parentLimb = limbs.firstOrNull { it.getChildren().contains(limb) }
                 if (parentLimb != null) {
                     return parentLimb
                 }

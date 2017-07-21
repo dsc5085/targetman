@@ -21,26 +21,28 @@ import dclib.physics.Transform
 // TODO: probably don't need textureCache since we can just reuse existing texture.
 // TODO: Rename LimbFactory. It is misleading
 class LimbFactory(private val factoryTools: FactoryTools) {
-    fun create(skeleton: Skeleton, atlasName: String, rootScale: Vector2): Limb {
+    fun create(skeleton: Skeleton, atlasName: String, rootScale: Vector2): LimbLink {
         val skeletonCopy = Skeleton(skeleton)
-        return createLimb(skeletonCopy.rootBone, rootScale, atlasName)
+        val root = createLimbLink(skeletonCopy.rootBone, rootScale, atlasName)
+        root.scale.set(rootScale)
+        return root
     }
 
-    fun link(childSkeleton: Skeleton, atlasName: String, rootScale: Vector2, parentLimb: Limb): SkeletonRoot {
+    fun link(childSkeleton: Skeleton, atlasName: String, rootScale: Vector2, parentLimb: Limb): LimbLink {
         val rootLimb = create(childSkeleton, atlasName, rootScale)
-        val root = SkeletonRoot(rootLimb, rootScale)
+        val root = LimbLink(rootLimb.limb, LinkType.WEAK, rootScale)
         parentLimb.append(root)
         return root
     }
 
-    private fun createLimb(bone: Bone, rootScale: Vector2, atlasName: String): Limb {
+    private fun createLimbLink(bone: Bone, rootScale: Vector2, atlasName: String): LimbLink {
         val regionAttachment = getRegionAttachments(bone).firstOrNull()
         val limbEntity = createLimbEntity(regionAttachment, rootScale, atlasName)
         val limb = Limb(bone, limbEntity)
         for (childBone in bone.children) {
-            limb.append(createLimb(childBone, rootScale, atlasName))
+            limb.append(createLimbLink(childBone, rootScale, atlasName))
         }
-        return limb
+        return LimbLink(limb, LinkType.STRONG)
     }
 
     private fun getRegionAttachments(bone: Bone): List<RegionAttachment> {

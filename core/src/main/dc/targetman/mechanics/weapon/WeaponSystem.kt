@@ -34,7 +34,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
     private fun hasFiringLimbs(firingPart: FiringPart, skeletonPart: SkeletonPart): Boolean {
         val rotatorName = firingPart.rotatorName
         val rotatorLimb = skeletonPart.tryGet(rotatorName)
-        return rotatorLimb != null && rotatorLimb.getDescendants(true).any { it.name == firingPart.muzzleName }
+        return rotatorLimb != null && rotatorLimb.getDescendants().any { it.name == firingPart.muzzleName }
     }
 
     private fun aim(delta: Float, firingPart: FiringPart) {

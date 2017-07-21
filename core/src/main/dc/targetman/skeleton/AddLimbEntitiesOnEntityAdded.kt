@@ -8,7 +8,7 @@ class AddLimbEntitiesOnEntityAdded(private val entityManager: EntityManager) : (
     override fun invoke(event: EntityAddedEvent) {
         val skeletonPart = event.entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null) {
-            for (limb in skeletonPart.getLimbs()) {
+            for (limb in skeletonPart.getLimbs(LinkType.STRONG)) {
                 entityManager.add(limb.entity)
             }
         }

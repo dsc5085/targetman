@@ -1,6 +1,7 @@
 package dc.targetman.graphics
 
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.skeleton.LinkType
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityZComparator
@@ -29,7 +30,7 @@ class GetDrawEntities(private val entityManager: EntityManager) : () -> List<Ent
     }
 
     private fun getSortedChildren(skeletonPart: SkeletonPart): List<Entity> {
-        val activeLimbs = skeletonPart.getLimbs()
+        val activeLimbs = skeletonPart.getLimbs(LinkType.STRONG)
         var sortedLimbs = skeletonPart.skeleton.drawOrder.map {
             slot -> activeLimbs.firstOrNull { limb -> limb.name == slot.data.name }
         }.filterNotNull()
