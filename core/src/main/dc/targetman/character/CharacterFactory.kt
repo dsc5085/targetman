@@ -42,7 +42,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     private val DENSITY = 1f
 
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)
-    private val limbFactory = LimbFactory(factoryTools)
+    private val limbFactory = LimbFactory(factoryTools.world)
 
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)
@@ -87,7 +87,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
             size: Vector2
     ): SkeletonPart {
         val rootScale = SkeletonUtils.calculateRootScale(skeleton, size)
-        val root = limbFactory.create(skeleton, character.atlasName, rootScale)
+        val root = limbFactory.create(skeleton, rootScale)
         characterizeDescendants(root.limb, character.limbDatas, alliance)
         return SkeletonPart(root)
     }
