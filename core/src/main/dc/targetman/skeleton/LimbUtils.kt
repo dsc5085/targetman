@@ -22,18 +22,4 @@ object LimbUtils {
             skeletonPart?.getLimbs(LinkType.STRONG).orEmpty().any { it.entity === limbEntity }
         }
     }
-
-    fun findParent(entities: Collection<Entity>, limb: Limb): Limb? {
-        for (entity in entities) {
-            val skeletonPart = entity.tryGet(SkeletonPart::class)
-            if (skeletonPart != null) {
-                val limbs = skeletonPart.getLimbs()
-                val parentLimb = limbs.firstOrNull { it.getChildren().contains(limb) }
-                if (parentLimb != null) {
-                    return parentLimb
-                }
-            }
-        }
-        return null
-    }
 }

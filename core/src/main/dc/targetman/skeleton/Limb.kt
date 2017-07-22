@@ -8,6 +8,8 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 
 class Limb(val bone: Bone, val entity: Entity) {
+    var parent: Limb? = null
+        private set
     val skeleton = bone.skeleton
     val name get() = bone.data.name
     val transform get() = entity[TransformPart::class].transform
@@ -46,9 +48,11 @@ class Limb(val bone: Bone, val entity: Entity) {
 
     fun append(childLink: LimbLink) {
         childLinks.add(childLink)
+        childLink.limb.parent = this
     }
 
     fun detach(limb: Limb): Boolean {
+        limb.parent = null
         return childLinks.removeAll { it.limb === limb }
     }
 }
