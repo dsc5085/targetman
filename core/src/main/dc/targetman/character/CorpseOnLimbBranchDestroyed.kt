@@ -3,6 +3,7 @@ package dc.targetman.character
 import com.badlogic.gdx.physics.box2d.World
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.skeleton.LimbBranchDestroyedEvent
+import dc.targetman.skeleton.LinkType
 import dc.targetman.skeleton.Ragdoller
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -18,7 +19,7 @@ class CorpseOnLimbBranchDestroyed(val entityManager: EntityManager, val world: W
         val corpseLiveTime = 30f
         if (event.rootLimb.entity.of(DeathForm.CORPSE)) {
             Ragdoller.ragdoll(event.rootLimb)
-            for (limb in event.rootLimb.getDescendants()) {
+            for (limb in event.rootLimb.getDescendants(LinkType.STRONG)) {
                 createCorpseEntity(limb.entity, corpseLiveTime)
             }
         }

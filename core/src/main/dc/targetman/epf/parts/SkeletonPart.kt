@@ -3,9 +3,10 @@ package dc.targetman.epf.parts
 import com.esotericsoftware.spine.AnimationState
 import com.esotericsoftware.spine.AnimationStateData
 import dc.targetman.skeleton.Limb
-import dc.targetman.skeleton.SkeletonRoot
+import dc.targetman.skeleton.LimbLink
+import dc.targetman.skeleton.LinkType
 
-class SkeletonPart(val root: SkeletonRoot) {
+class SkeletonPart(val root: LimbLink) {
     var isEnabled = true
     val skeleton = root.limb.skeleton
     val animationState = createAnimationState()
@@ -26,11 +27,11 @@ class SkeletonPart(val root: SkeletonRoot) {
     }
 
     fun tryGet(name: String): Limb? {
-        return getLimbs(true).filter { it.name == name }.firstOrNull()
+        return getLimbs().filter { it.name == name }.firstOrNull()
     }
 
-    fun getLimbs(includeLinked: Boolean = false): Collection<Limb> {
-        return root.limb.getDescendants(includeLinked)
+    fun getLimbs(vararg linkTypes: LinkType = LinkType.values()): Collection<Limb> {
+        return root.limb.getDescendants(*linkTypes)
     }
 
     fun playAnimation(name: String, trackIndex: Int = 0) {

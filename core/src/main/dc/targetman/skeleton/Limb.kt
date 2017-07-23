@@ -7,9 +7,11 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 
+// TODO: Remove entity property?
 class Limb(val bone: Bone, val entity: Entity) {
+    var parent: Limb? = null
+        private set
     val skeleton = bone.skeleton
-    val isActive get() = entity.isActive
     val name get() = bone.data.name
     val transform get() = entity[TransformPart::class].transform
     /**
@@ -23,10 +25,7 @@ class Limb(val bone: Bone, val entity: Entity) {
             return VectorUtils.sign(rootBoneScale)
         }
 
-    private val children = mutableSetOf<Limb>()
-    // TODO: Merge skeleton links list with children list
-    // TODO: links must be of List type. Weird edge case where when skeleton is flipped, can't remove elements from links as a set. Figure out why this happens.
-    private val links = mutableListOf<SkeletonRoot>()
+    private val childLinks = mutableSetOf<LimbLink>()
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
@@ -34,33 +33,27 @@ class Limb(val bone: Bone, val entity: Entity) {
         return SkeletonUtils.getRegionAttachments(slots).singleOrNull()
     }
 
-    fun getChildren(includeLinked: Boolean = false): Set<Limb> {
-        val allChildren = children.toMutableList()
-        if (includeLinked) {
-            allChildren.addAll(links.map { it.limb })
-        }
-        return allChildren.toSet()
+    fun getLinks(vararg linkTypes: LinkType = LinkType.values()): Set<LimbLink> {
+        return childLinks.filter { linkTypes.contains(it.type) }.toSet()
+    }
+
+    fun getChildren(vararg linkTypes: LinkType = LinkType.values()): Set<Limb> {
+        return getLinks(*linkTypes).map { it.limb }.toSet()
     }
 
     // TODO: Return to not include this Limb in order for the method name to make more sense. Instead, create a getBranch method for that case
-    fun getDescendants(includeLinked: Boolean = false): Set<Limb> {
-        val descendants = getChildren(includeLinked).flatMap { it.getDescendants(includeLinked) }
+    fun getDescendants(vararg linkTypes: LinkType = LinkType.values()): Set<Limb> {
+        val descendants = getChildren(*linkTypes).flatMap { it.getDescendants(*linkTypes) }
         return descendants.plus(this).toSet()
     }
 
-    fun append(limb: Limb) {
-        children.add(limb)
-    }
-
-    fun append(link: SkeletonRoot) {
-        links.add(link)
+    fun append(childLink: LimbLink) {
+        childLinks.add(childLink)
+        childLink.limb.parent = this
     }
 
     fun detach(limb: Limb): Boolean {
-        return children.remove(limb) || links.removeAll { it.limb === limb }
-    }
-
-    fun getLinks(): Set<SkeletonRoot> {
-        return links.toSet()
+        limb.parent = null
+        return childLinks.removeAll { it.limb === limb }
     }
 }

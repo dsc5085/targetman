@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Array
 import com.esotericsoftware.spine.Slot
 import dc.targetman.epf.parts.LimbsShadowingPart
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.skeleton.LinkType
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
@@ -23,7 +24,7 @@ class LimbsShadowingSystem(entityManager: EntityManager) : EntitySystem(entityMa
                 val shadowingEnd = calculateShadowingEnd(drawOrder, keyLimbNames, i)
                 val shadowProgress = i.toFloat() / (shadowingPart.keyLimbNames.size - 1)
                 val color = calculateColor(shadowProgress, shadowingPart, skeletonPart.flipX)
-                val limbs = skeletonPart.getLimbs()
+                val limbs = skeletonPart.getLimbs(LinkType.STRONG)
                 for (j in shadowingStart until shadowingEnd) {
                     val limb = limbs.firstOrNull { it.name == drawOrder[j].data.name }
                     if (limb != null) {

@@ -15,7 +15,7 @@ import dclib.physics.collision.CollidedEvent
 
 class InventoryActions(factoryTools: FactoryTools) {
     private val entityManager = factoryTools.entityManager
-    private val limbFactory = LimbFactory(factoryTools)
+    private val limbFactory = LimbFactory(factoryTools.world)
     private val pickupFactory = PickupFactory(factoryTools)
 
     fun tryEquipCurrentWeapon(entity: Entity) {
@@ -53,11 +53,7 @@ class InventoryActions(factoryTools: FactoryTools) {
         destroyChildren(gripper)
         val equippedWeapon = inventoryPart.equippedWeapon
         val rootScale = SkeletonUtils.calculateRootScale(equippedWeapon!!.skeleton, equippedWeapon.size)
-        val weaponRoot = limbFactory.link(
-                equippedWeapon.skeleton,
-                equippedWeapon.data.atlasName,
-                rootScale,
-                gripper)
+        val weaponRoot = limbFactory.link(equippedWeapon.skeleton, rootScale, gripper)
         val newWeaponEntity = Entity(SkeletonPart(weaponRoot), TransformPart(weaponRoot.limb.transform))
         entityManager.add(newWeaponEntity)
     }
@@ -86,7 +82,7 @@ class InventoryActions(factoryTools: FactoryTools) {
     }
 
     private fun destroyChildren(limb: Limb) {
-        for (child in limb.getChildren(true)) {
+        for (child in limb.getChildren()) {
             entityManager.destroy(child.entity)
         }
     }
