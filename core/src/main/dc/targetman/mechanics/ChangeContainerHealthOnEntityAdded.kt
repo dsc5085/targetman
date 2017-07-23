@@ -1,5 +1,6 @@
-package dc.targetman.skeleton
+package dc.targetman.mechanics
 
+import dc.targetman.skeleton.LimbUtils
 import dclib.epf.Entity
 import dclib.epf.EntityAddedEvent
 import dclib.epf.EntityManager

@@ -27,6 +27,7 @@ import dc.targetman.graphics.LimbsShadowingSystem
 import dc.targetman.level.executers.SetSpeedExecuter
 import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.ChangeContainerHealthOnEntityAdded
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.InventorySystem
@@ -42,7 +43,6 @@ import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
-import dc.targetman.skeleton.ChangeContainerHealthOnEntityAdded
 import dc.targetman.skeleton.LimbBranchDestroyedChecker
 import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonSyncSystem

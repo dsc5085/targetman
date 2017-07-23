@@ -7,6 +7,7 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.geometry.VectorUtils
 
+// TODO: Remove entity property?
 class Limb(val bone: Bone, val entity: Entity) {
     var parent: Limb? = null
         private set
