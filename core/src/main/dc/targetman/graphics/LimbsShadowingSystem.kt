@@ -12,6 +12,8 @@ import dclib.epf.EntitySystem
 import dclib.epf.parts.SpritePart
 
 class LimbsShadowingSystem(entityManager: EntityManager) : EntitySystem(entityManager) {
+    override val isIncremental = false
+
     override fun update(delta: Float, entity: Entity) {
         val shadowingPart = entity.tryGet(LimbsShadowingPart::class)
         if (shadowingPart != null) {
