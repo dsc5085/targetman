@@ -23,7 +23,6 @@ class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<Co
 	private fun getForce(sourceEntity: Entity): Vector2 {
         val transform = sourceEntity[TransformPart::class].transform
 		val forcePart = sourceEntity[ForcePart::class]
-		val forceVector = transform.velocity.setLength(forcePart.force)
-		return forceVector.scl(forcePart.scale)
+		return transform.velocity.setLength(forcePart.force)
 	}
 }

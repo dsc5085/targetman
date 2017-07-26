@@ -133,7 +133,7 @@ class LevelController(
 		entityDrawerManager.draw(entities)
 		particlesManager.draw()
         renderMapLayer(MapUtils.getForegroundIndex(map))
-		renderBox2D()
+//		renderBox2D()
 		jointsDrawer.draw()
 	}
 
