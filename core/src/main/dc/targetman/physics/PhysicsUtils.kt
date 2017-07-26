@@ -8,7 +8,7 @@ import dclib.epf.parts.TransformPart
 
 object PhysicsUtils {
     fun createWorld(): World {
-        return World(Vector2(0f, -10f), true)
+        return World(Vector2(0f, -18f), true)
     }
 
     fun applyForce(entities: Collection<Entity>, target: Entity, force: Vector2) {
