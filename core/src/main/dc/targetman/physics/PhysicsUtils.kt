@@ -12,7 +12,6 @@ object PhysicsUtils {
     }
 
     fun applyForce(entities: Collection<Entity>, target: Entity, force: Vector2) {
-        target[TransformPart::class].transform.applyImpulse(force)
         val targetContainer = LimbUtils.findContainer(entities, target)
         if (targetContainer != null) {
             targetContainer[TransformPart::class].transform.applyImpulse(force)
