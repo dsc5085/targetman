@@ -42,7 +42,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     private val DENSITY = 1f
 
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)
-    private val limbFactory = LimbFactory(factoryTools.world)
+    private val limbFactory = LimbFactory(factoryTools.world, factoryTools.textureCache)
 
     fun create(characterPath: String, height: Float, position: Vector3, alliance: Alliance): Entity {
         val character = Json.toObject<Character>(characterPath)

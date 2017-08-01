@@ -11,7 +11,6 @@ import dc.targetman.skeleton.SkeletonUtils
 import dclib.epf.Entity
 import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.PolygonUtils
 import dclib.geometry.toVector2
 import dclib.graphics.TextureUtils
 import dclib.physics.Box2dTransform
@@ -21,8 +20,8 @@ class PickupFactory(private val factoryTools: FactoryTools) {
     private val skeletonFactory = SkeletonFactory(factoryTools.textureCache)
 
     fun create(weapon: Weapon, position: Vector3) {
-        val size = weapon.size
-        val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
+        val regionAttachment = SkeletonUtils.getRegionAttachments(weapon.skeleton.slots).first()
+        val vertices = factoryTools.textureCache.getHull(regionAttachment.region, weapon.size)
         val body = Box2dUtils.createDynamicBody(factoryTools.world, vertices)
         val transform = Box2dTransform(body, position.z)
         transform.setLocalToWorld(transform.center, position.toVector2())

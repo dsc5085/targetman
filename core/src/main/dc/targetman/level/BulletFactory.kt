@@ -57,7 +57,7 @@ class BulletFactory(private val factoryTools: FactoryTools) {
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
         val transform = Box2dTransform(body, position.z)
         transform.position = Vector2(position.x, position.y)
-        val region = textureCache.createHull(regionName).region
+        val region = textureCache.getPolygonRegion(regionName)
         val entity = Entity(TransformPart(transform), SpritePart(region))
         entity.addAttributes(*attributes)
         EntityUtils.filterSameAlliance(entity)
@@ -65,7 +65,7 @@ class BulletFactory(private val factoryTools: FactoryTools) {
     }
 
     private fun createBody(regionName: String, size: Vector2, sensor: Boolean): Body {
-        val hull = textureCache.createHull(regionName, size).hull
+        val hull = textureCache.getHull(regionName, size)
         return Box2dUtils.createDynamicBody(factoryTools.world, hull, sensor)
     }
 }

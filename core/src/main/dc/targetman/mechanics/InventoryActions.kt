@@ -15,7 +15,7 @@ import dclib.physics.collision.CollidedEvent
 
 class InventoryActions(factoryTools: FactoryTools) {
     private val entityManager = factoryTools.entityManager
-    private val limbFactory = LimbFactory(factoryTools.world)
+    private val limbFactory = LimbFactory(factoryTools.world, factoryTools.textureCache)
     private val pickupFactory = PickupFactory(factoryTools)
 
     fun tryEquipCurrentWeapon(entity: Entity) {
