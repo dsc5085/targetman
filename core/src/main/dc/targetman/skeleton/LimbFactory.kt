@@ -14,13 +14,14 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
 import dclib.geometry.abs
+import dclib.graphics.TextureCache
 import dclib.graphics.TextureUtils
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
-class LimbFactory(private val world: World) {
+class LimbFactory(private val world: World, private val textureCache: TextureCache) {
     fun create(skeleton: Skeleton, rootScale: Vector2): LimbLink {
         val skeletonCopy = Skeleton(skeleton)
         val root = createLimbLink(skeletonCopy.rootBone, rootScale)
@@ -63,7 +64,7 @@ class LimbFactory(private val world: World) {
 
     private fun createBoneEntity(size: Vector2, flipScale: Vector2, textureRegion: TextureRegion): Entity {
         val region = TextureUtils.createPolygonRegion(textureRegion)
-        val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
+        val vertices = textureCache.getHull(textureRegion, size)
         val transform = createLimbTransform(vertices)
         transform.setScale(flipScale)
         return Entity(TransformPart(transform), SpritePart(region))

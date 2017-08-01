@@ -2,11 +2,14 @@ package dc.targetman
 
 import com.badlogic.gdx.ApplicationAdapter
 import dc.targetman.command.CommandProcessor
+import dc.targetman.geometry.PolygonOperations
 import dc.targetman.screens.ConsoleScreen
 import dc.targetman.screens.LevelScreen
+import dclib.geometry.PolygonUtils
 import dclib.graphics.Render
 import dclib.graphics.RenderUtils
 import dclib.graphics.TextureCache
+import dclib.graphics.TextureUtils
 import dclib.system.ScreenManager
 import dclib.ui.UiPack
 
@@ -55,7 +58,13 @@ class TargetmanGame : ApplicationAdapter() {
 	}
 
 	private fun createTextureCache(): TextureCache {
-		val textureCache = TextureCache()
+		val textureCache = TextureCache({
+			val distanceToleranceRatio = 0.1
+			val vertices = TextureUtils.createConvexHull(it)
+			val vectors = PolygonUtils.toVectors(vertices)
+			val distanceTolerance = Math.max(it.regionWidth, it.regionHeight) * distanceToleranceRatio
+			PolygonUtils.toFloats(PolygonOperations.simplify(vectors, distanceTolerance))
+		})
         textureCache.loadTexturesIntoAtlas("textures/objects/", "objects")
         textureCache.loadTexturesIntoAtlas("textures/skins/man", "skins/man")
 		return textureCache
