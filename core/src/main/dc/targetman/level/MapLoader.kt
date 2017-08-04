@@ -7,12 +7,12 @@ import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import dc.targetman.character.CharacterFactory
-import dc.targetman.geometry.PolygonOperations
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
+import dclib.geometry.PolygonOperations
 import dclib.geometry.PolygonUtils
 import dclib.geometry.toVector3
 import dclib.graphics.TextureUtils

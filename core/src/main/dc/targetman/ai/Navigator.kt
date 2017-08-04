@@ -2,6 +2,7 @@ package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.physics.box2d.World
+import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
 import dclib.epf.Entity
 import dclib.geometry.center
@@ -14,7 +15,10 @@ class Navigator(private val graphQuery: GraphQuery, private val steering: Steeri
         val agent = Agent(entity, targetBounds, graphQuery)
         steering.seek(agent)
         updatePath(agent)
-        removeReachedNodes(agent)
+        val nextNode = agent.nextNode
+        if (nextNode != null && atNode(nextNode, agent.bounds)) {
+            agent.path -= nextNode
+        }
     }
 
     private fun updatePath(agent: Agent) {
@@ -33,12 +37,9 @@ class Navigator(private val graphQuery: GraphQuery, private val steering: Steeri
         }
     }
 
-    private fun removeReachedNodes(agent: Agent) {
-        val nextNode = agent.nextNode
-        var checkBounds = agent.bounds.setHeight(0f)
-                .grow(Box2dUtils.ROUNDING_ERROR, Box2dUtils.ROUNDING_ERROR)
-        if (nextNode != null && checkBounds.contains(nextNode.position)) {
-            agent.path -= nextNode
-        }
+    private fun atNode(node: DefaultNode, bounds: Rectangle): Boolean {
+        val buffer = Box2dUtils.ROUNDING_ERROR
+        val checkBounds = bounds.setHeight(0f).grow(buffer, buffer)
+        return checkBounds.contains(node.position)
     }
 }

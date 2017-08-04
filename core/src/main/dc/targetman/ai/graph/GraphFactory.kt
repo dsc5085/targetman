@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
 import dclib.physics.Box2dUtils
 import dclib.util.Maths
-import kotlin.comparisons.compareBy
 
 class GraphFactory(
         private val boundsList: List<Rectangle>,
@@ -34,7 +33,7 @@ class GraphFactory(
 
     private fun connect(segment1: Segment, segment2: Segment) {
         val leftToRightDistance = Maths.distance(segment1.left, segment2.right)
-        val rightToLeftDistance = Maths.distance(segment1.right, segment1.left)
+        val rightToLeftDistance = Maths.distance(segment1.right, segment2.left)
         val minDistance = Math.min(leftToRightDistance, rightToLeftDistance)
         if (minDistance > 0) {
             if (leftToRightDistance == minDistance) {
@@ -59,14 +58,14 @@ class GraphFactory(
 
     private fun connectMiddle(topSegment: Segment, topNode: DefaultNode, bottomSegment: Segment,
                               landingOffsetX: Float) {
-        val bottomX = topNode.x + landingOffsetX
-        if (bottomSegment.containsX(bottomX)) {
+        val landingX = topNode.x + landingOffsetX
+        if (bottomSegment.containsX(landingX) || bottomSegment.containsX(topNode.x)) {
             // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
             // TODO: Should probably also add corner node between regular jump nodes
-            val cornerNode = topSegment.getOrAdd(DefaultNode(bottomX, topNode.y))
+            val cornerNode = topSegment.getOrAdd(DefaultNode(landingX, topNode.y))
             topNode.addConnection(cornerNode)
             cornerNode.addConnection(topNode)
-            val bottomNode = bottomSegment.getOrAdd(DefaultNode(bottomX, bottomSegment.y))
+            val bottomNode = bottomSegment.getOrAdd(DefaultNode(landingX, bottomSegment.y))
             connectJump(cornerNode, bottomNode)
             connectJump(bottomNode, cornerNode)
         }

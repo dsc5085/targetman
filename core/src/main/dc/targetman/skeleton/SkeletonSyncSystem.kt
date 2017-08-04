@@ -20,7 +20,8 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null && skeletonPart.isEnabled) {
             updateSkeleton(delta, entity)
-            updateSize(entity)
+            // TODO:
+//            updateSize(entity)
             updateRootPosition(entity)
             updateLimbs(skeletonPart)
         }
