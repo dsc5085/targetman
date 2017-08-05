@@ -20,7 +20,10 @@ class JumpChecker(private val world: World, private val jumpVelocitySolver: Jump
             local: Vector2,
             result: JumpVelocityResult
     ): Boolean {
-        val body = createBody(size)
+        // Since the simulation is a little inaccurate, make the size of the test body bigger to prevent false positives
+        val simSizeScale = 1.1f
+        val simSize = size.cpy().scl(simSizeScale, simSizeScale)
+        val body = createBody(simSize)
         val transform = Box2dTransform(body)
         transform.setLocalToWorld(local, start)
         transform.velocity = result.velocity
