@@ -18,7 +18,7 @@ import dclib.physics.Transform
 import dclib.util.Maths
 
 // TODO: Combine with InputUpdater.  Pipe actions into InputUpdater
-class AiSystem(private val entityManager: EntityManager, private val navigator: Navigator)
+class AiSystem(private val entityManager: EntityManager, private val moveAi: MoveAi)
     : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class)
@@ -27,7 +27,7 @@ class AiSystem(private val entityManager: EntityManager, private val navigator: 
             val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
                 val targetBounds = target[TransformPart::class].transform.bounds
-                navigator.navigate(entity, targetBounds)
+                moveAi.move(entity, targetBounds)
                 aim(entity, targetBounds)
                 CharacterActions.trigger(entity)
             }

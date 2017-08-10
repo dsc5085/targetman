@@ -9,8 +9,8 @@ import dc.targetman.mechanics.Direction
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 
-class Agent(private val entity: Entity, val targetBounds: Rectangle, graphQuery: GraphQuery) {
-    val belowSegment = graphQuery.getNearestBelowSegment(bounds)
+class Agent(val entity: Entity, val targetBounds: Rectangle, private val graphQuery: GraphQuery) {
+    val belowSegment get() = graphQuery.getNearestBelowSegment(bounds)
     val bounds get() = entity[TransformPart::class].transform.bounds
     val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
     val velocity get() = entity[TransformPart::class].transform.velocity

@@ -31,7 +31,7 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
     }
 
     private fun getNextX(agent: Agent): Float? {
-        var nextX: Float?
+        val nextX: Float?
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         if (targetSegment != null && targetSegment === agent.belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)

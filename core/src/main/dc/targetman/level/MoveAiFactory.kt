@@ -4,7 +4,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.World
-import dc.targetman.ai.Navigator
+import dc.targetman.ai.MoveAi
 import dc.targetman.ai.Steering
 import dc.targetman.ai.graph.DefaultGraphQuery
 import dc.targetman.ai.graph.GraphFactory
@@ -17,12 +17,12 @@ import dclib.epf.DefaultEntityManager
 import dclib.epf.parts.TransformPart
 import dclib.graphics.TextureCache
 
-object NavigatorFactory {
+object MoveAiFactory {
     fun create(
             map: TiledMap,
             world: World,
             textureCache: TextureCache
-    ): Navigator {
+    ): MoveAi {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
@@ -41,6 +41,6 @@ object NavigatorFactory {
         val steering = Steering(graphQuery, jumpVelocitySolver)
         entityManager.dispose()
         staticWorld.dispose()
-        return Navigator(graphQuery, steering, world)
+        return MoveAi(graphQuery, steering, world)
     }
 }
