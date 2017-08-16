@@ -12,7 +12,11 @@ import dclib.geometry.PolygonUtils
 import dclib.graphics.TextureUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.collision.CollidedEvent
-import dclib.physics.particles.*
+import dclib.physics.particles.EntityPositionGetter
+import dclib.physics.particles.ParticleCollidedEvent
+import dclib.physics.particles.ParticleEmitterBox2d
+import dclib.physics.particles.ParticlesManager
+import dclib.physics.particles.StaticPositionGetter
 import dclib.util.FloatRange
 
 class ParticlesOnCollided(
@@ -36,7 +40,7 @@ class ParticlesOnCollided(
 		val target = event.target
         val targetAlliance = target.entity.getAttribute(Alliance::class)
         val notTargetAlliance = targetAlliance == null || !event.source.entity.of(targetAlliance)
-		val contactPoint = event.contactPoint
+		val contactPoint = event.manifold.firstOrNull()
         if (notTargetAlliance && target.entity.of(Material.METAL) && contactPoint != null) {
 			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint))
 		}

@@ -7,9 +7,9 @@ import dclib.geometry.PolygonUtils
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
-class JumpChecker(private val world: World, private val jumpVelocitySolver: JumpVelocitySolver) {
+class JumpChecker(private val world: World, private val moveSpeed: Vector2) {
     fun isValid(start: Vector2, end: Vector2, size: Vector2, local: Vector2): Boolean {
-        val result = jumpVelocitySolver.solve(start, end)
+        val result = JumpVelocitySolver.solve(start, end, moveSpeed, world.gravity.y)
         return result.isValid && passedSimulation(start, end, size, local, result)
     }
 

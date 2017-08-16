@@ -12,8 +12,13 @@ import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
+import dclib.physics.collision.CollisionChecker
 
-class MovementSystem(entityManager: EntityManager, private val world: World) : EntitySystem(entityManager) {
+class MovementSystem(
+        entityManager: EntityManager,
+        private val world: World,
+        private val collisionChecker: CollisionChecker
+) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
             move(entity)
@@ -25,7 +30,7 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         val movementPart = entity[MovementPart::class]
         val direction = movementPart.direction
         val skeletonPart = entity[SkeletonPart::class]
-        val targetVelocityX = movementPart.moveSpeed * getMoveStrength(entity) * direction.toFloat()
+        val targetVelocityX = movementPart.speed.x * getMoveStrength(entity) * direction.toFloat()
         if (direction == Direction.NONE) {
             skeletonPart.playAnimation("idle")
         } else {
@@ -50,7 +55,8 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
         if (!movementPart.tryJumping || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (movementPart.tryJumping && (EntityUtils.isGrounded(world, entity) || jumpIncreaseTimer.isStarted)) {
+        } else if (movementPart.tryJumping && (EntityUtils.isGrounded(collisionChecker, entity)
+                || jumpIncreaseTimer.isStarted)) {
             jump(entity, delta)
         }
     }
@@ -58,11 +64,11 @@ class MovementSystem(entityManager: EntityManager, private val world: World) : E
     private fun jump(entity: Entity, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val transform = entity[TransformPart::class].transform as Box2dTransform
-        if (EntityUtils.isGrounded(world, entity)) {
+        if (EntityUtils.isGrounded(collisionChecker, entity)) {
             transform.velocity = Vector2(transform.velocity.x, 0f)
         }
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        val maxJumpSpeed = movementPart.jumpSpeed * getMoveStrength(entity)
+        val maxJumpSpeed = movementPart.speed.y * getMoveStrength(entity)
         val oldApproxJumpSpeed = maxJumpSpeed * jumpIncreaseTimer.elapsedPercent
         jumpIncreaseTimer.tick(delta)
         val newApproxJumpSpeedWithGravity = maxJumpSpeed * jumpIncreaseTimer.elapsedPercent + delta * -world.gravity.y

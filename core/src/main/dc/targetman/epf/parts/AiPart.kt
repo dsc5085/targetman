@@ -9,13 +9,13 @@ class AiPart(val profile: AiProfile) {
 
     var path = listOf<DefaultNode>()
 
-    private val updatePathTimer = Timer(THINK_TIME, THINK_TIME)
+    private val calculatePathTimer = Timer(THINK_TIME, THINK_TIME)
 
-    fun checkUpdatePath(): Boolean {
-        return updatePathTimer.check()
+    fun checkCalculatePath(): Boolean {
+        return calculatePathTimer.check()
     }
 
     fun tick(delta: Float) {
-        updatePathTimer.tick(delta)
+        calculatePathTimer.tick(delta)
     }
 }

@@ -1,7 +1,6 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
-import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.character.CharacterActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.SkeletonPart
@@ -9,8 +8,7 @@ import dc.targetman.mechanics.Direction
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 
-class Agent(val entity: Entity, val targetBounds: Rectangle, private val graphQuery: GraphQuery) {
-    val belowSegment get() = graphQuery.getNearestBelowSegment(bounds)
+class Agent(val entity: Entity, val targetBounds: Rectangle) {
     val bounds get() = entity[TransformPart::class].transform.bounds
     val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
     val velocity get() = entity[TransformPart::class].transform.velocity
@@ -25,8 +23,8 @@ class Agent(val entity: Entity, val targetBounds: Rectangle, private val graphQu
 
     private val aiPart = entity.get(AiPart::class)
 
-    fun checkUpdatePath(): Boolean {
-        return aiPart.checkUpdatePath()
+    fun checkCalculatePath(): Boolean {
+        return aiPart.checkCalculatePath()
     }
 
     fun move(direction: Direction) {

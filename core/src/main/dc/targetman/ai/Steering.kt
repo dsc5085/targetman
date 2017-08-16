@@ -3,6 +3,7 @@ package dc.targetman.ai
 import com.badlogic.gdx.math.MathUtils
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
+import dc.targetman.epf.parts.MovementPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.physics.JumpVelocitySolver
 import dclib.geometry.base
@@ -10,7 +11,7 @@ import dclib.geometry.center
 import dclib.geometry.containsX
 import dclib.util.Maths
 
-class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolver: JumpVelocitySolver) {
+class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
         agent.move(moveDirection)
@@ -33,7 +34,8 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
     private fun getNextX(agent: Agent): Float? {
         val nextX: Float?
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
-        if (targetSegment != null && targetSegment === agent.belowSegment) {
+        val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
+        if (targetSegment != null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
         } else {
             nextX = agent.nextNode?.x
@@ -69,8 +71,9 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
 
     private fun jump(agent: Agent) {
         if (agent.nextNode != null) {
+            val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
             val nextSegment = graphQuery.getSegment(agent.nextNode!!)
-            val notOnNextSegment = agent.belowSegment == null || agent.belowSegment != nextSegment
+            val notOnNextSegment = belowSegment == null || belowSegment != nextSegment
             if (notOnNextSegment && needToIncreaseJump(agent)) {
                 agent.jump()
             }
@@ -78,7 +81,9 @@ class Steering(private val graphQuery: GraphQuery, private val jumpVelocitySolve
     }
 
     private fun needToIncreaseJump(agent: Agent): Boolean {
-        val neededVelocityY = jumpVelocitySolver.solve(agent.bounds.base, agent.nextNode!!.position).velocity.y
+        val speed = agent.entity[MovementPart::class].speed
+        val neededVelocityY = JumpVelocitySolver.solve(
+                agent.bounds.base, agent.nextNode!!.position, speed, gravity).velocity.y
         return agent.velocity.y < neededVelocityY
     }
 }

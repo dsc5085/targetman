@@ -1,13 +1,12 @@
 package dc.targetman.mechanics
 
 import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.Contact
-import com.badlogic.gdx.physics.box2d.Fixture
-import com.badlogic.gdx.physics.box2d.World
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
+import dclib.physics.collision.CollidedEvent
+import dclib.physics.collision.CollisionChecker
 import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
 object EntityUtils {
@@ -20,21 +19,19 @@ object EntityUtils {
         }
     }
 
-    fun isGrounded(world: World, entity: Entity): Boolean {
+    fun isGrounded(collisionChecker: CollisionChecker, entity: Entity): Boolean {
         val body = Box2dUtils.getBody(entity)!!
-        return body.linearVelocity.y == 0f && world.contactList.any {
-            it.isTouching && (isGroundedContact(body, it.fixtureA, it.fixtureB, it)
-                    || isGroundedContact(body, it.fixtureB, it.fixtureA, it))
+        return body.linearVelocity.y == 0f && collisionChecker.getCollidedEvents(entity).any {
+            it.isTouching && isGroundedContact(body, it)
         }
     }
 
-    private fun isGroundedContact(body: Body, fixture1: Fixture, fixture2: Fixture, contact: Contact): Boolean {
+    private fun isGroundedContact(body: Body, collidedEvent: CollidedEvent): Boolean {
         val legsFixture = body.fixtureList.minBy { Box2DUtils.minYWorld(it) }
-        val manifold = contact.worldManifold
         val halfLegsSize = Box2DUtils.height(legsFixture) / 2
-        if (legsFixture === fixture1 && !fixture2.isSensor) {
+        if (!collidedEvent.target.fixture.isSensor && legsFixture === collidedEvent.source.fixture) {
             val maxYForGrounded = Box2DUtils.minYWorld(legsFixture) + halfLegsSize
-            return manifold.points.any { it.y < maxYForGrounded }
+            return collidedEvent.manifold.any { it.y < maxYForGrounded }
         }
         return false
     }
