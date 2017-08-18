@@ -93,7 +93,7 @@ class LevelController(
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(render)
-	private val map = TmxMapLoader().load("maps/simple.tmx")
+	private val map = TmxMapLoader().load("maps/nav.tmx")
 	private val commandModule: CommandModule
 
 	init {
@@ -207,9 +207,9 @@ class LevelController(
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate<CollidedEvent> {
-			val targetEntity = it!!.target.entity
+			val targetEntity = it!!.target
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
-			val sourceAlliance = it.source.entity.getAttribute(Alliance::class)
+			val sourceAlliance = it.source.getAttribute(Alliance::class)
 			sourceAlliance != null && sourceAlliance.target === targetAlliance
 		}
 	}

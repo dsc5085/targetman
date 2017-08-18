@@ -10,6 +10,7 @@ import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.graphics.TextureUtils
+import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.particles.EntityPositionGetter
@@ -24,9 +25,9 @@ class ParticlesOnCollided(
 		private val particlesManager: ParticlesManager
 ) : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
-		val sourceEntity = event.source.entity
-		val targetEntity = event.target.entity
-		val velocity = event.source.body.linearVelocity
+		val sourceEntity = event.source
+		val targetEntity = event.target
+		val velocity = Box2dUtils.getBody(event.source)!!.linearVelocity
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
 			createSparks(event)
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
@@ -37,11 +38,10 @@ class ParticlesOnCollided(
 	}
 
 	private fun createSparks(event: CollidedEvent) {
-		val target = event.target
-        val targetAlliance = target.entity.getAttribute(Alliance::class)
-        val notTargetAlliance = targetAlliance == null || !event.source.entity.of(targetAlliance)
-		val contactPoint = event.manifold.firstOrNull()
-        if (notTargetAlliance && target.entity.of(Material.METAL) && contactPoint != null) {
+        val targetAlliance = event.target.getAttribute(Alliance::class)
+        val notTargetAlliance = targetAlliance == null || !event.source.of(targetAlliance)
+		val contactPoint = event.collisions.first().manifold.firstOrNull()
+        if (notTargetAlliance && event.target.of(Material.METAL) && contactPoint != null) {
 			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint))
 		}
 	}
