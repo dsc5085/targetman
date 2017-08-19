@@ -20,8 +20,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
         val skeletonPart = entity.tryGet(SkeletonPart::class)
         if (skeletonPart != null && skeletonPart.isEnabled) {
             updateSkeleton(delta, entity)
-            // TODO:
-//            updateSize(entity)
+            // TODO: Call updateSize(entity) here. Currently this causes issue with the AI
             updateRootPosition(entity)
             updateLimbs(skeletonPart)
         }
