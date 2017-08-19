@@ -62,7 +62,8 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val inventoryPart = InventoryPart(2, character.gripperName, "frame", weapon)
         entity.attach(inventoryPart)
         val movementLimbNames = character.limbDatas.filter { it.isMovement }.map { it.name }
-        entity.attach(MovementPart(10f, 10f, 0.1f, movementLimbNames))
+        val moveSpeed = Vector2(10f, 10f)
+        entity.attach(MovementPart(moveSpeed, 0.1f, movementLimbNames))
         val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))

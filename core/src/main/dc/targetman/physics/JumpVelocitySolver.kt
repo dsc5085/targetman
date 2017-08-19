@@ -3,8 +3,8 @@ package dc.targetman.physics
 import com.badlogic.gdx.math.Vector2
 import dclib.geometry.VectorUtils
 
-class JumpVelocitySolver(private val agentSpeed: Vector2, private val gravity: Float) {
-    fun solve(start: Vector2, end: Vector2): JumpVelocityResult {
+object JumpVelocitySolver {
+    fun solve(start: Vector2, end: Vector2, agentSpeed: Vector2, gravity: Float): JumpVelocityResult {
         val velocity = Vector2()
         val offset = VectorUtils.offset(start, end)
         val horizontalTime = Math.abs(offset.x / agentSpeed.x)

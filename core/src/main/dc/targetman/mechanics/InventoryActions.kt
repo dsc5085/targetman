@@ -27,9 +27,9 @@ class InventoryActions(factoryTools: FactoryTools) {
     }
 
     fun tryPickup(collidedEvent: CollidedEvent) {
-        val pickupEntity = collidedEvent.target.entity
+        val pickupEntity = collidedEvent.target
         if (pickupEntity.has(PickupPart::class)) {
-            val sourceEntity = LimbUtils.findContainer(entityManager.getAll(), collidedEvent.source.entity)
+            val sourceEntity = LimbUtils.findContainer(entityManager.getAll(), collidedEvent.source)
             if (sourceEntity != null) {
                 val inventoryPart = sourceEntity.tryGet(InventoryPart::class)
                 if (inventoryPart != null && inventoryPart.tryPickup && inventoryPart.pickupTimer.check()) {

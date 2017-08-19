@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
+import dc.targetman.ai.PathUpdater
+import dc.targetman.ai.Steering
 import dc.targetman.character.ActionsResetter
 import dc.targetman.character.CharacterActions
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
@@ -90,7 +92,7 @@ class LevelController(
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(render)
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/nav.tmx")
 	private val commandModule: CommandModule
 
 	init {
@@ -152,14 +154,14 @@ class LevelController(
 		return Advancer(
 				ActionsResetter(entityManager),
 				createInputUpdater(),
-				createAiSystem(),
+				createAiSystem(collisionChecker),
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
 				TranslateSystem(entityManager),
 				PhysicsUpdater(world, entityManager, { !it.of(DeathForm.CORPSE) }),
 				createSkeletonSystem(),
 				collisionChecker,
-				MovementSystem(entityManager, world),
+				MovementSystem(entityManager, world, collisionChecker),
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, bulletFactory),
@@ -170,9 +172,11 @@ class LevelController(
 				particlesManager)
 	}
 
-	private fun createAiSystem(): AiSystem {
-		val navigator = NavigatorFactory.create(map, world, textureCache)
-		return AiSystem(entityManager, navigator)
+	private fun createAiSystem(collisionChecker: CollisionChecker): AiSystem {
+		val graphQuery = GraphQueryFactory.create(map, textureCache)
+		val steering = Steering(graphQuery, world.gravity.y)
+		val pathUpdater = PathUpdater(graphQuery, collisionChecker)
+		return AiSystem(entityManager, steering, pathUpdater)
 	}
 
 	private fun createSkeletonSystem(): SkeletonSyncSystem {
@@ -201,9 +205,9 @@ class LevelController(
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate<CollidedEvent> {
-			val targetEntity = it!!.target.entity
+			val targetEntity = it!!.target
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
-			val sourceAlliance = it.source.entity.getAttribute(Alliance::class)
+			val sourceAlliance = it.source.getAttribute(Alliance::class)
 			sourceAlliance != null && sourceAlliance.target === targetAlliance
 		}
 	}
