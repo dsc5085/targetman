@@ -12,7 +12,6 @@ import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.PathUpdater
 import dc.targetman.ai.Steering
-import dc.targetman.ai.graph.DefaultGraphQuery
 import dc.targetman.character.ActionsResetter
 import dc.targetman.character.CharacterActions
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
@@ -174,8 +173,7 @@ class LevelController(
 	}
 
 	private fun createAiSystem(collisionChecker: CollisionChecker): AiSystem {
-		val graph = MoveAiFactory.createGraph(map, textureCache)
-		val graphQuery = DefaultGraphQuery(graph)
+		val graphQuery = GraphQueryFactory.create(map, textureCache)
 		val steering = Steering(graphQuery, world.gravity.y)
 		val pathUpdater = PathUpdater(graphQuery, collisionChecker)
 		return AiSystem(entityManager, steering, pathUpdater)

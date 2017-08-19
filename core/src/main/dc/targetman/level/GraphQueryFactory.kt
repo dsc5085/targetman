@@ -2,8 +2,9 @@ package dc.targetman.level
 
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.math.Vector3
-import dc.targetman.ai.graph.DefaultIndexedGraph
+import dc.targetman.ai.graph.DefaultGraphQuery
 import dc.targetman.ai.graph.GraphFactory
+import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.JumpChecker
@@ -12,8 +13,8 @@ import dclib.epf.DefaultEntityManager
 import dclib.epf.parts.TransformPart
 import dclib.graphics.TextureCache
 
-object MoveAiFactory {
-    fun createGraph(map: TiledMap, textureCache: TextureCache): DefaultIndexedGraph {
+object GraphQueryFactory {
+    fun create(map: TiledMap, textureCache: TextureCache): GraphQuery {
         val segmentBoundsList = MapUtils.createSegmentBoundsList(map)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
@@ -27,6 +28,6 @@ object MoveAiFactory {
         val graph = GraphFactory(segmentBoundsList, agentSize, jumpChecker).create()
         entityManager.dispose()
         staticWorld.dispose()
-        return graph
+        return DefaultGraphQuery(graph)
     }
 }
