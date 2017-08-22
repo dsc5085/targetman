@@ -1,7 +1,6 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.Vector2
 import dc.targetman.character.CharacterActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
@@ -12,10 +11,7 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
-import dclib.geometry.VectorUtils
 import dclib.geometry.center
-import dclib.physics.Transform
-import dclib.util.Maths
 
 // TODO: Combine with InputUpdater.  Pipe actions into InputUpdater
 class AiSystem(
@@ -48,29 +44,7 @@ class AiSystem(
         val muzzleName = entity[FiringPart::class].muzzleName
         val muzzle = skeletonPart.tryGet(muzzleName)
         if (muzzle != null) {
-            val direction = getAimRotateDirection(muzzle.transform, targetBounds.center, skeletonPart.flipX)
-            CharacterActions.aim(entity, direction)
+            CharacterActions.aim(entity, targetBounds.center)
         }
-    }
-
-    /**
-     * Returns float indicating how rotation should change.
-     * @param to to
-     * @param flipX flipX
-     * @return 1 if angle should be increased, -1 if angle should be decreased, or 0 if angle shouldn't change
-     */
-    private fun getAimRotateDirection(muzzleTransform: Transform, to: Vector2, flipX: Boolean): Int {
-        val minAngleOffset = 2f
-        var direction = 0
-        val offset = VectorUtils.offset(muzzleTransform.position, to)
-        val angleOffset = Maths.degDistance(offset.angle(), muzzleTransform.rotation)
-        if (angleOffset > minAngleOffset) {
-            val fireDirection = VectorUtils.toVector2(muzzleTransform.rotation, 1f)
-            direction = if (offset.y * fireDirection.x > offset.x * fireDirection.y) 1 else -1
-            if (flipX) {
-                direction *= -1
-            }
-        }
-        return direction
     }
 }

@@ -1,5 +1,6 @@
 package dc.targetman.mechanics.weapon
 
+import com.badlogic.gdx.math.Interpolation
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.SkeletonPart
@@ -12,6 +13,7 @@ import dclib.epf.EntitySystem
 import dclib.geometry.VectorUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
+import dclib.util.Maths
 
 class WeaponSystem(private val entityManager: EntityManager, private val bulletFactory: BulletFactory)
 : EntitySystem(entityManager) {
@@ -22,9 +24,8 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
             val skeletonPart = entity[SkeletonPart::class]
             val equippedWeapon = inventoryPart.equippedWeapon
             skeletonPart.playAnimation("aim", 1)
-            aim(delta, firingPart)
-            firingPart.aimDirection = 0
             if (equippedWeapon != null && hasFiringLimbs(firingPart, skeletonPart)) {
+                aim(delta, skeletonPart, firingPart)
                 fire(entity)
                 equippedWeapon.reloadTimer.tick(delta)
             }
@@ -37,9 +38,16 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
         return rotatorLimb != null && rotatorLimb.getDescendants().any { it.name == firingPart.muzzleName }
     }
 
-    private fun aim(delta: Float, firingPart: FiringPart) {
-        val aimSpeed = 180f
-        firingPart.aimRotation += aimSpeed * delta * firingPart.aimDirection
+    private fun aim(delta: Float, skeletonPart: SkeletonPart, firingPart: FiringPart) {
+        val aimSpeed = 480f
+        val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
+        val aimDirection = VectorUtils.toVector2(muzzleTransform.rotation, 1f)
+        val offsetFromTarget = VectorUtils.offset(muzzleTransform.center, firingPart.targetCoord)
+        val flip = if (skeletonPart.flipX) -1f else 1f
+        val angleDelta = Maths.degDelta(offsetFromTarget.angle(), aimDirection.angle()) * flip
+        val interpolatedAimAngleOffset = Interpolation.exp10Out.apply(0f, aimSpeed * delta,
+                angleDelta / Maths.HALF_DEGREES_MAX)
+        firingPart.aimAngle += interpolatedAimAngleOffset
     }
 
     private fun fire(entity: Entity) {

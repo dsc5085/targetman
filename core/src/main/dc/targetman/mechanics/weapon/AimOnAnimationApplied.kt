@@ -21,7 +21,7 @@ class AimOnAnimationApplied : (AnimationAppliedEvent) -> Unit {
 
     private fun rotateRotator(rotator: Limb, firingPart: FiringPart) {
         val muzzleBoneRotation = VectorUtils.getScaledRotation(rotator.bone.worldRotationX, rotator.spineScale)
-        val rotationOffset = firingPart.aimRotation - muzzleBoneRotation
+        val rotationOffset = firingPart.aimAngle - muzzleBoneRotation
         rotator.bone.rotation += rotationOffset
     }
 }

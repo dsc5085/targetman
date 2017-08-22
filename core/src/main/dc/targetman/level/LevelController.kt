@@ -1,6 +1,7 @@
 package dc.targetman.level
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.maps.MapRenderer
@@ -48,6 +49,7 @@ import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
 import dc.targetman.skeleton.LimbBranchDestroyedChecker
 import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonSyncSystem
+import dc.targetman.system.InputUtils
 import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
@@ -225,20 +227,17 @@ class LevelController(
 		if (player == null) {
 			return
 		}
+		val cursorWorldCoords = InputUtils.getCursorWorldCoord(screenHelper)
+		CharacterActions.aim(player, cursorWorldCoords)
 		if (Gdx.input.isKeyPressed(Keys.A)) {
 			CharacterActions.move(player, Direction.LEFT)
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
 			CharacterActions.move(player, Direction.RIGHT)
 		}
-		if (Gdx.input.isKeyPressed(Keys.W)) {
-            CharacterActions.aim(player, 1)
-		} else if (Gdx.input.isKeyPressed(Keys.S)) {
-            CharacterActions.aim(player, -1)
-		}
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			CharacterActions.jump(player)
 		}
-		if (Gdx.input.isKeyPressed(Keys.J)) {
+		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
 			CharacterActions.trigger(player)
 		}
 		if (Gdx.input.isKeyPressed(Keys.Q)) {

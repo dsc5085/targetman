@@ -13,6 +13,7 @@ import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollisionChecker
+import dclib.util.Maths
 
 class MovementSystem(
         entityManager: EntityManager,
@@ -45,8 +46,7 @@ class MovementSystem(
         val transform = entity[TransformPart::class].transform as Box2dTransform
         val mass = transform.body.mass
         val targetImpulse = Box2dUtils.getImpulseToReachVelocity(transform.velocity.x, targetVelocityX, mass)
-        val maxImpulseAbs = maxImpulseScale * mass
-        val impulse = Math.min(Math.abs(targetImpulse), maxImpulseAbs) * Math.signum(targetImpulse)
+        val impulse = Maths.minAbs(targetImpulse, maxImpulseScale * mass)
         transform.applyImpulse(Vector2(impulse, 0f))
     }
 

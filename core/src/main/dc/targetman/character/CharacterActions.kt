@@ -1,5 +1,6 @@
 package dc.targetman.character
 
+import com.badlogic.gdx.math.Vector2
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.MovementPart
@@ -17,8 +18,8 @@ object CharacterActions {
         tryExecute(entity, { entity[MovementPart::class].tryJumping = true })
     }
 
-    fun aim(entity: Entity, direction: Int) {
-        tryExecute(entity, { entity[FiringPart::class].aimDirection = direction })
+    fun aim(entity: Entity, targetCoord: Vector2) {
+        tryExecute(entity, { entity[FiringPart::class].targetCoord = targetCoord })
     }
 
     fun trigger(entity: Entity) {

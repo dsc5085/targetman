@@ -33,14 +33,14 @@ object Ragdoller {
         for (childLimb in limb.getChildren(LinkType.STRONG)) {
             val childTransform = childLimb.transform
             if (childTransform is Box2dTransform) {
-                val anchorCoords = getAnchorCoords(childLimb)
-                createJoint(limb.transform as Box2dTransform, childTransform, childLimb, anchorCoords)
+                val anchorCoord = getAnchorCoord(childLimb)
+                createJoint(limb.transform as Box2dTransform, childTransform, childLimb, anchorCoord)
             }
             addJointsToDescendants(childLimb)
         }
     }
 
-    private fun getAnchorCoords(childLimb: Limb): Vector2 {
+    private fun getAnchorCoord(childLimb: Limb): Vector2 {
         val regionAttachment = childLimb.getRegionAttachment()!!
         val regionOffsetFromBone = Vector2(regionAttachment.x, regionAttachment.y)
                 .rotate(-regionAttachment.rotation)
@@ -53,10 +53,10 @@ object Ragdoller {
             parentTransform: Box2dTransform,
             childTransform: Box2dTransform,
             childLimb: Limb,
-            anchorCoords: Vector2
+            anchorCoord: Vector2
     ) {
         val jointDef = RevoluteJointDef()
-        jointDef.initialize(parentTransform.body, childTransform.body, anchorCoords)
+        jointDef.initialize(parentTransform.body, childTransform.body, anchorCoord)
         jointDef.enableLimit = true
         // Adds a little "friction", preventing joints from swinging around too freely
         jointDef.enableMotor = true
