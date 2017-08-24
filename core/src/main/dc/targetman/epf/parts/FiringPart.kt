@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2
 
 class FiringPart(val rotatorName: String, val muzzleName: String) {
     var targetCoord = Vector2()
+    var aimTime = 0f
+    var lastAimDelta = 0f
     var aimAngle = 0f
     var triggered = false
 }

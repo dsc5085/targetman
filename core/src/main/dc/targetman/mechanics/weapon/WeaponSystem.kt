@@ -39,15 +39,21 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
     }
 
     private fun aim(delta: Float, skeletonPart: SkeletonPart, firingPart: FiringPart) {
-        val aimSpeed = 480f
+        val maxAimSpeed = 960f
+        val maxSpeedTime = 0.1f
         val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
-        val aimDirection = VectorUtils.toVector2(muzzleTransform.rotation, 1f)
         val offsetFromTarget = VectorUtils.offset(muzzleTransform.center, firingPart.targetCoord)
         val flip = if (skeletonPart.flipX) -1f else 1f
-        val angleDelta = Maths.degDelta(offsetFromTarget.angle(), aimDirection.angle()) * flip
-        val interpolatedAimAngleOffset = Interpolation.exp10Out.apply(0f, aimSpeed * delta,
-                angleDelta / Maths.HALF_DEGREES_MAX)
-        firingPart.aimAngle += interpolatedAimAngleOffset
+        val aimDelta = Maths.degDelta(offsetFromTarget.angle(), muzzleTransform.rotation) * flip
+        val aimDeltaRatio = Math.abs(aimDelta / Maths.HALF_DEGREES_MAX)
+        val closingAimDelta = Interpolation.exp10Out.apply(0f, maxAimSpeed, aimDeltaRatio)
+        if (Math.signum(firingPart.lastAimDelta) != Math.signum(aimDelta)) {
+            firingPart.aimTime = 0f
+        }
+        firingPart.aimTime += delta
+        val accleratedAimDelta = Interpolation.exp5In.apply(0f, maxAimSpeed, firingPart.aimTime / maxSpeedTime)
+        firingPart.lastAimDelta = Math.min(closingAimDelta, accleratedAimDelta) * Math.signum(aimDelta) * delta
+        firingPart.aimAngle += firingPart.lastAimDelta
     }
 
     private fun fire(entity: Entity) {
