@@ -36,11 +36,11 @@ class DebugView(
         if (isEnabled) {
             spriteBatch.projectionMatrix = stage.camera.combined
             spriteBatch.begin()
-            val inputCoords = Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
-            val cursorWorldCoords = screenHelper.toWorldCoords(inputCoords)
-            val cursorText = "${cursorWorldCoords.x}, ${cursorWorldCoords.y}"
-            val cursorDrawCoords = stage.screenToStageCoordinates(inputCoords)
-            uiPack.getFont(FontSize.SMALL).draw(spriteBatch, cursorText, cursorDrawCoords.x, cursorDrawCoords.y)
+            val inputCoord = Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
+            val cursorWorldCoord = screenHelper.toWorldCoord(inputCoord)
+            val cursorText = "${cursorWorldCoord.x}, ${cursorWorldCoord.y}"
+            val cursorDrawCoord = stage.screenToStageCoordinates(inputCoord)
+            uiPack.getFont(FontSize.SMALL).draw(spriteBatch, cursorText, cursorDrawCoord.x, cursorDrawCoord.y)
             spriteBatch.end()
         }
     }
