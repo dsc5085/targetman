@@ -47,7 +47,8 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
         val aimDelta = Maths.degDelta(offsetFromTarget.angle(), muzzleTransform.rotation) * flip
         val aimDeltaRatio = Math.abs(aimDelta / Maths.HALF_DEGREES_MAX)
         val closingAimDelta = Interpolation.exp10Out.apply(0f, maxAimSpeed, aimDeltaRatio)
-        if (Math.signum(firingPart.lastAimDelta) != Math.signum(aimDelta)) {
+        val changedAimDirection = Math.signum(firingPart.lastAimDelta) != Math.signum(aimDelta)
+        if (changedAimDirection) {
             firingPart.aimTime = 0f
         }
         firingPart.aimTime += delta
