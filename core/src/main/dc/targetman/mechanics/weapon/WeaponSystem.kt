@@ -1,6 +1,5 @@
 package dc.targetman.mechanics.weapon
 
-import com.badlogic.gdx.math.Interpolation
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.SkeletonPart
@@ -13,7 +12,6 @@ import dclib.epf.EntitySystem
 import dclib.geometry.VectorUtils
 import dclib.physics.Transform
 import dclib.util.FloatRange
-import dclib.util.Maths
 
 class WeaponSystem(private val entityManager: EntityManager, private val bulletFactory: BulletFactory)
 : EntitySystem(entityManager) {
@@ -25,7 +23,6 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
             val equippedWeapon = inventoryPart.equippedWeapon
             skeletonPart.playAnimation("aim", 1)
             if (equippedWeapon != null && hasFiringLimbs(firingPart, skeletonPart)) {
-                aim(delta, skeletonPart, firingPart)
                 fire(entity)
                 equippedWeapon.reloadTimer.tick(delta)
             }
@@ -36,25 +33,6 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
         val rotatorName = firingPart.rotatorName
         val rotatorLimb = skeletonPart.tryGet(rotatorName)
         return rotatorLimb != null && rotatorLimb.getDescendants().any { it.name == firingPart.muzzleName }
-    }
-
-    private fun aim(delta: Float, skeletonPart: SkeletonPart, firingPart: FiringPart) {
-        val maxAimSpeed = 960f
-        val maxSpeedTime = 0.1f
-        val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
-        val offsetFromTarget = VectorUtils.offset(muzzleTransform.center, firingPart.targetCoord)
-        val flip = if (skeletonPart.flipX) -1f else 1f
-        val aimDelta = Maths.degDelta(offsetFromTarget.angle(), muzzleTransform.rotation) * flip
-        val aimDeltaRatio = Math.abs(aimDelta / Maths.HALF_DEGREES_MAX)
-        val closingAimDelta = Interpolation.exp10Out.apply(0f, maxAimSpeed, aimDeltaRatio)
-        val changedAimDirection = Math.signum(firingPart.lastAimDelta) != Math.signum(aimDelta)
-        if (changedAimDirection) {
-            firingPart.aimTime = 0f
-        }
-        firingPart.aimTime += delta
-        val accleratedAimDelta = Interpolation.exp5In.apply(0f, maxAimSpeed, firingPart.aimTime / maxSpeedTime)
-        firingPart.lastAimDelta = Math.min(closingAimDelta, accleratedAimDelta) * Math.signum(aimDelta) * delta
-        firingPart.aimAngle += firingPart.lastAimDelta
     }
 
     private fun fire(entity: Entity) {
