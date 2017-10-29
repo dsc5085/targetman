@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
@@ -34,12 +33,9 @@ import dc.targetman.mechanics.ChangeContainerHealthOnEntityAdded
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.InventorySystem
-import dc.targetman.mechanics.PickupFactory
 import dc.targetman.mechanics.ScaleSystem
 import dc.targetman.mechanics.StaggerSystem
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
-import dc.targetman.mechanics.weapon.Weapon
-import dc.targetman.mechanics.weapon.WeaponData
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater
 import dc.targetman.physics.PhysicsUtils
@@ -47,10 +43,8 @@ import dc.targetman.physics.collision.ForceOnCollided
 import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
 import dc.targetman.skeleton.LimbBranchDestroyedChecker
-import dc.targetman.skeleton.SkeletonFactory
 import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.system.InputUtils
-import dc.targetman.util.Json
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
@@ -94,17 +88,12 @@ class LevelController(
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val entityDrawerManager = createEntityDrawerManager(render)
-	private val map = TmxMapLoader().load("maps/simple.tmx")
+	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val commandModule: CommandModule
 
 	init {
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
-		val weaponData = Json.toObject<WeaponData>("weapons/peashooter.json")
-		val pickupFactory = PickupFactory(factoryTools)
-		val skeletonFactory = SkeletonFactory(textureCache)
-		val weaponSkeleton = skeletonFactory.create(weaponData.skeletonPath, weaponData.atlasName)
-		pickupFactory.create(Weapon(weaponData, weaponSkeleton), Vector3(0.5f, 8f, 0f))
 		val scale = screenHelper.pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, render.sprite)
 		commandModule = createCommandModule()

@@ -17,15 +17,17 @@ object Json {
     }
 
     fun toString(file: FileHandle): String {
-        var string = file.readString()
+        val string = file.readString()
         val jsonFileNameRegex = "\"[^\"]*\\.json\""
         val matcher = Pattern.compile(jsonFileNameRegex).matcher(string)
+        val buffer = StringBuffer()
         while (matcher.find()) {
             val internalPath = matcher.group().removeSurrounding("\"")
             val childFile = FileUtils.toFileHandle(internalPath)
             val childString = toString(childFile)
-            string = matcher.replaceFirst(childString)
+            matcher.appendReplacement(buffer, childString)
         }
-        return string
+        matcher.appendTail(buffer)
+        return buffer.toString()
     }
 }
