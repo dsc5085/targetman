@@ -34,6 +34,10 @@ class SkeletonPart(val root: LimbLink) {
         return root.limb.getDescendants(*linkTypes)
     }
 
+    fun setMix(fromName: String, toName: String, duration: Float) {
+        animationState.data.setMix(fromName, toName, duration)
+    }
+
     fun playAnimation(name: String, trackIndex: Int = 0) {
         val indexExists = trackIndex < animationState.tracks.size
         if (!indexExists || animationState.tracks[trackIndex].animation.name != name) {
@@ -43,6 +47,7 @@ class SkeletonPart(val root: LimbLink) {
 
     private fun createAnimationState(): AnimationState {
         val animationStateData = AnimationStateData(skeleton.data)
+        animationStateData.defaultMix = 2f
         return AnimationState(animationStateData)
     }
 }

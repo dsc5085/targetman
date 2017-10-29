@@ -1,5 +1,5 @@
 {
-  "skeletonPath": "skeletons/man.skel",
+  "skeletonData": "characters/skeleton_data/man.json",
   "limbDatas": [
     {
       "name": "head",
@@ -98,5 +98,5 @@
   "atlasName": "skins/man",
   "health": 1500,
   "stunResist": 500,
-  "weaponData": "weapons/peashooter.json"
+  "weaponData": "weapons/machinegun.json"
 }

@@ -48,7 +48,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val character = Json.toObject<Character>(characterPath)
         val entity = Entity()
         entity.addAttributes(alliance)
-        val skeleton = skeletonFactory.create(character.skeletonPath, character.atlasName)
+        val skeleton = skeletonFactory.create(character.skeletonData.skeletonPath, character.atlasName)
         val skeletonScale = height / skeleton.getBounds().size.y
         val size = skeleton.getBounds().size.scl(skeletonScale)
         val body = createBody(size, position)
@@ -90,7 +90,11 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val rootScale = SkeletonUtils.calculateRootScale(skeleton, size)
         val root = limbFactory.create(skeleton, rootScale)
         characterizeDescendants(root.limb, character.limbDatas, alliance)
-        return SkeletonPart(root)
+        val skeletonPart = SkeletonPart(root)
+        for (mix in character.skeletonData.mixes) {
+            skeletonPart.setMix(mix.fromName, mix.toName, mix.duration)
+        }
+        return skeletonPart
     }
 
     private fun characterizeDescendants(rootLimb: Limb, limbDatas: List<CharacterLimbData>, alliance: Alliance) {

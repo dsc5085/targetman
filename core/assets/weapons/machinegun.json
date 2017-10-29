@@ -1,0 +1,12 @@
+{
+  "reloadTime": 0.1,
+  "numBullets": 1,
+  "spread": 3,
+  "minSpeed": 40,
+  "maxSpeed": 42,
+  "recoil": 0.3,
+  "width": 1.2,
+  "skeletonPath": "skeletons/ts-23.skel",
+  "atlasName": "objects",
+  "bullet": "weapons/pellet.json"
+}

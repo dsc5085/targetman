@@ -1,0 +1,15 @@
+{
+  "skeletonPath": "skeletons/man.skel",
+  "mixes": [
+    {
+      "fromName": "run",
+      "toName": "idle",
+      "duration": "0.2"
+    },
+    {
+      "fromName": "idle",
+      "toName": "run",
+      "duration": "0.3"
+    }
+  ]
+}

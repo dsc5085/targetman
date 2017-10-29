@@ -3,7 +3,7 @@ package dc.targetman.character
 import dc.targetman.mechanics.weapon.WeaponData
 
 data class Character(
-        val skeletonPath: String = "",
+        val skeletonData: CharacterSkeletonData = CharacterSkeletonData(),
         val limbDatas: List<CharacterLimbData> = listOf(),
         val rotatorName: String = "",
         val gripperName: String = "gripper",

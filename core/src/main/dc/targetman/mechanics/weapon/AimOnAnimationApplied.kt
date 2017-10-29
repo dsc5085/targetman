@@ -13,13 +13,13 @@ class AimOnAnimationApplied : (AnimationAppliedEvent) -> Unit {
         val firingPart = event.entity.tryGet(FiringPart::class)
         if (firingPart != null) {
             val skeletonPart = event.entity[SkeletonPart::class]
-            val rotator = skeletonPart.tryGet(firingPart.rotatorName)
-            if (rotator != null) {
-                val muzzle = skeletonPart[firingPart.muzzleName]
+            val muzzle = skeletonPart.tryGet(firingPart.muzzleName)
+            if (muzzle != null) {
                 val aimToTargetDelta = getAimToTargetDelta(muzzle, firingPart)
                 updateAimAccelerationTime(firingPart, event.timeDelta, aimToTargetDelta)
                 val frameAimDelta = calculateFrameAimDelta(aimToTargetDelta, firingPart, event.timeDelta)
                 firingPart.lastAimDelta = frameAimDelta
+                val rotator = skeletonPart[firingPart.rotatorName]
                 rotateRotator(rotator, frameAimDelta)
             }
         }

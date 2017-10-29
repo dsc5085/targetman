@@ -1,5 +1,5 @@
 {
-  "skeletonPath": "skeletons/man.skel",
+  "skeletonData": "characters/skeleton_data/man.json",
   "limbDatas": [
     {
       "name": "head",
