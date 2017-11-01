@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.PolygonSprite
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
@@ -11,9 +12,11 @@ import dc.targetman.level.DebugView
 import dc.targetman.level.LevelController
 import dc.targetman.level.executers.DrawDebugExecuter
 import dc.targetman.level.executers.RestartExecuter
+import dc.targetman.system.InputUtils
 import dclib.eventing.DefaultEvent
 import dclib.eventing.EventDelegate
 import dclib.graphics.Render
+import dclib.graphics.RenderUtils
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
 import dclib.system.Screen
@@ -32,6 +35,7 @@ class LevelScreen(
     private lateinit var controller: LevelController
     private val commandModule: CommandModule
     private val debugView = DebugView(uiPack, render.sprite, screenHelper, stage)
+    private val cursorRegion = createCursorSprite()
 
     init {
         setupController()
@@ -45,6 +49,10 @@ class LevelScreen(
         setupController()
     }
 
+    override fun show() {
+        InputUtils.setCursorVisible(false)
+    }
+
     override fun update(delta: Float) {
         controller.update(delta)
         debugView.update()
@@ -52,6 +60,7 @@ class LevelScreen(
 
     override fun draw() {
         controller.draw()
+        RenderUtils.drawCursor(cursorRegion, render.sprite, stage)
         debugView.draw()
     }
 
@@ -62,6 +71,12 @@ class LevelScreen(
     override fun dispose() {
         commandModule.dispose()
         controller.dispose()
+    }
+
+    private fun createCursorSprite(): PolygonSprite {
+        val cursorSprite = PolygonSprite(textureCache.getPolygonRegion("objects/crosshairs"))
+        cursorSprite.setSize(16f, 16f)
+        return cursorSprite
     }
 
     private fun createScreenHelper(render: Render): ScreenHelper {
