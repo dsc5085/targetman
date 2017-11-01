@@ -33,9 +33,7 @@ object InputUtils {
                     throw LWJGLException("Could not create empty cursor before Mouse is created")
                 }
             }
-            if (Mouse.isInsideWindow()) {
-                Mouse.setNativeCursor(if (isVisible) null else hiddenCursor)
-            }
+            Mouse.setNativeCursor(if (isVisible) null else hiddenCursor)
         } catch (e: LWJGLException) {
             throw RuntimeException(e)
         }
