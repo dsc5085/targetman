@@ -16,11 +16,12 @@ import dclib.geometry.PolygonOperations
 import dclib.geometry.PolygonUtils
 import dclib.geometry.toVector3
 import dclib.graphics.TextureUtils
+import dclib.map.MapUtils
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
 class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTools) {
-    private val foregroundLayer = map.layers[MapUtils.getForegroundIndex(map)] as TiledMapTileLayer
+    private val foregroundLayer = map.layers[MapUtils.FOREGROUND_INDEX] as TiledMapTileLayer
     private val scale = 1 / MapUtils.getPixelsPerUnit(map)
     private val characterFactory = CharacterFactory(factoryTools)
     private val hullCache = mutableMapOf<TextureRegion, FloatArray>()

@@ -57,6 +57,7 @@ import dclib.graphics.CameraUtils
 import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
+import dclib.map.MapUtils
 import dclib.mechanics.DamageOnCollided
 import dclib.mechanics.DestroyOnCollided
 import dclib.mechanics.DestroyOnNoHealthEntityAdded
@@ -87,8 +88,8 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val entityDrawerManager = createEntityDrawerManager(render)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val entityDrawerManager: EntityDrawerManager
 	private val commandModule: CommandModule
 
 	init {
@@ -96,6 +97,7 @@ class LevelController(
 		MapLoader(map, factoryTools).createObjects()
 		val scale = screenHelper.pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
 		mapRenderer = OrthogonalTiledMapRenderer(map, scale, render.sprite)
+		entityDrawerManager = createEntityDrawerManager(render, mapRenderer)
 		commandModule = createCommandModule()
 		commandProcessor.add(commandModule)
 	}
@@ -121,13 +123,11 @@ class LevelController(
 
 	fun draw() {
 		mapRenderer.setView(camera)
-		renderMapLayer(MapUtils.backgroundIndex)
 		val entities = entityManager.getAll()
 		entityDrawerManager.draw(entities)
 		particlesManager.draw()
-        renderMapLayer(MapUtils.getForegroundIndex(map))
 		renderBox2D()
-		jointsDrawer.draw()
+        jointsDrawer.draw()
 	}
 
 	private fun createEntityManager(): EntityManager {
@@ -186,9 +186,10 @@ class LevelController(
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(render: Render): EntityDrawerManager {
+	private fun createEntityDrawerManager(render: Render, mapRenderer: MapRenderer): EntityDrawerManager {
 		val entityDrawers = mutableListOf<EntityDrawer>()
-		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, GetDrawEntities(entityManager), entityManager))
+		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, mapRenderer, camera,
+                GetDrawEntities(entityManager), entityManager))
 		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
 		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
 		return EntityDrawerManager(entityDrawers)
@@ -244,11 +245,6 @@ class LevelController(
 				EnableDrawerExecuter(entityDrawerManager),
 				DisableDrawerExecuter(entityDrawerManager))
 		return CommandModule(executers)
-	}
-
-	private fun renderMapLayer(layerIndex: Int) {
-		mapRenderer.setView(camera)
-		mapRenderer.render(intArrayOf(layerIndex))
 	}
 
 	private fun renderBox2D() {

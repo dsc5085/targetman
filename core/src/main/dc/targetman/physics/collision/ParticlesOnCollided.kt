@@ -66,15 +66,15 @@ class ParticlesOnCollided(
 	}
 
 	private fun createStain(particle: ParticleEmitter.Particle, point: Vector2) {
-		val stainScale = Vector2(2f, 0.5f)
-		val deathTimeRange = FloatRange(10f, 120f)
-		val stain = Entity()
-		val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
-		val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
-		val transform = DefaultTransform(PolygonUtils.toPolygon(vertices), 5f)
-		transform.rotation = particle.rotation
-		val stainTransform = DefaultTransform(transform)
-		stainTransform.setScale(stainTransform.scale.scl(stainScale))
+        val stainScale = Vector2(1.5f, 0.75f)
+        val deathTimeRange = FloatRange(10f, 120f)
+        val stain = Entity()
+        val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
+        val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
+        val transform = DefaultTransform(PolygonUtils.toPolygon(vertices), 5f)
+        transform.rotation = particle.rotation
+        val stainTransform = DefaultTransform(transform)
+        stainTransform.setScale(stainTransform.scale.scl(stainScale))
 		stainTransform.setWorld(stainTransform.center, point)
 		val timedDeathPart = TimedDeathPart(deathTimeRange.random())
 		val region = TextureUtils.createPolygonRegion(particle)
