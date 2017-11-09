@@ -85,31 +85,31 @@ active: true
 lowMin: 90.0
 lowMax: 90.0
 highMin: 0.0
-highMax: 360.0
+highMax: 180.0
 relative: false
-scalingCount: 3
+scalingCount: 2
 scaling0: 1.0
 scaling1: 1.0
-scaling2: 1.0
-timelineCount: 3
+timelineCount: 2
 timeline0: 0.0
-timeline1: 0.48630136
-timeline2: 1.0
+timeline1: 1.0
 - Rotation - 
 active: false
 - Wind - 
 active: false
 - Gravity - 
 active: true
-lowMin: -4.0
-lowMax: -4.0
-highMin: -3.0
-highMax: -3.0
+lowMin: -3.0
+lowMax: -3.0
+highMin: 0.0
+highMax: 0.0
 relative: false
-scalingCount: 1
+scalingCount: 2
 scaling0: 1.0
-timelineCount: 1
+scaling1: 0.0
+timelineCount: 2
 timeline0: 0.0
+timeline1: 1.0
 - Tint - 
 colorsCount: 3
 colors0: 1.0
@@ -141,4 +141,4 @@ additive: false
 behind: false
 premultipliedAlpha: false
 - Image Path -
-/D:/Programming/git/targetman/core/assets/textures/objects/trail.png
+/C:/Users/dave1/Programming/git/targetman/core/assets/textures/objects/trail.png
