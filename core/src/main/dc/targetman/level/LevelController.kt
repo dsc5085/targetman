@@ -20,7 +20,6 @@ import dc.targetman.character.MovementSystem
 import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
-import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
@@ -50,7 +49,6 @@ import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntityDrawerManager
 import dclib.epf.graphics.EntitySpriteDrawer
-import dclib.epf.graphics.EntityTransformDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
@@ -126,8 +124,8 @@ class LevelController(
 		val entities = entityManager.getAll()
 		entityDrawerManager.draw(entities)
 		particlesManager.draw()
-		renderBox2D()
-        jointsDrawer.draw()
+//		renderBox2D()
+//        jointsDrawer.draw()
 	}
 
 	private fun createEntityManager(): EntityManager {
@@ -190,8 +188,8 @@ class LevelController(
 		val entityDrawers = mutableListOf<EntityDrawer>()
 		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, mapRenderer, camera,
                 GetDrawEntities(entityManager), entityManager))
-		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
-		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
+//		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
+//		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
 		return EntityDrawerManager(entityDrawers)
 	}
 

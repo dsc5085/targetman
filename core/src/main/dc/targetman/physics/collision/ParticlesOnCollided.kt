@@ -19,6 +19,7 @@ import dclib.physics.particles.ParticleEmitterBox2d
 import dclib.physics.particles.ParticlesManager
 import dclib.physics.particles.StaticPositionGetter
 import dclib.util.FloatRange
+import dclib.util.Maths
 
 class ParticlesOnCollided(
 		private val entityManager: EntityManager,
@@ -32,7 +33,8 @@ class ParticlesOnCollided(
 			createSparks(event)
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
 			if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
-				createBloodParticles(targetEntity, velocity.angle())
+				createBloodParticles(targetEntity, velocity.angle(), 1f)
+				createBloodParticles(targetEntity, Maths.HALF_DEGREES_MAX - velocity.angle(), 0.25f)
 			}
 		}
 	}
@@ -42,13 +44,17 @@ class ParticlesOnCollided(
         val notTargetAlliance = targetAlliance == null || !event.source.of(targetAlliance)
 		val contactPoint = event.collisions.first().manifold.firstOrNull()
         if (notTargetAlliance && event.target.of(Material.METAL) && contactPoint != null) {
-			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint))
+			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint)).start()
 		}
 	}
 
-    private fun createBloodParticles(parentEntity: Entity, angle: Float) {
+    private fun createBloodParticles(parentEntity: Entity, angle: Float, emissionRatio: Float) {
 		val effect = particlesManager.createEffect("blood", EntityPositionGetter(parentEntity))
 		for (emitter in effect.emitters) {
+			emitter.emission.highMin *= emissionRatio
+			emitter.emission.highMax *= emissionRatio
+			emitter.emission.lowMin *= emissionRatio
+			emitter.emission.lowMax *= emissionRatio
 			val angleHighHalfDifference = (emitter.angle.highMax - emitter.angle.highMin) / 2
 			emitter.angle.highMin = angle - angleHighHalfDifference
 			emitter.angle.highMax = angle + angleHighHalfDifference
@@ -59,6 +65,7 @@ class ParticlesOnCollided(
 				emitter.particleCollidedDelegate.on(this::handleBloodParticleCollided)
 			}
 		}
+		effect.start()
 	}
 
 	private fun handleBloodParticleCollided(event: ParticleCollidedEvent) {
@@ -78,7 +85,9 @@ class ParticlesOnCollided(
 		stainTransform.setWorld(stainTransform.center, point)
 		val timedDeathPart = TimedDeathPart(deathTimeRange.random())
 		val region = TextureUtils.createPolygonRegion(particle)
-		stain.attach(TransformPart(stainTransform), SpritePart(region), timedDeathPart)
+		val spritePart = SpritePart(region)
+		spritePart.sprite.color = particle.color
+		stain.attach(TransformPart(stainTransform), spritePart, timedDeathPart)
 		entityManager.add(stain)
 	}
 }
