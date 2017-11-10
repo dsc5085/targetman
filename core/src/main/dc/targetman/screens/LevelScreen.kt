@@ -50,6 +50,7 @@ class LevelScreen(
     }
 
     override fun show() {
+        super.show()
         InputUtils.setCursorVisible(false)
     }
 
