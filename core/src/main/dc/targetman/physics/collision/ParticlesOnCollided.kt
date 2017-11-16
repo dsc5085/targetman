@@ -1,6 +1,7 @@
 package dc.targetman.physics.collision
 
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.mechanics.Alliance
 import dclib.epf.Entity
@@ -10,14 +11,14 @@ import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.graphics.TextureUtils
+import dclib.particles.EntityPositionGetter
+import dclib.particles.ParticleCollidedEvent
+import dclib.particles.ParticleEmitterBox2d
+import dclib.particles.ParticlesManager
+import dclib.particles.StaticPositionGetter
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.collision.CollidedEvent
-import dclib.physics.particles.EntityPositionGetter
-import dclib.physics.particles.ParticleCollidedEvent
-import dclib.physics.particles.ParticleEmitterBox2d
-import dclib.physics.particles.ParticlesManager
-import dclib.physics.particles.StaticPositionGetter
 import dclib.util.FloatRange
 import dclib.util.Maths
 
@@ -49,6 +50,7 @@ class ParticlesOnCollided(
 	}
 
     private fun createBloodParticles(parentEntity: Entity, angle: Float, emissionRatio: Float) {
+		val tintValueRange = 0.5f
 		val effect = particlesManager.createEffect("blood", EntityPositionGetter(parentEntity))
 		for (emitter in effect.emitters) {
 			emitter.emission.highMin *= emissionRatio
@@ -64,8 +66,16 @@ class ParticlesOnCollided(
 			if (emitter is ParticleEmitterBox2d) {
 				emitter.particleCollidedDelegate.on(this::handleBloodParticleCollided)
 			}
+			randomizeEmitterTint(emitter, tintValueRange)
 		}
 		effect.start()
+	}
+
+	private fun randomizeEmitterTint(emitter: ParticleEmitter, tintValueRange: Float) {
+		val tintChange = MathUtils.random(-tintValueRange / 2, tintValueRange / 2)
+		for (i in emitter.tint.colors.indices) {
+			emitter.tint.colors[i] *= 1f + tintChange
+		}
 	}
 
 	private fun handleBloodParticleCollided(event: ParticleCollidedEvent) {

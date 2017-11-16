@@ -60,11 +60,11 @@ import dclib.mechanics.DamageOnCollided
 import dclib.mechanics.DestroyOnCollided
 import dclib.mechanics.DestroyOnNoHealthEntityAdded
 import dclib.mechanics.TimedDeathSystem
+import dclib.particles.ParticlesManager
 import dclib.physics.AutoRotateSystem
 import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
-import dclib.physics.particles.ParticlesManager
 import dclib.system.Advancer
 import dclib.system.Updater
 
@@ -86,7 +86,7 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/simple.tmx")
+	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val entityDrawerManager: EntityDrawerManager
 	private val commandModule: CommandModule
 
