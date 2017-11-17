@@ -178,7 +178,7 @@ class LevelController(
 		val collisionChecker = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
-        collisionChecker.collided.on(ParticlesOnCollided(entityManager, particlesManager))
+        collisionChecker.collided.on(ParticlesOnCollided(entityManager, textureCache, particlesManager))
         collisionChecker.collided.on(DamageOnCollided(filter))
         collisionChecker.collided.on(DestroyOnCollided(entityManager, filter))
 		return collisionChecker

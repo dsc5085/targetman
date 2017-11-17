@@ -10,7 +10,7 @@ import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TimedDeathPart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
-import dclib.graphics.TextureUtils
+import dclib.graphics.TextureCache
 import dclib.particles.EntityPositionGetter
 import dclib.particles.ParticleCollidedEvent
 import dclib.particles.ParticleEmitterBox2d
@@ -24,6 +24,7 @@ import dclib.util.Maths
 
 class ParticlesOnCollided(
 		private val entityManager: EntityManager,
+		private val textureCache: TextureCache,
 		private val particlesManager: ParticlesManager
 ) : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
@@ -50,7 +51,7 @@ class ParticlesOnCollided(
 	}
 
     private fun createBloodParticles(parentEntity: Entity, angle: Float, emissionRatio: Float) {
-		val tintValueRange = 0.5f
+		val tintValueRange = 0.1f
 		val effect = particlesManager.createEffect("blood", EntityPositionGetter(parentEntity))
 		for (emitter in effect.emitters) {
 			emitter.emission.highMin *= emissionRatio
@@ -79,22 +80,19 @@ class ParticlesOnCollided(
 	}
 
 	private fun handleBloodParticleCollided(event: ParticleCollidedEvent) {
-        createStain(event.particle, event.point)
-	}
-
-	private fun createStain(particle: ParticleEmitter.Particle, point: Vector2) {
-        val stainScale = Vector2(1.5f, 0.75f)
-        val deathTimeRange = FloatRange(10f, 120f)
-        val stain = Entity()
-        val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
-        val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
-        val transform = DefaultTransform(PolygonUtils.toPolygon(vertices), 5f)
-        transform.rotation = particle.rotation
-        val stainTransform = DefaultTransform(transform)
-        stainTransform.setScale(stainTransform.scale.scl(stainScale))
-		stainTransform.setWorld(stainTransform.center, point)
+		val stainScale = Vector2(1.5f, 0.75f)
+		val deathTimeRange = FloatRange(10f, 120f)
+		val stain = Entity()
+		val particle = event.particle
+		val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
+		val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
+		val transform = DefaultTransform(PolygonUtils.toPolygon(vertices), 5f)
+        transform.rotation = event.normalAngle + 90f
+		val stainTransform = DefaultTransform(transform)
+		stainTransform.setScale(stainTransform.scale.scl(stainScale))
+		stainTransform.setWorld(stainTransform.center, event.point)
 		val timedDeathPart = TimedDeathPart(deathTimeRange.random())
-		val region = TextureUtils.createPolygonRegion(particle)
+		val region = textureCache.getPolygonRegion("objects/white")
 		val spritePart = SpritePart(region)
 		spritePart.sprite.color = particle.color
 		stain.attach(TransformPart(stainTransform), spritePart, timedDeathPart)
