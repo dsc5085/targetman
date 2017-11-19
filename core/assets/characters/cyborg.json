@@ -98,5 +98,5 @@
   "atlasName": "skins/man",
   "health": 1500,
   "stunResist": 500,
-  "weaponData": "weapons/machinegun.json"
+  "weaponData": "weapons/shotgun.json"
 }
