@@ -10,7 +10,7 @@ import dclib.epf.graphics.SpriteSync
 import dclib.geometry.PolygonUtils
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
-import dclib.map.MapController
+import dclib.map.MapLayerRenderer
 import dclib.particles.EntityPositionGetter
 import dclib.particles.ParticleCollidedEvent
 import dclib.particles.ParticleEmitterBox2d
@@ -24,7 +24,7 @@ import dclib.util.Maths
 class ParticlesOnCollided(
 		private val textureCache: TextureCache,
 		private val particlesManager: ParticlesManager,
-		private val mapController: MapController,
+		private val mapLayerRenderer: MapLayerRenderer,
 		private val screenHelper: ScreenHelper
 ) : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
@@ -93,6 +93,6 @@ class ParticlesOnCollided(
 		val sprite = PolygonSprite(region)
 		sprite.color = particle.color
 		SpriteSync.sync(sprite, stainTransform, screenHelper)
-		mapController.addDecal(sprite)
+		mapLayerRenderer.addDecal(sprite)
 	}
 }
