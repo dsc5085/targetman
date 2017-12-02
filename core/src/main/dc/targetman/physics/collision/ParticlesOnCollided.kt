@@ -1,16 +1,16 @@
 package dc.targetman.physics.collision
 
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter
+import com.badlogic.gdx.graphics.g2d.PolygonSprite
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.mechanics.Alliance
 import dclib.epf.Entity
-import dclib.epf.EntityManager
-import dclib.epf.parts.SpritePart
-import dclib.epf.parts.TimedDeathPart
-import dclib.epf.parts.TransformPart
+import dclib.epf.graphics.SpriteSync
 import dclib.geometry.PolygonUtils
+import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
+import dclib.map.MapController
 import dclib.particles.EntityPositionGetter
 import dclib.particles.ParticleCollidedEvent
 import dclib.particles.ParticleEmitterBox2d
@@ -19,13 +19,13 @@ import dclib.particles.StaticPositionGetter
 import dclib.physics.Box2dUtils
 import dclib.physics.DefaultTransform
 import dclib.physics.collision.CollidedEvent
-import dclib.util.FloatRange
 import dclib.util.Maths
 
 class ParticlesOnCollided(
-		private val entityManager: EntityManager,
 		private val textureCache: TextureCache,
-		private val particlesManager: ParticlesManager
+		private val particlesManager: ParticlesManager,
+		private val mapController: MapController,
+		private val screenHelper: ScreenHelper
 ) : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
 		val sourceEntity = event.source
@@ -81,8 +81,6 @@ class ParticlesOnCollided(
 
 	private fun handleBloodParticleCollided(event: ParticleCollidedEvent) {
 		val stainScale = Vector2(1.5f, 0.75f)
-		val deathTimeRange = FloatRange(10f, 120f)
-		val stain = Entity()
 		val particle = event.particle
 		val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
 		val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
@@ -91,11 +89,10 @@ class ParticlesOnCollided(
 		val stainTransform = DefaultTransform(transform)
 		stainTransform.setScale(stainTransform.scale.scl(stainScale))
 		stainTransform.setWorld(stainTransform.center, event.point)
-		val timedDeathPart = TimedDeathPart(deathTimeRange.random())
 		val region = textureCache.getPolygonRegion("objects/white")
-		val spritePart = SpritePart(region)
-		spritePart.sprite.color = particle.color
-		stain.attach(TransformPart(stainTransform), spritePart, timedDeathPart)
-		entityManager.add(stain)
+		val sprite = PolygonSprite(region)
+		sprite.color = particle.color
+		SpriteSync.sync(sprite, stainTransform, screenHelper)
+		mapController.addDecal(sprite)
 	}
 }

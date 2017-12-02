@@ -4,10 +4,9 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.maps.MapRenderer
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.google.common.base.Predicate
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.PathUpdater
@@ -55,7 +54,7 @@ import dclib.graphics.CameraUtils
 import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
-import dclib.map.MapUtils
+import dclib.map.MapController
 import dclib.mechanics.DamageOnCollided
 import dclib.mechanics.DestroyOnCollided
 import dclib.mechanics.DestroyOnNoHealthEntityAdded
@@ -72,7 +71,8 @@ class LevelController(
         commandProcessor: CommandProcessor,
 		private val textureCache: TextureCache,
 		render: Render,
-		private val screenHelper: ScreenHelper
+		private val screenHelper: ScreenHelper,
+		private val stage: Stage
 ) {
 	val finished = EventDelegate<LevelFinishedEvent>()
 
@@ -82,20 +82,19 @@ class LevelController(
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
-	private val advancer: Advancer
-	private val mapRenderer: MapRenderer
+	private val mapController: MapController
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val entityDrawerManager: EntityDrawerManager
+	private val advancer: Advancer
 	private val commandModule: CommandModule
 
 	init {
+		mapController = MapController(map, render.sprite, textureCache, screenHelper, camera, stage)
+		entityDrawerManager = createEntityDrawerManager(render, mapController)
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
-		val scale = screenHelper.pixelsPerUnit / MapUtils.getPixelsPerUnit(map)
-		mapRenderer = OrthogonalTiledMapRenderer(map, scale, render.sprite)
-		entityDrawerManager = createEntityDrawerManager(render, mapRenderer)
 		commandModule = createCommandModule()
 		commandProcessor.add(commandModule)
 	}
@@ -120,7 +119,6 @@ class LevelController(
 	}
 
 	fun draw() {
-		mapRenderer.setView(camera)
 		val entities = entityManager.getAll()
 		entityDrawerManager.draw(entities)
 		particlesManager.draw()
@@ -178,15 +176,15 @@ class LevelController(
 		val collisionChecker = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
-        collisionChecker.collided.on(ParticlesOnCollided(entityManager, textureCache, particlesManager))
+        collisionChecker.collided.on(ParticlesOnCollided(textureCache, particlesManager, mapController, screenHelper))
         collisionChecker.collided.on(DamageOnCollided(filter))
         collisionChecker.collided.on(DestroyOnCollided(entityManager, filter))
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(render: Render, mapRenderer: MapRenderer): EntityDrawerManager {
+	private fun createEntityDrawerManager(render: Render, mapController: MapController): EntityDrawerManager {
 		val entityDrawers = mutableListOf<EntityDrawer>()
-		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, mapRenderer, camera,
+		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, mapController,
                 GetDrawEntities(entityManager), entityManager))
 //		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
 //		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))

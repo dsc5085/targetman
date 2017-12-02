@@ -89,7 +89,7 @@ class LevelScreen(
     }
 
     private fun setupController() {
-        controller = LevelController(commandProcessor, textureCache, render, screenHelper)
+        controller = LevelController(commandProcessor, textureCache, render, screenHelper, stage)
         controller.finished.on {
             restart()
         }
