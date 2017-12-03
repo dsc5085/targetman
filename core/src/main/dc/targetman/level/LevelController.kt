@@ -91,7 +91,7 @@ class LevelController(
 	private val commandModule: CommandModule
 
 	init {
-		mapLayerRenderer = MapLayerRenderer(map, render.sprite, textureCache, screenHelper, camera, stage)
+		mapLayerRenderer = MapLayerRenderer(map, render.sprite, screenHelper.pixelsPerUnit, camera, stage.camera)
 		entityDrawerManager = createEntityDrawerManager(render, mapLayerRenderer)
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
