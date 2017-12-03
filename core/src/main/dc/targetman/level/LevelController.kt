@@ -72,7 +72,7 @@ class LevelController(
 		private val textureCache: TextureCache,
 		render: Render,
 		private val screenHelper: ScreenHelper,
-		private val stage: Stage
+		stage: Stage
 ) {
 	val finished = EventDelegate<LevelFinishedEvent>()
 
@@ -81,11 +81,12 @@ class LevelController(
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
+	// TODO: Use configuration to enable/disable drawers
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val mapLayerRenderer: MapLayerRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/test_level.tmx")
 	private val entityDrawerManager: EntityDrawerManager
 	private val advancer: Advancer
 	private val commandModule: CommandModule

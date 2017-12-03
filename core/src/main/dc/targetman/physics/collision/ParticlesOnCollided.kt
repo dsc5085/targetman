@@ -2,6 +2,7 @@ package dc.targetman.physics.collision
 
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter
 import com.badlogic.gdx.graphics.g2d.PolygonSprite
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.mechanics.Alliance
@@ -51,7 +52,6 @@ class ParticlesOnCollided(
 	}
 
     private fun createBloodParticles(parentEntity: Entity, angle: Float, emissionRatio: Float) {
-		val tintValueRange = 0.1f
 		val effect = particlesManager.createEffect("blood", EntityPositionGetter(parentEntity))
 		for (emitter in effect.emitters) {
 			emitter.emission.highMin *= emissionRatio
@@ -67,20 +67,25 @@ class ParticlesOnCollided(
 			if (emitter is ParticleEmitterBox2d) {
 				emitter.particleCollidedDelegate.on(this::handleBloodParticleCollided)
 			}
-			randomizeEmitterTint(emitter, tintValueRange)
+			randomizeEmitterTint(emitter)
 		}
 		effect.start()
 	}
 
-	private fun randomizeEmitterTint(emitter: ParticleEmitter, tintValueRange: Float) {
-		val tintChange = MathUtils.random(-tintValueRange / 2, tintValueRange / 2)
+	private fun randomizeEmitterTint(emitter: ParticleEmitter) {
+		val minTintRatio = 0.7f
+		val minTint = emitter.tint.colors.toTypedArray()
+		for (i in minTint.indices) {
+			minTint[i] *= minTintRatio
+		}
+		val a = MathUtils.random()
 		for (i in emitter.tint.colors.indices) {
-			emitter.tint.colors[i] *= 1f + tintChange
+			emitter.tint.colors[i] = Interpolation.linear.apply(minTint[i], emitter.tint.colors[i], a)
 		}
 	}
 
 	private fun handleBloodParticleCollided(event: ParticleCollidedEvent) {
-		val stainScale = Vector2(1.5f, 0.75f)
+		val stainScale = Vector2(0.5f, 1.5f)
 		val particle = event.particle
 		val size = Vector2(particle.width * particle.scaleX, particle.height * particle.scaleY)
 		val vertices = PolygonUtils.createRectangleVertices(size.x, size.y)
