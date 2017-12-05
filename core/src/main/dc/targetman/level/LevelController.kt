@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.google.common.base.Predicate
+import dc.targetman.AppConfig
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.PathUpdater
 import dc.targetman.ai.Steering
@@ -19,6 +20,7 @@ import dc.targetman.character.MovementSystem
 import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
+import dc.targetman.epf.graphics.EntityGraphDrawer
 import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
@@ -48,6 +50,7 @@ import dclib.epf.EntityManager
 import dclib.epf.graphics.EntityDrawer
 import dclib.epf.graphics.EntityDrawerManager
 import dclib.epf.graphics.EntitySpriteDrawer
+import dclib.epf.graphics.EntityTransformDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
@@ -68,6 +71,7 @@ import dclib.system.Advancer
 import dclib.system.Updater
 
 class LevelController(
+		config: AppConfig,
         commandProcessor: CommandProcessor,
 		private val textureCache: TextureCache,
 		render: Render,
@@ -93,7 +97,7 @@ class LevelController(
 
 	init {
 		mapLayerRenderer = MapLayerRenderer(map, render.sprite, screenHelper.pixelsPerUnit, camera, stage.camera)
-		entityDrawerManager = createEntityDrawerManager(render, mapLayerRenderer)
+		entityDrawerManager = createEntityDrawerManager(config, render, mapLayerRenderer)
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
 		commandModule = createCommandModule()
@@ -183,13 +187,17 @@ class LevelController(
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(render: Render, mapLayerRenderer: MapLayerRenderer): EntityDrawerManager {
+	private fun createEntityDrawerManager(
+			config: AppConfig,
+			render: Render,
+			mapLayerRenderer: MapLayerRenderer
+	): EntityDrawerManager {
 		val entityDrawers = mutableListOf<EntityDrawer>()
 		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, mapLayerRenderer,
                 GetDrawEntities(entityManager), entityManager))
-//		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
-//		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
-		return EntityDrawerManager(entityDrawers)
+		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
+		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
+		return EntityDrawerManager(entityDrawers, config.enabledDrawers)
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {

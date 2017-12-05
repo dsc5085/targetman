@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSprite
 import com.badlogic.gdx.utils.viewport.StretchViewport
+import dc.targetman.AppConfig
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.level.DebugView
@@ -23,6 +24,7 @@ import dclib.system.Screen
 import dclib.ui.UiPack
 
 class LevelScreen(
+        private val config: AppConfig,
         private val commandProcessor: CommandProcessor,
         private val textureCache: TextureCache,
         uiPack: UiPack,
@@ -89,10 +91,8 @@ class LevelScreen(
     }
 
     private fun setupController() {
-        controller = LevelController(commandProcessor, textureCache, render, screenHelper, stage)
-        controller.finished.on {
-            restart()
-        }
+        controller = LevelController(config, commandProcessor, textureCache, render, screenHelper, stage)
+        controller.finished.on { restart() }
     }
 
     private fun createCommandModule(): CommandModule {

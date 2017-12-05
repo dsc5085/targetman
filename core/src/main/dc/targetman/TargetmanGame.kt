@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter
 import dc.targetman.command.CommandProcessor
 import dc.targetman.screens.ConsoleScreen
 import dc.targetman.screens.LevelScreen
+import dc.targetman.util.Json
 import dclib.graphics.Render
 import dclib.graphics.RenderUtils
 import dclib.graphics.TextureCache
@@ -11,6 +12,7 @@ import dclib.system.ScreenManager
 import dclib.ui.UiPack
 
 class TargetmanGame : ApplicationAdapter() {
+	private val config = Json.toObject<AppConfig>("config.json")
 	private val commandProcessor = CommandProcessor()
 	private val screenManager = ScreenManager()
 	private lateinit var textureCache: TextureCache
@@ -22,7 +24,7 @@ class TargetmanGame : ApplicationAdapter() {
 		render = Render()
 		uiPack = UiPack("ui/test/uiskin.json", "ui/ocr/ocr_32.fnt", "ui/ocr/ocr_24.fnt")
 		val consoleScreen = ConsoleScreen(commandProcessor, uiPack)
-		val levelScreen = LevelScreen(commandProcessor, textureCache, uiPack, render)
+		val levelScreen = LevelScreen(config, commandProcessor, textureCache, uiPack, render)
 		link(consoleScreen, levelScreen)
 		screenManager.add(levelScreen)
         screenManager.add(consoleScreen, false)
