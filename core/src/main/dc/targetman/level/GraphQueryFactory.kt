@@ -1,6 +1,8 @@
 package dc.targetman.level
 
 import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector3
 import dc.targetman.ai.graph.DefaultGraphQuery
 import dc.targetman.ai.graph.GraphFactory
@@ -12,10 +14,11 @@ import dc.targetman.physics.PhysicsUtils
 import dclib.epf.DefaultEntityManager
 import dclib.epf.parts.TransformPart
 import dclib.graphics.TextureCache
+import dclib.map.MapUtils
 
 object GraphQueryFactory {
     fun create(map: TiledMap, textureCache: TextureCache): GraphQuery {
-        val segmentBoundsList = MapUtils.createSegmentBoundsList(map)
+        val segmentBoundsList = createSegmentBoundsList(map)
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
         val factoryTools = FactoryTools(entityManager, textureCache, staticWorld)
@@ -29,5 +32,33 @@ object GraphQueryFactory {
         entityManager.dispose()
         staticWorld.dispose()
         return DefaultGraphQuery(graph)
+    }
+
+    fun createSegmentBoundsList(map: TiledMap): List<Rectangle> {
+        val boundsList = mutableListOf<Rectangle>()
+        val foregroundLayer = map.layers[MapUtils.FOREGROUND_INDEX] as TiledMapTileLayer
+        for (y in 0..foregroundLayer.height - 1 - 1) {
+            var x = 0
+            while (x < foregroundLayer.width) {
+                val floorLength = getFloorLength(foregroundLayer, x, y)
+                if (floorLength > 0) {
+                    val bounds = Rectangle(x.toFloat(), y.toFloat(), floorLength.toFloat(), 1f)
+                    boundsList.add(bounds)
+                    x += floorLength
+                }
+                x++
+            }
+        }
+        return boundsList
+    }
+
+    private fun getFloorLength(layer: TiledMapTileLayer, x: Int, y: Int): Int {
+        var floorLength = 0
+        var i = x
+        while (i < layer.width && layer.getCell(i, y) != null && layer.getCell(i, y + 1) == null) {
+            floorLength++
+            i++
+        }
+        return floorLength
     }
 }
