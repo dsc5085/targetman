@@ -1,9 +1,9 @@
 package dc.targetman.graphics
 
 import dc.targetman.command.Executer
-import dclib.epf.graphics.EntityDrawerManager
+import dclib.epf.graphics.DrawerManager
 
-class EnableDrawerExecuter(private val manager: EntityDrawerManager) : Executer {
+class EnableDrawerExecuter(private val manager: DrawerManager) : Executer {
     override val verb = "drawer on"
 
     override fun execute(params: Map<String, String>) {

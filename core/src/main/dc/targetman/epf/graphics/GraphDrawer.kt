@@ -5,22 +5,26 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType
 import dc.targetman.epf.parts.AiPart
 import dclib.epf.Entity
-import dclib.epf.graphics.EntityDrawer
+import dclib.epf.EntityManager
+import dclib.epf.graphics.Drawer
 import dclib.epf.parts.TransformPart
 import dclib.geometry.base
 import dclib.graphics.ScreenHelper
 
-class EntityGraphDrawer(private val shapeRenderer: ShapeRenderer, private val screenHelper: ScreenHelper)
-    : EntityDrawer {
+class GraphDrawer(
+        private val entityManager: EntityManager,
+        private val shapeRenderer: ShapeRenderer,
+        private val screenHelper: ScreenHelper
+) : Drawer {
     override fun getName(): String {
         return "graph"
     }
 
-    override fun draw(entities: Collection<Entity>) {
+    override fun draw() {
         screenHelper.setScaledProjectionMatrix(shapeRenderer)
         shapeRenderer.color = Color.CYAN
         shapeRenderer.begin(ShapeType.Line)
-        for (entity in entities) {
+        for (entity in entityManager.getAll()) {
             draw(entity)
         }
         shapeRenderer.end()
