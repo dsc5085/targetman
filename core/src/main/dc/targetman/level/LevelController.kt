@@ -20,7 +20,7 @@ import dc.targetman.character.MovementSystem
 import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
-import dc.targetman.epf.graphics.EntityGraphDrawer
+import dc.targetman.epf.graphics.GraphDrawer
 import dc.targetman.graphics.DisableDrawerExecuter
 import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
@@ -47,11 +47,11 @@ import dc.targetman.skeleton.SkeletonSyncSystem
 import dc.targetman.system.InputUtils
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
-import dclib.epf.graphics.EntityDrawer
-import dclib.epf.graphics.EntityDrawerManager
-import dclib.epf.graphics.EntitySpriteDrawer
-import dclib.epf.graphics.EntityTransformDrawer
+import dclib.epf.graphics.Drawer
+import dclib.epf.graphics.DrawerManager
+import dclib.epf.graphics.SpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
+import dclib.epf.graphics.TransformDrawer
 import dclib.eventing.EventDelegate
 import dclib.graphics.CameraUtils
 import dclib.graphics.Render
@@ -91,13 +91,13 @@ class LevelController(
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val map = TmxMapLoader().load("maps/test_level.tmx")
-	private val entityDrawerManager: EntityDrawerManager
+	private val drawerManager: DrawerManager
 	private val advancer: Advancer
 	private val commandModule: CommandModule
 
 	init {
 		mapLayerRenderer = MapLayerRenderer(map, render.sprite, screenHelper.pixelsPerUnit, camera, stage.camera)
-		entityDrawerManager = createEntityDrawerManager(config, render, mapLayerRenderer)
+		drawerManager = createDrawerManager(config, render, mapLayerRenderer)
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
 		commandModule = createCommandModule()
@@ -124,11 +124,7 @@ class LevelController(
 	}
 
 	fun draw() {
-		val entities = entityManager.getAll()
-		entityDrawerManager.draw(entities)
-		particlesManager.draw()
-//		renderBox2D()
-//        jointsDrawer.draw()
+		drawerManager.draw()
 	}
 
 	private fun createEntityManager(): EntityManager {
@@ -187,17 +183,31 @@ class LevelController(
 		return collisionChecker
 	}
 
-	private fun createEntityDrawerManager(
+	private fun createDrawerManager(
 			config: AppConfig,
 			render: Render,
 			mapLayerRenderer: MapLayerRenderer
-	): EntityDrawerManager {
-		val entityDrawers = mutableListOf<EntityDrawer>()
-		entityDrawers.add(EntitySpriteDrawer(render.sprite, screenHelper, mapLayerRenderer,
-                GetDrawEntities(entityManager), entityManager))
-		entityDrawers.add(EntityTransformDrawer(render.shape, screenHelper))
-		entityDrawers.add(EntityGraphDrawer(render.shape, screenHelper))
-		return EntityDrawerManager(entityDrawers, config.enabledDrawers)
+	): DrawerManager {
+		val drawers = mutableListOf<Drawer>()
+		drawers.add(SpriteDrawer(render.sprite, screenHelper, mapLayerRenderer, GetDrawEntities(entityManager),
+				entityManager, particlesManager))
+		drawers.add(TransformDrawer(entityManager, render.shape, screenHelper))
+		drawers.add(GraphDrawer(entityManager, render.shape, screenHelper))
+		drawers.add(createDrawer("physics", this::renderBox2D))
+		drawers.add(createDrawer("joints", jointsDrawer::draw))
+		return DrawerManager(drawers, config.enabledDrawers)
+	}
+
+	private fun createDrawer(name: String, drawerFunc: () -> Unit): Drawer {
+		return object : Drawer {
+			override fun draw() {
+				drawerFunc()
+			}
+
+			override fun getName(): String {
+				return name
+			}
+		}
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
@@ -247,8 +257,8 @@ class LevelController(
 		val executers = listOf(
 				SetSpeedExecuter(advancer),
 				StepExecuter(advancer),
-				EnableDrawerExecuter(entityDrawerManager),
-				DisableDrawerExecuter(entityDrawerManager))
+				EnableDrawerExecuter(drawerManager),
+				DisableDrawerExecuter(drawerManager))
 		return CommandModule(executers)
 	}
 
