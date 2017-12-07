@@ -1,0 +1,20 @@
+Possible Themes (or a combination of):
+Futuristic - Robotic enemies, cyborgs
+Gritty - Thugs, snipers, mercenaries
+Cartoonish - Teenagers, skateboarder
+Alien - Greys, alien beasts
+
+Most possible is a combination, mainly Gritty, with some Futuristic (ala Robocop).
+
+Enemies:
+Enemies have multiple variations. For example, holding different weapons or having bionic limbs. The thug can have shotgun or assault rifle.
+
+Thug - Base enemy. Low reactions, aim, cowardly.
+Drone - Flies, robotic, fast. Stupid and low damaging. Like a K9 unit. Follows thugs around.
+Marksman - Low mobility. Accurate. Devastating.
+Grunt - Heavier troop than Thug. Carries more devastating weapons. Slower.
+Assassin - Fast. Prefers close range swords. Can throw flashbang. Jumps high and is agile.
+Turret - Heavily armored. Fast reactions.
+Destructors - Robots carrying heavy weapons such as rocket launcher.
+Mechs - Large robots with devastating weaponry. Require specific strategy to weaken and destroy.
+Commander - Uses advanced strategies such as using cover. Has special abilities. Can command lower ranked units.
