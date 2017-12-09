@@ -22,20 +22,28 @@ class MovementSystem(
 ) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
-            move(entity)
-            updateJumping(entity, delta)
+            val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
+            move(entity, isGrounded)
+            updateJumping(entity, isGrounded, delta)
+            if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
+                entity[SkeletonPart::class].playAnimation("fall")
+            }
         }
     }
 
-    private fun move(entity: Entity) {
+    private fun move(entity: Entity, isGrounded: Boolean) {
         val movementPart = entity[MovementPart::class]
         val direction = movementPart.direction
         val skeletonPart = entity[SkeletonPart::class]
         val targetVelocityX = movementPart.speed.x * getMoveStrength(entity) * direction.toFloat()
-        if (direction == Direction.NONE) {
-            skeletonPart.playAnimation("idle")
-        } else {
-            skeletonPart.playAnimation("run")
+        if (isGrounded) {
+            if (direction == Direction.NONE) {
+                skeletonPart.playAnimation("idle")
+            } else {
+                skeletonPart.playAnimation("run")
+            }
+        }
+        if (direction != Direction.NONE) {
             entity[SkeletonPart::class].flipX = direction === Direction.LEFT
         }
         applyMoveImpulse(entity, targetVelocityX)
@@ -50,21 +58,20 @@ class MovementSystem(
         transform.applyImpulse(Vector2(impulse, 0f))
     }
 
-    private fun updateJumping(entity: Entity, delta: Float) {
+    private fun updateJumping(entity: Entity, isGrounded: Boolean, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
         if (!movementPart.tryJumping || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (movementPart.tryJumping && (EntityUtils.isGrounded(collisionChecker, entity)
-                || jumpIncreaseTimer.isStarted)) {
-            jump(entity, delta)
+        } else if (movementPart.tryJumping && (isGrounded || jumpIncreaseTimer.isRunning)) {
+            jump(entity, isGrounded, delta)
         }
     }
 
-    private fun jump(entity: Entity, delta: Float) {
+    private fun jump(entity: Entity, isGrounded: Boolean, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val transform = entity[TransformPart::class].transform as Box2dTransform
-        if (EntityUtils.isGrounded(collisionChecker, entity)) {
+        if (isGrounded) {
             transform.velocity = Vector2(transform.velocity.x, 0f)
         }
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
@@ -75,6 +82,7 @@ class MovementSystem(
         val impulseY = Box2dUtils.getImpulseToReachVelocity(oldApproxJumpSpeed, newApproxJumpSpeedWithGravity,
                 transform.body.mass)
         transform.applyImpulse(Vector2(0f, impulseY))
+        entity[SkeletonPart::class].playAnimation("jump", loop = false)
     }
 
     private fun getMoveStrength(entity: Entity): Float {

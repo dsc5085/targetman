@@ -38,16 +38,17 @@ class SkeletonPart(val root: LimbLink) {
         animationState.data.setMix(fromName, toName, duration)
     }
 
-    fun playAnimation(name: String, trackIndex: Int = 0) {
+    fun playAnimation(name: String, trackIndex: Int = 0, loop: Boolean = true) {
         val indexExists = trackIndex < animationState.tracks.size
-        if (!indexExists || animationState.tracks[trackIndex].animation.name != name) {
-            animationState.setAnimation(trackIndex, name, true)
+        if (!indexExists || animationState.tracks[trackIndex] == null
+                || animationState.tracks[trackIndex].animation.name != name) {
+            animationState.setAnimation(trackIndex, name, loop)
         }
     }
 
     private fun createAnimationState(): AnimationState {
         val animationStateData = AnimationStateData(skeleton.data)
-        animationStateData.defaultMix = 2f
+        animationStateData.defaultMix = 0.2f
         return AnimationState(animationStateData)
     }
 }

@@ -10,6 +10,21 @@
       "fromName": "idle",
       "toName": "run",
       "duration": "0.3"
+    },
+    {
+      "fromName": "run",
+      "toName": "jump",
+      "duration": "0.1"
+    },
+    {
+      "fromName": "idle",
+      "toName": "jump",
+      "duration": "0.1"
+    },
+    {
+      "fromName": "jump",
+      "toName": "fall",
+      "duration": "1"
     }
   ]
 }
