@@ -20,6 +20,11 @@
       "fromName": "idle",
       "toName": "jump",
       "duration": "0.1"
+    },
+    {
+      "fromName": "jump",
+      "toName": "fall",
+      "duration": "1"
     }
   ]
 }

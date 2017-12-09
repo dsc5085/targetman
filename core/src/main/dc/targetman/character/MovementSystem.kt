@@ -25,6 +25,9 @@ class MovementSystem(
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
             move(entity, isGrounded)
             updateJumping(entity, isGrounded, delta)
+            if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
+                entity[SkeletonPart::class].playAnimation("fall")
+            }
         }
     }
 
