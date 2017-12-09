@@ -41,8 +41,10 @@ class MovementSystem(
                 skeletonPart.playAnimation("idle")
             } else {
                 skeletonPart.playAnimation("run")
-                entity[SkeletonPart::class].flipX = direction === Direction.LEFT
             }
+        }
+        if (direction != Direction.NONE) {
+            entity[SkeletonPart::class].flipX = direction === Direction.LEFT
         }
         applyMoveImpulse(entity, targetVelocityX)
     }
