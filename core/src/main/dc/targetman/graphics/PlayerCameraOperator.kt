@@ -17,8 +17,8 @@ import dclib.system.Updater
 class PlayerCameraOperator(
         private val camera: Camera,
         private val screenHelper: ScreenHelper,
-        private val entityManager: EntityManager)
-    : Updater {
+        private val entityManager: EntityManager
+) : Updater {
     override fun update(delta: Float) {
         val maxCameraSpeed = 20f
         val player = EntityFinder.find(entityManager, Alliance.PLAYER)

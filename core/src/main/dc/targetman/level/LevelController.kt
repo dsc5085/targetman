@@ -85,7 +85,6 @@ class LevelController(
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
-	// TODO: Use configuration to enable/disable drawers
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val mapLayerRenderer: MapLayerRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
@@ -209,7 +208,7 @@ class LevelController(
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
-		return Predicate<CollidedEvent> {
+		return Predicate {
 			val targetEntity = it!!.target
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
 			val sourceAlliance = it.source.getAttribute(Alliance::class)
