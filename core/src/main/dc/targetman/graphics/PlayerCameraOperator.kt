@@ -20,31 +20,24 @@ class PlayerCameraOperator(
         private val entityManager: EntityManager)
     : Updater {
     override fun update(delta: Float) {
+        val maxCameraSpeed = 20f
         val player = EntityFinder.find(entityManager, Alliance.PLAYER)
         if (player != null) {
-            val maxCameraSpeed = 10f
             val viewportWorldSize = screenHelper.toWorldUnits(camera.viewportWidth, camera.viewportHeight)
             val maxCameraDistance = Math.hypot(viewportWorldSize.x.toDouble(), viewportWorldSize.y.toDouble())
                     .toFloat()
-//            val maxCameraDistance = VectorUtils.offset(player[TransformPart::class].transform.center, InputUtils.getCursorWorldCoord(screenHelper)).len() / 2f
-            val lookAtTarget = getLookAtTarget(player)
-//            println(lookAtTarget)
+            val cameraDestination = getCameraDestination(player)
             val cameraCenter = CameraUtils.center(camera, screenHelper)
-            val offsetToLookAtTarget = VectorUtils.offset(cameraCenter, lookAtTarget)
-//            println(offsetToLookAtTarget)
-            val cameraSpeed = Interpolation.exp10Out.apply(0f, maxCameraSpeed * delta, 1f - offsetToLookAtTarget.len() / maxCameraDistance)
-//            println(cameraSpeed)
-//            val currentOffsetLength = VectorUtils.offset(CameraUtils.center(camera, screenHelper), destOffset).len()
-//            val progress = currentOffsetLength / destOffset.len() //(maxCameraDistance - destOffset.len()) / maxCameraDistance
-//            val cameraSpeed = Interpolation.exp10Out.apply(0f, maxCameraSpeed * delta, 1f - progress)
-            val currentOffset = offsetToLookAtTarget.cpy().setLength(cameraSpeed)
-            val newCameraPosition = CameraUtils.center(camera, screenHelper).add(currentOffset)
-            println(cameraCenter)
+            val offsetToDestination = VectorUtils.offset(cameraCenter, cameraDestination)
+            val progress = offsetToDestination.len() / maxCameraDistance
+            val cameraSpeed = Interpolation.exp10Out.apply(0f, maxCameraSpeed, progress)
+            val frameOffset = offsetToDestination.cpy().setLength(cameraSpeed * delta)
+            val newCameraPosition = cameraCenter.cpy().add(frameOffset)
             CameraUtils.lookAt(newCameraPosition, screenHelper, camera)
         }
     }
 
-    private fun getLookAtTarget(player: Entity): Vector2 {
+    private fun getCameraDestination(player: Entity): Vector2 {
         val playerPosition = player[TransformPart::class].transform.center
         val cursorWorldCoord = InputUtils.getCursorWorldCoord(screenHelper)
         return playerPosition.cpy().interpolate(cursorWorldCoord, 0.5f, Interpolation.linear)
