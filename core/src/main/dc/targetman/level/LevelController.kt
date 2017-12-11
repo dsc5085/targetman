@@ -26,6 +26,7 @@ import dc.targetman.graphics.EnableDrawerExecuter
 import dc.targetman.graphics.GetDrawEntities
 import dc.targetman.graphics.JointsDrawer
 import dc.targetman.graphics.LimbsShadowingSystem
+import dc.targetman.graphics.PlayerCameraOperator
 import dc.targetman.level.executers.SetSpeedExecuter
 import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
@@ -53,7 +54,6 @@ import dclib.epf.graphics.SpriteDrawer
 import dclib.epf.graphics.SpriteSyncSystem
 import dclib.epf.graphics.TransformDrawer
 import dclib.eventing.EventDelegate
-import dclib.graphics.CameraUtils
 import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
@@ -85,12 +85,11 @@ class LevelController(
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
-	// TODO: Use configuration to enable/disable drawers
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val mapLayerRenderer: MapLayerRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/test_level.tmx")
+	private val map = TmxMapLoader().load("maps/simple.tmx")
 	private val drawerManager: DrawerManager
 	private val advancer: Advancer
 	private val commandModule: CommandModule
@@ -114,11 +113,8 @@ class LevelController(
 
 	fun update(delta: Float) {
 		advancer.advance(delta)
-		val player = EntityFinder.find(entityManager, Alliance.PLAYER)
-		if (player != null) {
-			CameraUtils.follow(player, screenHelper, camera)
-		}
-		if (player == null || Gdx.input.isKeyPressed(Keys.R)) {
+		val gameOver = EntityFinder.find(entityManager, Alliance.PLAYER) == null
+		if (gameOver || Gdx.input.isKeyPressed(Keys.R)) {
 			finished.notify(LevelFinishedEvent())
 		}
 	}
@@ -157,7 +153,8 @@ class LevelController(
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
-				particlesManager)
+				particlesManager,
+                PlayerCameraOperator(camera, screenHelper, entityManager))
 	}
 
 	private fun createAiSystem(collisionChecker: CollisionChecker): AiSystem {
@@ -211,7 +208,7 @@ class LevelController(
 	}
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
-		return Predicate<CollidedEvent> {
+		return Predicate {
 			val targetEntity = it!!.target
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
 			val sourceAlliance = it.source.getAttribute(Alliance::class)
