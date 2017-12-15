@@ -27,7 +27,7 @@ class PlayerCameraOperator(
             val maxCameraDistance = Math.hypot(viewportWorldSize.x.toDouble(), viewportWorldSize.y.toDouble())
                     .toFloat()
             val cameraDestination = getCameraDestination(player)
-            val cameraCenter = CameraUtils.center(camera, screenHelper)
+            val cameraCenter = screenHelper.toWorldUnits(camera.position.x, camera.position.y)
             val offsetToDestination = VectorUtils.offset(cameraCenter, cameraDestination)
             val progress = offsetToDestination.len() / maxCameraDistance
             val cameraSpeed = Interpolation.exp10Out.apply(0f, maxCameraSpeed, progress)
