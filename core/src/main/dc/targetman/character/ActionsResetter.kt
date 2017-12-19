@@ -13,7 +13,8 @@ class ActionsResetter(entityManager: EntityManager) : EntitySystem(entityManager
         // TODO: Make actions more OO, i.e. encapsulate each action into a class representing it
         if (entity.has(MovementPart::class)) {
             entity[MovementPart::class].direction = Direction.NONE
-            entity[MovementPart::class].tryJumping = false
+            entity[MovementPart::class].tryMoveUp = false
+            entity[MovementPart::class].tryMoveDown = false
         }
         if (entity.has(FiringPart::class)) {
             entity[FiringPart::class].triggered = false

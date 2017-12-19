@@ -10,12 +10,16 @@ import dc.targetman.mechanics.StaggerState
 import dclib.epf.Entity
 
 object CharacterActions {
-    fun move(entity: Entity, direction: Direction) {
+    fun moveHorizontal(entity: Entity, direction: Direction) {
         tryExecute(entity, { entity[MovementPart::class].direction = direction })
     }
 
-    fun jump(entity: Entity) {
-        tryExecute(entity, { entity[MovementPart::class].tryJumping = true })
+    fun moveUp(entity: Entity) {
+        tryExecute(entity, { entity[MovementPart::class].tryMoveUp = true })
+    }
+
+    fun moveDown(entity: Entity) {
+        tryExecute(entity, { entity[MovementPart::class].tryMoveDown = true })
     }
 
     fun aim(entity: Entity, targetCoord: Vector2) {

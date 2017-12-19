@@ -13,7 +13,8 @@ class MovementPart(
         val limbNames: List<String>
 ) {
     var direction = Direction.NONE
-    var tryJumping = false
+    var tryMoveUp = false
+    var tryMoveDown = false
     val jumpIncreaseTimer = Timer(jumpIncreaseTime)
     var onLadder = false
 }

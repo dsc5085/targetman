@@ -232,12 +232,15 @@ class LevelController(
 		val cursorWorldCoords = InputUtils.getCursorWorldCoord(screenHelper)
 		CharacterActions.aim(player, cursorWorldCoords)
 		if (Gdx.input.isKeyPressed(Keys.A)) {
-			CharacterActions.move(player, Direction.LEFT)
+			CharacterActions.moveHorizontal(player, Direction.LEFT)
 		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-			CharacterActions.move(player, Direction.RIGHT)
+			CharacterActions.moveHorizontal(player, Direction.RIGHT)
 		}
-		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-			CharacterActions.jump(player)
+		if (Gdx.input.isKeyPressed(Keys.W)) {
+			CharacterActions.moveUp(player)
+		}
+		if (Gdx.input.isKeyPressed(Keys.S)) {
+			CharacterActions.moveDown(player)
 		}
 		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
 			CharacterActions.trigger(player)

@@ -67,9 +67,9 @@ class MovementSystem(
     private fun updateJumping(entity: Entity, isGrounded: Boolean, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        if (!movementPart.tryJumping || jumpIncreaseTimer.isElapsed) {
+        if (!movementPart.tryMoveUp || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (movementPart.tryJumping && (isGrounded || jumpIncreaseTimer.isRunning)) {
+        } else if (movementPart.tryMoveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
             jump(entity, isGrounded, delta)
         }
     }
@@ -98,12 +98,12 @@ class MovementSystem(
         val body = Box2dUtils.getBody(entity)!!
         val ladderJointEdge = body.jointList.firstOrNull { it.joint is PrismaticJoint }
         if (ladderCollision != null) {
-            if (movementPart.tryJumping) {
+            if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
                 movementPart.onLadder = true
 
                 if (ladderJointEdge != null) {
                     val ladderJoint = ladderJointEdge.joint as PrismaticJoint
-                    ladderJoint.motorSpeed = 10f
+                    ladderJoint.motorSpeed = if (movementPart.tryMoveUp) 10f else -10f
                 }
             } else {
                 if (ladderJointEdge != null) {

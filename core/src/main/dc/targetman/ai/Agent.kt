@@ -28,10 +28,10 @@ class Agent(val entity: Entity, val targetBounds: Rectangle) {
     }
 
     fun move(direction: Direction) {
-        CharacterActions.move(entity, direction)
+        CharacterActions.moveHorizontal(entity, direction)
     }
 
     fun jump() {
-        CharacterActions.jump(entity)
+        CharacterActions.moveUp(entity)
     }
 }
