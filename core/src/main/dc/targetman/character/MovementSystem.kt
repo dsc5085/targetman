@@ -2,6 +2,8 @@ package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.Joint
+import com.badlogic.gdx.physics.box2d.JointEdge
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
@@ -29,7 +31,7 @@ class MovementSystem(
         if (entity.has(MovementPart::class)) {
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
             move(entity, isGrounded)
-//            updateJumping(entity, isGrounded, delta)
+            updateJumping(entity, isGrounded, delta)
             climbLadder(entity)
             if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
                 entity[SkeletonPart::class].playAnimation("fall")
@@ -99,26 +101,35 @@ class MovementSystem(
         val ladderJointEdge = body.jointList.firstOrNull { it.joint is PrismaticJoint }
         if (ladderCollision != null) {
             if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
-                movementPart.onLadder = true
-
-                if (ladderJointEdge != null) {
-                    val ladderJoint = ladderJointEdge.joint as PrismaticJoint
-                    ladderJoint.motorSpeed = if (movementPart.tryMoveUp) 10f else -10f
-                }
-            } else {
-                if (ladderJointEdge != null) {
-                    val ladderJoint = ladderJointEdge.joint as PrismaticJoint
-                    ladderJoint.motorSpeed = 0f
-                }
+                movementPart.climbingLadder = true
             }
-            if (movementPart.onLadder && ladderJointEdge == null) {
+            updateClimbSpeed(ladderJointEdge?.joint, movementPart)
+            if (movementPart.climbingLadder && ladderJointEdge == null) {
                 createLadderJoint(body, ladderCollision.target.body)
             }
         } else {
-            movementPart.onLadder = false
-            if (ladderJointEdge != null) {
-                Box2dUtils.destroyJoint(ladderJointEdge.joint)
+            getOffLadder(movementPart, ladderJointEdge)
+        }
+    }
+
+    private fun updateClimbSpeed(joint: Joint?, movementPart: MovementPart) {
+        if (joint is PrismaticJoint) {
+            val climbSpeed: Float
+            if (movementPart.tryMoveUp) {
+                climbSpeed = 10f
+            } else if (movementPart.tryMoveDown) {
+                climbSpeed = -10f
+            } else {
+                climbSpeed = 0f
             }
+            joint.motorSpeed = climbSpeed
+        }
+    }
+
+    private fun getOffLadder(movementPart: MovementPart, ladderJointEdge: JointEdge?) {
+        movementPart.climbingLadder = false
+        if (ladderJointEdge != null) {
+            Box2dUtils.destroyJoint(ladderJointEdge.joint)
         }
     }
 
