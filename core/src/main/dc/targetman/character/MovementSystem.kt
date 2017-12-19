@@ -2,7 +2,6 @@ package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.Joint
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
@@ -98,50 +97,47 @@ class MovementSystem(
         val ladderCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.LADDER) }
         val body = Box2dUtils.getBody(entity)!!
         val ladderJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
+        if (ladderJoint != null) {
+            Box2dUtils.destroyJoint(ladderJoint)
+        }
         if (ladderCollision != null) {
             if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
                 movementPart.climbingLadder = true
             }
-            if (movementPart.climbingLadder && ladderJoint == null) {
-                createLadderJoint(body, ladderCollision.target.body)
-            }
-            updateClimbSpeed(ladderJoint, movementPart)
+            createLadderJoint(body, ladderCollision.target.body, movementPart)
         } else {
-            getOffLadder(movementPart, ladderJoint)
+            movementPart.climbingLadder = false
         }
     }
 
-    private fun updateClimbSpeed(joint: Joint?, movementPart: MovementPart) {
-        if (joint is PrismaticJoint) {
-            val climbSpeed: Float
-            if (movementPart.tryMoveUp) {
-                climbSpeed = 10f
-            } else if (movementPart.tryMoveDown) {
-                climbSpeed = -10f
-            } else {
-                climbSpeed = 0f
-            }
-            joint.motorSpeed = climbSpeed
+    private fun createLadderJoint(climber: Body, ladder: Body, movementPart: MovementPart) {
+        val maxClimbSpeed = movementPart.speed.x / 2f
+        val climbVelocity = Vector2()
+        if (movementPart.tryMoveUp) {
+            climbVelocity.y = 1f
+        } else if (movementPart.tryMoveDown) {
+            climbVelocity.y = -1f
         }
+        if (movementPart.direction == Direction.RIGHT) {
+            climbVelocity.x = 1f
+        } else if (movementPart.direction == Direction.LEFT) {
+            climbVelocity.x = -1f
+        }
+        climbVelocity.setLength(maxClimbSpeed)
+        createLadderJoint(climber, ladder, climbVelocity)
     }
 
-    private fun getOffLadder(movementPart: MovementPart, ladderJoint: PrismaticJoint?) {
-        movementPart.climbingLadder = false
-        if (ladderJoint != null) {
-            Box2dUtils.destroyJoint(ladderJoint)
-        }
-    }
-
-    private fun createLadderJoint(climber: Body, ladder: Body) {
+    private fun createLadderJoint(climber: Body, ladder: Body, velocity: Vector2) {
         val jointDef = PrismaticJointDef()
         val anchor = Vector2(Box2DUtils.minXWorld(climber), Box2DUtils.minYWorld(climber))
-        jointDef.initialize(ladder, climber, anchor, Vector2(0f, 1f))
+        jointDef.initialize(ladder, climber, anchor, velocity)
         jointDef.enableLimit = true
         jointDef.enableMotor = true
         jointDef.upperTranslation = 100f
         jointDef.lowerTranslation = -10000f
         jointDef.collideConnected = true
         jointDef.maxMotorForce = 200f
+        jointDef.motorSpeed = velocity.len()
         world.createJoint(jointDef)
     }
 
