@@ -3,7 +3,6 @@ package dc.targetman.character
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Joint
-import com.badlogic.gdx.physics.box2d.JointEdge
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
@@ -98,17 +97,17 @@ class MovementSystem(
         val collisions = collisionChecker.getCollisions(entity)
         val ladderCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.LADDER) }
         val body = Box2dUtils.getBody(entity)!!
-        val ladderJointEdge = body.jointList.firstOrNull { it.joint is PrismaticJoint }
+        val ladderJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
         if (ladderCollision != null) {
             if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
                 movementPart.climbingLadder = true
             }
-            updateClimbSpeed(ladderJointEdge?.joint, movementPart)
-            if (movementPart.climbingLadder && ladderJointEdge == null) {
+            if (movementPart.climbingLadder && ladderJoint == null) {
                 createLadderJoint(body, ladderCollision.target.body)
             }
+            updateClimbSpeed(ladderJoint, movementPart)
         } else {
-            getOffLadder(movementPart, ladderJointEdge)
+            getOffLadder(movementPart, ladderJoint)
         }
     }
 
@@ -126,10 +125,10 @@ class MovementSystem(
         }
     }
 
-    private fun getOffLadder(movementPart: MovementPart, ladderJointEdge: JointEdge?) {
+    private fun getOffLadder(movementPart: MovementPart, ladderJoint: PrismaticJoint?) {
         movementPart.climbingLadder = false
-        if (ladderJointEdge != null) {
-            Box2dUtils.destroyJoint(ladderJointEdge.joint)
+        if (ladderJoint != null) {
+            Box2dUtils.destroyJoint(ladderJoint)
         }
     }
 
