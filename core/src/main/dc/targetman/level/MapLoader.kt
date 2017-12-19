@@ -45,6 +45,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
         for (tileVertices in unionTileVertices) {
             createWall(tileVertices)
         }
+        LevelObjectFactory(factoryTools).createLadder()
     }
 
     fun createWall(vertices: List<Vector2>) {

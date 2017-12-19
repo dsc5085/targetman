@@ -1,11 +1,15 @@
 package dc.targetman.character
 
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
+import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityUtils
+import dc.targetman.physics.Interactivity
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
@@ -14,6 +18,7 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollisionChecker
 import dclib.util.Maths
+import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
 class MovementSystem(
         entityManager: EntityManager,
@@ -24,7 +29,8 @@ class MovementSystem(
         if (entity.has(MovementPart::class)) {
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
             move(entity, isGrounded)
-            updateJumping(entity, isGrounded, delta)
+//            updateJumping(entity, isGrounded, delta)
+            climbLadder(entity)
             if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
                 entity[SkeletonPart::class].playAnimation("fall")
             }
@@ -83,6 +89,50 @@ class MovementSystem(
                 transform.body.mass)
         transform.applyImpulse(Vector2(0f, impulseY))
         entity[SkeletonPart::class].playAnimation("jump", loop = false)
+    }
+
+    private fun climbLadder(entity: Entity) {
+        val movementPart = entity[MovementPart::class]
+        val collisions = collisionChecker.getCollisions(entity)
+        val ladderCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.LADDER) }
+        val body = Box2dUtils.getBody(entity)!!
+        val ladderJointEdge = body.jointList.firstOrNull { it.joint is PrismaticJoint }
+        if (ladderCollision != null) {
+            if (movementPart.tryJumping) {
+                movementPart.onLadder = true
+
+                if (ladderJointEdge != null) {
+                    val ladderJoint = ladderJointEdge.joint as PrismaticJoint
+                    ladderJoint.motorSpeed = 10f
+                }
+            } else {
+                if (ladderJointEdge != null) {
+                    val ladderJoint = ladderJointEdge.joint as PrismaticJoint
+                    ladderJoint.motorSpeed = 0f
+                }
+            }
+            if (movementPart.onLadder && ladderJointEdge == null) {
+                createLadderJoint(body, ladderCollision.target.body)
+            }
+        } else {
+            movementPart.onLadder = false
+            if (ladderJointEdge != null) {
+                Box2dUtils.destroyJoint(ladderJointEdge.joint)
+            }
+        }
+    }
+
+    private fun createLadderJoint(climber: Body, ladder: Body) {
+        val jointDef = PrismaticJointDef()
+        val anchor = Vector2(Box2DUtils.minXWorld(climber), Box2DUtils.minYWorld(climber))
+        jointDef.initialize(ladder, climber, anchor, Vector2(0f, 1f))
+        jointDef.enableLimit = true
+        jointDef.enableMotor = true
+        jointDef.upperTranslation = 100f
+        jointDef.lowerTranslation = -10000f
+        jointDef.collideConnected = true
+        jointDef.maxMotorForce = 200f
+        world.createJoint(jointDef)
     }
 
     private fun getMoveStrength(entity: Entity): Float {
