@@ -1,5 +1,6 @@
 package dc.targetman.character
 
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
@@ -126,6 +127,9 @@ class MovementSystem(
             climbVelocity.x = -1f
         }
         climbVelocity.setLength(maxClimbSpeed)
+        val bodyHeightAboveLadder = Box2DUtils.maxYWorld(climber) - Box2DUtils.maxYWorld(ladder)
+        val bodyRatioAboveLadder = bodyHeightAboveLadder / Box2DUtils.size(climber).y
+        climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveLadder)
         createLadderJoint(climber, ladder, climbVelocity)
     }
 
