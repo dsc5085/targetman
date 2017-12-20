@@ -18,7 +18,7 @@ class LevelObjectFactory(private val factoryTools: FactoryTools) {
         val transform = Box2dTransform(body)
         val region = factoryTools.textureCache.getPolygonRegion("objects/white")
         val entity = Entity(TransformPart(transform), SpritePart(region))
-        entity.addAttributes(Interactivity.LADDER)
+        entity.addAttributes(Interactivity.CLIMB)
         factoryTools.entityManager.add(entity)
     }
 }

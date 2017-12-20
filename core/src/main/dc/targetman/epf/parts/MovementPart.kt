@@ -16,5 +16,5 @@ class MovementPart(
     var tryMoveUp = false
     var tryMoveDown = false
     val jumpIncreaseTimer = Timer(jumpIncreaseTime)
-    var climbingLadder = false
+    var climbing = false
 }

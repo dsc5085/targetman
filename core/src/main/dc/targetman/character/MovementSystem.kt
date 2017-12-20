@@ -31,7 +31,7 @@ class MovementSystem(
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
             move(entity, isGrounded)
             updateJumping(entity, isGrounded, delta)
-            climbLadder(entity)
+            climb(entity)
             if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
                 entity[SkeletonPart::class].playAnimation("fall")
             }
@@ -92,28 +92,33 @@ class MovementSystem(
         entity[SkeletonPart::class].playAnimation("jump", loop = false)
     }
 
-    private fun climbLadder(entity: Entity) {
+    private fun climb(entity: Entity) {
         val movementPart = entity[MovementPart::class]
         val collisions = collisionChecker.getCollisions(entity)
-        val ladderCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.LADDER) }
+        val climbCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.CLIMB) }
         val body = Box2dUtils.getBody(entity)!!
-        val ladderJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
-        if (ladderJoint != null) {
-            Box2dUtils.destroyJoint(ladderJoint)
+        val climbJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
+        if (climbJoint != null) {
+            Box2dUtils.destroyJoint(climbJoint)
         }
-        if (ladderCollision != null) {
+        if (climbCollision != null) {
             if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
-                movementPart.climbingLadder = true
+                movementPart.climbing = true
             }
-            if (movementPart.climbingLadder) {
-                createLadderJoint(body, ladderCollision.target.body, movementPart, entity[SkeletonPart::class])
+            if (movementPart.climbing) {
+                createClimbJoint(body, climbCollision.target.body, movementPart, entity[SkeletonPart::class])
             }
         } else {
-            movementPart.climbingLadder = false
+            movementPart.climbing = false
         }
     }
 
-    private fun createLadderJoint(climber: Body, ladder: Body, movementPart: MovementPart, skeletonPart: SkeletonPart) {
+    private fun createClimbJoint(
+            climber: Body,
+            climbeable: Body,
+            movementPart: MovementPart,
+            skeletonPart: SkeletonPart
+    ) {
         val maxClimbSpeed = getMoveSpeed(movementPart, skeletonPart).x / 2f
         val climbVelocity = Vector2()
         if (movementPart.tryMoveUp) {
@@ -127,19 +132,19 @@ class MovementSystem(
             climbVelocity.x = -1f
         }
         climbVelocity.setLength(maxClimbSpeed)
-        val bodyHeightAboveLadder = Box2DUtils.maxYWorld(climber) - Box2DUtils.maxYWorld(ladder)
-        val bodyRatioAboveLadder = bodyHeightAboveLadder / Box2DUtils.size(climber).y
-        climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveLadder)
-        createLadderJoint(climber, ladder, climbVelocity)
+        val bodyHeightAboveClimbeable = Box2DUtils.maxYWorld(climber) - Box2DUtils.maxYWorld(climbeable)
+        val bodyRatioAboveClimbeable = bodyHeightAboveClimbeable / Box2DUtils.size(climber).y
+        climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveClimbeable)
+        createClimbJoint(climber, climbeable, climbVelocity)
     }
 
-    private fun createLadderJoint(climber: Body, ladder: Body, velocity: Vector2) {
+    private fun createClimbJoint(climber: Body, climbeable: Body, velocity: Vector2) {
         val jointDef = PrismaticJointDef()
         val anchor = Vector2(Box2DUtils.minXWorld(climber), Box2DUtils.minYWorld(climber))
         // In order for joint to work with a velocity length of 0, axis must not be Vector2(0f, 0f), so just set the
         // x-component to an arbitrary value.
         val axis = if (velocity.len() == 0f) Vector2(1f, 0f) else velocity
-        jointDef.initialize(ladder, climber, anchor, axis)
+        jointDef.initialize(climbeable, climber, anchor, axis)
         jointDef.enableLimit = true
         jointDef.enableMotor = true
         jointDef.upperTranslation = 100f
