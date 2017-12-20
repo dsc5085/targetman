@@ -104,7 +104,9 @@ class MovementSystem(
             if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
                 movementPart.climbingLadder = true
             }
-            createLadderJoint(body, ladderCollision.target.body, movementPart)
+            if (movementPart.climbingLadder) {
+                createLadderJoint(body, ladderCollision.target.body, movementPart)
+            }
         } else {
             movementPart.climbingLadder = false
         }
@@ -130,7 +132,10 @@ class MovementSystem(
     private fun createLadderJoint(climber: Body, ladder: Body, velocity: Vector2) {
         val jointDef = PrismaticJointDef()
         val anchor = Vector2(Box2DUtils.minXWorld(climber), Box2DUtils.minYWorld(climber))
-        jointDef.initialize(ladder, climber, anchor, velocity)
+        // In order for joint to work with a velocity length of 0, axis must not be Vector2(0f, 0f), so just set the
+        // x-component to an arbitrary value.
+        val axis = if (velocity.len() == 0f) Vector2(1f, 0f) else velocity
+        jointDef.initialize(ladder, climber, anchor, axis)
         jointDef.enableLimit = true
         jointDef.enableMotor = true
         jointDef.upperTranslation = 100f
