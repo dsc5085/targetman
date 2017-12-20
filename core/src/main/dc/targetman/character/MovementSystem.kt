@@ -42,7 +42,7 @@ class MovementSystem(
         val movementPart = entity[MovementPart::class]
         val direction = movementPart.direction
         val skeletonPart = entity[SkeletonPart::class]
-        val targetVelocityX = movementPart.speed.x * getMoveStrength(entity) * direction.toFloat()
+        val targetVelocityX = getMoveSpeed(movementPart, entity[SkeletonPart::class]).x * direction.toFloat()
         if (isGrounded) {
             if (direction == Direction.NONE) {
                 skeletonPart.playAnimation("idle")
@@ -82,7 +82,7 @@ class MovementSystem(
             transform.velocity = Vector2(transform.velocity.x, 0f)
         }
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        val maxJumpSpeed = movementPart.speed.y * getMoveStrength(entity)
+        val maxJumpSpeed = getMoveSpeed(movementPart, entity[SkeletonPart::class]).y
         val oldApproxJumpSpeed = maxJumpSpeed * jumpIncreaseTimer.elapsedPercent
         jumpIncreaseTimer.tick(delta)
         val newApproxJumpSpeedWithGravity = maxJumpSpeed * jumpIncreaseTimer.elapsedPercent + delta * -world.gravity.y
@@ -106,15 +106,15 @@ class MovementSystem(
                 movementPart.climbingLadder = true
             }
             if (movementPart.climbingLadder) {
-                createLadderJoint(body, ladderCollision.target.body, movementPart)
+                createLadderJoint(body, ladderCollision.target.body, movementPart, entity[SkeletonPart::class])
             }
         } else {
             movementPart.climbingLadder = false
         }
     }
 
-    private fun createLadderJoint(climber: Body, ladder: Body, movementPart: MovementPart) {
-        val maxClimbSpeed = movementPart.speed.x / 2f
+    private fun createLadderJoint(climber: Body, ladder: Body, movementPart: MovementPart, skeletonPart: SkeletonPart) {
+        val maxClimbSpeed = getMoveSpeed(movementPart, skeletonPart).x / 2f
         val climbVelocity = Vector2()
         if (movementPart.tryMoveUp) {
             climbVelocity.y = 1f
@@ -150,10 +150,9 @@ class MovementSystem(
         world.createJoint(jointDef)
     }
 
-    private fun getMoveStrength(entity: Entity): Float {
-        val movementLimbNames = entity[MovementPart::class].limbNames
-        val skeletonPart = entity[SkeletonPart::class]
+    private fun getMoveSpeed(movementPart: MovementPart, skeletonPart: SkeletonPart): Vector2 {
+        val movementLimbNames = movementPart.limbNames
         val numActiveMovementLimbs = movementLimbNames.count { skeletonPart.has(it) }
-        return numActiveMovementLimbs.toFloat() / movementLimbNames.size
+        return movementPart.speed.cpy().scl(numActiveMovementLimbs.toFloat() / movementLimbNames.size)
     }
 }
