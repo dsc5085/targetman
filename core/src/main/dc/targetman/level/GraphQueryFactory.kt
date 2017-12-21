@@ -25,7 +25,7 @@ object GraphQueryFactory {
         val mapLoader = MapLoader(map, factoryTools)
         // TODO: Creating an entity just for this is wasteful.
         val aiEntity = mapLoader.createCharacter("characters/dummy.json", Vector3(), Alliance.ENEMY)
-        mapLoader.createStaticObjects()
+        mapLoader.createWalls()
         val agentSize = aiEntity[TransformPart::class].transform.size
         val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].speed)
         val graph = GraphFactory(segmentBoundsList, agentSize, jumpChecker).create()

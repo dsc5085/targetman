@@ -134,7 +134,9 @@ class MovementSystem(
         climbVelocity.setLength(maxClimbSpeed)
         val bodyHeightAboveClimbeable = Box2DUtils.maxYWorld(climber) - Box2DUtils.maxYWorld(climbeable)
         val bodyRatioAboveClimbeable = bodyHeightAboveClimbeable / Box2DUtils.size(climber).y
-        climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveClimbeable)
+        if (climbVelocity.y > 0) {
+            climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveClimbeable)
+        }
         createClimbJoint(climber, climbeable, climbVelocity)
     }
 
