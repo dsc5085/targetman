@@ -57,7 +57,7 @@ import dclib.eventing.EventDelegate
 import dclib.graphics.Render
 import dclib.graphics.ScreenHelper
 import dclib.graphics.TextureCache
-import dclib.map.MapLayerRenderer
+import dclib.map.MapRenderer
 import dclib.mechanics.DamageOnCollided
 import dclib.mechanics.DestroyOnCollided
 import dclib.mechanics.DestroyOnNoHealthEntityAdded
@@ -86,7 +86,7 @@ class LevelController(
 	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
-	private val mapLayerRenderer: MapLayerRenderer
+	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val map = TmxMapLoader().load("maps/arena.tmx")
@@ -95,8 +95,8 @@ class LevelController(
 	private val commandModule: CommandModule
 
 	init {
-		mapLayerRenderer = MapLayerRenderer(map, render.sprite, screenHelper.pixelsPerUnit, camera, stage.camera)
-		drawerManager = createDrawerManager(config, render, mapLayerRenderer)
+		mapRenderer = MapRenderer(map, render.sprite, screenHelper.pixelsPerUnit, camera, stage.camera)
+		drawerManager = createDrawerManager(config, render, mapRenderer)
 		advancer = createAdvancer()
 		MapLoader(map, factoryTools).createObjects()
 		commandModule = createCommandModule()
@@ -174,7 +174,7 @@ class LevelController(
 		val collisionChecker = CollisionChecker(entityManager, world)
 		val filter = getCollisionFilter()
         collisionChecker.collided.on(ForceOnCollided(entityManager, filter))
-        collisionChecker.collided.on(ParticlesOnCollided(textureCache, particlesManager, mapLayerRenderer, screenHelper))
+        collisionChecker.collided.on(ParticlesOnCollided(textureCache, particlesManager, mapRenderer, screenHelper))
         collisionChecker.collided.on(DamageOnCollided(filter))
         collisionChecker.collided.on(DestroyOnCollided(entityManager, filter))
 		return collisionChecker
@@ -183,10 +183,10 @@ class LevelController(
 	private fun createDrawerManager(
 			config: AppConfig,
 			render: Render,
-			mapLayerRenderer: MapLayerRenderer
+			mapRenderer: MapRenderer
 	): DrawerManager {
 		val drawers = mutableListOf<Drawer>()
-		drawers.add(SpriteDrawer(render.sprite, screenHelper, mapLayerRenderer, GetDrawEntities(entityManager),
+		drawers.add(SpriteDrawer(render.sprite, screenHelper, mapRenderer, GetDrawEntities(entityManager),
 				entityManager, particlesManager))
 		drawers.add(TransformDrawer(entityManager, render.shape, screenHelper))
 		drawers.add(GraphDrawer(entityManager, render.shape, screenHelper))

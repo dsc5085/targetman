@@ -2,7 +2,6 @@ package dc.targetman.level
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -34,7 +33,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     }
 
     fun createWalls() {
-        val layer = map.layers[MapUtils.FOREGROUND_INDEX] as TiledMapTileLayer
+        val layer = MapUtils.getForegroundLayer(map)
         val tilesVertices = mutableListOf<List<Vector2>>()
         for (cell in MapUtils.getCells(layer)) {
             tilesVertices.add(createTileVertices(cell))
@@ -64,13 +63,14 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     }
 
     private fun createActors() {
-        val layer = map.layers.get(1)
-        for (mapObject in layer.objects.getByType(TiledMapTileMapObject::class.java)) {
-            val position = Vector2(mapObject.x, mapObject.y).scl(scale).toVector3()
-            val allianceString = mapObject.tile.properties.get(Alliance::class.java.simpleName, String::class.java)
-            val alliance = Alliance.valueOf(allianceString)
-            val characterPath = if (alliance == Alliance.PLAYER) "characters/cyborg.json" else "characters/dummy.json"
-            createCharacter(characterPath, position, alliance)
+        for (layer in map.layers) {
+            for (mapObject in layer.objects.getByType(TiledMapTileMapObject::class.java)) {
+                val position = Vector2(mapObject.x, mapObject.y).scl(scale).toVector3()
+                val allianceString = mapObject.tile.properties.get(Alliance::class.java.simpleName, String::class.java)
+                val alliance = Alliance.valueOf(allianceString)
+                val characterPath = if (alliance == Alliance.PLAYER) "characters/cyborg.json" else "characters/dummy.json"
+                createCharacter(characterPath, position, alliance)
+            }
         }
     }
 
@@ -84,16 +84,17 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     }
 
     private fun createLadders() {
-        val layer = map.layers[MapUtils.BACKGROUND_INDEX] as TiledMapTileLayer
-        val tilesVertices = mutableListOf<List<Vector2>>()
-        for (cell in MapUtils.getCells(layer)) {
-            if (cell.cell.tile.properties.containsKey(Interactivity.CLIMB.toString())) {
-                tilesVertices.add(createTileVertices(cell))
+        for (layer in MapUtils.getBackgroundLayers(map)) {
+            val tilesVertices = mutableListOf<List<Vector2>>()
+            for (cell in MapUtils.getCells(layer)) {
+                if (cell.cell.tile.properties.containsKey(Interactivity.CLIMB.toString())) {
+                    tilesVertices.add(createTileVertices(cell))
+                }
             }
-        }
-        val unionTileVertices = PolygonOperations.union(tilesVertices)
-        for (tileVertices in unionTileVertices) {
-            createLadder(tileVertices)
+            val unionTileVertices = PolygonOperations.union(tilesVertices)
+            for (tileVertices in unionTileVertices) {
+                createLadder(tileVertices)
+            }
         }
     }
 

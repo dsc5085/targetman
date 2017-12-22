@@ -36,8 +36,8 @@ object GraphQueryFactory {
 
     fun createSegmentBoundsList(map: TiledMap): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
-        val foregroundLayer = map.layers[MapUtils.FOREGROUND_INDEX] as TiledMapTileLayer
-        for (y in 0..foregroundLayer.height - 1 - 1) {
+        val foregroundLayer = MapUtils.getForegroundLayer(map)
+        for (y in 0 until foregroundLayer.height - 1 - 1) {
             var x = 0
             while (x < foregroundLayer.width) {
                 val floorLength = getFloorLength(foregroundLayer, x, y)
