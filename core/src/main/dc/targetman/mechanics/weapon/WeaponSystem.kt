@@ -40,8 +40,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
     private fun fire(entity: Entity) {
         val weapon = entity[InventoryPart::class].equippedWeapon
         val firingPart = entity[FiringPart::class]
-        // TODO: Utility method to make this a shortcut?
-        val trigger = entity[ActionsPart::class][ActionKey.TRIGGER].isExecuting
+        val trigger = entity[ActionsPart::class][ActionKey.TRIGGER].doing
         if (weapon != null && weapon.reloadTimer.isElapsed && trigger) {
             val skeletonPart = entity[SkeletonPart::class]
             val muzzleTransform = skeletonPart[firingPart.muzzleName].transform

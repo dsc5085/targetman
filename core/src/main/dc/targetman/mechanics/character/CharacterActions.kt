@@ -44,7 +44,7 @@ object CharacterActions {
     }
 
     private fun tryExecute(entity: Entity, actionKey: Enum<*>) {
-        tryExecute(entity, { entity[ActionsPart::class][actionKey].isExecuting = true })
+        tryExecute(entity, { entity[ActionsPart::class][actionKey].doing = true })
     }
 
     private fun tryExecute(entity: Entity, action: (Entity) -> Unit) {

@@ -1,5 +1,5 @@
 package dc.targetman.mechanics
 
-class Action(val key: Enum<*>, var isExecuting: Boolean, var wasExecuting: Boolean) {
-    val justExecuted get() = isExecuting && !wasExecuting
+class Action(val key: Enum<*>, var doing: Boolean, var wasDoing: Boolean) {
+    val justDid get() = doing && !wasDoing
 }

@@ -44,15 +44,20 @@ class MovementSystem(
         val movementPart = entity[MovementPart::class]
         val actionsPart = entity[ActionsPart::class]
         val direction: Direction
-        if (actionsPart[ActionKey.MOVE_RIGHT].isExecuting) {
+        if (actionsPart[ActionKey.MOVE_RIGHT].doing) {
             direction = Direction.RIGHT
-        } else if (actionsPart[ActionKey.MOVE_LEFT].isExecuting) {
+        } else if (actionsPart[ActionKey.MOVE_LEFT].doing) {
             direction = Direction.LEFT
         } else {
             direction = Direction.NONE
         }
         val skeletonPart = entity[SkeletonPart::class]
+        updateSkeletonState(isGrounded, direction, skeletonPart)
         val targetVelocityX = getMoveSpeed(movementPart, entity[SkeletonPart::class]).x * direction.toFloat()
+        applyMoveImpulse(entity, targetVelocityX)
+    }
+
+    private fun updateSkeletonState(isGrounded: Boolean, direction: Direction, skeletonPart: SkeletonPart) {
         if (isGrounded) {
             if (direction == Direction.NONE) {
                 skeletonPart.playAnimation("idle")
@@ -61,9 +66,8 @@ class MovementSystem(
             }
         }
         if (direction != Direction.NONE) {
-            entity[SkeletonPart::class].flipX = direction === Direction.LEFT
+            skeletonPart.flipX = direction === Direction.LEFT
         }
-        applyMoveImpulse(entity, targetVelocityX)
     }
 
     private fun applyMoveImpulse(entity: Entity, targetVelocityX: Float) {
@@ -78,7 +82,7 @@ class MovementSystem(
     private fun updateJumping(entity: Entity, isGrounded: Boolean, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        val moveUp = entity[ActionsPart::class][ActionKey.MOVE_UP].isExecuting
+        val moveUp = entity[ActionsPart::class][ActionKey.MOVE_UP].doing
         if (!moveUp || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
         } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
@@ -114,7 +118,7 @@ class MovementSystem(
         }
         if (climbCollision != null) {
             val actionsPart = entity[ActionsPart::class]
-            if (actionsPart[ActionKey.MOVE_UP].justExecuted || actionsPart[ActionKey.MOVE_DOWN].justExecuted) {
+            if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
@@ -135,14 +139,14 @@ class MovementSystem(
     ) {
         val maxClimbSpeed = getMoveSpeed(movementPart, skeletonPart).x / 2f
         val climbVelocity = Vector2()
-        if (actionsPart[ActionKey.MOVE_UP].isExecuting) {
+        if (actionsPart[ActionKey.MOVE_UP].doing) {
             climbVelocity.y = 1f
-        } else if (actionsPart[ActionKey.MOVE_DOWN].isExecuting) {
+        } else if (actionsPart[ActionKey.MOVE_DOWN].doing) {
             climbVelocity.y = -1f
         }
-        if (actionsPart[ActionKey.MOVE_RIGHT].isExecuting) {
+        if (actionsPart[ActionKey.MOVE_RIGHT].doing) {
             climbVelocity.x = 1f
-        } else if (actionsPart[ActionKey.MOVE_LEFT].isExecuting) {
+        } else if (actionsPart[ActionKey.MOVE_LEFT].doing) {
             climbVelocity.x = -1f
         }
         climbVelocity.setLength(maxClimbSpeed)

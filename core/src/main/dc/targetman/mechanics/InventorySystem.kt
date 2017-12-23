@@ -29,7 +29,7 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
         val inventoryPart = entity[InventoryPart::class]
         inventoryPart.switchTimer.tick(delta)
         val actionsPart = entity[ActionsPart::class]
-        if (actionsPart[ActionKey.SWITCH_WEAPON].isExecuting && inventoryPart.switchTimer.check()) {
+        if (actionsPart[ActionKey.SWITCH_WEAPON].doing && inventoryPart.switchTimer.check()) {
             inventoryPart.switchWeapon()
             val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
             inventoryActions.gripCurrentWeapon(inventoryPart, gripper)
