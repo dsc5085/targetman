@@ -1,10 +1,10 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
-import dc.targetman.character.CharacterActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Direction
+import dc.targetman.mechanics.character.CharacterActions
 import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 

@@ -16,6 +16,7 @@ import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.epf.parts.VitalLimbsPart
 import dc.targetman.level.FactoryTools
+import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.weapon.Weapon
@@ -67,6 +68,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
         entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
+        entity.attach(ActionsPart())
         entity.attach(StaggerPart(10f, character.stunResist, character.stunResist * 2))
         val boundingSlotNames = listOf("head", "left_foot", "right_foot", "torso")
         entity.attach(BoundingSlotsPart(boundingSlotNames))

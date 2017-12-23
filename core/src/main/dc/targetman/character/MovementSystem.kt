@@ -8,6 +8,8 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.mechanics.ActionKey
+import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.physics.Interactivity
@@ -40,7 +42,15 @@ class MovementSystem(
 
     private fun move(entity: Entity, isGrounded: Boolean) {
         val movementPart = entity[MovementPart::class]
-        val direction = movementPart.direction
+        val actionsPart = entity[ActionsPart::class]
+        val direction: Direction
+        if (actionsPart[ActionKey.MOVE_RIGHT].isExecuting) {
+            direction = Direction.RIGHT
+        } else if (actionsPart[ActionKey.MOVE_LEFT].isExecuting) {
+            direction = Direction.LEFT
+        } else {
+            direction = Direction.NONE
+        }
         val skeletonPart = entity[SkeletonPart::class]
         val targetVelocityX = getMoveSpeed(movementPart, entity[SkeletonPart::class]).x * direction.toFloat()
         if (isGrounded) {
@@ -68,9 +78,10 @@ class MovementSystem(
     private fun updateJumping(entity: Entity, isGrounded: Boolean, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        if (!movementPart.tryMoveUp || jumpIncreaseTimer.isElapsed) {
+        val moveUp = entity[ActionsPart::class][ActionKey.MOVE_UP].isExecuting
+        if (!moveUp || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (movementPart.tryMoveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
+        } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
             jump(entity, isGrounded, delta)
         }
     }
@@ -102,11 +113,13 @@ class MovementSystem(
             Box2dUtils.destroyJoint(climbJoint)
         }
         if (climbCollision != null) {
-            if (movementPart.tryMoveUp || movementPart.tryMoveDown) {
+            val actionsPart = entity[ActionsPart::class]
+            if (actionsPart[ActionKey.MOVE_UP].justExecuted || actionsPart[ActionKey.MOVE_DOWN].justExecuted) {
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
-                createClimbJoint(body, climbCollision.target.body, movementPart, entity[SkeletonPart::class])
+                createClimbJoint(body, climbCollision.target.body, movementPart, actionsPart,
+                        entity[SkeletonPart::class])
             }
         } else {
             movementPart.climbing = false
@@ -117,18 +130,19 @@ class MovementSystem(
             climber: Body,
             climbeable: Body,
             movementPart: MovementPart,
+            actionsPart: ActionsPart,
             skeletonPart: SkeletonPart
     ) {
         val maxClimbSpeed = getMoveSpeed(movementPart, skeletonPart).x / 2f
         val climbVelocity = Vector2()
-        if (movementPart.tryMoveUp) {
+        if (actionsPart[ActionKey.MOVE_UP].isExecuting) {
             climbVelocity.y = 1f
-        } else if (movementPart.tryMoveDown) {
+        } else if (actionsPart[ActionKey.MOVE_DOWN].isExecuting) {
             climbVelocity.y = -1f
         }
-        if (movementPart.direction == Direction.RIGHT) {
+        if (actionsPart[ActionKey.MOVE_RIGHT].isExecuting) {
             climbVelocity.x = 1f
-        } else if (movementPart.direction == Direction.LEFT) {
+        } else if (actionsPart[ActionKey.MOVE_LEFT].isExecuting) {
             climbVelocity.x = -1f
         }
         climbVelocity.setLength(maxClimbSpeed)

@@ -12,8 +12,7 @@ import dc.targetman.AppConfig
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.PathUpdater
 import dc.targetman.ai.Steering
-import dc.targetman.character.ActionsResetter
-import dc.targetman.character.CharacterActions
+import dc.targetman.character.ActionsSystem
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
 import dc.targetman.character.DeathForm
 import dc.targetman.character.MovementSystem
@@ -36,6 +35,7 @@ import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.InventorySystem
 import dc.targetman.mechanics.ScaleSystem
 import dc.targetman.mechanics.StaggerSystem
+import dc.targetman.mechanics.character.CharacterActions
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater
@@ -136,7 +136,7 @@ class LevelController(
 		val limbBranchDestroyedChecker = LimbBranchDestroyedChecker(entityManager)
 		limbBranchDestroyedChecker.destroyed.on(CorpseOnLimbBranchDestroyed(entityManager, world))
 		return Advancer(
-				ActionsResetter(entityManager),
+				ActionsSystem(entityManager),
 				createInputUpdater(),
 				createAiSystem(collisionChecker),
 				ScaleSystem(entityManager),

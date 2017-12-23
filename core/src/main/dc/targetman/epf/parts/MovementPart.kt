@@ -1,7 +1,6 @@
 package dc.targetman.epf.parts
 
 import com.badlogic.gdx.math.Vector2
-import dc.targetman.mechanics.Direction
 import dclib.util.Timer
 
 class MovementPart(
@@ -12,9 +11,6 @@ class MovementPart(
         jumpIncreaseTime: Float,
         val limbNames: List<String>
 ) {
-    var direction = Direction.NONE
-    var tryMoveUp = false
-    var tryMoveDown = false
     val jumpIncreaseTimer = Timer(jumpIncreaseTime)
     var climbing = false
 }
