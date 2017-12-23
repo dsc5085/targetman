@@ -8,10 +8,12 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
+import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.mechanics.ActionKey
 import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityUtils
+import dc.targetman.mechanics.StaggerState
 import dc.targetman.physics.Interactivity
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -116,7 +118,7 @@ class MovementSystem(
         if (climbJoint != null) {
             Box2dUtils.destroyJoint(climbJoint)
         }
-        if (climbCollision != null) {
+        if (entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
             val actionsPart = entity[ActionsPart::class]
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
                 movementPart.climbing = true
