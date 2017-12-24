@@ -124,21 +124,22 @@ class MovementSystem(
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
-                createClimbJoint(body, climbCollision.target.body, movementPart, actionsPart,
+                val climbVelocity = calculateClimbVelocity(body, climbCollision.target.body, movementPart, actionsPart,
                         entity[SkeletonPart::class])
+                createClimbJoint(body, climbCollision.target.body, climbVelocity)
             }
         } else {
             movementPart.climbing = false
         }
     }
 
-    private fun createClimbJoint(
+    private fun calculateClimbVelocity(
             climber: Body,
             climbeable: Body,
             movementPart: MovementPart,
             actionsPart: ActionsPart,
             skeletonPart: SkeletonPart
-    ) {
+    ): Vector2 {
         val maxClimbSpeed = getMoveSpeed(movementPart, skeletonPart).x / 2f
         val climbVelocity = Vector2()
         if (actionsPart[ActionKey.MOVE_UP].doing) {
@@ -157,7 +158,7 @@ class MovementSystem(
         if (climbVelocity.y > 0) {
             climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveClimbeable)
         }
-        createClimbJoint(climber, climbeable, climbVelocity)
+        return climbVelocity
     }
 
     private fun createClimbJoint(climber: Body, climbeable: Body, velocity: Vector2) {
