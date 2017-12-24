@@ -36,9 +36,6 @@ class MovementSystem(
             move(entity, isGrounded)
             climb(entity)
             updateJumping(entity, isGrounded, delta)
-            if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
-                entity[SkeletonPart::class].playAnimation("fall")
-            }
         }
     }
 
@@ -87,8 +84,11 @@ class MovementSystem(
         val moveUp = entity[ActionsPart::class][ActionKey.MOVE_UP].doing
         if (!moveUp || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning) && !movementPart.climbing) {
+        } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
             jump(entity, isGrounded, delta)
+        }
+        if (!isGrounded && !movementPart.climbing && entity[TransformPart::class].transform.velocity.y < 0) {
+            entity[SkeletonPart::class].playAnimation("fall")
         }
     }
 
@@ -106,7 +106,9 @@ class MovementSystem(
         val impulseY = Box2dUtils.getImpulseToReachVelocity(oldApproxJumpSpeed, newApproxJumpSpeedWithGravity,
                 transform.body.mass)
         transform.applyImpulse(Vector2(0f, impulseY))
-        entity[SkeletonPart::class].playAnimation("jump", loop = false)
+        if (!movementPart.climbing) {
+            entity[SkeletonPart::class].playAnimation("jump", loop = false)
+        }
     }
 
     private fun climb(entity: Entity) {
@@ -128,6 +130,8 @@ class MovementSystem(
                         entity[SkeletonPart::class])
                 if (!climbVelocity.isZero) {
                     entity[SkeletonPart::class].playAnimation("climb")
+                } else {
+                    entity[SkeletonPart::class].pauseAnimation()
                 }
                 createClimbJoint(body, climbCollision.target.body, climbVelocity)
             }

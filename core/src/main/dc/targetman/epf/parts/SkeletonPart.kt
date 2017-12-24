@@ -43,7 +43,13 @@ class SkeletonPart(val root: LimbLink) {
         if (!indexExists || animationState.tracks[trackIndex] == null
                 || animationState.tracks[trackIndex].animation.name != name) {
             animationState.setAnimation(trackIndex, name, loop)
+        } else if (indexExists) {
+            animationState.tracks[trackIndex].timeScale = 1f
         }
+    }
+
+    fun pauseAnimation(trackIndex: Int = 0) {
+        animationState.tracks[trackIndex].timeScale = 0f
     }
 
     private fun createAnimationState(): AnimationState {
