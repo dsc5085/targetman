@@ -111,6 +111,7 @@ class MovementSystem(
         }
     }
 
+    // TODO: autocenter onto ladder, only allow climbing while under ladder top
     private fun climb(entity: Entity) {
         val movementPart = entity[MovementPart::class]
         val collisions = collisionChecker.getCollisions(entity)
@@ -121,19 +122,20 @@ class MovementSystem(
             Box2dUtils.destroyJoint(climbJoint)
         }
         if (entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
+            val climbeableBody = climbCollision.target.body
             val actionsPart = entity[ActionsPart::class]
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
-                val climbVelocity = calculateClimbVelocity(body, climbCollision.target.body, movementPart, actionsPart,
+                val climbVelocity = calculateClimbVelocity(body, climbeableBody, movementPart, actionsPart,
                         entity[SkeletonPart::class])
                 if (!climbVelocity.isZero) {
                     entity[SkeletonPart::class].playAnimation("climb")
                 } else {
                     entity[SkeletonPart::class].pauseAnimation()
                 }
-                createClimbJoint(body, climbCollision.target.body, climbVelocity)
+                createClimbJoint(body, climbeableBody, climbVelocity)
             }
         } else {
             movementPart.climbing = false
@@ -154,16 +156,13 @@ class MovementSystem(
         } else if (actionsPart[ActionKey.MOVE_DOWN].doing) {
             climbVelocity.y = -1f
         }
-        if (actionsPart[ActionKey.MOVE_RIGHT].doing) {
-            climbVelocity.x = 1f
-        } else if (actionsPart[ActionKey.MOVE_LEFT].doing) {
-            climbVelocity.x = -1f
-        }
+        // TODO: Use MOVE_LEFT, MOVE_RIGHT to get off ladder.
+        // TODO: Don't allow for horizontal flipping while on ladder
         climbVelocity.setLength(maxClimbSpeed)
-        val bodyHeightAboveClimbeable = Box2DUtils.maxYWorld(climber) - Box2DUtils.maxYWorld(climbeable)
-        val bodyRatioAboveClimbeable = bodyHeightAboveClimbeable / Box2DUtils.size(climber).y
+        val ladderLeft = Box2DUtils.maxYWorld(climbeable) - Box2DUtils.maxYWorld(climber)
+        val ladderLeftRatio = ladderLeft / Box2DUtils.size(climber).y
         if (climbVelocity.y > 0) {
-            climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, 1f - bodyRatioAboveClimbeable)
+            climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, ladderLeftRatio)
         }
         return climbVelocity
     }
@@ -175,10 +174,7 @@ class MovementSystem(
         // x-component to an arbitrary value.
         val axis = if (velocity.len() == 0f) Vector2(1f, 0f) else velocity
         jointDef.initialize(climbeable, climber, anchor, axis)
-        jointDef.enableLimit = true
         jointDef.enableMotor = true
-        jointDef.upperTranslation = 100f
-        jointDef.lowerTranslation = -10000f
         jointDef.collideConnected = true
         jointDef.maxMotorForce = 200f
         jointDef.motorSpeed = velocity.len()
