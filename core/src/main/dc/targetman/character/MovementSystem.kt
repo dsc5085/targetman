@@ -34,8 +34,8 @@ class MovementSystem(
         if (entity.has(MovementPart::class)) {
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
             move(entity, isGrounded)
-            updateJumping(entity, isGrounded, delta)
             climb(entity)
+            updateJumping(entity, isGrounded, delta)
             if (!isGrounded && entity[TransformPart::class].transform.velocity.y < 0) {
                 entity[SkeletonPart::class].playAnimation("fall")
             }
@@ -87,7 +87,7 @@ class MovementSystem(
         val moveUp = entity[ActionsPart::class][ActionKey.MOVE_UP].doing
         if (!moveUp || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
+        } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning) && !movementPart.climbing) {
             jump(entity, isGrounded, delta)
         }
     }
@@ -126,6 +126,9 @@ class MovementSystem(
             if (movementPart.climbing) {
                 val climbVelocity = calculateClimbVelocity(body, climbCollision.target.body, movementPart, actionsPart,
                         entity[SkeletonPart::class])
+                if (!climbVelocity.isZero) {
+                    entity[SkeletonPart::class].playAnimation("climb")
+                }
                 createClimbJoint(body, climbCollision.target.body, climbVelocity)
             }
         } else {
