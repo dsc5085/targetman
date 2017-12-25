@@ -111,19 +111,20 @@ class MovementSystem(
         }
     }
 
-    // TODO: autocenter onto ladder, only allow climbing while under ladder top
+    // TODO: autocenter onto ladder
     private fun climb(entity: Entity) {
         val movementPart = entity[MovementPart::class]
         val collisions = collisionChecker.getCollisions(entity)
         val climbCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.CLIMB) }
         val body = Box2dUtils.getBody(entity)!!
         val climbJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
+        val actionsPart = entity[ActionsPart::class]
+        val dismount = actionsPart[ActionKey.MOVE_LEFT].justDid || actionsPart[ActionKey.MOVE_RIGHT].justDid
         if (climbJoint != null) {
             Box2dUtils.destroyJoint(climbJoint)
         }
-        if (entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
+        if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
             val climbeableBody = climbCollision.target.body
-            val actionsPart = entity[ActionsPart::class]
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
                 movementPart.climbing = true
             }
@@ -156,8 +157,6 @@ class MovementSystem(
         } else if (actionsPart[ActionKey.MOVE_DOWN].doing) {
             climbVelocity.y = -1f
         }
-        // TODO: Use MOVE_LEFT, MOVE_RIGHT to get off ladder.
-        // TODO: Don't allow for horizontal flipping while on ladder
         climbVelocity.setLength(maxClimbSpeed)
         val ladderLeft = Box2DUtils.maxYWorld(climbeable) - Box2DUtils.maxYWorld(climber)
         val ladderLeftRatio = ladderLeft / Box2DUtils.size(climber).y
