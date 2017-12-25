@@ -22,6 +22,7 @@ import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollisionChecker
+import dclib.physics.collision.Contacter
 import dclib.util.Maths
 import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
@@ -130,19 +131,19 @@ class MovementSystem(
             Box2dUtils.destroyJoint(climbJoint)
         }
         if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
-            val climbeableBody = climbCollision.target.body
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
-                val climbVelocity = calculateClimbVelocity(body, climbeableBody, movementPart, actionsPart,
-                        entity[SkeletonPart::class])
-                if (!climbVelocity.isZero) {
-                    entity[SkeletonPart::class].playAnimation("climb")
+                val skeletonPart = entity[SkeletonPart::class]
+                val climbVelocity = calculateClimbVelocity(body, climbCollision.target, movementPart, actionsPart,
+                        skeletonPart)
+                if (climbVelocity.y == 0f) {
+                    skeletonPart.pauseAnimation()
                 } else {
-                    entity[SkeletonPart::class].pauseAnimation()
+                    skeletonPart.playAnimation("climb")
                 }
-                createClimbJoint(body, climbeableBody, climbVelocity)
+                createClimbJoint(body, climbCollision.target.body, climbVelocity)
             }
         } else {
             movementPart.climbing = false
@@ -151,24 +152,29 @@ class MovementSystem(
 
     private fun calculateClimbVelocity(
             climber: Body,
-            climbeable: Body,
+            climbeable: Contacter,
             movementPart: MovementPart,
             actionsPart: ActionsPart,
             skeletonPart: SkeletonPart
     ): Vector2 {
-        val maxClimbSpeed = getMoveSpeed(movementPart, skeletonPart).x / 2f
+        val moveSpeed = getMoveSpeed(movementPart, skeletonPart)
+        val maxClimbSpeed = moveSpeed.y / 2f
         val climbVelocity = Vector2()
         if (actionsPart[ActionKey.MOVE_UP].doing) {
-            climbVelocity.y = 1f
+            climbVelocity.y = maxClimbSpeed
         } else if (actionsPart[ActionKey.MOVE_DOWN].doing) {
-            climbVelocity.y = -1f
+            climbVelocity.y = -maxClimbSpeed
         }
-        climbVelocity.setLength(maxClimbSpeed)
-        val ladderLeft = Box2DUtils.maxYWorld(climbeable) - Box2DUtils.maxYWorld(climber)
+        val ladderLeft = climbeable.entity[TransformPart::class].transform.center.x
         val ladderLeftRatio = ladderLeft / Box2DUtils.size(climber).y
         if (climbVelocity.y > 0) {
             climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, ladderLeftRatio)
         }
+        val climbingHandX = skeletonPart["left_hand"].transform.center.x
+        val climbeableTransform = climbeable.entity[TransformPart::class].transform
+        val offsetX = climbeableTransform.center.x - climbingHandX
+        val speedX = Interpolation.exp10Out.apply(0f, moveSpeed.x, Math.abs(offsetX) / moveSpeed.x)
+        climbVelocity.x = speedX * Math.signum(offsetX)
         return climbVelocity
     }
 
