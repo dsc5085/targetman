@@ -159,7 +159,7 @@ class MovementSystem(
         } else if (actionsPart[ActionKey.MOVE_DOWN].doing) {
             climbVelocity.y = -maxClimbSpeed
         }
-        val ladderLeft = climbeable.entity[TransformPart::class].transform.center.x
+        val ladderLeft = Box2DUtils.maxYWorld(climbeable.body) - Box2DUtils.maxYWorld(climber)
         val ladderLeftRatio = ladderLeft / Box2DUtils.size(climber).y
         if (climbVelocity.y > 0) {
             climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, ladderLeftRatio)
