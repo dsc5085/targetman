@@ -19,6 +19,7 @@ object CharacterActions {
         tryExecute(entity, actionKey)
     }
 
+    // TODO: Consolidate all methods that use ActionKey
     fun moveUp(entity: Entity) {
         tryExecute(entity, ActionKey.MOVE_UP)
     }

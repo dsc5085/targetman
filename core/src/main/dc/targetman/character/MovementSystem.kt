@@ -31,16 +31,10 @@ class MovementSystem(
         private val world: World,
         private val collisionChecker: CollisionChecker
 ) : EntitySystem(entityManager) {
+    // TODO: class-level struct to encapsulating moving characters
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
-            /** TODO: On autocentering (onto a climbeable object)
-             * If we're close enough to the ladder
-             * Get the destination position to center on the ladder
-             * Automatically move the entity closer to the ladder center
-             * If other inputs are pressed, get out of this mode
-             * Once at the ladder center, go to climb mode
-             */
             move(entity, isGrounded)
             climb(entity)
             updateJumping(entity, isGrounded, delta)
@@ -187,7 +181,7 @@ class MovementSystem(
         jointDef.initialize(climbeable, climber, anchor, axis)
         jointDef.enableMotor = true
         jointDef.collideConnected = true
-        jointDef.maxMotorForce = 200f
+        jointDef.maxMotorForce = Float.MAX_VALUE
         jointDef.motorSpeed = velocity.len()
         world.createJoint(jointDef)
     }
