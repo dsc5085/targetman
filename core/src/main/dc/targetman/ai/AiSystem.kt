@@ -1,12 +1,12 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
-import dc.targetman.character.CharacterActions
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.character.CharacterActions
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem

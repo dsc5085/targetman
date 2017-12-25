@@ -4,6 +4,8 @@ import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.level.BulletFactory
+import dc.targetman.mechanics.ActionKey
+import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.physics.PhysicsUtils
 import dclib.epf.Entity
@@ -38,7 +40,8 @@ class WeaponSystem(private val entityManager: EntityManager, private val bulletF
     private fun fire(entity: Entity) {
         val weapon = entity[InventoryPart::class].equippedWeapon
         val firingPart = entity[FiringPart::class]
-        if (weapon != null && weapon.reloadTimer.isElapsed && firingPart.triggered) {
+        val trigger = entity[ActionsPart::class][ActionKey.TRIGGER].doing
+        if (weapon != null && weapon.reloadTimer.isElapsed && trigger) {
             val skeletonPart = entity[SkeletonPart::class]
             val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.data.recoil).scl(-1f)

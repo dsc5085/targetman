@@ -20,16 +20,18 @@ class InventorySystem(factoryTools: FactoryTools, collisionChecker: CollisionChe
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         if (inventoryPart != null) {
-            updateSwitching(delta, inventoryPart, entity[SkeletonPart::class])
+            updateSwitching(delta, entity)
             inventoryPart.pickupTimer.tick(delta)
         }
     }
 
-    private fun updateSwitching(delta: Float, inventoryPart: InventoryPart, skeletonPart: SkeletonPart) {
+    private fun updateSwitching(delta: Float, entity: Entity) {
+        val inventoryPart = entity[InventoryPart::class]
         inventoryPart.switchTimer.tick(delta)
-        if (inventoryPart.trySwitchWeapon && inventoryPart.switchTimer.check()) {
+        val actionsPart = entity[ActionsPart::class]
+        if (actionsPart[ActionKey.SWITCH_WEAPON].doing && inventoryPart.switchTimer.check()) {
             inventoryPart.switchWeapon()
-            val gripper = skeletonPart[inventoryPart.gripperName]
+            val gripper = entity[SkeletonPart::class][inventoryPart.gripperName]
             inventoryActions.gripCurrentWeapon(inventoryPart, gripper)
         }
     }

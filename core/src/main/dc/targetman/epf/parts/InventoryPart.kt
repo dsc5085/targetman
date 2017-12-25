@@ -9,9 +9,7 @@ class InventoryPart(
         val frameName: String,
         weapon: Weapon
 ) {
-    var trySwitchWeapon = true
     val switchTimer = Timer(0.2f, 0.2f)
-    var tryPickup = false
     val pickupTimer = Timer(0.5f, 0.5f)
     val equippedWeapon get() = weapons.getOrNull(equippedIndex)
     val isFull get() = weapons.size >= maxNumWeapons && equippedWeapon != null

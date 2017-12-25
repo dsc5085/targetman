@@ -6,5 +6,4 @@ class FiringPart(val rotatorName: String, val muzzleName: String) {
     var targetCoord = Vector2()
     var aimAccelerationTime = 0f
     var lastAimDelta = 0f
-    var triggered = false
 }

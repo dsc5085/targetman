@@ -14,7 +14,9 @@ import dclib.util.Maths
 class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     fun seek(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
-        agent.move(moveDirection)
+        if (moveDirection != Direction.NONE) {
+            agent.move(moveDirection)
+        }
         jump(agent)
     }
 

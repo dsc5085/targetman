@@ -16,17 +16,12 @@ object Ragdoller {
             val transform = descendant.transform
             if (transform is Box2dTransform) {
                 Box2dUtils.setSensor(transform.body, false)
-                destroyJoints(transform)
+                for (joint in transform.body.jointList.toList()) {
+                    Box2dUtils.destroyJoint(joint.joint)
+                }
             }
         }
         addJointsToDescendants(rootLimb)
-    }
-
-    private fun destroyJoints(transform: Box2dTransform) {
-        for (joint in transform.body.jointList) {
-            transform.body.world.destroyJoint(joint.joint)
-        }
-        transform.body.jointList.clear()
     }
 
     private fun addJointsToDescendants(limb: Limb) {

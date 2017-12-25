@@ -25,7 +25,7 @@ object GraphQueryFactory {
         val mapLoader = MapLoader(map, factoryTools)
         // TODO: Creating an entity just for this is wasteful.
         val aiEntity = mapLoader.createCharacter("characters/dummy.json", Vector3(), Alliance.ENEMY)
-        mapLoader.createStaticObjects()
+        mapLoader.createWalls()
         val agentSize = aiEntity[TransformPart::class].transform.size
         val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].speed)
         val graph = GraphFactory(segmentBoundsList, agentSize, jumpChecker).create()
@@ -36,8 +36,8 @@ object GraphQueryFactory {
 
     fun createSegmentBoundsList(map: TiledMap): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
-        val foregroundLayer = map.layers[MapUtils.FOREGROUND_INDEX] as TiledMapTileLayer
-        for (y in 0..foregroundLayer.height - 1 - 1) {
+        val foregroundLayer = MapUtils.getForegroundLayer(map)
+        for (y in 0 until foregroundLayer.height - 1 - 1) {
             var x = 0
             while (x < foregroundLayer.width) {
                 val floorLength = getFloorLength(foregroundLayer, x, y)
