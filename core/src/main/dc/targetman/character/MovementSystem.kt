@@ -11,6 +11,7 @@ import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.mechanics.ActionKey
 import dc.targetman.mechanics.ActionsPart
+import dc.targetman.mechanics.ClimbMode
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.StaggerState
@@ -33,6 +34,13 @@ class MovementSystem(
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
             val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
+            /** TODO: On autocentering (onto a climbeable object)
+             * If we're close enough to the ladder
+             * Get the destination position to center on the ladder
+             * Automatically move the entity closer to the ladder center
+             * If other inputs are pressed, get out of this mode
+             * Once at the ladder center, go to climb mode
+             */
             move(entity, isGrounded)
             climb(entity)
             updateJumping(entity, isGrounded, delta)
@@ -87,7 +95,8 @@ class MovementSystem(
         } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
             jump(entity, isGrounded, delta)
         }
-        if (!isGrounded && !movementPart.climbing && entity[TransformPart::class].transform.velocity.y < 0) {
+        val transform = entity[TransformPart::class].transform
+        if (!isGrounded && movementPart.climbMode == ClimbMode.OFF && transform.velocity.y < 0) {
             entity[SkeletonPart::class].playAnimation("fall")
         }
     }
@@ -106,12 +115,11 @@ class MovementSystem(
         val impulseY = Box2dUtils.getImpulseToReachVelocity(oldApproxJumpSpeed, newApproxJumpSpeedWithGravity,
                 transform.body.mass)
         transform.applyImpulse(Vector2(0f, impulseY))
-        if (!movementPart.climbing) {
+        if (movementPart.climbMode == ClimbMode.OFF) {
             entity[SkeletonPart::class].playAnimation("jump", loop = false)
         }
     }
 
-    // TODO: autocenter onto ladder
     private fun climb(entity: Entity) {
         val movementPart = entity[MovementPart::class]
         val collisions = collisionChecker.getCollisions(entity)
@@ -126,9 +134,9 @@ class MovementSystem(
         if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
             val climbeableBody = climbCollision.target.body
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
-                movementPart.climbing = true
+                movementPart.climbMode = ClimbMode.ON
             }
-            if (movementPart.climbing) {
+            if (movementPart.climbMode == ClimbMode.ON) {
                 val climbVelocity = calculateClimbVelocity(body, climbeableBody, movementPart, actionsPart,
                         entity[SkeletonPart::class])
                 if (!climbVelocity.isZero) {
@@ -139,7 +147,7 @@ class MovementSystem(
                 createClimbJoint(body, climbeableBody, climbVelocity)
             }
         } else {
-            movementPart.climbing = false
+            movementPart.climbMode = ClimbMode.OFF
         }
     }
 
