@@ -1,7 +1,6 @@
 package dc.targetman.epf.parts
 
 import com.badlogic.gdx.math.Vector2
-import dc.targetman.mechanics.ClimbMode
 import dclib.util.Timer
 
 class MovementPart(
@@ -13,6 +12,6 @@ class MovementPart(
         val limbNames: List<String>
 ) {
     val jumpIncreaseTimer = Timer(jumpIncreaseTime)
-    var climbMode = ClimbMode.OFF
+    var climbing = false
 
 }

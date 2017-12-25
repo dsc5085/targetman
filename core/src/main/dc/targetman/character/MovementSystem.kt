@@ -11,7 +11,6 @@ import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
 import dc.targetman.mechanics.ActionKey
 import dc.targetman.mechanics.ActionsPart
-import dc.targetman.mechanics.ClimbMode
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.StaggerState
@@ -95,8 +94,7 @@ class MovementSystem(
         } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
             jump(entity, isGrounded, delta)
         }
-        val transform = entity[TransformPart::class].transform
-        if (!isGrounded && movementPart.climbMode == ClimbMode.OFF && transform.velocity.y < 0) {
+        if (!isGrounded && !movementPart.climbing && entity[TransformPart::class].transform.velocity.y < 0) {
             entity[SkeletonPart::class].playAnimation("fall")
         }
     }
@@ -115,7 +113,7 @@ class MovementSystem(
         val impulseY = Box2dUtils.getImpulseToReachVelocity(oldApproxJumpSpeed, newApproxJumpSpeedWithGravity,
                 transform.body.mass)
         transform.applyImpulse(Vector2(0f, impulseY))
-        if (movementPart.climbMode == ClimbMode.OFF) {
+        if (!movementPart.climbing) {
             entity[SkeletonPart::class].playAnimation("jump", loop = false)
         }
     }
@@ -134,9 +132,9 @@ class MovementSystem(
         if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
             val climbeableBody = climbCollision.target.body
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
-                movementPart.climbMode = ClimbMode.ON
+                movementPart.climbing = true
             }
-            if (movementPart.climbMode == ClimbMode.ON) {
+            if (movementPart.climbing) {
                 val climbVelocity = calculateClimbVelocity(body, climbeableBody, movementPart, actionsPart,
                         entity[SkeletonPart::class])
                 if (!climbVelocity.isZero) {
@@ -147,7 +145,7 @@ class MovementSystem(
                 createClimbJoint(body, climbeableBody, climbVelocity)
             }
         } else {
-            movementPart.climbMode = ClimbMode.OFF
+            movementPart.climbing = false
         }
     }
 
