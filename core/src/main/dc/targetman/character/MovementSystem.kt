@@ -181,6 +181,7 @@ class MovementSystem(
         jointDef.initialize(climbeable, climber, anchor, axis)
         jointDef.enableMotor = true
         jointDef.collideConnected = true
+        // TODO: Bug where if shot off ladder, force causes entity to fly to the moon
         jointDef.maxMotorForce = Float.MAX_VALUE
         jointDef.motorSpeed = velocity.len()
         world.createJoint(jointDef)

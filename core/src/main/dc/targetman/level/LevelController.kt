@@ -89,7 +89,7 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/arena.tmx")
+	private val map = TmxMapLoader().load("maps/nav.tmx")
 	private val drawerManager: DrawerManager
 	private val advancer: Advancer
 	private val commandModule: CommandModule
