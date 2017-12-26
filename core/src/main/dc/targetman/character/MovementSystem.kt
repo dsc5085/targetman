@@ -31,6 +31,8 @@ class MovementSystem(
         private val world: World,
         private val collisionChecker: CollisionChecker
 ) : EntitySystem(entityManager) {
+    private val CLIMBING_HAND = "left_hand"
+
     // TODO: class-level struct to encapsulating moving characters
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
@@ -124,12 +126,13 @@ class MovementSystem(
         if (climbJoint != null) {
             Box2dUtils.destroyJoint(climbJoint)
         }
-        if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null) {
+        val skeletonPart = entity[SkeletonPart::class]
+        if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null
+                && skeletonPart.has(CLIMBING_HAND)) {
             if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
-                val skeletonPart = entity[SkeletonPart::class]
                 val climbVelocity = calculateClimbVelocity(body, climbCollision.target, movementPart, actionsPart,
                         skeletonPart)
                 if (climbVelocity.y == 0f) {
@@ -164,7 +167,7 @@ class MovementSystem(
         if (climbVelocity.y > 0) {
             climbVelocity.y = Interpolation.exp5Out.apply(0f, climbVelocity.y, ladderLeftRatio)
         }
-        val climbingHandX = skeletonPart["left_hand"].transform.center.x
+        val climbingHandX = skeletonPart[CLIMBING_HAND].transform.center.x
         val climbeableTransform = climbeable.entity[TransformPart::class].transform
         val offsetX = climbeableTransform.center.x - climbingHandX
         val speedX = Interpolation.exp10Out.apply(0f, moveSpeed.x, Math.abs(offsetX) / moveSpeed.x)

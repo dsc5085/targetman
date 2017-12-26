@@ -3,7 +3,7 @@ package dc.targetman.ai.graph
 import com.badlogic.gdx.ai.pfa.DefaultConnection
 import com.badlogic.gdx.math.Vector2
 import com.google.common.base.Objects
-import java.util.*
+import java.util.HashSet
 
 class DefaultNode(x: Float, y: Float) {
     private val _position = Vector2(x, y)
