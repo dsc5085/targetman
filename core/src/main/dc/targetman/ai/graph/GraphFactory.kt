@@ -3,7 +3,6 @@ package dc.targetman.ai.graph
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
-import dclib.physics.Box2dUtils
 import dclib.util.Maths
 
 class GraphFactory(
@@ -19,9 +18,9 @@ class GraphFactory(
     }
 
     private fun connect(segments: List<Segment>) {
-        for (i in 0..segments.size - 2) {
+        for (i in 0 until segments.size - 1) {
             val segment1 = segments[i]
-            for (j in i + 1..segments.size - 1) {
+            for (j in i + 1 until segments.size) {
                 val segment2 = segments[j]
                 connect(segment1, segment2)
             }
@@ -50,24 +49,16 @@ class GraphFactory(
 
     private fun connectMiddle(topSegment: Segment, bottomSegment: Segment) {
         if (topSegment.y > bottomSegment.y) {
-            val edgeBuffer = agentSize.x + Box2dUtils.ROUNDING_ERROR
-            connectMiddle(topSegment, topSegment.leftNode, bottomSegment, -edgeBuffer)
-            connectMiddle(topSegment, topSegment.rightNode, bottomSegment, edgeBuffer)
+            connectMiddle(topSegment.leftNode, bottomSegment)
+            connectMiddle(topSegment.rightNode, bottomSegment)
         }
     }
 
-    private fun connectMiddle(topSegment: Segment, topNode: DefaultNode, bottomSegment: Segment,
-                              landingOffsetX: Float) {
-        val landingX = topNode.x + landingOffsetX
-        if (bottomSegment.containsX(landingX) || bottomSegment.containsX(topNode.x)) {
-            // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
-            // TODO: Should probably also add corner node between regular jump nodes
-            val cornerNode = topSegment.getOrAdd(DefaultNode(landingX, topNode.y))
-            topNode.addConnection(cornerNode)
-            cornerNode.addConnection(topNode)
-            val bottomNode = bottomSegment.getOrAdd(DefaultNode(landingX, bottomSegment.y))
-            connectJump(cornerNode, bottomNode)
-            connectJump(bottomNode, cornerNode)
+    private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment) {
+        if (bottomSegment.containsX(topNode.x)) {
+            val bottomNode = bottomSegment.getOrAdd(DefaultNode(topNode.x, bottomSegment.y))
+            connectJump(topNode, bottomNode)
+            connectJump(bottomNode, topNode)
         }
     }
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.math.Rectangle
 import dclib.util.Maths
+import org.apache.commons.lang3.StringUtils
 
 class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     private val pathFinder = IndexedAStarPathFinder(graph, true)
@@ -26,7 +27,12 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     }
 
     override fun getSegment(node: DefaultNode): Segment {
-        return graph.getSegments().single { it.getNodes().contains(node) }
+        val segments = graph.getSegments().filter { it.getNodes().contains(node) }
+        if (segments.size > 1) {
+            val segmentsString = StringUtils.join(segments)
+            throw IllegalStateException("Multiple segments $segmentsString contain node $node")
+        }
+        return segments.single()
     }
 
     override fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {

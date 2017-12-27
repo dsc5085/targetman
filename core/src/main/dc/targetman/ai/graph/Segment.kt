@@ -37,4 +37,8 @@ class Segment(val bounds: Rectangle) {
                 || Maths.between(bounds.x, left, right)
                 || Maths.between(bounds.right, left, right)
     }
+
+    override fun toString(): String {
+        return bounds.toString()
+    }
 }
