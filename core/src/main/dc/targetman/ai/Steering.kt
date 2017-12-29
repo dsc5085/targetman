@@ -37,7 +37,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val nextX: Float?
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
-        if (targetSegment != null && targetSegment === belowSegment) {
+        if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
         } else {
             nextX = agent.nextNode?.x

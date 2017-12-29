@@ -27,6 +27,10 @@ class Segment(val bounds: Rectangle) {
         return CollectionUtils.getOrAdd(nodes, node)
     }
 
+    fun add(node: DefaultNode) {
+        nodes.add(node)
+    }
+
     fun containsX(x: Float): Boolean {
         return Maths.between(x, left, right)
     }

@@ -49,7 +49,7 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
 
     private fun getCost(x: Float, path: GraphPath<DefaultNode>): Float {
         var cost = if (path.any()) getCost(x, path.get(0)) else 0f
-        for (i in 0..path.count - 1 - 1) {
+        for (i in 0 until path.count - 1) {
             val startNode = path.get(i)
             val endNode = path.get(i + 1)
             cost += heuristic.estimate(startNode, endNode)
