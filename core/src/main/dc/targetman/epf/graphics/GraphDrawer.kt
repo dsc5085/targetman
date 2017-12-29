@@ -35,7 +35,7 @@ class GraphDrawer(
         val aiPart = entity.tryGet(AiPart::class)
         if (aiPart != null && aiPart.path.isNotEmpty()) {
             val bounds = entity[TransformPart::class].transform.bounds
-            val points = listOf(bounds.base) + aiPart.path.map { it.position }
+            val points = listOf(bounds.base) + aiPart.path.map { it.toNode.position }
             for (i in 0..points.size - 2) {
                 val start = points[i]
                 val end = points[i + 1]

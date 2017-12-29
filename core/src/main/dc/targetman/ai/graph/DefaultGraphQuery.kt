@@ -1,5 +1,6 @@
 package dc.targetman.ai.graph
 
+import com.badlogic.gdx.ai.pfa.Connection
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath
 import com.badlogic.gdx.ai.pfa.GraphPath
 import com.badlogic.gdx.ai.pfa.Heuristic
@@ -35,11 +36,11 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return segments.single()
     }
 
-    override fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {
-        var lowestCostPath: GraphPath<DefaultNode> = DefaultGraphPath()
+    override fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<Connection<DefaultNode>> {
+        var lowestCostPath = DefaultGraphPath<Connection<DefaultNode>>()
         for (startNode in startSegment.getNodes()) {
-            val path = DefaultGraphPath<DefaultNode>()
-            pathFinder.searchNodePath(startNode, endNode, heuristic, path)
+            val path = DefaultGraphPath<Connection<DefaultNode>>()
+            pathFinder.searchConnectionPath(startNode, endNode, heuristic, path)
             if (lowestCostPath.none() || getCost(startX, path) < getCost(startX, lowestCostPath)) {
                 lowestCostPath = path
             }
@@ -47,11 +48,11 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return lowestCostPath.toList()
     }
 
-    private fun getCost(x: Float, path: GraphPath<DefaultNode>): Float {
-        var cost = if (path.any()) getCost(x, path.get(0)) else 0f
-        for (i in 0 until path.count - 1) {
-            val startNode = path.get(i)
-            val endNode = path.get(i + 1)
+    private fun getCost(x: Float, path: GraphPath<Connection<DefaultNode>>): Float {
+        var cost = if (path.any()) getCost(x, path.get(0).fromNode) else 0f
+        for (i in 0 until path.count) {
+            val startNode = path.get(i).fromNode
+            val endNode = path.get(i).toNode
             cost += heuristic.estimate(startNode, endNode)
         }
         return cost

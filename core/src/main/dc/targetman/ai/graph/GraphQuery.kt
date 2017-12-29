@@ -1,10 +1,11 @@
 package dc.targetman.ai.graph
 
+import com.badlogic.gdx.ai.pfa.Connection
 import com.badlogic.gdx.math.Rectangle
 
 interface GraphQuery {
     fun getNearestNode(x: Float, segment: Segment): DefaultNode
     fun getNearestBelowSegment(bounds: Rectangle): Segment?
     fun getSegment(node: DefaultNode): Segment
-    fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode>
+    fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<Connection<DefaultNode>>
 }

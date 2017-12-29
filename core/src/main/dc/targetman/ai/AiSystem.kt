@@ -40,9 +40,8 @@ class AiSystem(
     }
 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
-        val skeletonPart = entity.get(SkeletonPart::class)
         val muzzleName = entity[FiringPart::class].muzzleName
-        val muzzle = skeletonPart.tryGet(muzzleName)
+        val muzzle = entity[SkeletonPart::class].tryGet(muzzleName)
         if (muzzle != null) {
             CharacterActions.aim(entity, targetBounds.center)
         }

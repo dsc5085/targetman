@@ -35,7 +35,7 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
     private fun checkReachedNode(agent: Agent) {
         val nextNode = agent.nextNode
         if (nextNode != null && atNode(nextNode, agent.bounds)) {
-            agent.path -= nextNode
+            agent.path = agent.path.drop(0)
         }
     }
 
