@@ -23,8 +23,8 @@ class JumpCheckerTest {
                 "#",
                 "##"
         )
-        val start = Vector2(1.5f, 1f)
-        testIsValid(true, map, start, start.cpy().add(2f, 3f))
+        val from = Vector2(1.5f, 1f)
+        testIsValid(true, map, from, from.cpy().add(2f, 3f))
     }
 
     @Test
@@ -36,8 +36,8 @@ class JumpCheckerTest {
                 "#",
                 "#"
         )
-        val start = Vector2(3.5f, 4f)
-        testIsValid(true, map, start, start.cpy().add(0f, -4f))
+        val from = Vector2(3.5f, 4f)
+        testIsValid(true, map, from, from.cpy().add(0f, -4f))
     }
 
     @Test
@@ -46,8 +46,8 @@ class JumpCheckerTest {
                 " #",
                 "##"
         )
-        val start = Vector2(0.5f, 1f)
-        testIsValid(true, map, start, start.cpy().add(-16f, -5f))
+        val from = Vector2(0.5f, 1f)
+        testIsValid(true, map, from, from.cpy().add(-16f, -5f))
     }
 
     @Test
@@ -56,8 +56,8 @@ class JumpCheckerTest {
                 "#",
                 "##"
         )
-        val start = Vector2(1.5f, 1f)
-        testIsValid(false, map, start, start.cpy().add(-3f, 3f))
+        val from = Vector2(1.5f, 1f)
+        testIsValid(false, map, from, from.cpy().add(-3f, 3f))
     }
 
     @Test
@@ -69,8 +69,8 @@ class JumpCheckerTest {
                 "    #",
                 "##  ###"
         )
-        val start = Vector2(1.5f, 1f)
-        testIsValid(false, map, start, start.cpy().add(4f, 0f))
+        val from = Vector2(1.5f, 1f)
+        testIsValid(false, map, from, from.cpy().add(4f, 0f))
     }
 
     @Test
@@ -79,8 +79,8 @@ class JumpCheckerTest {
                 "##",
                 "##"
         )
-        val start = Vector2(1.5f, 1f)
-        testIsValid(false, map, start, start.cpy().add(3f, 3f))
+        val from = Vector2(1.5f, 1f)
+        testIsValid(false, map, from, from.cpy().add(3f, 3f))
     }
 
     @Test
@@ -89,16 +89,16 @@ class JumpCheckerTest {
                 "#",
                 "##"
         )
-        val start = Vector2(1.5f, 1f)
-        testIsValid(false, map, start, start.cpy().add(20f, 3f))
+        val from = Vector2(1.5f, 1f)
+        testIsValid(false, map, from, from.cpy().add(20f, 3f))
     }
 
-    private fun testIsValid(expected: Boolean, map: Array<String>, start: Vector2, end: Vector2) {
+    private fun testIsValid(expected: Boolean, map: Array<String>, from: Vector2, to: Vector2) {
         val solver = JumpVelocitySolver(AGENT_SPEED, GRAVITY)
         val world = createWorld(map)
         val jumpChecker = JumpChecker(world, solver)
         val bounds = Rectangle(0f, 0f, 1f, 1f)
-        val isValid = jumpChecker.isValid(start, end, bounds.size, bounds.base)
+        val isValid = jumpChecker.isValid(from, to, bounds.size, bounds.base)
         world.dispose()
         assertEquals(expected, isValid)
     }
@@ -106,10 +106,10 @@ class JumpCheckerTest {
     private fun createWorld(map: Array<String>): World {
         val world = World(Vector2(0f, GRAVITY), true)
         val reversedMap = map.reversedArray()
-        for (i in 0..reversedMap.size - 1) {
-            for (j in 0..reversedMap[i].length - 1) {
+        for (i in 0 until reversedMap.size) {
+            for (j in 0 until reversedMap[i].length) {
                 val char = reversedMap[i][j]
-                if (char === '#') {
+                if (char == '#') {
                     createWall(world, j.toFloat(), i.toFloat())
                 }
             }

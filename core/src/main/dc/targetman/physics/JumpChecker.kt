@@ -8,14 +8,14 @@ import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 
 class JumpChecker(private val world: World, private val moveSpeed: Vector2) {
-    fun isValid(start: Vector2, end: Vector2, size: Vector2, local: Vector2): Boolean {
-        val result = JumpVelocitySolver.solve(start, end, moveSpeed, world.gravity.y)
-        return result.isValid && passedSimulation(start, end, size, local, result)
+    fun isValid(from: Vector2, to: Vector2, size: Vector2, local: Vector2): Boolean {
+        val result = JumpVelocitySolver.solve(from, to, moveSpeed, world.gravity.y)
+        return result.isValid && passedSimulation(from, to, size, local, result)
     }
 
     private fun passedSimulation(
-            start: Vector2,
-            end: Vector2,
+            from: Vector2,
+            to: Vector2,
             size: Vector2,
             local: Vector2,
             result: JumpVelocityResult
@@ -26,12 +26,12 @@ class JumpChecker(private val world: World, private val moveSpeed: Vector2) {
         val simLocal = local.cpy().scl(simSizeScale)
         val body = createBody(simSize)
         val transform = Box2dTransform(body)
-        transform.setLocalToWorld(simLocal, start)
+        transform.setLocalToWorld(simLocal, from)
         transform.velocity = result.velocity
         runSimulation(result.airTime)
-        val actualEnd = transform.toWorld(simLocal)
+        val actualTo = transform.toWorld(simLocal)
         world.destroyBody(body)
-        return areBox2dPositionsApproximatelyEqual(end, actualEnd, start)
+        return areBox2dPositionsApproximatelyEqual(to, from, actualTo)
     }
 
     private fun createBody(size: Vector2): Body {
@@ -46,11 +46,11 @@ class JumpChecker(private val world: World, private val moveSpeed: Vector2) {
      * Box2D calculations are more inaccurate the longer a body travels, thus allow an amount of error in the actual end
      * position based off of distance traveled.
      */
-    private fun areBox2dPositionsApproximatelyEqual(expectedEnd: Vector2, end: Vector2, start: Vector2): Boolean {
+    private fun areBox2dPositionsApproximatelyEqual(expectedTo: Vector2, from: Vector2, to: Vector2): Boolean {
         val minTolerance = 0.1f
         val toleranceRatioBasedOffDistance = 0.01f
-        val endDifference = end.dst(expectedEnd)
-        val tolerance = Math.max(start.dst(expectedEnd) * toleranceRatioBasedOffDistance, minTolerance)
+        val endDifference = to.dst(expectedTo)
+        val tolerance = Math.max(from.dst(expectedTo) * toleranceRatioBasedOffDistance, minTolerance)
         return endDifference < tolerance
     }
 

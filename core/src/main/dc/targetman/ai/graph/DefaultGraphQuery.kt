@@ -12,9 +12,9 @@ import org.apache.commons.lang3.StringUtils
 class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     private val pathFinder = IndexedAStarPathFinder(graph, true)
 
-    private val heuristic: Heuristic<DefaultNode> = Heuristic { node, endNode ->
-        val xOffset = Maths.distance(node.x, endNode.x)
-        val yOffset = Maths.distance(endNode.y, node.y)
+    private val heuristic: Heuristic<DefaultNode> = Heuristic { node, toNode ->
+        val xOffset = Maths.distance(node.x, toNode.x)
+        val yOffset = Maths.distance(toNode.y, node.y)
         xOffset + yOffset
     }
 
@@ -36,12 +36,12 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return segments.single()
     }
 
-    override fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<Connection<DefaultNode>> {
+    override fun createPath(fromX: Float, fromSegment: Segment, toNode: DefaultNode): List<Connection<DefaultNode>> {
         var lowestCostPath = DefaultGraphPath<Connection<DefaultNode>>()
-        for (startNode in startSegment.getNodes()) {
+        for (fromNode in fromSegment.getNodes()) {
             val path = DefaultGraphPath<Connection<DefaultNode>>()
-            pathFinder.searchConnectionPath(startNode, endNode, heuristic, path)
-            if (lowestCostPath.none() || getCost(startX, path) < getCost(startX, lowestCostPath)) {
+            pathFinder.searchConnectionPath(fromNode, toNode, heuristic, path)
+            if (lowestCostPath.none() || getCost(fromX, path) < getCost(fromX, lowestCostPath)) {
                 lowestCostPath = path
             }
         }
@@ -51,9 +51,9 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     private fun getCost(x: Float, path: GraphPath<Connection<DefaultNode>>): Float {
         var cost = if (path.any()) getCost(x, path.get(0).fromNode) else 0f
         for (i in 0 until path.count) {
-            val startNode = path.get(i).fromNode
-            val endNode = path.get(i).toNode
-            cost += heuristic.estimate(startNode, endNode)
+            val fromNode = path.get(i).fromNode
+            val toNode = path.get(i).toNode
+            cost += heuristic.estimate(fromNode, toNode)
         }
         return cost
     }

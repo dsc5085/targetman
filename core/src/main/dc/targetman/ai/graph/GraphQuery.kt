@@ -7,5 +7,5 @@ interface GraphQuery {
     fun getNearestNode(x: Float, segment: Segment): DefaultNode
     fun getNearestBelowSegment(bounds: Rectangle): Segment?
     fun getSegment(node: DefaultNode): Segment
-    fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<Connection<DefaultNode>>
+    fun createPath(fromX: Float, fromSegment: Segment, toNode: DefaultNode): List<Connection<DefaultNode>>
 }

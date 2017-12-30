@@ -70,12 +70,12 @@ class GraphFactory(
         }
     }
 
-    private fun connectJump(startNode: DefaultNode, endNode: DefaultNode) {
+    private fun connectJump(fromNode: DefaultNode, toNode: DefaultNode) {
         val localLeft = Vector2(0f, 0f)
         val localRight = Vector2(agentSize.x, 0f)
-        if (jumpChecker.isValid(startNode.position, endNode.position, agentSize, localLeft)
-                || jumpChecker.isValid(startNode.position, endNode.position, agentSize, localRight)) {
-            startNode.addConnection(endNode)
+        if (jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localLeft)
+                || jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localRight)) {
+            fromNode.addConnection(toNode)
         }
     }
 

@@ -4,9 +4,9 @@ import com.badlogic.gdx.math.Vector2
 import dclib.geometry.VectorUtils
 
 object JumpVelocitySolver {
-    fun solve(start: Vector2, end: Vector2, agentSpeed: Vector2, gravity: Float): JumpVelocityResult {
+    fun solve(from: Vector2, to: Vector2, agentSpeed: Vector2, gravity: Float): JumpVelocityResult {
         val velocity = Vector2()
-        val offset = VectorUtils.offset(start, end)
+        val offset = VectorUtils.offset(from, to)
         val horizontalTime = Math.abs(offset.x / agentSpeed.x)
         val verticalTime: Float
         if (offset.y > 0) {
