@@ -1,7 +1,6 @@
 package dc.targetman.epf.parts
 
 import dc.targetman.mechanics.StaggerState
-import dclib.util.Maths
 
 class StaggerPart(val recoverySpeed: Float, val stunResist: Float, val knockDownResist: Float) {
     var amount = 0f
@@ -11,7 +10,7 @@ class StaggerPart(val recoverySpeed: Float, val stunResist: Float, val knockDown
             val state: StaggerState
             if (amount < stunResist) {
                 state = StaggerState.OK
-            } else if (Maths.between(amount, stunResist, knockDownResist)) {
+            } else if (amount in stunResist..knockDownResist) {
                 state = StaggerState.HURT
             } else {
                 state = StaggerState.DOWN

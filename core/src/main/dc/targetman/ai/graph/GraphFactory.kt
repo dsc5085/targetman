@@ -89,7 +89,7 @@ class GraphFactory(
                     ladderNodes.add(segment.leftNode)
                 } else if (widerLadder.contains(segment.rightNode.position)) {
                     ladderNodes.add(segment.rightNode)
-                } else if (Maths.between(ladder.y - segment.y, 0f, agentSize.y) && segment.overlapsX(ladder)) {
+                } else if (ladder.y - segment.y in 0f..agentSize.y && segment.overlapsX(ladder)) {
                     val ladderNode = DefaultNode(ladder.center.x, segment.y)
                     segment.add(ladderNode)
                     ladderNodes.add(ladderNode)

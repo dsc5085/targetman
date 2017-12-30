@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Rectangle
 import dclib.geometry.right
 import dclib.geometry.top
 import dclib.util.CollectionUtils
-import dclib.util.Maths
 
 class Segment(val bounds: Rectangle) {
     val leftNode = DefaultNode(bounds.x, y)
@@ -32,14 +31,14 @@ class Segment(val bounds: Rectangle) {
     }
 
     fun containsX(x: Float): Boolean {
-        return Maths.between(x, left, right)
+        return x in left..right
     }
 
     fun overlapsX(bounds: Rectangle): Boolean {
-        return Maths.between(left, bounds.x, bounds.right)
-                || Maths.between(right, bounds.x, bounds.right)
-                || Maths.between(bounds.x, left, right)
-                || Maths.between(bounds.right, left, right)
+        return left in bounds.x..bounds.right
+                || right in bounds.x..bounds.right
+                || bounds.x in left..right
+                || bounds.right in left..right
     }
 
     override fun toString(): String {

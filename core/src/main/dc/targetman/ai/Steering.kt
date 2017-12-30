@@ -11,6 +11,7 @@ import dc.targetman.physics.JumpVelocitySolver
 import dclib.geometry.base
 import dclib.geometry.center
 import dclib.geometry.containsX
+import dclib.util.FloatRange
 import dclib.util.Maths
 
 /**
@@ -28,14 +29,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
                     jump(agent)
                 }
                 ConnectionType.CLIMB -> {
-                    val agentY = agent.bounds.base.y
-                    if (agentY < agent.toNode.y) {
-                        CharacterActions.moveUp(agent.entity)
-                    } else if (agentY > agent.toNode.y) {
-                        CharacterActions.moveDown(agent.entity)
-                    } else {
-                        CharacterActions.moveHorizontal(agent.entity, Direction.RIGHT)
-                    }
+                    climb(agent)
                 }
             }
         }
@@ -71,7 +65,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val agentX = agent.bounds.center.x
         val targetX = agent.targetBounds.center.x
         val distance = Maths.distance(agentX, targetX)
-        if (!Maths.between(distance, agent.profile.minTargetDistance, agent.profile.maxTargetDistance)) {
+        if (distance !in agent.profile.minTargetDistance..agent.profile.maxTargetDistance) {
             if (agentX > targetX) {
                 nextX = targetX - agent.profile.minTargetDistance
             } else {
@@ -108,5 +102,19 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val neededVelocityY = JumpVelocitySolver.solve(
                 agent.bounds.base, agent.toNode!!.position, speed, gravity).velocity.y
         return agent.velocity.y < neededVelocityY
+    }
+
+    private fun climb(agent: Agent) {
+        val dismountBufferRatio = 0.25f
+        val agentY = agent.bounds.base.y
+        val offsetY = agent.toNode.y - agentY
+        val dismountBufferY = agent.bounds.height * dismountBufferRatio
+        val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
+        when {
+            dismountRangeY.contains(offsetY) ->
+                CharacterActions.moveHorizontal(agent.entity, Direction.RIGHT)
+            agentY < agent.toNode.y -> CharacterActions.moveUp(agent.entity)
+            agentY > agent.toNode.y -> CharacterActions.moveDown(agent.entity)
+        }
     }
 }
