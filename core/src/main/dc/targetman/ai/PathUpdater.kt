@@ -12,7 +12,9 @@ import dclib.physics.collision.CollisionChecker
 class PathUpdater(private val graphQuery: GraphQuery, private val collisionChecker: CollisionChecker) {
     fun update(agent: Agent) {
         calculatePath(agent)
-        checkReachedNode(agent)
+        if (agent.path.isNotEmpty) {
+            checkReachedNode(agent)
+        }
     }
 
     private fun calculatePath(agent: Agent) {
@@ -27,14 +29,15 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
 //            if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {
                 val toNode = graphQuery.getNearestNode(targetCenter.x, targetSegment)
                 val newPath = graphQuery.createPath(agentCenter.x, belowSegment, toNode)
-                agent.path = newPath
+                agent.path.set(newPath)
 //            }
         }
     }
 
     private fun checkReachedNode(agent: Agent) {
-        if (agent.path.isNotEmpty() && atNode(agent.toNode, agent.bounds)) {
-            agent.path = agent.path.drop(0)
+        val connection = agent.path.currentConnection
+        if (atNode(connection.toNode, agent.bounds)) {
+            agent.path.pop()
         }
     }
 

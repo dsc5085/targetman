@@ -2,10 +2,10 @@ package dc.targetman.ai.graph
 
 import com.badlogic.gdx.ai.pfa.Connection
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath
-import com.badlogic.gdx.ai.pfa.GraphPath
 import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.math.Rectangle
+import dclib.util.CollectionUtils
 import dclib.util.Maths
 import org.apache.commons.lang3.StringUtils
 
@@ -36,11 +36,12 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return segments.single()
     }
 
-    override fun createPath(fromX: Float, fromSegment: Segment, toNode: DefaultNode): List<Connection<DefaultNode>> {
-        var lowestCostPath = DefaultGraphPath<Connection<DefaultNode>>()
+    override fun createPath(fromX: Float, fromSegment: Segment, toNode: DefaultNode): List<DefaultConnection> {
+        var lowestCostPath = listOf<DefaultConnection>()
         for (fromNode in fromSegment.getNodes()) {
-            val path = DefaultGraphPath<Connection<DefaultNode>>()
-            pathFinder.searchConnectionPath(fromNode, toNode, heuristic, path)
+            val rawPath = DefaultGraphPath<Connection<DefaultNode>>()
+            pathFinder.searchConnectionPath(fromNode, toNode, heuristic, rawPath)
+            val path = CollectionUtils.getByType(rawPath, DefaultConnection::class)
             if (lowestCostPath.none() || getCost(fromX, path) < getCost(fromX, lowestCostPath)) {
                 lowestCostPath = path
             }
@@ -48,11 +49,11 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
         return lowestCostPath.toList()
     }
 
-    private fun getCost(x: Float, path: GraphPath<Connection<DefaultNode>>): Float {
+    private fun getCost(x: Float, path: List<DefaultConnection>): Float {
         var cost = if (path.any()) getCost(x, path.get(0).fromNode) else 0f
-        for (i in 0 until path.count) {
-            val fromNode = path.get(i).fromNode
-            val toNode = path.get(i).toNode
+        for (i in 0 until path.size) {
+            val fromNode = path[i].fromNode
+            val toNode = path[i].toNode
             cost += heuristic.estimate(fromNode, toNode)
         }
         return cost

@@ -18,9 +18,9 @@ import dclib.util.Maths
  * Figures out the move actions to take to get to the next node.
  */
 class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
-    fun seek(agent: Agent) {
-        if (agent.path.isNotEmpty()) {
-            when (agent.connection.type) {
+    fun update(agent: Agent) {
+        if (agent.path.isNotEmpty) {
+            when (agent.path.currentConnection.type) {
                 ConnectionType.NORMAL -> {
                     val moveDirection = getMoveDirection(agent)
                     if (moveDirection != Direction.NONE) {

@@ -13,7 +13,6 @@ import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
 import dclib.geometry.center
 
-// TODO: Combine with InputUpdater.  Pipe actions into InputUpdater
 class AiSystem(
         private val entityManager: EntityManager,
         private val steering: Steering,
@@ -26,17 +25,19 @@ class AiSystem(
             val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
                 val targetBounds = target[TransformPart::class].transform.bounds
-                move(entity, targetBounds)
+                val agent = Agent(entity, targetBounds)
+                steer(agent)
+                pathUpdater.update(agent)
                 aim(entity, targetBounds)
                 CharacterActions.trigger(entity)
             }
         }
     }
 
-    private fun move(entity: Entity, targetBounds: Rectangle) {
-        val agent = Agent(entity, targetBounds)
-        steering.seek(agent)
-        pathUpdater.update(agent)
+    private fun steer(agent: Agent) {
+        if (agent.path.isNotEmpty) {
+            steering.update(agent)
+        }
     }
 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
