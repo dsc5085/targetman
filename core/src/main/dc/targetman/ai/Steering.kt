@@ -5,6 +5,8 @@ import dc.targetman.ai.graph.ConnectionType
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
 import dc.targetman.epf.parts.MovementPart
+import dc.targetman.mechanics.ActionKey
+import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.character.CharacterActions
 import dc.targetman.physics.JumpVelocitySolver
@@ -105,15 +107,29 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     }
 
     private fun climb(agent: Agent) {
-        val dismountBufferRatio = 0.25f
+        val toSegment = graphQuery.getSegment(agent.toNode)
+        val moveDirection: Direction
+        if (agent.toNode == toSegment.leftNode) {
+            moveDirection = Direction.RIGHT
+        } else {
+            moveDirection = Direction.LEFT
+        }
+        if (moveDirection != agent.facingDirection) {
+            CharacterActions.moveHorizontal(agent.entity, moveDirection)
+        }
+
+        val dismountBufferRatio = 0.05f
         val agentY = agent.bounds.base.y
         val offsetY = agent.toNode.y - agentY
         val dismountBufferY = agent.bounds.height * dismountBufferRatio
         val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
         when {
-            dismountRangeY.contains(offsetY) ->
-                CharacterActions.moveHorizontal(agent.entity, Direction.RIGHT)
-            agentY < agent.toNode.y -> CharacterActions.moveUp(agent.entity)
+            agent.steerState.dismounted -> CharacterActions.moveHorizontal(agent.entity, Direction.LEFT)
+            dismountRangeY.contains(offsetY) || agent.steerState.dismounted -> {
+                CharacterActions.moveHorizontal(agent.entity, moveDirection)
+                agent.steerState.dismounted = true
+            }
+            agentY < agent.toNode.y && !agent.entity[ActionsPart::class][ActionKey.MOVE_UP].wasDoing -> CharacterActions.moveUp(agent.entity)
             agentY > agent.toNode.y -> CharacterActions.moveDown(agent.entity)
         }
     }

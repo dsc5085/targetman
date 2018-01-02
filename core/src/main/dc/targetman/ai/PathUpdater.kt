@@ -38,6 +38,7 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
         val connection = agent.path.currentConnection
         if (atNode(connection.toNode, agent.bounds)) {
             agent.path.pop()
+            agent.steerState.reset()
         }
     }
 

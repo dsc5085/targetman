@@ -82,12 +82,12 @@ class GraphFactory(
     private fun createLadderConnections(segments: List<Segment>) {
         for (ladder in ladders) {
             // Add extra buffer space to check for ladder-node collisions
-            val widerLadder = ladder.grow(ladder.width / 2, 0f)
+            val ladderCheckBounds = ladder.grow(ladder.width / 2, 0f)
             val ladderNodes = mutableListOf<DefaultNode>()
             for (segment in segments) {
-                if (widerLadder.contains(segment.leftNode.position)) {
+                if (ladderCheckBounds.contains(segment.leftNode.position)) {
                     ladderNodes.add(segment.leftNode)
-                } else if (widerLadder.contains(segment.rightNode.position)) {
+                } else if (ladderCheckBounds.contains(segment.rightNode.position)) {
                     ladderNodes.add(segment.rightNode)
                 } else if (ladder.y - segment.y in 0f..agentSize.y && segment.overlapsX(ladder)) {
                     val ladderNode = DefaultNode(ladder.center.x, segment.y)

@@ -14,6 +14,7 @@ class Agent(val entity: Entity, val targetBounds: Rectangle) {
     val toNode get() = path.currentConnection.toNode
     val profile get() = aiPart.profile
     val path get() = aiPart.path
+    val steerState get() = aiPart.steerState
 
     private val aiPart = entity[AiPart::class]
 
