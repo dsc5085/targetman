@@ -4,11 +4,7 @@ import com.badlogic.gdx.math.MathUtils
 import dc.targetman.ai.graph.ConnectionType
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
-import dc.targetman.epf.parts.MovementPart
-import dc.targetman.mechanics.ActionKey
-import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Direction
-import dc.targetman.mechanics.character.CharacterActions
 import dc.targetman.physics.JumpVelocitySolver
 import dclib.geometry.base
 import dclib.geometry.center
@@ -26,7 +22,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
                 ConnectionType.NORMAL -> {
                     val moveDirection = getMoveDirection(agent)
                     if (moveDirection != Direction.NONE) {
-                        CharacterActions.moveHorizontal(agent.entity, moveDirection)
+                        agent.moveHorizontal(moveDirection)
                     }
                     jump(agent)
                 }
@@ -54,12 +50,25 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val nextX: Float?
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
+        val toNode = agent.path.currentConnection.toNode
         if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
+        } else if (shouldDropFromLeftEdge(agent)) {
+            nextX = toNode.x - agent.bounds.width
         } else {
-            nextX = agent.toNode?.x
+            nextX = toNode.x
         }
         return nextX
+    }
+
+    private fun shouldDropFromLeftEdge(agent: Agent): Boolean {
+        val fromNode = agent.path.currentConnection.fromNode
+        val toNode = agent.path.currentConnection.toNode
+        val toSegment = graphQuery.getSegment(toNode)
+        val fromSegment = graphQuery.getSegment(fromNode)
+        val isDrop = fromNode.x == toNode.x
+        val atLeftEdge = fromNode == fromSegment.leftNode || toNode == toSegment.leftNode
+        return isDrop && atLeftEdge
     }
 
     private fun getNextXOnSameSegment(agent: Agent, segment: Segment): Float? {
@@ -89,48 +98,46 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     }
 
     private fun jump(agent: Agent) {
-        if (agent.toNode != null) {
-            val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
-            val nextSegment = graphQuery.getSegment(agent.toNode)
-            val notOnNextSegment = belowSegment == null || belowSegment != nextSegment
-            if (notOnNextSegment && needToIncreaseJump(agent)) {
-                CharacterActions.moveUp(agent.entity)
-            }
+        val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
+        val toSegment = graphQuery.getSegment(agent.path.currentConnection.toNode)
+        val notOnToSegment = belowSegment == null || belowSegment != toSegment
+        if (notOnToSegment && needToIncreaseJump(agent)) {
+            agent.moveUp()
         }
     }
 
     private fun needToIncreaseJump(agent: Agent): Boolean {
-        val speed = agent.entity[MovementPart::class].speed
         val neededVelocityY = JumpVelocitySolver.solve(
-                agent.bounds.base, agent.toNode!!.position, speed, gravity).velocity.y
+                agent.bounds.base, agent.path.currentConnection.toNode.position, agent.speed, gravity).velocity.y
         return agent.velocity.y < neededVelocityY
     }
 
     private fun climb(agent: Agent) {
-        val toSegment = graphQuery.getSegment(agent.toNode)
+        val toNode = agent.path.currentConnection.toNode
+        val toSegment = graphQuery.getSegment(toNode)
         val moveDirection: Direction
-        if (agent.toNode == toSegment.leftNode) {
+        if (toNode == toSegment.leftNode) {
             moveDirection = Direction.RIGHT
         } else {
             moveDirection = Direction.LEFT
         }
         if (moveDirection != agent.facingDirection) {
-            CharacterActions.moveHorizontal(agent.entity, moveDirection)
+            agent.moveHorizontal(moveDirection)
         }
 
         val dismountBufferRatio = 0.05f
         val agentY = agent.bounds.base.y
-        val offsetY = agent.toNode.y - agentY
+        val offsetY = toNode.y - agentY
         val dismountBufferY = agent.bounds.height * dismountBufferRatio
         val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
         when {
-            agent.steerState.dismounted -> CharacterActions.moveHorizontal(agent.entity, Direction.LEFT)
+            agent.steerState.dismounted -> agent.moveHorizontal(Direction.LEFT)
             dismountRangeY.contains(offsetY) || agent.steerState.dismounted -> {
-                CharacterActions.moveHorizontal(agent.entity, moveDirection)
+                agent.moveHorizontal(moveDirection)
                 agent.steerState.dismounted = true
             }
-            agentY < agent.toNode.y && !agent.entity[ActionsPart::class][ActionKey.MOVE_UP].wasDoing -> CharacterActions.moveUp(agent.entity)
-            agentY > agent.toNode.y -> CharacterActions.moveDown(agent.entity)
+            agentY < toNode.y -> agent.moveUp()
+            agentY > toNode.y -> agent.moveDown()
         }
     }
 }

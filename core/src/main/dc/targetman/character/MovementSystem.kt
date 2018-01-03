@@ -36,7 +36,7 @@ class MovementSystem(
     // TODO: class-level struct to encapsulating moving characters
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
-            val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
+            val isGrounded = EntityUtils.isGrounded(collisionChecker, Box2dUtils.getBody(entity)!!)
             move(entity, isGrounded)
             climb(entity)
             updateJumping(entity, isGrounded, delta)
@@ -117,9 +117,9 @@ class MovementSystem(
 
     private fun climb(entity: Entity) {
         val movementPart = entity[MovementPart::class]
-        val collisions = collisionChecker.getCollisions(entity)
-        val climbCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.CLIMB) }
         val body = Box2dUtils.getBody(entity)!!
+        val collisions = collisionChecker.getCollisions(body)
+        val climbCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.CLIMB) }
         val climbJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
         val actionsPart = entity[ActionsPart::class]
         val dismount = actionsPart[ActionKey.MOVE_LEFT].justDid || actionsPart[ActionKey.MOVE_RIGHT].justDid

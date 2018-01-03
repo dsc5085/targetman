@@ -20,7 +20,7 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
     private fun calculatePath(agent: Agent) {
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
-        if (belowSegment != null && targetSegment != null && EntityUtils.isGrounded(collisionChecker, agent.entity)
+        if (belowSegment != null && targetSegment != null && EntityUtils.isGrounded(collisionChecker, agent.body)
                 && agent.checkCalculatePath()) {
             // TODO: Better way to approximate start and end nodes
             val agentCenter = agent.bounds.center

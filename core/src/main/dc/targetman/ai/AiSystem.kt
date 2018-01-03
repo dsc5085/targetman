@@ -25,7 +25,7 @@ class AiSystem(
             val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
                 val targetBounds = target[TransformPart::class].transform.bounds
-                val agent = Agent(entity, targetBounds)
+                val agent = DefaultAgent(entity, targetBounds)
                 steer(agent)
                 pathUpdater.update(agent)
                 aim(entity, targetBounds)
