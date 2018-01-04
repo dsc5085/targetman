@@ -30,11 +30,15 @@ class DefaultAgent(private val entity: Entity, override val targetBounds: Rectan
         CharacterActions.moveHorizontal(entity, direction)
     }
 
-    override fun moveUp() {
-        CharacterActions.moveUp(entity)
+    override fun jump() {
+        CharacterActions.jump(entity)
     }
 
-    override fun moveDown() {
-        CharacterActions.moveDown(entity)
+    override fun climbUp() {
+        CharacterActions.climbUp(entity)
+    }
+
+    override fun climbDown() {
+        CharacterActions.climbDown(entity)
     }
 }

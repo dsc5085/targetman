@@ -18,6 +18,7 @@ interface Agent {
 
     fun checkCalculatePath(): Boolean
     fun moveHorizontal(direction: Direction)
-    fun moveUp()
-    fun moveDown()
+    fun jump()
+    fun climbUp()
+    fun climbDown()
 }

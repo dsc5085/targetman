@@ -14,6 +14,8 @@ import dclib.util.Maths
 
 /**
  * Figures out the move actions to take to get to the next node.
+ *
+ * TODO: Provide an abstraction layer between fine-tuned movements (such as climbing for a frame) and path finding, e.g. climb or jump instead of move up
  */
 class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     fun update(agent: Agent) {
@@ -53,7 +55,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val toNode = agent.path.currentConnection.toNode
         if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
-        } else if (shouldDropFromLeftEdge(agent)) {
+        } else if (needToTraverseLeftEdge(agent)) {
             nextX = toNode.x - agent.bounds.width
         } else {
             nextX = toNode.x
@@ -61,14 +63,13 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         return nextX
     }
 
-    private fun shouldDropFromLeftEdge(agent: Agent): Boolean {
+    private fun needToTraverseLeftEdge(agent: Agent): Boolean {
         val fromNode = agent.path.currentConnection.fromNode
         val toNode = agent.path.currentConnection.toNode
         val toSegment = graphQuery.getSegment(toNode)
         val fromSegment = graphQuery.getSegment(fromNode)
-        val isDrop = fromNode.x == toNode.x
         val atLeftEdge = fromNode == fromSegment.leftNode || toNode == toSegment.leftNode
-        return isDrop && atLeftEdge
+        return fromNode.x == toNode.x && atLeftEdge
     }
 
     private fun getNextXOnSameSegment(agent: Agent, segment: Segment): Float? {
@@ -102,14 +103,16 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val toSegment = graphQuery.getSegment(agent.path.currentConnection.toNode)
         val notOnToSegment = belowSegment == null || belowSegment != toSegment
         if (notOnToSegment && needToIncreaseJump(agent)) {
-            agent.moveUp()
+            agent.jump()
         }
     }
 
     private fun needToIncreaseJump(agent: Agent): Boolean {
         val neededVelocityY = JumpVelocitySolver.solve(
                 agent.bounds.base, agent.path.currentConnection.toNode.position, agent.speed, gravity).velocity.y
-        return agent.velocity.y < neededVelocityY
+        // Edge case: don't attempt to jump while falling, otherwise it might trigger the climbing since its mapped to the same action as jumping
+        val isFalling = agent.velocity.y < 0
+        return !isFalling && agent.velocity.y < neededVelocityY
     }
 
     private fun climb(agent: Agent) {
@@ -136,8 +139,8 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
                 agent.moveHorizontal(moveDirection)
                 agent.steerState.dismounted = true
             }
-            agentY < toNode.y -> agent.moveUp()
-            agentY > toNode.y -> agent.moveDown()
+            agentY < toNode.y -> agent.climbUp()
+            agentY > toNode.y -> agent.climbDown()
         }
     }
 }
