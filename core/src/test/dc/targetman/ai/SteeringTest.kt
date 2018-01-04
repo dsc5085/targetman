@@ -28,10 +28,30 @@ class SteeringTest {
         toSegment.add(toNode)
         `when`(graphQuery.getSegment(fromNode)).thenReturn(fromSegment)
         `when`(graphQuery.getSegment(toNode)).thenReturn(toSegment)
-        val agent = createAgent(listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)))
+        val agent = createAgent(Vector2(1.5f, 5f), listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)))
         steering.update(agent)
         verify(agent).moveHorizontal(Direction.LEFT)
     }
+
+    @Test
+    fun update_RightDrop_MoveRight() {
+        val graphQuery = mock(GraphQuery::class.java)
+        val steering = Steering(graphQuery, GRAVITY)
+        val fromSegment = Segment(Rectangle(2f, 5f, 5f, 1f))
+        val toSegment = Segment(Rectangle(2f, 1f, 8f, 1f))
+        val fromNode = fromSegment.rightNode
+        val toNode = DefaultNode(7f, 1f)
+        toSegment.add(toNode)
+        `when`(graphQuery.getSegment(fromNode)).thenReturn(fromSegment)
+        `when`(graphQuery.getSegment(toNode)).thenReturn(toSegment)
+        val agent = createAgent(Vector2(6.5f, 5f), listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)))
+        steering.update(agent)
+        verify(agent).moveHorizontal(Direction.RIGHT)
+    }
+
+    // Need to test what happens if dismounted and then falls off
+
+    // After dismounting, make sure AI keeps moving to toNode
 
     // TODO: Consolidate test code
     @Test
@@ -45,19 +65,19 @@ class SteeringTest {
         toSegment.add(toNode)
         `when`(graphQuery.getSegment(fromNode)).thenReturn(fromSegment)
         `when`(graphQuery.getSegment(toNode)).thenReturn(toSegment)
-        val agent = createAgent(listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)), Vector2(0f, -0.1f))
+        val agent = createAgent(Vector2(2f, 5f), listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)), Vector2(0f, -0.1f))
         steering.update(agent)
         verify(agent, never()).jump()
     }
 
-    fun createAgent(pathConnections: List<DefaultConnection>, velocity: Vector2 = Vector2(0f, 0f)): Agent {
+    fun createAgent(position: Vector2, pathConnections: List<DefaultConnection>, velocity: Vector2 = Vector2(0f, 0f)): Agent {
         val agent = mock(Agent::class.java)
         val path = Path()
         path.set(pathConnections)
         `when`(agent.path).thenReturn(path)
         `when`(agent.speed).thenReturn(Vector2(5f, 3f))
         `when`(agent.velocity).thenReturn(velocity)
-        `when`(agent.bounds).thenReturn(Rectangle(2f, 4.5f, 1f, 1f))
+        `when`(agent.bounds).thenReturn(Rectangle(position.x, position.y, 1f, 1f))
         return agent
     }
 }
