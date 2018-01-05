@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
 import dclib.geometry.center
 import dclib.geometry.grow
+import dclib.physics.Box2dUtils
 import dclib.util.Maths
 
 class GraphFactory(
@@ -65,14 +66,14 @@ class GraphFactory(
     private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment) {
         if (bottomSegment.containsX(topNode.x)) {
             val bottomNode = bottomSegment.getOrCreateNode(topNode.x)
-            connectJump(topNode, bottomNode)
-            connectJump(bottomNode, topNode)
+            connectJump(topNode, bottomNode, Box2dUtils.ROUNDING_ERROR)
+            connectJump(bottomNode, topNode, Box2dUtils.ROUNDING_ERROR)
         }
     }
 
-    private fun connectJump(fromNode: DefaultNode, toNode: DefaultNode) {
-        val localLeft = Vector2(0f, 0f)
-        val localRight = Vector2(agentSize.x, 0f)
+    private fun connectJump(fromNode: DefaultNode, toNode: DefaultNode, edgeBuffer: Float = 0f) {
+        val localLeft = Vector2(-edgeBuffer, 0f)
+        val localRight = Vector2(agentSize.x + edgeBuffer, 0f)
         if (jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localLeft)
                 || jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localRight)) {
             fromNode.addConnection(toNode)

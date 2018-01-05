@@ -109,13 +109,14 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val toSegment = graphQuery.getSegment(toNode)
         val fromSegment = graphQuery.getSegment(fromNode)
         val isVerticalNodeConnection = fromNode.x == toNode.x
-        val atLeftEdge = fromNode == fromSegment.leftNode || toNode == toSegment.leftNode
-        val atRightEdge = fromNode == fromSegment.rightNode || toNode == toSegment.rightNode
+        val isLeftEdgeConnection = fromNode == fromSegment.leftNode || toNode == toSegment.leftNode
+        val isRightEdgeConnection = fromNode == fromSegment.rightNode || toNode == toSegment.rightNode
+        // TODO: Not going up stairs. If below, nextX is at outside edge. If above, nextX is at inside
         if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
-        } else if (isVerticalNodeConnection && atLeftEdge) {
+        } else if (isVerticalNodeConnection && isLeftEdgeConnection) {
             nextX = toNode.x - agent.bounds.width
-        } else if (isVerticalNodeConnection && atRightEdge) {
+        } else if (isVerticalNodeConnection && isRightEdgeConnection) {
             nextX = toNode.x + agent.bounds.width
         } else {
             nextX = toNode.x

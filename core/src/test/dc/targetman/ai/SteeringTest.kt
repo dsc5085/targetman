@@ -42,7 +42,27 @@ class SteeringTest {
     }
 
     @Test
-    fun update_VerticalHopToLeftEdge_MoveLeft() {
+    fun update_OutsideVerticalHopToLeftEdge_MoveRight() {
+        val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.leftNode.x)
+        val toNode = UPPER_SEGMENT.leftNode
+        val position = Vector2(0.5f, LOWER_SEGMENT.y)
+        val agent = createAgent(position, fromNode, toNode)
+        steer(agent, listOf(LOWER_SEGMENT, UPPER_SEGMENT))
+        verify(agent).moveHorizontal(Direction.RIGHT)
+    }
+
+    @Test
+    fun update_OutsideVerticalHopToRightEdge_MoveLeft() {
+        val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.rightNode.x)
+        val toNode = UPPER_SEGMENT.rightNode
+        val position = Vector2(LOWER_SEGMENT.right - 0.5f, LOWER_SEGMENT.y)
+        val agent = createAgent(position, fromNode, toNode)
+        steer(agent, listOf(LOWER_SEGMENT, UPPER_SEGMENT))
+        verify(agent).moveHorizontal(Direction.LEFT)
+    }
+
+    @Test
+    fun update_InsideVerticalHopToLeftEdge_MoveLeft() {
         val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.leftNode.x)
         val toNode = UPPER_SEGMENT.leftNode
         val position = Vector2(UPPER_SEGMENT.left - 0.5f, LOWER_SEGMENT.y)
@@ -52,7 +72,7 @@ class SteeringTest {
     }
 
     @Test
-    fun update_VerticalHopToRightEdge_MoveRight() {
+    fun update_InsideVerticalHopToRightEdge_MoveRight() {
         val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.rightNode.x)
         val toNode = UPPER_SEGMENT.rightNode
         val position = Vector2(UPPER_SEGMENT.right - 0.5f, LOWER_SEGMENT.y)
