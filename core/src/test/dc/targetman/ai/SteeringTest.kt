@@ -17,63 +17,77 @@ import org.mockito.Mockito.verify
 class SteeringTest {
     private val GRAVITY = -9.8f
 
+    // This group of segments forms a pyramid structure
+    private val UPPER_SEGMENT = Segment(Rectangle(2f, 5f, 5f, 1f))
+    private val LOWER_SEGMENT = Segment(Rectangle(1f, 1f, 8f, 1f))
+
     @Test
-    fun update_LeftDrop_MoveLeft() {
-        val graphQuery = mock(GraphQuery::class.java)
-        val steering = Steering(graphQuery, GRAVITY)
-        val fromSegment = Segment(Rectangle(2f, 5f, 5f, 1f))
-        val toSegment = Segment(Rectangle(2f, 1f, 8f, 1f))
-        val fromNode = fromSegment.leftNode
-        val toNode = DefaultNode(2f, 1f)
-        toSegment.add(toNode)
-        `when`(graphQuery.getSegment(fromNode)).thenReturn(fromSegment)
-        `when`(graphQuery.getSegment(toNode)).thenReturn(toSegment)
-        val agent = createAgent(Vector2(1.5f, 5f), listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)))
-        steering.update(agent)
+    fun update_LeftEdgeDrop_MoveLeft() {
+        val fromNode = UPPER_SEGMENT.leftNode
+        val toNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.leftNode.x)
+        val position = Vector2(UPPER_SEGMENT.left - 0.5f, UPPER_SEGMENT.y)
+        val agent = createAgent(position, fromNode, toNode)
+        steer(agent, listOf(UPPER_SEGMENT, LOWER_SEGMENT))
         verify(agent).moveHorizontal(Direction.LEFT)
     }
 
     @Test
-    fun update_RightDrop_MoveRight() {
-        val graphQuery = mock(GraphQuery::class.java)
-        val steering = Steering(graphQuery, GRAVITY)
-        val fromSegment = Segment(Rectangle(2f, 5f, 5f, 1f))
-        val toSegment = Segment(Rectangle(2f, 1f, 8f, 1f))
-        val fromNode = fromSegment.rightNode
-        val toNode = DefaultNode(7f, 1f)
-        toSegment.add(toNode)
-        `when`(graphQuery.getSegment(fromNode)).thenReturn(fromSegment)
-        `when`(graphQuery.getSegment(toNode)).thenReturn(toSegment)
-        val agent = createAgent(Vector2(6.5f, 5f), listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)))
-        steering.update(agent)
+    fun update_RightEdgeDrop_MoveRight() {
+        val fromNode = UPPER_SEGMENT.rightNode
+        val toNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.right)
+        val position = Vector2(UPPER_SEGMENT.right - 0.5f, LOWER_SEGMENT.y)
+        val agent = createAgent(position, fromNode, toNode)
+        steer(agent, listOf(UPPER_SEGMENT, LOWER_SEGMENT))
         verify(agent).moveHorizontal(Direction.RIGHT)
     }
 
-    // Need to test what happens if dismounted and then falls off
+    @Test
+    fun update_VerticalHopToLeftEdge_MoveLeft() {
+        val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.leftNode.x)
+        val toNode = UPPER_SEGMENT.leftNode
+        val position = Vector2(UPPER_SEGMENT.left - 0.5f, LOWER_SEGMENT.y)
+        val agent = createAgent(position, fromNode, toNode)
+        steer(agent, listOf(LOWER_SEGMENT, UPPER_SEGMENT))
+        verify(agent).moveHorizontal(Direction.LEFT)
+    }
+
+    @Test
+    fun update_VerticalHopToRightEdge_MoveRight() {
+        val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.rightNode.x)
+        val toNode = UPPER_SEGMENT.rightNode
+        val position = Vector2(UPPER_SEGMENT.right - 0.5f, LOWER_SEGMENT.y)
+        val agent = createAgent(position, fromNode, toNode)
+        steer(agent, listOf(LOWER_SEGMENT, UPPER_SEGMENT))
+        verify(agent).moveHorizontal(Direction.RIGHT)
+    }
 
     // After dismounting, make sure AI keeps moving to toNode
 
-    // TODO: Consolidate test code
     @Test
     fun update_Falling_DontTryToJump() {
-        val graphQuery = mock(GraphQuery::class.java)
-        val steering = Steering(graphQuery, GRAVITY)
-        val fromSegment = Segment(Rectangle(2f, 5f, 5f, 1f))
-        val toSegment = Segment(Rectangle(2f, 1f, 8f, 1f))
-        val fromNode = fromSegment.leftNode
-        val toNode = DefaultNode(2f, 1f)
-        toSegment.add(toNode)
-        `when`(graphQuery.getSegment(fromNode)).thenReturn(fromSegment)
-        `when`(graphQuery.getSegment(toNode)).thenReturn(toSegment)
-        val agent = createAgent(Vector2(2f, 5f), listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)), Vector2(0f, -0.1f))
-        steering.update(agent)
+        val fromNode = UPPER_SEGMENT.leftNode
+        val toNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.left)
+        val position = Vector2(UPPER_SEGMENT.left, UPPER_SEGMENT.y + 1f)
+        val velocity = Vector2(0f, -0.1f)
+        val agent = createAgent(position, fromNode, toNode, velocity)
+        steer(agent, listOf(UPPER_SEGMENT, LOWER_SEGMENT))
         verify(agent, never()).jump()
     }
 
-    fun createAgent(position: Vector2, pathConnections: List<DefaultConnection>, velocity: Vector2 = Vector2(0f, 0f)): Agent {
+    fun steer(agent: Agent, segments: List<Segment>) {
+        val graphQuery = mock(GraphQuery::class.java)
+        for (segment in segments) {
+            for (node in segment.getNodes()) {
+                `when`(graphQuery.getSegment(node)).thenReturn(segments.single { it.getNodes().contains(node) })
+            }
+        }
+        Steering(graphQuery, GRAVITY).update(agent)
+    }
+
+    fun createAgent(position: Vector2, fromNode: DefaultNode, toNode: DefaultNode, velocity: Vector2 = Vector2(0f, 0f)): Agent {
         val agent = mock(Agent::class.java)
         val path = Path()
-        path.set(pathConnections)
+        path.set(listOf(DefaultConnection(fromNode, toNode, ConnectionType.NORMAL)))
         `when`(agent.path).thenReturn(path)
         `when`(agent.speed).thenReturn(Vector2(5f, 3f))
         `when`(agent.velocity).thenReturn(velocity)

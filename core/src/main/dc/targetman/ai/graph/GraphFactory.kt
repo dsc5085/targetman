@@ -64,7 +64,7 @@ class GraphFactory(
 
     private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment) {
         if (bottomSegment.containsX(topNode.x)) {
-            val bottomNode = bottomSegment.getOrAdd(DefaultNode(topNode.x, bottomSegment.y))
+            val bottomNode = bottomSegment.getOrCreateNode(topNode.x)
             connectJump(topNode, bottomNode)
             connectJump(bottomNode, topNode)
         }
@@ -90,9 +90,7 @@ class GraphFactory(
                 } else if (ladderCheckBounds.contains(segment.rightNode.position)) {
                     ladderNodes.add(segment.rightNode)
                 } else if (ladder.y - segment.y in 0f..agentSize.y && segment.overlapsX(ladder)) {
-                    val ladderNode = DefaultNode(ladder.center.x, segment.y)
-                    segment.add(ladderNode)
-                    ladderNodes.add(ladderNode)
+                    ladderNodes.add(segment.createNode(ladder.center.x))
                 }
             }
             for (i in 0 until ladderNodes.size - 1) {
