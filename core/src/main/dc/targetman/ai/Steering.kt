@@ -1,7 +1,9 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Rectangle
 import dc.targetman.ai.graph.ConnectionType
+import dc.targetman.ai.graph.DefaultConnection
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
 import dc.targetman.mechanics.Direction
@@ -9,6 +11,7 @@ import dc.targetman.physics.JumpVelocitySolver
 import dclib.geometry.base
 import dclib.geometry.center
 import dclib.geometry.containsX
+import dclib.geometry.top
 import dclib.util.FloatRange
 import dclib.util.Maths
 
@@ -106,20 +109,43 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
         val toNode = agent.path.currentConnection.toNode
         val fromNode = agent.path.currentConnection.fromNode
-        val toSegment = graphQuery.getSegment(toNode)
-        val fromSegment = graphQuery.getSegment(fromNode)
         val isVerticalNodeConnection = fromNode.x == toNode.x
-        val isLeftEdgeConnection = fromNode == fromSegment.leftNode || toNode == toSegment.leftNode
-        val isRightEdgeConnection = fromNode == fromSegment.rightNode || toNode == toSegment.rightNode
-        // TODO: Not going up stairs. If below, nextX is at outside edge. If above, nextX is at inside
         if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
-        } else if (isVerticalNodeConnection && isLeftEdgeConnection) {
-            nextX = toNode.x - agent.bounds.width
-        } else if (isVerticalNodeConnection && isRightEdgeConnection) {
-            nextX = toNode.x + agent.bounds.width
+        } else if (isVerticalNodeConnection) {
+            nextX = getNextXToGetAroundSegment(agent.bounds, agent.path.currentConnection)
         } else {
             nextX = toNode.x
+        }
+        return nextX
+    }
+
+    private fun getNextXToGetAroundSegment(bounds: Rectangle, connection: DefaultConnection): Float {
+        var nextX: Float
+        if (connection.toNode.y > connection.fromNode.y) {
+            val edgeNode = connection.toNode
+            nextX = edgeNode.x
+            val toSegment = graphQuery.getSegment(edgeNode)
+            val isLeftEdgeConnection = edgeNode == toSegment.leftNode
+            if (edgeNode.y > bounds.top) {
+                if (isLeftEdgeConnection) {
+                    nextX -= bounds.width
+                } else {
+                    nextX += bounds.width
+                }
+            }
+        } else {
+            val edgeNode = connection.fromNode
+            nextX = edgeNode.x
+            val fromSegment = graphQuery.getSegment(edgeNode)
+            val isLeftEdgeConnection = edgeNode == fromSegment.leftNode
+            if (edgeNode.y < bounds.top) {
+                if (isLeftEdgeConnection) {
+                    nextX -= bounds.width
+                } else {
+                    nextX += bounds.width
+                }
+            }
         }
         return nextX
     }

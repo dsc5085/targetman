@@ -18,8 +18,8 @@ class SteeringTest {
     private val GRAVITY = -9.8f
 
     // This group of segments forms a pyramid structure
-    private val UPPER_SEGMENT = Segment(Rectangle(2f, 5f, 5f, 1f))
-    private val LOWER_SEGMENT = Segment(Rectangle(1f, 1f, 8f, 1f))
+    private val UPPER_SEGMENT = Segment(Rectangle(3f, 5f, 5f, 1f))
+    private val LOWER_SEGMENT = Segment(Rectangle(1f, 1f, 9f, 1f))
 
     @Test
     fun update_LeftEdgeDrop_MoveLeft() {
@@ -35,7 +35,7 @@ class SteeringTest {
     fun update_RightEdgeDrop_MoveRight() {
         val fromNode = UPPER_SEGMENT.rightNode
         val toNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.right)
-        val position = Vector2(UPPER_SEGMENT.right - 0.5f, LOWER_SEGMENT.y)
+        val position = Vector2(UPPER_SEGMENT.right - 0.5f, UPPER_SEGMENT.y)
         val agent = createAgent(position, fromNode, toNode)
         steer(agent, listOf(UPPER_SEGMENT, LOWER_SEGMENT))
         verify(agent).moveHorizontal(Direction.RIGHT)
@@ -45,7 +45,7 @@ class SteeringTest {
     fun update_OutsideVerticalHopToLeftEdge_MoveRight() {
         val fromNode = LOWER_SEGMENT.createNode(UPPER_SEGMENT.leftNode.x)
         val toNode = UPPER_SEGMENT.leftNode
-        val position = Vector2(0.5f, LOWER_SEGMENT.y)
+        val position = Vector2(LOWER_SEGMENT.left - 0.5f, LOWER_SEGMENT.y)
         val agent = createAgent(position, fromNode, toNode)
         steer(agent, listOf(LOWER_SEGMENT, UPPER_SEGMENT))
         verify(agent).moveHorizontal(Direction.RIGHT)
