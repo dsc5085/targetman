@@ -94,9 +94,8 @@ class JumpCheckerTest {
     }
 
     private fun testIsValid(expected: Boolean, map: Array<String>, from: Vector2, to: Vector2) {
-        val solver = JumpVelocitySolver(AGENT_SPEED, GRAVITY)
         val world = createWorld(map)
-        val jumpChecker = JumpChecker(world, solver)
+        val jumpChecker = JumpChecker(world, AGENT_SPEED)
         val bounds = Rectangle(0f, 0f, 1f, 1f)
         val isValid = jumpChecker.isValid(from, to, bounds.size, bounds.base)
         world.dispose()

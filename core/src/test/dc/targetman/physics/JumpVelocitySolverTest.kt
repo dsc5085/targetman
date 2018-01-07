@@ -9,7 +9,6 @@ import test.dclib.geometry.VectorTestUtils
 class JumpVelocitySolverTest {
     private val GRAVITY = -9.8f
     private val AGENT_SPEED = Vector2(10f, 10f)
-    private val solver = JumpVelocitySolver(AGENT_SPEED, GRAVITY)
 
     @Test
     fun solve_SamePosition_ZeroVelocity() {
@@ -81,13 +80,13 @@ class JumpVelocitySolverTest {
     }
 
     private fun testSolve(from: Vector2, to: Vector2, expectedVelocityX: Float, expectedVelocityY: Float) {
-        val result = solver.solve(from, to)
+        val result = JumpVelocitySolver.solve(from, to, AGENT_SPEED, GRAVITY)
         VectorTestUtils.assertEquals(expectedVelocityX, expectedVelocityY, result.velocity)
         assertTrue(result.isValid)
     }
 
     private fun testSolveInvalid(from: Vector2, to: Vector2) {
-        val result = solver.solve(from, to)
+        val result = JumpVelocitySolver.solve(from, to, AGENT_SPEED, GRAVITY)
         assertFalse(result.isValid)
     }
 }

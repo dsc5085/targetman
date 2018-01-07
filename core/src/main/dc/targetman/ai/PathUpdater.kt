@@ -18,9 +18,10 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
     }
 
     private fun calculatePath(agent: Agent) {
+        // TODO: Also, recalculate path if AI is stuck and not moving for a specified amount of time, e.g. due to a bad state in its current steering
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
-        if (belowSegment != null && targetSegment != null && EntityUtils.isGrounded(collisionChecker, agent.entity)
+        if (belowSegment != null && targetSegment != null && EntityUtils.isGrounded(collisionChecker, agent.body)
                 && agent.checkCalculatePath()) {
             // TODO: Better way to approximate start and end nodes
             val agentCenter = agent.bounds.center
@@ -38,6 +39,7 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
         val connection = agent.path.currentConnection
         if (atNode(connection.toNode, agent.bounds)) {
             agent.path.pop()
+            agent.steerState.reset()
         }
     }
 

@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
 import dclib.geometry.center
 import dclib.geometry.grow
+import dclib.physics.Box2dUtils
 import dclib.util.Maths
 
 class GraphFactory(
@@ -64,15 +65,15 @@ class GraphFactory(
 
     private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment) {
         if (bottomSegment.containsX(topNode.x)) {
-            val bottomNode = bottomSegment.getOrAdd(DefaultNode(topNode.x, bottomSegment.y))
-            connectJump(topNode, bottomNode)
-            connectJump(bottomNode, topNode)
+            val bottomNode = bottomSegment.getOrCreateNode(topNode.x)
+            connectJump(topNode, bottomNode, Box2dUtils.ROUNDING_ERROR)
+            connectJump(bottomNode, topNode, Box2dUtils.ROUNDING_ERROR)
         }
     }
 
-    private fun connectJump(fromNode: DefaultNode, toNode: DefaultNode) {
-        val localLeft = Vector2(0f, 0f)
-        val localRight = Vector2(agentSize.x, 0f)
+    private fun connectJump(fromNode: DefaultNode, toNode: DefaultNode, edgeBuffer: Float = 0f) {
+        val localLeft = Vector2(-edgeBuffer, 0f)
+        val localRight = Vector2(agentSize.x + edgeBuffer, 0f)
         if (jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localLeft)
                 || jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localRight)) {
             fromNode.addConnection(toNode)
@@ -82,17 +83,15 @@ class GraphFactory(
     private fun createLadderConnections(segments: List<Segment>) {
         for (ladder in ladders) {
             // Add extra buffer space to check for ladder-node collisions
-            val widerLadder = ladder.grow(ladder.width / 2, 0f)
+            val ladderCheckBounds = ladder.grow(ladder.width / 2, 0f)
             val ladderNodes = mutableListOf<DefaultNode>()
             for (segment in segments) {
-                if (widerLadder.contains(segment.leftNode.position)) {
+                if (ladderCheckBounds.contains(segment.leftNode.position)) {
                     ladderNodes.add(segment.leftNode)
-                } else if (widerLadder.contains(segment.rightNode.position)) {
+                } else if (ladderCheckBounds.contains(segment.rightNode.position)) {
                     ladderNodes.add(segment.rightNode)
                 } else if (ladder.y - segment.y in 0f..agentSize.y && segment.overlapsX(ladder)) {
-                    val ladderNode = DefaultNode(ladder.center.x, segment.y)
-                    segment.add(ladderNode)
-                    ladderNodes.add(ladderNode)
+                    ladderNodes.add(segment.createNode(ladder.center.x))
                 }
             }
             for (i in 0 until ladderNodes.size - 1) {

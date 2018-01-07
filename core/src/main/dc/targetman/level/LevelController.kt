@@ -1,7 +1,6 @@
 package dc.targetman.level
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
@@ -30,12 +29,11 @@ import dc.targetman.level.executers.SetSpeedExecuter
 import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.ChangeContainerHealthOnEntityAdded
-import dc.targetman.mechanics.Direction
 import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.InputUpdater
 import dc.targetman.mechanics.InventorySystem
 import dc.targetman.mechanics.ScaleSystem
 import dc.targetman.mechanics.StaggerSystem
-import dc.targetman.mechanics.character.CharacterActions
 import dc.targetman.mechanics.weapon.AimOnAnimationApplied
 import dc.targetman.mechanics.weapon.WeaponSystem
 import dc.targetman.physics.PhysicsUpdater
@@ -45,7 +43,6 @@ import dc.targetman.physics.collision.ParticlesOnCollided
 import dc.targetman.skeleton.AddLimbEntitiesOnEntityAdded
 import dc.targetman.skeleton.LimbBranchDestroyedChecker
 import dc.targetman.skeleton.SkeletonSyncSystem
-import dc.targetman.system.InputUtils
 import dclib.epf.DefaultEntityManager
 import dclib.epf.EntityManager
 import dclib.epf.graphics.Drawer
@@ -68,7 +65,6 @@ import dclib.physics.TranslateSystem
 import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
 import dclib.system.Advancer
-import dclib.system.Updater
 
 class LevelController(
 		config: AppConfig,
@@ -89,7 +85,7 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/nav_drop.tmx")
+	private val map = TmxMapLoader().load("maps/nav.tmx")
 	private val drawerManager: DrawerManager
 	private val advancer: Advancer
 	private val commandModule: CommandModule
@@ -137,7 +133,7 @@ class LevelController(
 		limbBranchDestroyedChecker.destroyed.on(CorpseOnLimbBranchDestroyed(entityManager, world))
 		return Advancer(
 				ActionsSystem(entityManager),
-				createInputUpdater(),
+				InputUpdater(entityManager, screenHelper),
 				createAiSystem(collisionChecker),
 				ScaleSystem(entityManager),
 				AutoRotateSystem(entityManager),
@@ -213,43 +209,6 @@ class LevelController(
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
 			val sourceAlliance = it.source.getAttribute(Alliance::class)
 			sourceAlliance != null && sourceAlliance.target === targetAlliance
-		}
-	}
-
-	private fun createInputUpdater(): Updater {
-		return object : Updater {
-			override fun update(delta: Float) {
-				processInput()
-			}
-		}
-	}
-
-	private fun processInput() {
-		val player = EntityFinder.find(entityManager, Alliance.PLAYER)
-		if (player == null) {
-			return
-		}
-		val cursorWorldCoords = InputUtils.getCursorWorldCoord(screenHelper)
-		CharacterActions.aim(player, cursorWorldCoords)
-		if (Gdx.input.isKeyPressed(Keys.A)) {
-			CharacterActions.moveHorizontal(player, Direction.LEFT)
-		} else if (Gdx.input.isKeyPressed(Keys.D)) {
-			CharacterActions.moveHorizontal(player, Direction.RIGHT)
-		}
-		if (Gdx.input.isKeyPressed(Keys.W)) {
-			CharacterActions.moveUp(player)
-		}
-		if (Gdx.input.isKeyPressed(Keys.S)) {
-			CharacterActions.moveDown(player)
-		}
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-			CharacterActions.trigger(player)
-		}
-		if (Gdx.input.isKeyPressed(Keys.Q)) {
-			CharacterActions.switchWeapon(player)
-		}
-		if (Gdx.input.isKeyPressed(Keys.X)) {
-			CharacterActions.pickup(player)
 		}
 	}
 

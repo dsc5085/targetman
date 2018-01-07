@@ -36,7 +36,7 @@ class MovementSystem(
     // TODO: class-level struct to encapsulating moving characters
     override fun update(delta: Float, entity: Entity) {
         if (entity.has(MovementPart::class)) {
-            val isGrounded = EntityUtils.isGrounded(collisionChecker, entity)
+            val isGrounded = EntityUtils.isGrounded(collisionChecker, Box2dUtils.getBody(entity)!!)
             move(entity, isGrounded)
             climb(entity)
             updateJumping(entity, isGrounded, delta)
@@ -85,10 +85,10 @@ class MovementSystem(
     private fun updateJumping(entity: Entity, isGrounded: Boolean, delta: Float) {
         val movementPart = entity[MovementPart::class]
         val jumpIncreaseTimer = movementPart.jumpIncreaseTimer
-        val moveUp = entity[ActionsPart::class][ActionKey.MOVE_UP].doing
-        if (!moveUp || jumpIncreaseTimer.isElapsed) {
+        val doJump = entity[ActionsPart::class][ActionKey.JUMP].doing
+        if (!doJump || jumpIncreaseTimer.isElapsed) {
             jumpIncreaseTimer.reset()
-        } else if (moveUp && (isGrounded || jumpIncreaseTimer.isRunning)) {
+        } else if (doJump && (isGrounded || jumpIncreaseTimer.isRunning)) {
             jump(entity, isGrounded, delta)
         }
         if (!isGrounded && !movementPart.climbing && entity[TransformPart::class].transform.velocity.y < 0) {
@@ -117,19 +117,19 @@ class MovementSystem(
 
     private fun climb(entity: Entity) {
         val movementPart = entity[MovementPart::class]
-        val collisions = collisionChecker.getCollisions(entity)
-        val climbCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.CLIMB) }
         val body = Box2dUtils.getBody(entity)!!
+        val collisions = collisionChecker.getCollisions(body)
+        val climbCollision = collisions.firstOrNull { it.target.entity.of(Interactivity.CLIMB) }
         val climbJoint = body.jointList.map { it.joint }.firstOrNull { it is PrismaticJoint } as PrismaticJoint?
         val actionsPart = entity[ActionsPart::class]
-        val dismount = actionsPart[ActionKey.MOVE_LEFT].justDid || actionsPart[ActionKey.MOVE_RIGHT].justDid
+        val dismount = actionsPart[ActionKey.MOVE_LEFT].doing || actionsPart[ActionKey.MOVE_RIGHT].doing
         if (climbJoint != null) {
             Box2dUtils.destroyJoint(climbJoint)
         }
         val skeletonPart = entity[SkeletonPart::class]
         if (!dismount && entity[StaggerPart::class].state == StaggerState.OK && climbCollision != null
                 && skeletonPart.has(CLIMBING_HAND)) {
-            if (actionsPart[ActionKey.MOVE_UP].justDid || actionsPart[ActionKey.MOVE_DOWN].justDid) {
+            if (actionsPart[ActionKey.CLIMB_UP].doing || actionsPart[ActionKey.CLIMB_DOWN].doing) {
                 movementPart.climbing = true
             }
             if (movementPart.climbing) {
@@ -157,9 +157,9 @@ class MovementSystem(
         val moveSpeed = getMoveSpeed(movementPart, skeletonPart)
         val maxClimbSpeed = moveSpeed.y / 2f
         val climbVelocity = Vector2()
-        if (actionsPart[ActionKey.MOVE_UP].doing) {
+        if (actionsPart[ActionKey.CLIMB_UP].doing) {
             climbVelocity.y = maxClimbSpeed
-        } else if (actionsPart[ActionKey.MOVE_DOWN].doing) {
+        } else if (actionsPart[ActionKey.CLIMB_DOWN].doing) {
             climbVelocity.y = -maxClimbSpeed
         }
         val ladderLeft = Box2DUtils.maxYWorld(climbeable.body) - Box2DUtils.maxYWorld(climber)
