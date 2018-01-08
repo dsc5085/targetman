@@ -1,18 +1,20 @@
 package dc.targetman.ai.graph
 
+import com.badlogic.gdx.ai.pfa.Connection
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath
-import com.badlogic.gdx.ai.pfa.GraphPath
 import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.badlogic.gdx.math.Rectangle
+import dclib.util.CollectionUtils
 import dclib.util.Maths
+import org.apache.commons.lang3.StringUtils
 
 class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     private val pathFinder = IndexedAStarPathFinder(graph, true)
 
-    private val heuristic: Heuristic<DefaultNode> = Heuristic { node, endNode ->
-        val xOffset = Maths.distance(node.x, endNode.x)
-        val yOffset = Maths.distance(endNode.y, node.y)
+    private val heuristic: Heuristic<DefaultNode> = Heuristic { node, toNode ->
+        val xOffset = Maths.distance(node.x, toNode.x)
+        val yOffset = Maths.distance(toNode.y, node.y)
         xOffset + yOffset
     }
 
@@ -26,27 +28,33 @@ class DefaultGraphQuery(private val graph: DefaultIndexedGraph) : GraphQuery {
     }
 
     override fun getSegment(node: DefaultNode): Segment {
-        return graph.getSegments().single { it.getNodes().contains(node) }
+        val segments = graph.getSegments().filter { it.getNodes().contains(node) }
+        if (segments.size > 1) {
+            val segmentsString = StringUtils.join(segments)
+            throw IllegalStateException("Multiple segments $segmentsString contain node $node")
+        }
+        return segments.single()
     }
 
-    override fun createPath(startX: Float, startSegment: Segment, endNode: DefaultNode): List<DefaultNode> {
-        var lowestCostPath: GraphPath<DefaultNode> = DefaultGraphPath()
-        for (startNode in startSegment.getNodes()) {
-            val path = DefaultGraphPath<DefaultNode>()
-            pathFinder.searchNodePath(startNode, endNode, heuristic, path)
-            if (lowestCostPath.none() || getCost(startX, path) < getCost(startX, lowestCostPath)) {
+    override fun createPath(fromX: Float, fromSegment: Segment, toNode: DefaultNode): List<DefaultConnection> {
+        var lowestCostPath = listOf<DefaultConnection>()
+        for (fromNode in fromSegment.getNodes()) {
+            val rawPath = DefaultGraphPath<Connection<DefaultNode>>()
+            pathFinder.searchConnectionPath(fromNode, toNode, heuristic, rawPath)
+            val path = CollectionUtils.getByType(rawPath, DefaultConnection::class)
+            if (lowestCostPath.none() || getCost(fromX, path) < getCost(fromX, lowestCostPath)) {
                 lowestCostPath = path
             }
         }
         return lowestCostPath.toList()
     }
 
-    private fun getCost(x: Float, path: GraphPath<DefaultNode>): Float {
-        var cost = if (path.any()) getCost(x, path.get(0)) else 0f
-        for (i in 0..path.count - 1 - 1) {
-            val startNode = path.get(i)
-            val endNode = path.get(i + 1)
-            cost += heuristic.estimate(startNode, endNode)
+    private fun getCost(x: Float, path: List<DefaultConnection>): Float {
+        var cost = if (path.any()) getCost(x, path.get(0).fromNode) else 0f
+        for (i in 0 until path.size) {
+            val fromNode = path[i].fromNode
+            val toNode = path[i].toNode
+            cost += heuristic.estimate(fromNode, toNode)
         }
         return cost
     }

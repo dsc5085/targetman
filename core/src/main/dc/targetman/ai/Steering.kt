@@ -1,23 +1,93 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Rectangle
+import dc.targetman.ai.graph.ConnectionType
+import dc.targetman.ai.graph.DefaultConnection
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
-import dc.targetman.epf.parts.MovementPart
 import dc.targetman.mechanics.Direction
 import dc.targetman.physics.JumpVelocitySolver
 import dclib.geometry.base
 import dclib.geometry.center
 import dclib.geometry.containsX
+import dclib.geometry.top
+import dclib.util.FloatRange
 import dclib.util.Maths
 
+/**
+ * Figures out the move actions to take to get to the next node.
+ *
+ * TODO: Provide an abstraction layer between fine-tuned movements (such as climbing for a frame) and path finding, e.g. climb or jump instead of move up
+ */
 class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
-    fun seek(agent: Agent) {
+    fun update(agent: Agent) {
+        if (agent.path.isNotEmpty) {
+            when (agent.path.currentConnection.type) {
+                ConnectionType.NORMAL -> {
+                    move(agent)
+                    jump(agent)
+                }
+                ConnectionType.CLIMB -> {
+                    climb(agent)
+                }
+            }
+        }
+    }
+
+    private fun jump(agent: Agent) {
+        val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
+        val toSegment = graphQuery.getSegment(agent.path.currentConnection.toNode)
+        val notOnToSegment = belowSegment == null || belowSegment != toSegment
+        if (notOnToSegment && needToIncreaseJump(agent)) {
+            agent.jump()
+        }
+    }
+
+    private fun needToIncreaseJump(agent: Agent): Boolean {
+        val neededVelocityY = JumpVelocitySolver.solve(
+                agent.bounds.base, agent.path.currentConnection.toNode.position, agent.speed, gravity).velocity.y
+        // Edge case: don't attempt to jump while falling, otherwise it might trigger the climbing since its mapped to the same action as jumping
+        val isFalling = agent.velocity.y < 0
+        return !isFalling && agent.velocity.y < neededVelocityY
+    }
+
+    private fun climb(agent: Agent) {
+        val toNode = agent.path.currentConnection.toNode
+        val toSegment = graphQuery.getSegment(toNode)
+        val moveDirection: Direction
+        if (toNode == toSegment.leftNode) {
+            moveDirection = Direction.RIGHT
+        } else {
+            moveDirection = Direction.LEFT
+        }
+        if (moveDirection != agent.facingDirection) {
+            agent.moveHorizontal(moveDirection)
+        }
+
+        val dismountBufferRatio = 0.05f
+        val agentY = agent.bounds.base.y
+        val offsetY = toNode.y - agentY
+        val dismountBufferY = agent.bounds.height * dismountBufferRatio
+        val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
+        when {
+            agent.steerState.dismounted -> {
+                move(agent)
+            }
+            dismountRangeY.contains(offsetY) || agent.steerState.dismounted -> {
+                agent.moveHorizontal(moveDirection)
+                agent.steerState.dismounted = true
+            }
+            agentY < toNode.y -> agent.climbUp()
+            agentY > toNode.y -> agent.climbDown()
+        }
+    }
+
+    private fun move(agent: Agent) {
         val moveDirection = getMoveDirection(agent)
         if (moveDirection != Direction.NONE) {
-            agent.move(moveDirection)
+            agent.moveHorizontal(moveDirection)
         }
-        jump(agent)
     }
 
     private fun getMoveDirection(agent: Agent): Direction {
@@ -37,10 +107,45 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val nextX: Float?
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
-        if (targetSegment != null && targetSegment === belowSegment) {
+        val toNode = agent.path.currentConnection.toNode
+        val fromNode = agent.path.currentConnection.fromNode
+        val isVerticalNodeConnection = fromNode.x == toNode.x
+        if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
+        } else if (isVerticalNodeConnection) {
+            nextX = getNextXToGetAroundEdge(agent.bounds, agent.path.currentConnection)
         } else {
-            nextX = agent.nextNode?.x
+            nextX = toNode.x
+        }
+        return nextX
+    }
+
+    private fun getNextXToGetAroundEdge(bounds: Rectangle, connection: DefaultConnection): Float {
+        var nextX: Float
+        if (connection.toNode.y > connection.fromNode.y) {
+            val edgeNode = connection.toNode
+            nextX = edgeNode.x
+            val toSegment = graphQuery.getSegment(edgeNode)
+            val isLeftEdgeConnection = edgeNode == toSegment.leftNode
+            if (edgeNode.y > bounds.top) {
+                if (isLeftEdgeConnection) {
+                    nextX -= bounds.width
+                } else {
+                    nextX += bounds.width
+                }
+            }
+        } else {
+            val edgeNode = connection.fromNode
+            nextX = edgeNode.x
+            val fromSegment = graphQuery.getSegment(edgeNode)
+            val isLeftEdgeConnection = edgeNode == fromSegment.leftNode
+            if (edgeNode.y < bounds.top) {
+                if (isLeftEdgeConnection) {
+                    nextX -= bounds.width
+                } else {
+                    nextX += bounds.width
+                }
+            }
         }
         return nextX
     }
@@ -50,7 +155,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val agentX = agent.bounds.center.x
         val targetX = agent.targetBounds.center.x
         val distance = Maths.distance(agentX, targetX)
-        if (!Maths.between(distance, agent.profile.minTargetDistance, agent.profile.maxTargetDistance)) {
+        if (distance !in agent.profile.minTargetDistance..agent.profile.maxTargetDistance) {
             if (agentX > targetX) {
                 nextX = targetX - agent.profile.minTargetDistance
             } else {
@@ -69,23 +174,5 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
             moveDirection = directionToTarget
         }
         return moveDirection
-    }
-
-    private fun jump(agent: Agent) {
-        if (agent.nextNode != null) {
-            val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
-            val nextSegment = graphQuery.getSegment(agent.nextNode!!)
-            val notOnNextSegment = belowSegment == null || belowSegment != nextSegment
-            if (notOnNextSegment && needToIncreaseJump(agent)) {
-                agent.jump()
-            }
-        }
-    }
-
-    private fun needToIncreaseJump(agent: Agent): Boolean {
-        val speed = agent.entity[MovementPart::class].speed
-        val neededVelocityY = JumpVelocitySolver.solve(
-                agent.bounds.base, agent.nextNode!!.position, speed, gravity).velocity.y
-        return agent.velocity.y < neededVelocityY
     }
 }

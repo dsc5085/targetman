@@ -84,7 +84,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     }
 
     private fun createLadders() {
-        for (layer in MapUtils.getBackgroundLayers(map)) {
+        for (layer in MapUtils.getTileLayers(map)) {
             val tilesVertices = mutableListOf<List<Vector2>>()
             for (cell in MapUtils.getCells(layer)) {
                 if (cell.cell.tile.properties.containsKey(Interactivity.CLIMB.toString())) {

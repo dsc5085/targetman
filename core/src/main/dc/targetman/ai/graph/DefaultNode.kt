@@ -1,22 +1,23 @@
 package dc.targetman.ai.graph
 
-import com.badlogic.gdx.ai.pfa.DefaultConnection
 import com.badlogic.gdx.math.Vector2
 import com.google.common.base.Objects
-import java.util.*
 
 class DefaultNode(x: Float, y: Float) {
-    private val _position = Vector2(x, y)
     val position get() = _position.cpy()
+    val x get() = _position.x
+    val y get() = _position.y
 
-    val x get() = position.x
-    val y get() = position.y
-    val connections get() = connectedNodes.map { DefaultConnection(this, it) }
+    private val _position = Vector2(x, y)
+    private val _connections = mutableSetOf<DefaultConnection>()
 
-    private val connectedNodes = HashSet<DefaultNode>()
+    fun getConnections(): Set<DefaultConnection> {
+        return _connections.toSet()
+    }
 
-    fun addConnection(endNode: DefaultNode) {
-        connectedNodes.add(endNode)
+    fun addConnection(toNode: DefaultNode, type: ConnectionType = ConnectionType.NORMAL) {
+        _connections.removeAll { it.fromNode == this && it.toNode == toNode }
+        _connections.add(DefaultConnection(this, toNode, type))
     }
 
     override fun hashCode(): Int {
