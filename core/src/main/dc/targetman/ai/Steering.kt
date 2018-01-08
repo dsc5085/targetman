@@ -113,14 +113,14 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         if (targetSegment !== null && targetSegment === belowSegment) {
             nextX = getNextXOnSameSegment(agent, targetSegment)
         } else if (isVerticalNodeConnection) {
-            nextX = getNextXToGetAroundSegment(agent.bounds, agent.path.currentConnection)
+            nextX = getNextXToGetAroundEdge(agent.bounds, agent.path.currentConnection)
         } else {
             nextX = toNode.x
         }
         return nextX
     }
 
-    private fun getNextXToGetAroundSegment(bounds: Rectangle, connection: DefaultConnection): Float {
+    private fun getNextXToGetAroundEdge(bounds: Rectangle, connection: DefaultConnection): Float {
         var nextX: Float
         if (connection.toNode.y > connection.fromNode.y) {
             val edgeNode = connection.toNode
