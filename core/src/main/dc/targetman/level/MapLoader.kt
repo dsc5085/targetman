@@ -45,7 +45,7 @@ class MapLoader(private val map: TiledMap, private val factoryTools: FactoryTool
     }
 
     fun createCharacter(characterPath: String, position: Vector3, alliance: Alliance): Entity {
-        return characterFactory.create(characterPath, 2f, position, alliance)
+        return characterFactory.create(characterPath, 1.8f, position, alliance)
     }
 
     private fun createTileVertices(cell: Cell): List<Vector2> {
