@@ -5,6 +5,9 @@
   <image width="256" height="256" source="../../../textures/derelict/crate.png"/>
  </tile>
  <tile id="1">
+  <properties>
+   <property name="CLIMB" type="bool" value="true"/>
+  </properties>
   <image width="256" height="256" source="../../../textures/derelict/ladder.png"/>
  </tile>
  <tile id="2">
