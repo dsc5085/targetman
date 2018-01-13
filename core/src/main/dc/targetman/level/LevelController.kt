@@ -205,9 +205,9 @@ class LevelController(
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate {
-			val targetEntity = it!!.target
+			val targetEntity = it!!.collision.target.entity
 			val targetAlliance = targetEntity.getAttribute(Alliance::class)
-			val sourceAlliance = it.source.getAttribute(Alliance::class)
+			val sourceAlliance = it.collision.source.entity.getAttribute(Alliance::class)
 			sourceAlliance != null && sourceAlliance.target === targetAlliance
 		}
 	}
