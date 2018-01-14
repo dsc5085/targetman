@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.1" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="256" tileheight="256" infinite="0" nextobjectid="85">
+<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="256" tileheight="256" nextobjectid="122">
  <tileset firstgid="1" name="level" tilewidth="32" tileheight="32" tilecount="3" columns="0">
   <tile id="0">
    <properties>
@@ -340,5 +340,19 @@
   <object id="82" gid="2" x="1134" y="23208" width="32" height="32"/>
   <object id="83" gid="2" x="3109" y="21666" width="32" height="32"/>
   <object id="84" gid="2" x="3951" y="21649" width="32" height="32"/>
+  <object id="85" gid="2" x="1536" y="21248" width="32" height="32"/>
+  <object id="86" gid="2" x="4864" y="21248" width="32" height="32"/>
+  <object id="87" gid="2" x="4608" y="21760" width="32" height="32"/>
+  <object id="88" gid="2" x="3328" y="21504" width="32" height="32"/>
+  <object id="89" gid="2" x="2048" y="21504" width="32" height="32"/>
+  <object id="90" gid="2" x="3328" y="23296" width="32" height="32"/>
+  <object id="91" gid="2" x="3072" y="23040" width="32" height="32"/>
+  <object id="92" gid="2" x="2560" y="22784" width="32" height="32"/>
+  <object id="93" gid="2" x="1280" y="22784" width="32" height="32"/>
+  <object id="94" gid="2" x="768" y="22784" width="32" height="32"/>
+  <object id="95" gid="2" x="256" y="22784" width="32" height="32"/>
+  <object id="96" gid="2" x="1024" y="21760" width="32" height="32"/>
+  <object id="97" gid="2" x="1792" y="21760" width="32" height="32"/>
+  <object id="98" gid="2" x="2560" y="21760" width="32" height="32"/>
  </objectgroup>
 </map>

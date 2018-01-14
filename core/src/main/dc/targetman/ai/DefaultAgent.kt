@@ -11,8 +11,8 @@ import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dUtils
 
 class DefaultAgent(private val entity: Entity, override val targetBounds: Rectangle) : Agent {
-    override val body get() = Box2dUtils.getBody(entity)!!
-    override val bounds get() = entity[TransformPart::class].transform.bounds
+    override val body = Box2dUtils.getBody(entity)!!
+    override val bounds = entity[TransformPart::class].transform.bounds
     override val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
     override val velocity get() = entity[TransformPart::class].transform.velocity
     override val speed get() = entity[MovementPart::class].speed
