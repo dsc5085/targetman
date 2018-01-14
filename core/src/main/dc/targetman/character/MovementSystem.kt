@@ -192,7 +192,8 @@ class MovementSystem(
 
     private fun getMoveSpeed(movementPart: MovementPart, skeletonPart: SkeletonPart): Vector2 {
         val movementLimbNames = movementPart.limbNames
-        val numActiveMovementLimbs = movementLimbNames.count { skeletonPart.has(it) }
+        val limbs = skeletonPart.getLimbs()
+        val numActiveMovementLimbs = movementLimbNames.count { limbs.any { it.name == it.name } }
         return movementPart.speed.cpy().scl(numActiveMovementLimbs.toFloat() / movementLimbNames.size)
     }
 }

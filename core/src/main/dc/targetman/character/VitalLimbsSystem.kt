@@ -11,7 +11,8 @@ class VitalLimbsSystem(private val entityManager: EntityManager) : EntitySystem(
         val vitalLimbsPart = entity.tryGet(VitalLimbsPart::class)
         if (vitalLimbsPart != null) {
             val skeletonPart = entity[SkeletonPart::class]
-            val isVitalLimbDead = vitalLimbsPart.limbNames.any { !skeletonPart.has(it) }
+            val limbs = skeletonPart.getLimbs()
+            val isVitalLimbDead = vitalLimbsPart.limbNames.any { limbs.none { it.name == it.name } }
             if (isVitalLimbDead) {
                 entityManager.destroy(entity)
             }
