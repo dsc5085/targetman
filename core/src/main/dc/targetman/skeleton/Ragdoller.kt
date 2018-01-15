@@ -90,15 +90,15 @@ object Ragdoller {
             childLocalRotation: Float,
             scale: Vector2
     ) {
-        val relativeLowerAngle = VectorUtils.getScaledRotation(angleRange.min(), scale.abs()) - childLocalRotation
-        val relativeUpperAngle = VectorUtils.getScaledRotation(angleRange.max(), scale.abs()) - childLocalRotation
+        val relativeLowerAngle = VectorUtils.getScaledRotation(angleRange.min, scale.abs()) - childLocalRotation
+        val relativeUpperAngle = VectorUtils.getScaledRotation(angleRange.max, scale.abs()) - childLocalRotation
         val roundedDegrees = Maths.round(relativeUpperAngle, Maths.DEGREES_MAX)
         val lowerAngleDeg = relativeLowerAngle - roundedDegrees
         val upperAngleDeg = relativeUpperAngle - roundedDegrees
         // Flip the angle's sign to handle flipped transform scales
         val angleFlipMultiplier = Math.signum(scale.x) * Math.signum(scale.y)
         val jointRange = FloatRange(lowerAngleDeg * angleFlipMultiplier, upperAngleDeg * angleFlipMultiplier)
-        jointDef.lowerAngle = jointRange.min() * MathUtils.degRad
-        jointDef.upperAngle = jointRange.max() * MathUtils.degRad
+        jointDef.lowerAngle = jointRange.min * MathUtils.degRad
+        jointDef.upperAngle = jointRange.max * MathUtils.degRad
     }
 }

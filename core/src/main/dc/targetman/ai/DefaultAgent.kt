@@ -1,6 +1,5 @@
 package dc.targetman.ai
 
-import com.badlogic.gdx.math.Rectangle
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
@@ -10,7 +9,8 @@ import dclib.epf.Entity
 import dclib.epf.parts.TransformPart
 import dclib.physics.Box2dUtils
 
-class DefaultAgent(private val entity: Entity, override val targetBounds: Rectangle) : Agent {
+class DefaultAgent(private val entity: Entity, override val target: Entity) : Agent {
+    override val targetBounds = target[TransformPart::class].transform.bounds
     override val body = Box2dUtils.getBody(entity)!!
     override val bounds = entity[TransformPart::class].transform.bounds
     override val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
@@ -19,6 +19,7 @@ class DefaultAgent(private val entity: Entity, override val targetBounds: Rectan
     override val profile get() = aiPart.profile
     override val path get() = aiPart.path
     override val steerState get() = aiPart.steerState
+    override val eye get() = entity[SkeletonPart::class]["head"].transform.center
 
     private val aiPart = entity[AiPart::class]
 

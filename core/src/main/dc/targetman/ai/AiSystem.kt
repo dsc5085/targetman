@@ -10,7 +10,6 @@ import dc.targetman.mechanics.character.CharacterActions
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
-import dclib.epf.parts.TransformPart
 import dclib.geometry.center
 
 class AiSystem(
@@ -24,11 +23,10 @@ class AiSystem(
             aiPart.tick(delta)
             val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
-                val targetBounds = target[TransformPart::class].transform.bounds
-                val agent = DefaultAgent(entity, targetBounds)
+                val agent = DefaultAgent(entity, target)
                 steer(agent)
                 pathUpdater.update(agent)
-                aim(entity, targetBounds)
+                aim(entity, agent.targetBounds)
                 CharacterActions.trigger(entity)
             }
         }
