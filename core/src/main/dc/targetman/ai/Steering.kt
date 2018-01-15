@@ -70,13 +70,14 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val offsetY = toNode.y - agentY
         val dismountBufferY = agent.bounds.height * dismountBufferRatio
         val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
+        val steerState = agent.aiPart.steerState
         when {
-            agent.steerState.dismounted -> {
+            steerState.dismounted -> {
                 move(agent)
             }
-            dismountRangeY.contains(offsetY) || agent.steerState.dismounted -> {
+            dismountRangeY.contains(offsetY) || steerState.dismounted -> {
                 agent.moveHorizontal(moveDirection)
-                agent.steerState.dismounted = true
+                steerState.dismounted = true
             }
             agentY < toNode.y -> agent.climbUp()
             agentY > toNode.y -> agent.climbDown()
@@ -155,11 +156,12 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val agentX = agent.bounds.center.x
         val targetX = agent.targetBounds.center.x
         val distance = Maths.distance(agentX, targetX)
-        if (distance !in agent.profile.minTargetDistance..agent.profile.maxTargetDistance) {
+        val profile = agent.aiPart.profile
+        if (distance !in profile.minTargetDistance..profile.maxTargetDistance) {
             if (agentX > targetX) {
-                nextX = targetX - agent.profile.minTargetDistance
+                nextX = targetX - profile.minTargetDistance
             } else {
-                nextX = targetX + agent.profile.minTargetDistance
+                nextX = targetX + profile.minTargetDistance
             }
             nextX = MathUtils.clamp(nextX, segment.left, segment.right)
         }

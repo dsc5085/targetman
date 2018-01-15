@@ -11,11 +11,13 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.geometry.center
+import dclib.physics.collision.CollisionChecker
 
 class AiSystem(
         private val entityManager: EntityManager,
         private val steering: Steering,
-        private val pathUpdater: PathUpdater
+        private val pathUpdater: PathUpdater,
+        private val collisionChecker: CollisionChecker
 ) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class)
@@ -25,7 +27,12 @@ class AiSystem(
             if (target != null) {
                 val agent = DefaultAgent(entity, target)
                 steer(agent)
-                pathUpdater.update(agent)
+                if (aiPart.checkDetect()) {
+                    detectTarget(agent, aiPart)
+                }
+                if (aiPart.isAlert) {
+                    pathUpdater.update(agent)
+                }
                 aim(entity, agent.targetBounds)
                 CharacterActions.trigger(entity)
             }
@@ -35,6 +42,12 @@ class AiSystem(
     private fun steer(agent: Agent) {
         if (agent.path.isNotEmpty) {
             steering.update(agent)
+        }
+    }
+
+    private fun detectTarget(agent: Agent, aiPart: AiPart) {
+        if (AiUtils.isTargetInSight(agent, collisionChecker)) {
+            aiPart.resetAlertTimer()
         }
     }
 

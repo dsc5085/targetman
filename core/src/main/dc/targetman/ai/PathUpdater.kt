@@ -11,7 +11,9 @@ import dclib.physics.collision.CollisionChecker
 
 class PathUpdater(private val graphQuery: GraphQuery, private val collisionChecker: CollisionChecker) {
     fun update(agent: Agent) {
-        calculatePath(agent)
+        if (agent.aiPart.isAlert) {
+            calculatePath(agent)
+        }
         if (agent.path.isNotEmpty) {
             checkReachedNode(agent)
         }
@@ -22,15 +24,13 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
         if (belowSegment != null && targetSegment != null && EntityUtils.isGrounded(collisionChecker, agent.body)
-                && agent.checkCalculatePath()) {
+                && agent.aiPart.checkCalculatePath()) {
             // TODO: Better way to approximate start and end nodes
             val agentCenter = agent.bounds.center
             val targetCenter = agent.targetBounds.center
-            if (AiUtils.isTargetInSight(agent, collisionChecker)) {
-                val toNode = graphQuery.getNearestNode(targetCenter.x, targetSegment)
-                val newPath = graphQuery.createPath(agentCenter.x, belowSegment, toNode)
-                agent.path.set(newPath)
-            }
+            val toNode = graphQuery.getNearestNode(targetCenter.x, targetSegment)
+            val newPath = graphQuery.createPath(agentCenter.x, belowSegment, toNode)
+            agent.path.set(newPath)
         }
     }
 
@@ -38,7 +38,7 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
         val connection = agent.path.currentConnection
         if (atNode(connection.toNode, agent.bounds)) {
             agent.path.pop()
-            agent.steerState.reset()
+            agent.aiPart.steerState.reset()
         }
     }
 

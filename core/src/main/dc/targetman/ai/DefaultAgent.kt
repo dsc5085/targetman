@@ -16,16 +16,9 @@ class DefaultAgent(private val entity: Entity, override val target: Entity) : Ag
     override val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
     override val velocity get() = entity[TransformPart::class].transform.velocity
     override val speed get() = entity[MovementPart::class].speed
-    override val profile get() = aiPart.profile
     override val path get() = aiPart.path
-    override val steerState get() = aiPart.steerState
     override val eye get() = entity[SkeletonPart::class]["head"].transform.center
-
-    private val aiPart = entity[AiPart::class]
-
-    override fun checkCalculatePath(): Boolean {
-        return aiPart.checkCalculatePath()
-    }
+    override val aiPart = entity[AiPart::class]
 
     override fun moveHorizontal(direction: Direction) {
         CharacterActions.moveHorizontal(entity, direction)

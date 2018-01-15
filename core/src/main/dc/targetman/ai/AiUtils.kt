@@ -8,12 +8,11 @@ import dclib.geometry.top
 import dclib.physics.collision.CollisionChecker
 
 object AiUtils {
-    // Determine min and max angle range. min and max is -75 degrees to 75 degrees at the AIs facing direction
-    // Check if it hits player
     fun isTargetInSight(agent: Agent, collisionChecker: CollisionChecker): Boolean {
+        // TODO: Need to take into account facing direction
         var isSuccessful = true
         val targetBounds = agent.targetBounds
-        val fov = agent.profile.fov
+        val fov = agent.aiPart.profile.fov
         val eye = agent.eye
         val minTargetAngle = targetBounds.getPosition(Vector2()).angle(eye)
         val maxTargetAngle = Vector2(targetBounds.x, targetBounds.top).angle(eye)
