@@ -24,11 +24,11 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
             val agentCenter = agent.bounds.center
             val targetCenter = agent.targetBounds.center
             // TODO: Pass collisionChecker instead of world
-//            if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {
+            if (!AiUtils.isInSight(agentCenter, targetCenter, agent.profile.maxTargetDistance, world)) {
                 val endNode = graphQuery.getNearestNode(targetCenter.x, targetSegment)
                 val newPath = graphQuery.createPath(agentCenter.x, belowSegment, endNode)
                 agent.path = newPath
-//            }
+            }
         }
     }
 
