@@ -33,14 +33,15 @@ class GraphDrawer(
     private fun draw(entity: Entity) {
         val pointSize = 0.2f
         val aiPart = entity.tryGet(AiPart::class)
-        if (aiPart != null && aiPart.path.isNotEmpty()) {
+        if (aiPart != null && aiPart.path.isNotEmpty) {
             val bounds = entity[TransformPart::class].transform.bounds
-            val points = listOf(bounds.base) + aiPart.path.map { it.position }
-            for (i in 0..points.size - 2) {
-                val start = points[i]
-                val end = points[i + 1]
-                shapeRenderer.rect(end.x - pointSize / 2, end.y - pointSize / 2, pointSize, pointSize)
-                shapeRenderer.line(start, end)
+            val firstNode = aiPart.path.currentConnection.fromNode.position
+            val points = listOf(bounds.base) + firstNode + aiPart.path.connections.map { it.toNode.position }
+            for (i in 0 until points.size - 1) {
+                val from = points[i]
+                val to = points[i + 1]
+                shapeRenderer.rect(to.x - pointSize / 2, to.y - pointSize / 2, pointSize, pointSize)
+                shapeRenderer.line(from, to)
             }
         }
     }

@@ -10,7 +10,6 @@ class ActionsSystem(entityManager: EntityManager) : EntitySystem(entityManager) 
         val actionsPart = entity.tryGet(ActionsPart::class)
         if (actionsPart != null) {
             for (action in actionsPart.actions) {
-                action.wasDoing = action.doing
                 action.doing = false
             }
         }

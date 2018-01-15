@@ -1,37 +1,24 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
-import dc.targetman.epf.parts.AiPart
-import dc.targetman.epf.parts.SkeletonPart
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import dc.targetman.mechanics.Direction
-import dc.targetman.mechanics.character.CharacterActions
-import dclib.epf.Entity
-import dclib.epf.parts.TransformPart
 
-class Agent(val entity: Entity, val targetBounds: Rectangle) {
-    val bounds get() = entity[TransformPart::class].transform.bounds
-    val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
-    val velocity get() = entity[TransformPart::class].transform.velocity
-    val nextNode get() = if (aiPart.path.isEmpty()) null else aiPart.path[0]
-    val profile get() = aiPart.profile
+interface Agent {
+    val body: Body
+    val bounds: Rectangle
+    val facingDirection: Direction
+    val velocity: Vector2
+    val speed: Vector2
+    val profile: AiProfile
+    val path: Path
+    val steerState: SteerState
+    val targetBounds: Rectangle
 
-    var path
-        get() = aiPart.path
-        set(value) {
-            aiPart.path = value
-        }
-
-    private val aiPart = entity.get(AiPart::class)
-
-    fun checkCalculatePath(): Boolean {
-        return aiPart.checkCalculatePath()
-    }
-
-    fun move(direction: Direction) {
-        CharacterActions.moveHorizontal(entity, direction)
-    }
-
-    fun jump() {
-        CharacterActions.moveUp(entity)
-    }
+    fun checkCalculatePath(): Boolean
+    fun moveHorizontal(direction: Direction)
+    fun jump()
+    fun climbUp()
+    fun climbDown()
 }

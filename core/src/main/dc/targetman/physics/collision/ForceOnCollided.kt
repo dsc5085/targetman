@@ -12,11 +12,11 @@ import dclib.physics.collision.CollidedEvent
 class ForceOnCollided(val entityManager: EntityManager, val filter: Predicate<CollidedEvent>)
  : (CollidedEvent) -> Unit {
 	override fun invoke(event: CollidedEvent) {
-		val sourceEntity = event.source
+		val sourceEntity = event.collision.source.entity
         val forcePart = sourceEntity.tryGet(ForcePart::class)
 		if (forcePart != null && filter.apply(event)) {
 			val force = getForce(sourceEntity)
-			PhysicsUtils.applyForce(entityManager.getAll(), event.target, force)
+			PhysicsUtils.applyForce(entityManager.getAll(), event.collision.target.entity, force)
 		}
 	}
 

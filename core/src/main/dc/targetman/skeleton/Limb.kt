@@ -25,7 +25,7 @@ class Limb(val bone: Bone, val entity: Entity) {
             return VectorUtils.sign(rootBoneScale)
         }
 
-    private val childLinks = mutableSetOf<LimbLink>()
+    private val childLinks = mutableMapOf<LinkType, MutableSet<LimbLink>>()
 
     fun getRegionAttachment(): RegionAttachment? {
         // TODO: make a method to return just the attachment/bone's transform and rotation offsets?  thats all we need
@@ -34,7 +34,7 @@ class Limb(val bone: Bone, val entity: Entity) {
     }
 
     fun getLinks(vararg linkTypes: LinkType = LinkType.values()): Set<LimbLink> {
-        return childLinks.filter { linkTypes.contains(it.type) }.toSet()
+        return linkTypes.flatMap { getLinks(it) }.toSet()
     }
 
     fun getChildren(vararg linkTypes: LinkType = LinkType.values()): Set<Limb> {
@@ -47,13 +47,22 @@ class Limb(val bone: Bone, val entity: Entity) {
         return descendants.plus(this).toSet()
     }
 
-    fun append(childLink: LimbLink) {
-        childLinks.add(childLink)
+    fun append(childLink: LimbLink, linkType: LinkType) {
+        getLinks(linkType).add(childLink)
         childLink.limb.parent = this
     }
 
     fun detach(limb: Limb): Boolean {
         limb.parent = null
-        return childLinks.removeAll { it.limb === limb }
+        for (childLinksList in childLinks.values) {
+            if (childLinksList.removeAll { it.limb === limb }) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun getLinks(linkType: LinkType): MutableSet<LimbLink> {
+        return childLinks.getOrPut(linkType, { mutableSetOf() })
     }
 }

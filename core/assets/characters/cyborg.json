@@ -97,6 +97,6 @@
   "rotatorName": "right_bicep",
   "atlasName": "skins/man",
   "health": 1500,
-  "stunResist": 50,
+  "stunResist": 5000,
   "weaponData": "weapons/shotgun.json"
 }
