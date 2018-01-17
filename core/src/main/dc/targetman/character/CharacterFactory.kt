@@ -15,7 +15,6 @@ import dc.targetman.epf.parts.LimbsShadowingPart
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
-import dc.targetman.epf.parts.VitalLimbsPart
 import dc.targetman.level.FactoryTools
 import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Alliance
@@ -66,8 +65,6 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val movementLimbNames = character.limbDatas.filter { it.isMovement }.map { it.name }
         val moveSpeed = Vector2(10f, 10f)
         entity.attach(MovementPart(moveSpeed, 0.1f, movementLimbNames))
-        val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
-        entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
         entity.attach(ActionsPart())
         entity.attach(StaggerPart(10f, character.stunResist, character.stunResist * 2))
@@ -113,6 +110,9 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         limbEntity.addAttributes(DeathForm.CORPSE, limbData.material)
         if (!limbData.isPassive) {
             limbEntity.addAttributes(alliance)
+        }
+        if (limbData.isVital) {
+            limbEntity.addAttributes(LimbAttribute.VITAL)
         }
         val transform = limbEntity[TransformPart::class].transform
         if (transform is Box2dTransform) {

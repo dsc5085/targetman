@@ -20,8 +20,8 @@ class LimbBranchDestroyedChecker(private val entityManager: EntityManager) {
                 entityManager.destroy(container)
             }
             if (limb.parent != null || isRoot) {
-                limb.parent?.detach(limb)
                 destroyBranch(limb)
+                limb.parent?.detach(limb)
             }
         }
     }

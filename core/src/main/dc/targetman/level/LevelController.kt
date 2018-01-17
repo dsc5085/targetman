@@ -14,8 +14,8 @@ import dc.targetman.ai.Steering
 import dc.targetman.character.ActionsSystem
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
 import dc.targetman.character.DeathForm
+import dc.targetman.character.DestroyContainerOnVitalLimbDestroyed
 import dc.targetman.character.MovementSystem
-import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.epf.graphics.GraphDrawer
@@ -121,6 +121,7 @@ class LevelController(
 
 	private fun createEntityManager(): EntityManager {
 		val entityManager = DefaultEntityManager()
+		entityManager.entityDestroyed.on(DestroyContainerOnVitalLimbDestroyed(entityManager))
 		entityManager.entityAdded.on(DestroyOnNoHealthEntityAdded(entityManager))
 		entityManager.entityAdded.on(ChangeContainerHealthOnEntityAdded(entityManager))
 		entityManager.entityAdded.on(AddLimbEntitiesOnEntityAdded(entityManager))
@@ -145,7 +146,6 @@ class LevelController(
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
 				WeaponSystem(entityManager, bulletFactory),
-				VitalLimbsSystem(entityManager),
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
