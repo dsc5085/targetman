@@ -93,6 +93,16 @@ class JumpCheckerTest {
         testIsValid(false, map, from, from.cpy().add(20f, 3f))
     }
 
+    @Test
+    fun isValid_FloorBlocking_False() {
+        val map = arrayOf(
+                "#",
+                "###"
+        )
+        val from = Vector2(1f, 1f)
+        testIsValid(false, map, from, from.cpy().add(0f, -1f))
+    }
+
     private fun testIsValid(expected: Boolean, map: Array<String>, from: Vector2, to: Vector2) {
         val world = createWorld(map)
         val jumpChecker = JumpChecker(world, AGENT_SPEED)
