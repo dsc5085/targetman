@@ -8,7 +8,7 @@ import dclib.util.Timer
 
 class AiPart(val profile: AiProfile) {
     private val CALCULATE_PATH_TIME = MathUtils.random(0.07f, 0.12f)
-    private val DETECT_TIME = MathUtils.random(0.02f, 0.03f)
+    private val DETECT_TIME = MathUtils.random(0.01f, 0.015f)
     private val ALERT_TIME = 10f
 
     val path = Path()

@@ -52,7 +52,7 @@ class AimOnAnimationApplied : (AnimationAppliedEvent) -> Unit {
     private fun rotateRotator(rotator: Limb, aimDelta: Float) {
         // Note that the skeleton's rotator bone rotation gets reset every frame, so we have to do some funky math here
         val newAngle = rotator.transform.rotation * getAngleSign(rotator) + aimDelta
-        val rotatorBoneRotation = VectorUtils.getScaledRotation(rotator.bone.worldRotationX, rotator.flipScale)
+        val rotatorBoneRotation = Maths.getScaledRotation(rotator.bone.worldRotationX, rotator.flipScale)
         val rotationOffset = newAngle - rotatorBoneRotation
         rotator.bone.rotation += rotationOffset
     }

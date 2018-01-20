@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.esotericsoftware.spine.Skeleton
 import dc.targetman.ai.AiProfile
-import dc.targetman.ai.FOV
+import dc.targetman.ai.Fov
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
@@ -74,7 +74,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val keyLimbNames = listOf("left_hand", "left_foot", "right_thigh")
         entity.attach(LimbsShadowingPart(shadowValueRange, keyLimbNames))
         if (alliance == Alliance.ENEMY) {
-            val aiProfile = AiProfile(2f, 4.5f, FOV(FloatRange(-75f, 75f), 15f))
+            val aiProfile = AiProfile(2f, 4.5f, Fov(FloatRange(-75f, 75f), 15f))
             entity.attach(AiPart(aiProfile))
         }
         factoryTools.entityManager.add(entity)

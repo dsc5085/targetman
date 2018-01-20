@@ -1,38 +1,51 @@
 package dc.targetman.ai
 
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.RayCastCallback
-import dclib.geometry.top
+import dc.targetman.mechanics.Direction
 import dclib.physics.collision.CollisionChecker
+import dclib.util.FloatRange
+import dclib.util.Maths
 
 object AiUtils {
     fun isTargetInSight(agent: Agent, collisionChecker: CollisionChecker): Boolean {
-        // TODO: Need to take into account facing direction
-        var isSuccessful = true
-        val targetBounds = agent.targetBounds
         val fov = agent.aiPart.profile.fov
         val eye = agent.eye
-        val minTargetAngle = targetBounds.getPosition(Vector2()).angle(eye)
-        val maxTargetAngle = Vector2(targetBounds.x, targetBounds.top).angle(eye)
-        val minAngle = Math.min(minTargetAngle, fov.angleRange.min)
-        val maxAngle = Math.max(maxTargetAngle, fov.angleRange.max)
-        val angle = MathUtils.random(minAngle, maxAngle)
+        val angle = getSightAngle(fov.angleRange, agent.facingDirection)
         val offset = Vector2(fov.distance, 0f).setAngle(angle)
         val to = eye.cpy().add(offset)
-        collisionChecker.rayCast(RayCastCallback { fixture, _, _, _ ->
+        var isTargetInSight = false
+        var staticFraction = Float.POSITIVE_INFINITY
+        var targetFraction = Float.POSITIVE_INFINITY
+        collisionChecker.rayCast(RayCastCallback { fixture, _, _, fraction ->
+            val returnValue: Float
             if (fixture.body.type === BodyType.StaticBody) {
-                isSuccessful = false
-                0f
+                staticFraction = Math.min(fraction, staticFraction)
+                returnValue = fraction
             } else if (agent.target === collisionChecker.bodyToEntityMap[fixture.body]) {
-                println("FOUND")
-                isSuccessful = true
+                targetFraction = Math.min(fraction, targetFraction)
+                returnValue = fraction
+            } else {
+                returnValue = -1f
+            }
+            if (targetFraction < staticFraction) {
+                isTargetInSight = true
                 0f
             } else {
-                -1f
+                returnValue
             }
         }, eye, to)
-        return isSuccessful
+        return isTargetInSight
+    }
+
+    private fun getSightAngle(angleRange: FloatRange, facingDirection: Direction): Float {
+        val baseAngle = angleRange.random()
+        if (facingDirection == Direction.RIGHT) {
+            return baseAngle
+        } else {
+            val scale = Vector2(-1f, 1f)
+            return Maths.getScaledRotation(baseAngle, scale)
+        }
     }
 }

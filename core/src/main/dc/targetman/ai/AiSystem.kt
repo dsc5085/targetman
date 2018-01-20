@@ -32,9 +32,9 @@ class AiSystem(
                 }
                 if (aiPart.isAlert) {
                     pathUpdater.update(agent)
+                    aim(entity, agent.targetBounds)
+                    CharacterActions.trigger(entity)
                 }
-                aim(entity, agent.targetBounds)
-                CharacterActions.trigger(entity)
             }
         }
     }
