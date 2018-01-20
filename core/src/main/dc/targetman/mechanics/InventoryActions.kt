@@ -27,9 +27,9 @@ class InventoryActions(factoryTools: FactoryTools) {
     }
 
     fun tryPickup(collidedEvent: CollidedEvent) {
-        val pickupEntity = collidedEvent.target
+        val pickupEntity = collidedEvent.collision.target.entity
         if (pickupEntity.has(PickupPart::class)) {
-            val sourceEntity = LimbUtils.findContainer(entityManager.getAll(), collidedEvent.source)
+            val sourceEntity = LimbUtils.findContainer(entityManager.getAll(), collidedEvent.collision.source.entity)
             if (sourceEntity != null) {
                 val inventoryPart = sourceEntity.tryGet(InventoryPart::class)
                 if (inventoryPart != null) {
@@ -44,7 +44,7 @@ class InventoryActions(factoryTools: FactoryTools) {
 
     fun tryDropEquippedWeapon(entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
-        if (inventoryPart != null && inventoryPart.equippedWeapon != null) {
+        if (inventoryPart?.equippedWeapon != null) {
             val skeletonPart = entity[SkeletonPart::class]
             if (skeletonPart.has(inventoryPart.gripperName)) {
                 dropEquippedWeapon(inventoryPart, skeletonPart)

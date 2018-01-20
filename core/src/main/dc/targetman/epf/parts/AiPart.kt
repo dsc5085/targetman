@@ -1,21 +1,39 @@
 package dc.targetman.epf.parts
 
+import com.badlogic.gdx.math.MathUtils
 import dc.targetman.ai.AiProfile
-import dc.targetman.ai.graph.DefaultNode
+import dc.targetman.ai.Path
+import dc.targetman.ai.SteerState
 import dclib.util.Timer
 
 class AiPart(val profile: AiProfile) {
-    private val THINK_TIME = 0.1f
+    private val CALCULATE_PATH_TIME = MathUtils.random(0.07f, 0.12f)
+    private val DETECT_TIME = MathUtils.random(0.01f, 0.015f)
+    private val ALERT_TIME = 10f
 
-    var path = listOf<DefaultNode>()
+    val path = Path()
+    val steerState = SteerState()
+    val isAlert get() = !alertTimer.isElapsed
 
-    private val calculatePathTimer = Timer(THINK_TIME, THINK_TIME)
+    private val calculatePathTimer = Timer(CALCULATE_PATH_TIME, CALCULATE_PATH_TIME)
+    private val detectTimer = Timer(DETECT_TIME, DETECT_TIME)
+    private val alertTimer = Timer(ALERT_TIME, ALERT_TIME)
 
     fun checkCalculatePath(): Boolean {
         return calculatePathTimer.check()
     }
 
+    fun checkDetect(): Boolean {
+        return detectTimer.check()
+    }
+
+    fun resetAlertTimer() {
+        alertTimer.reset()
+    }
+
     fun tick(delta: Float) {
         calculatePathTimer.tick(delta)
+        detectTimer.tick(delta)
+        alertTimer.tick(delta)
     }
 }

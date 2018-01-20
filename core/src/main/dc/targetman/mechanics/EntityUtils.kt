@@ -19,9 +19,8 @@ object EntityUtils {
         }
     }
 
-    fun isGrounded(collisionChecker: CollisionChecker, entity: Entity): Boolean {
-        val body = Box2dUtils.getBody(entity)!!
-        return body.linearVelocity.y == 0f && collisionChecker.getCollisions(entity).any {
+    fun isGrounded(collisionChecker: CollisionChecker, body: Body): Boolean {
+        return body.linearVelocity.y == 0f && collisionChecker.getCollisions(body).any {
             it.isTouching && isGroundedContact(body, it)
         }
     }

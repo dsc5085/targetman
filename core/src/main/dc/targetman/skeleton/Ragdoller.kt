@@ -3,7 +3,6 @@ package dc.targetman.skeleton
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
-import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
@@ -90,15 +89,15 @@ object Ragdoller {
             childLocalRotation: Float,
             scale: Vector2
     ) {
-        val relativeLowerAngle = VectorUtils.getScaledRotation(angleRange.min(), scale.abs()) - childLocalRotation
-        val relativeUpperAngle = VectorUtils.getScaledRotation(angleRange.max(), scale.abs()) - childLocalRotation
+        val relativeLowerAngle = Maths.getScaledRotation(angleRange.min, scale.abs()) - childLocalRotation
+        val relativeUpperAngle = Maths.getScaledRotation(angleRange.max, scale.abs()) - childLocalRotation
         val roundedDegrees = Maths.round(relativeUpperAngle, Maths.DEGREES_MAX)
         val lowerAngleDeg = relativeLowerAngle - roundedDegrees
         val upperAngleDeg = relativeUpperAngle - roundedDegrees
         // Flip the angle's sign to handle flipped transform scales
         val angleFlipMultiplier = Math.signum(scale.x) * Math.signum(scale.y)
         val jointRange = FloatRange(lowerAngleDeg * angleFlipMultiplier, upperAngleDeg * angleFlipMultiplier)
-        jointDef.lowerAngle = jointRange.min() * MathUtils.degRad
-        jointDef.upperAngle = jointRange.max() * MathUtils.degRad
+        jointDef.lowerAngle = jointRange.min * MathUtils.degRad
+        jointDef.upperAngle = jointRange.max * MathUtils.degRad
     }
 }

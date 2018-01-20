@@ -8,7 +8,7 @@ import dc.targetman.util.ArrayUtils
 class DefaultIndexedGraph(private val nodes: List<DefaultNode>, private val segments: List<Segment>)
     : IndexedGraph<DefaultNode> {
     override fun getConnections(fromNode: DefaultNode): Array<Connection<DefaultNode>> {
-        return ArrayUtils.toGdxArray(fromNode.connections)
+        return ArrayUtils.toGdxArray(fromNode.getConnections())
     }
 
     override fun getNodeCount(): Int {

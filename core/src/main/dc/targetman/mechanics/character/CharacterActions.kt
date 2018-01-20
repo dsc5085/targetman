@@ -20,12 +20,16 @@ object CharacterActions {
     }
 
     // TODO: Consolidate all methods that use ActionKey
-    fun moveUp(entity: Entity) {
-        tryExecute(entity, ActionKey.MOVE_UP)
+    fun jump(entity: Entity) {
+        tryExecute(entity, ActionKey.JUMP)
     }
 
-    fun moveDown(entity: Entity) {
-        tryExecute(entity, ActionKey.MOVE_DOWN)
+    fun climbUp(entity: Entity) {
+        tryExecute(entity, ActionKey.CLIMB_UP)
+    }
+
+    fun climbDown(entity: Entity) {
+        tryExecute(entity, ActionKey.CLIMB_DOWN)
     }
 
     fun aim(entity: Entity, targetCoord: Vector2) {

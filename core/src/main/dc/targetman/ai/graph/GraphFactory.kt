@@ -3,35 +3,43 @@ package dc.targetman.ai.graph
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dc.targetman.physics.JumpChecker
+import dclib.geometry.center
+import dclib.geometry.grow
 import dclib.physics.Box2dUtils
 import dclib.util.Maths
 
 class GraphFactory(
-        private val boundsList: List<Rectangle>,
+        private val walls: List<Rectangle>,
+        private val ladders: List<Rectangle>,
         private val agentSize: Vector2,
         private val jumpChecker: JumpChecker
 ) {
     fun create(): DefaultIndexedGraph {
-        val segments = boundsList.map { Segment(it) }
+        val segments = walls.map { Segment(it) }
         connect(segments)
         val nodes = segments.flatMap { it.getNodes() }
         return DefaultIndexedGraph(nodes, segments)
     }
 
     private fun connect(segments: List<Segment>) {
-        for (i in 0..segments.size - 2) {
-            val segment1 = segments[i]
-            for (j in i + 1..segments.size - 1) {
-                val segment2 = segments[j]
-                connect(segment1, segment2)
-            }
-        }
+        createNormalConnections(segments)
+        createLadderConnections(segments)
         for (segment in segments) {
             connectNodesOnSameSegment(segment)
         }
     }
 
-    private fun connect(segment1: Segment, segment2: Segment) {
+    private fun createNormalConnections(segments: List<Segment>) {
+        for (i in 0 until segments.size - 1) {
+            val segment1 = segments[i]
+            for (j in i + 1 until segments.size) {
+                val segment2 = segments[j]
+                connectNormal(segment1, segment2)
+            }
+        }
+    }
+
+    private fun connectNormal(segment1: Segment, segment2: Segment) {
         val leftToRightDistance = Maths.distance(segment1.left, segment2.right)
         val rightToLeftDistance = Maths.distance(segment1.right, segment2.left)
         val minDistance = Math.min(leftToRightDistance, rightToLeftDistance)
@@ -50,33 +58,50 @@ class GraphFactory(
 
     private fun connectMiddle(topSegment: Segment, bottomSegment: Segment) {
         if (topSegment.y > bottomSegment.y) {
-            val edgeBuffer = agentSize.x + Box2dUtils.ROUNDING_ERROR
-            connectMiddle(topSegment, topSegment.leftNode, bottomSegment, -edgeBuffer)
-            connectMiddle(topSegment, topSegment.rightNode, bottomSegment, edgeBuffer)
+            connectMiddle(topSegment.leftNode, bottomSegment)
+            connectMiddle(topSegment.rightNode, bottomSegment)
         }
     }
 
-    private fun connectMiddle(topSegment: Segment, topNode: DefaultNode, bottomSegment: Segment,
-                              landingOffsetX: Float) {
-        val landingX = topNode.x + landingOffsetX
-        if (bottomSegment.containsX(landingX) || bottomSegment.containsX(topNode.x)) {
-            // TODO: cornerNode shouldn't be part of top segment.  it is hanging in midair
-            // TODO: Should probably also add corner node between regular jump nodes
-            val cornerNode = topSegment.getOrAdd(DefaultNode(landingX, topNode.y))
-            topNode.addConnection(cornerNode)
-            cornerNode.addConnection(topNode)
-            val bottomNode = bottomSegment.getOrAdd(DefaultNode(landingX, bottomSegment.y))
-            connectJump(cornerNode, bottomNode)
-            connectJump(bottomNode, cornerNode)
+    private fun connectMiddle(topNode: DefaultNode, bottomSegment: Segment) {
+        if (bottomSegment.containsX(topNode.x)) {
+            val bottomNode = bottomSegment.getOrCreateNode(topNode.x)
+            connectJump(topNode, bottomNode, Box2dUtils.ROUNDING_ERROR)
+            connectJump(bottomNode, topNode, Box2dUtils.ROUNDING_ERROR)
         }
     }
 
-    private fun connectJump(startNode: DefaultNode, endNode: DefaultNode) {
-        val localLeft = Vector2(0f, 0f)
-        val localRight = Vector2(agentSize.x, 0f)
-        if (jumpChecker.isValid(startNode.position, endNode.position, agentSize, localLeft)
-                || jumpChecker.isValid(startNode.position, endNode.position, agentSize, localRight)) {
-            startNode.addConnection(endNode)
+    private fun connectJump(fromNode: DefaultNode, toNode: DefaultNode, edgeBuffer: Float = 0f) {
+        val localLeft = Vector2(-edgeBuffer, 0f)
+        val localRight = Vector2(agentSize.x + edgeBuffer, 0f)
+        if (jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localLeft)
+                || jumpChecker.isValid(fromNode.position, toNode.position, agentSize, localRight)) {
+            fromNode.addConnection(toNode)
+        }
+    }
+
+    private fun createLadderConnections(segments: List<Segment>) {
+        for (ladder in ladders) {
+            // Add extra buffer space to check for ladder-node collisions
+            val ladderCheckBounds = ladder.grow(ladder.width / 2, 0f)
+            val ladderNodes = mutableListOf<DefaultNode>()
+            for (segment in segments) {
+                if (ladderCheckBounds.contains(segment.leftNode.position)) {
+                    ladderNodes.add(segment.leftNode)
+                } else if (ladderCheckBounds.contains(segment.rightNode.position)) {
+                    ladderNodes.add(segment.rightNode)
+                } else if (ladder.y - segment.y in 0f..agentSize.y && segment.overlapsX(ladder)) {
+                    ladderNodes.add(segment.createNode(ladder.center.x))
+                }
+            }
+            for (i in 0 until ladderNodes.size - 1) {
+                val ladderNode1 = ladderNodes[i]
+                for (j in i + 1 until ladderNodes.size) {
+                    val ladderNode2 = ladderNodes[j]
+                    ladderNode1.addConnection(ladderNode2, ConnectionType.CLIMB)
+                    ladderNode2.addConnection(ladderNode1, ConnectionType.CLIMB)
+                }
+            }
         }
     }
 

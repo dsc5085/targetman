@@ -31,8 +31,8 @@ class LimbFactory(private val world: World, private val textureCache: TextureCac
 
     fun link(childSkeleton: Skeleton, rootScale: Vector2, parentLimb: Limb): LimbLink {
         val rootLimb = create(childSkeleton, rootScale)
-        val root = LimbLink(rootLimb.limb, LinkType.WEAK, rootScale)
-        parentLimb.append(root)
+        val root = LimbLink(rootLimb.limb, rootScale)
+        parentLimb.append(root, LinkType.WEAK)
         return root
     }
 
@@ -41,9 +41,9 @@ class LimbFactory(private val world: World, private val textureCache: TextureCac
         val limbEntity = createLimbEntity(regionAttachment, rootScale)
         val limb = Limb(bone, limbEntity)
         for (childBone in bone.children) {
-            limb.append(createLimbLink(childBone, rootScale))
+            limb.append(createLimbLink(childBone, rootScale), LinkType.STRONG)
         }
-        return LimbLink(limb, LinkType.STRONG)
+        return LimbLink(limb)
     }
 
     private fun getRegionAttachments(bone: Bone): List<RegionAttachment> {

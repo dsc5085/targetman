@@ -10,14 +10,14 @@ import dc.targetman.mechanics.character.CharacterActions
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
-import dclib.epf.parts.TransformPart
 import dclib.geometry.center
+import dclib.physics.collision.CollisionChecker
 
-// TODO: Combine with InputUpdater.  Pipe actions into InputUpdater
 class AiSystem(
         private val entityManager: EntityManager,
         private val steering: Steering,
-        private val pathUpdater: PathUpdater
+        private val pathUpdater: PathUpdater,
+        private val collisionChecker: CollisionChecker
 ) : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class)
@@ -25,24 +25,35 @@ class AiSystem(
             aiPart.tick(delta)
             val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
-                val targetBounds = target[TransformPart::class].transform.bounds
-                move(entity, targetBounds)
-                aim(entity, targetBounds)
-                CharacterActions.trigger(entity)
+                val agent = DefaultAgent(entity, target)
+                steer(agent)
+                if (aiPart.checkDetect()) {
+                    detectTarget(agent, aiPart)
+                }
+                if (aiPart.isAlert) {
+                    pathUpdater.update(agent)
+                    aim(entity, agent.targetBounds)
+                    CharacterActions.trigger(entity)
+                }
             }
         }
     }
 
-    private fun move(entity: Entity, targetBounds: Rectangle) {
-        val agent = Agent(entity, targetBounds)
-        steering.seek(agent)
-        pathUpdater.update(agent)
+    private fun steer(agent: Agent) {
+        if (agent.path.isNotEmpty) {
+            steering.update(agent)
+        }
+    }
+
+    private fun detectTarget(agent: Agent, aiPart: AiPart) {
+        if (AiUtils.isTargetInSight(agent, collisionChecker)) {
+            aiPart.resetAlertTimer()
+        }
     }
 
     private fun aim(entity: Entity, targetBounds: Rectangle) {
-        val skeletonPart = entity.get(SkeletonPart::class)
         val muzzleName = entity[FiringPart::class].muzzleName
-        val muzzle = skeletonPart.tryGet(muzzleName)
+        val muzzle = entity[SkeletonPart::class].tryGet(muzzleName)
         if (muzzle != null) {
             CharacterActions.aim(entity, targetBounds.center)
         }

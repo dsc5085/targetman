@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.esotericsoftware.spine.Skeleton
 import dc.targetman.ai.AiProfile
+import dc.targetman.ai.Fov
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.InventoryPart
@@ -14,7 +15,6 @@ import dc.targetman.epf.parts.LimbsShadowingPart
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
-import dc.targetman.epf.parts.VitalLimbsPart
 import dc.targetman.level.FactoryTools
 import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Alliance
@@ -65,8 +65,6 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val movementLimbNames = character.limbDatas.filter { it.isMovement }.map { it.name }
         val moveSpeed = Vector2(10f, 10f)
         entity.attach(MovementPart(moveSpeed, 0.1f, movementLimbNames))
-        val vitalLimbNames = character.limbDatas.filter { it.isVital }.map { it.name }
-        entity.attach(VitalLimbsPart(vitalLimbNames))
         entity.attach(HealthPart(character.health))
         entity.attach(ActionsPart())
         entity.attach(StaggerPart(10f, character.stunResist, character.stunResist * 2))
@@ -76,7 +74,7 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         val keyLimbNames = listOf("left_hand", "left_foot", "right_thigh")
         entity.attach(LimbsShadowingPart(shadowValueRange, keyLimbNames))
         if (alliance == Alliance.ENEMY) {
-            val aiProfile = AiProfile(2f, 4.5f)
+            val aiProfile = AiProfile(2f, 4.5f, Fov(FloatRange(-75f, 75f), 15f))
             entity.attach(AiPart(aiProfile))
         }
         factoryTools.entityManager.add(entity)
@@ -112,6 +110,9 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         limbEntity.addAttributes(DeathForm.CORPSE, limbData.material)
         if (!limbData.isPassive) {
             limbEntity.addAttributes(alliance)
+        }
+        if (limbData.isVital) {
+            limbEntity.addAttributes(LimbAttribute.VITAL)
         }
         val transform = limbEntity[TransformPart::class].transform
         if (transform is Box2dTransform) {
