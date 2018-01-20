@@ -15,12 +15,13 @@ object AiUtils {
         val angle = getSightAngle(fov.angleRange, agent.facingDirection)
         val offset = Vector2(fov.distance, 0f).setAngle(angle)
         val to = eye.cpy().add(offset)
-        var isTargetInSight = false
         var staticFraction = Float.POSITIVE_INFINITY
         var targetFraction = Float.POSITIVE_INFINITY
         collisionChecker.rayCast(RayCastCallback { fixture, _, _, fraction ->
             val returnValue: Float
-            if (fixture.body.type === BodyType.StaticBody) {
+            if (fixture.isSensor) {
+                returnValue = -1f
+            } else if (fixture.body.type === BodyType.StaticBody) {
                 staticFraction = Math.min(fraction, staticFraction)
                 returnValue = fraction
             } else if (agent.target === collisionChecker.bodyToEntityMap[fixture.body]) {
@@ -29,14 +30,13 @@ object AiUtils {
             } else {
                 returnValue = -1f
             }
-            if (targetFraction < staticFraction) {
-                isTargetInSight = true
+            if (staticFraction < targetFraction) {
                 0f
             } else {
                 returnValue
             }
         }, eye, to)
-        return isTargetInSight
+        return targetFraction < staticFraction
     }
 
     private fun getSightAngle(angleRange: FloatRange, facingDirection: Direction): Float {
