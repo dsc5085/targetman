@@ -7,11 +7,11 @@ class MovementPart(
         /**
          * @return the maximum horizontal (running) and vertical (jumping) speed
          */
-        val speed: Vector2,
+        val maxSpeed: Vector2,
         jumpIncreaseTime: Float,
         val limbNames: List<String>
 ) {
+    var runSpeedRatio: Float = 1f
     val jumpIncreaseTimer = Timer(jumpIncreaseTime)
     var climbing = false
-
 }

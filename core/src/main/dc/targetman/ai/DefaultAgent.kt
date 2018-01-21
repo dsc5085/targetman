@@ -15,7 +15,7 @@ class DefaultAgent(private val entity: Entity, override val target: Entity) : Ag
     override val bounds = entity[TransformPart::class].transform.bounds
     override val facingDirection get() = if (entity[SkeletonPart::class].flipX) Direction.LEFT else Direction.RIGHT
     override val velocity get() = entity[TransformPart::class].transform.velocity
-    override val speed get() = entity[MovementPart::class].speed
+    override val speed get() = entity[MovementPart::class].maxSpeed
     override val path get() = aiPart.path
     override val eye get() = entity[SkeletonPart::class]["head"].transform.center
     override val aiPart = entity[AiPart::class]

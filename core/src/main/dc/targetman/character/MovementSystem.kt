@@ -194,6 +194,8 @@ class MovementSystem(
         val movementLimbNames = movementPart.limbNames
         val limbs = skeletonPart.getLimbs()
         val numActiveMovementLimbs = movementLimbNames.count { limbs.any { it.name == it.name } }
-        return movementPart.speed.cpy().scl(numActiveMovementLimbs.toFloat() / movementLimbNames.size)
+        val moveSpeed = movementPart.maxSpeed.cpy().scl(numActiveMovementLimbs.toFloat() / movementLimbNames.size)
+        moveSpeed.x *= movementPart.runSpeedRatio
+        return moveSpeed
     }
 }

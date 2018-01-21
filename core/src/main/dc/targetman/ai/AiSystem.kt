@@ -3,6 +3,7 @@ package dc.targetman.ai
 import com.badlogic.gdx.math.Rectangle
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
+import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
@@ -30,12 +31,14 @@ class AiSystem(
                     detectTarget(agent, aiPart)
                 }
                 pathUpdater.update(agent)
+                steer(agent)
+                val movementPart = entity[MovementPart::class]
                 if (aiPart.isAlert) {
-                    steer(agent)
                     aim(entity, agent.targetBounds)
                     CharacterActions.trigger(entity)
+                    movementPart.runSpeedRatio = 1f
                 } else {
-                    patrol(agent)
+                    movementPart.runSpeedRatio = 0.2f
                 }
             }
         }
@@ -59,9 +62,5 @@ class AiSystem(
         if (muzzle != null) {
             CharacterActions.aim(entity, targetBounds.center)
         }
-    }
-
-    private fun patrol(agent: Agent) {
-
     }
 }

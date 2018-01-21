@@ -1,6 +1,8 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
+import dc.targetman.ai.graph.ConnectionType
+import dc.targetman.ai.graph.DefaultConnection
 import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.mechanics.EntityUtils
@@ -56,7 +58,9 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
             if (agent.path.isEmpty) {
                 // Calculate the side the agent is on
                 // Select a node on the segment at the opposite side
-                agent.bounds.center
+                val atLeftSide = agent.bounds.center.x < belowSegment.bounds.center.x
+                val node = if (atLeftSide) belowSegment.rightNode else belowSegment.leftNode
+                agent.path.set(listOf(DefaultConnection(belowSegment.leftNode, node, ConnectionType.NORMAL)))
             }
         }
     }

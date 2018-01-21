@@ -111,8 +111,8 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val toNode = agent.path.currentConnection.toNode
         val fromNode = agent.path.currentConnection.fromNode
         val isVerticalNodeConnection = fromNode.x == toNode.x
-        if (targetSegment !== null && targetSegment === belowSegment) {
-            nextX = getNextXOnSameSegment(agent, targetSegment)
+        if (agent.aiPart.isAlert && targetSegment !== null && targetSegment === belowSegment) {
+            nextX = getTargetX(agent, targetSegment)
         } else if (isVerticalNodeConnection) {
             nextX = getNextXToGetAroundEdge(agent.bounds, agent.path.currentConnection)
         } else {
@@ -151,18 +151,15 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         return nextX
     }
 
-    private fun getNextXOnSameSegment(agent: Agent, segment: Segment): Float? {
+    private fun getTargetX(agent: Agent, segment: Segment): Float? {
         var nextX: Float? = null
         val agentX = agent.bounds.center.x
         val targetX = agent.targetBounds.center.x
         val distance = Maths.distance(agentX, targetX)
         val profile = agent.aiPart.profile
-        if (distance !in profile.minTargetDistance..profile.maxTargetDistance) {
-            if (agentX > targetX) {
-                nextX = targetX - profile.minTargetDistance
-            } else {
-                nextX = targetX + profile.minTargetDistance
-            }
+        if (!profile.targetDistanceRange.contains(distance)) {
+            nextX = if (agentX > targetX) targetX - profile.targetDistanceRange.min
+                else targetX + profile.targetDistanceRange.min
             nextX = MathUtils.clamp(nextX, segment.left, segment.right)
         }
         return nextX

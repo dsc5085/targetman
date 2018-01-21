@@ -32,7 +32,7 @@ object GraphQueryFactory {
         val aiEntity = mapLoader.createCharacter("characters/dummy.json", Vector3(), Alliance.ENEMY)
         mapLoader.createWalls()
         val agentSize = aiEntity[TransformPart::class].transform.size
-        val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].speed)
+        val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].maxSpeed)
         val graph = GraphFactory(segmentBoundsList, ladderBoundsList, agentSize, jumpChecker).create()
         entityManager.dispose()
         staticWorld.dispose()
