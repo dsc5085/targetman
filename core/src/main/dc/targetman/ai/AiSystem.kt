@@ -26,21 +26,23 @@ class AiSystem(
             val target = EntityFinder.find(entityManager, Alliance.PLAYER)
             if (target != null) {
                 val agent = DefaultAgent(entity, target)
-                steer(agent)
                 if (aiPart.checkDetect()) {
                     detectTarget(agent, aiPart)
                 }
+                pathUpdater.update(agent)
                 if (aiPart.isAlert) {
-                    pathUpdater.update(agent)
+                    steer(agent)
                     aim(entity, agent.targetBounds)
                     CharacterActions.trigger(entity)
+                } else {
+                    patrol(agent)
                 }
             }
         }
     }
 
     private fun steer(agent: Agent) {
-        if (agent.path.isNotEmpty) {
+        if (!agent.path.isEmpty) {
             steering.update(agent)
         }
     }
@@ -57,5 +59,9 @@ class AiSystem(
         if (muzzle != null) {
             CharacterActions.aim(entity, targetBounds.center)
         }
+    }
+
+    private fun patrol(agent: Agent) {
+
     }
 }

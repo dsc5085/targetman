@@ -22,7 +22,7 @@ import dclib.util.Maths
  */
 class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     fun update(agent: Agent) {
-        if (agent.path.isNotEmpty) {
+        if (!agent.path.isEmpty) {
             when (agent.path.currentConnection.type) {
                 ConnectionType.NORMAL -> {
                     move(agent)

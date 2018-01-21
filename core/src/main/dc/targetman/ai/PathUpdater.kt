@@ -12,14 +12,16 @@ import dclib.physics.collision.CollisionChecker
 class PathUpdater(private val graphQuery: GraphQuery, private val collisionChecker: CollisionChecker) {
     fun update(agent: Agent) {
         if (agent.aiPart.isAlert) {
-            calculatePath(agent)
+            calculateTargetPath(agent)
+        } else {
+            calculatePatrolPath(agent)
         }
-        if (agent.path.isNotEmpty) {
+        if (!agent.path.isEmpty) {
             checkReachedNode(agent)
         }
     }
 
-    private fun calculatePath(agent: Agent) {
+    private fun calculateTargetPath(agent: Agent) {
         // TODO: Also, recalculate path if AI is stuck and not moving for a specified amount of time, e.g. due to a bad state in its current steering
         val targetSegment = graphQuery.getNearestBelowSegment(agent.targetBounds)
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
@@ -46,5 +48,16 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
         val buffer = Box2dUtils.ROUNDING_ERROR
         val checkBounds = bounds.setHeight(0f).grow(buffer, buffer)
         return checkBounds.contains(node.position)
+    }
+
+    private fun calculatePatrolPath(agent: Agent) {
+        val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
+        if (belowSegment != null) {
+            if (agent.path.isEmpty) {
+                // Calculate the side the agent is on
+                // Select a node on the segment at the opposite side
+                agent.bounds.center
+            }
+        }
     }
 }

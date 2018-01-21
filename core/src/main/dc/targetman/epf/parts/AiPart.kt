@@ -3,6 +3,7 @@ package dc.targetman.epf.parts
 import com.badlogic.gdx.math.MathUtils
 import dc.targetman.ai.AiProfile
 import dc.targetman.ai.Path
+import dc.targetman.ai.PatrolState
 import dc.targetman.ai.SteerState
 import dclib.util.Timer
 
@@ -14,6 +15,7 @@ class AiPart(val profile: AiProfile) {
     val path = Path()
     val steerState = SteerState()
     val isAlert get() = !alertTimer.isElapsed
+    val patrolState get() = PatrolState()
 
     private val calculatePathTimer = Timer(CALCULATE_PATH_TIME, CALCULATE_PATH_TIME)
     private val detectTimer = Timer(DETECT_TIME, DETECT_TIME)
