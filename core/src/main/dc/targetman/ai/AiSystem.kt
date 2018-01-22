@@ -31,7 +31,9 @@ class AiSystem(
                     detectTarget(agent, aiPart)
                 }
                 pathUpdater.update(agent)
-                steer(agent)
+                if (aiPart.waitTimer.isElapsed) {
+                    steer(agent)
+                }
                 val movementPart = entity[MovementPart::class]
                 if (aiPart.isAlert) {
                     aim(entity, agent.targetBounds)

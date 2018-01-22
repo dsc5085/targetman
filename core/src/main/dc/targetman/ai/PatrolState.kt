@@ -1,3 +1,5 @@
 package dc.targetman.ai
 
-class PatrolState
+import dclib.util.Timer
+
+data class PatrolState(val waitTimer: Timer = Timer())

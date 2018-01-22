@@ -10,6 +10,7 @@ import dclib.geometry.center
 import dclib.geometry.grow
 import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollisionChecker
+import dclib.util.FloatRange
 
 class PathUpdater(private val graphQuery: GraphQuery, private val collisionChecker: CollisionChecker) {
     fun update(agent: Agent) {
@@ -56,12 +57,17 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
         val belowSegment = graphQuery.getNearestBelowSegment(agent.bounds)
         if (belowSegment != null) {
             if (agent.path.isEmpty) {
-                // Calculate the side the agent is on
-                // Select a node on the segment at the opposite side
+                wait(agent)
                 val atLeftSide = agent.bounds.center.x < belowSegment.bounds.center.x
                 val node = if (atLeftSide) belowSegment.rightNode else belowSegment.leftNode
                 agent.path.set(listOf(DefaultConnection(belowSegment.leftNode, node, ConnectionType.NORMAL)))
             }
         }
+    }
+
+    private fun wait(agent: Agent) {
+        val waitTimeRange = FloatRange(2f, 5f)
+        agent.aiPart.waitTimer.maxTime = waitTimeRange.random()
+        agent.aiPart.waitTimer.reset()
     }
 }
