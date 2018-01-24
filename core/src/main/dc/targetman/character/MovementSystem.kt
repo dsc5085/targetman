@@ -55,17 +55,22 @@ class MovementSystem(
             direction = Direction.NONE
         }
         val skeletonPart = entity[SkeletonPart::class]
-        updateSkeletonState(isGrounded, direction, skeletonPart)
+        updateSkeletonState(isGrounded, direction, movementPart.runSpeedRatio, skeletonPart)
         val targetVelocityX = getMoveSpeed(movementPart, entity[SkeletonPart::class]).x * direction.toFloat()
         applyMoveImpulse(entity, targetVelocityX)
     }
 
-    private fun updateSkeletonState(isGrounded: Boolean, direction: Direction, skeletonPart: SkeletonPart) {
+    private fun updateSkeletonState(
+            isGrounded: Boolean,
+            direction: Direction,
+            runSpeedRatio: Float,
+            skeletonPart: SkeletonPart) {
         if (isGrounded) {
             if (direction == Direction.NONE) {
                 skeletonPart.playAnimation("idle")
             } else {
-                skeletonPart.playAnimation("run")
+                val animationName = if (runSpeedRatio > MovementPart.WALK_SPEED_RATIO) "run" else "walk"
+                skeletonPart.playAnimation(animationName)
             }
         }
         if (direction != Direction.NONE) {

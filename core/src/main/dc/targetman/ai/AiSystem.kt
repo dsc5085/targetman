@@ -40,7 +40,7 @@ class AiSystem(
                     CharacterActions.trigger(entity)
                     movementPart.runSpeedRatio = 1f
                 } else {
-                    movementPart.runSpeedRatio = 0.2f
+                    movementPart.runSpeedRatio = MovementPart.WALK_SPEED_RATIO
                 }
             }
         }

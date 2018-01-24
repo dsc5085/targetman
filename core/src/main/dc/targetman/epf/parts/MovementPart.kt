@@ -11,6 +11,10 @@ class MovementPart(
         jumpIncreaseTime: Float,
         val limbNames: List<String>
 ) {
+    companion object {
+        val WALK_SPEED_RATIO: Float = 0.2f
+    }
+
     var runSpeedRatio: Float = 1f
     val jumpIncreaseTimer = Timer(jumpIncreaseTime)
     var climbing = false
