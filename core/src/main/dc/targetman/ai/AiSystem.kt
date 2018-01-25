@@ -7,6 +7,7 @@ import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.character.CharacterActions
 import dclib.epf.Entity
 import dclib.epf.EntityManager
@@ -20,6 +21,17 @@ class AiSystem(
         private val pathUpdater: PathUpdater,
         private val collisionChecker: CollisionChecker
 ) : EntitySystem(entityManager) {
+    init {
+        collisionChecker.collided.on {
+            val aiPart = it.collision.source.entity.tryGet(AiPart::class)
+            if (aiPart != null) {
+                if (EntityUtils.areOpposing(it.collision.source.entity, it.collision.target.entity)) {
+                    aiPart.resetAlertTimer()
+                }
+            }
+        }
+    }
+
     override fun update(delta: Float, entity: Entity) {
         val aiPart = entity.tryGet(AiPart::class)
         if (aiPart != null) {

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSprite
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
-import dc.targetman.mechanics.Alliance
+import dc.targetman.mechanics.EntityUtils
 import dclib.epf.Entity
 import dclib.epf.graphics.SpriteSync
 import dclib.geometry.PolygonUtils
@@ -33,8 +33,7 @@ class ParticlesOnCollided(
 		val velocity = event.collision.source.body.linearVelocity
 		if (sourceEntity.of(Material.METAL) && velocity.len() > 0) {
 			createSparks(event)
-			val targetAlliance = targetEntity.getAttribute(Alliance::class)
-			if (targetAlliance != null && sourceEntity.of(targetAlliance.target) && targetEntity.of(Material.FLESH)) {
+			if (EntityUtils.areOpposing(sourceEntity, targetEntity) && targetEntity.of(Material.FLESH)) {
 				createBloodParticles(targetEntity, velocity.angle(), 1f)
 				createBloodParticles(targetEntity, Maths.HALF_DEGREES_MAX - velocity.angle(), 0.25f)
 			}
@@ -43,10 +42,9 @@ class ParticlesOnCollided(
 
 	private fun createSparks(event: CollidedEvent) {
 		val targetEntity = event.collision.target.entity
-        val targetAlliance = targetEntity.getAttribute(Alliance::class)
-        val notTargetAlliance = targetAlliance == null || !event.collision.source.entity.of(targetAlliance)
+        val isOpposing = EntityUtils.areOpposing(event.collision.source.entity, targetEntity)
 		val contactPoint = event.collision.manifold.firstOrNull()
-        if (notTargetAlliance && targetEntity.of(Material.METAL) && contactPoint != null) {
+        if (!isOpposing && targetEntity.of(Material.METAL) && contactPoint != null) {
 			particlesManager.createEffect("spark", StaticPositionGetter(contactPoint)).start()
 		}
 	}

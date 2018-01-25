@@ -30,6 +30,7 @@ import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.ChangeContainerHealthOnEntityAdded
 import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.InputUpdater
 import dc.targetman.mechanics.InventorySystem
 import dc.targetman.mechanics.ScaleSystem
@@ -205,10 +206,7 @@ class LevelController(
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate {
-			val targetEntity = it!!.collision.target.entity
-			val targetAlliance = targetEntity.getAttribute(Alliance::class)
-			val sourceAlliance = it.collision.source.entity.getAttribute(Alliance::class)
-			sourceAlliance != null && sourceAlliance.target === targetAlliance
+			EntityUtils.areOpposing(it!!.collision.source.entity, it.collision.target.entity)
 		}
 	}
 
