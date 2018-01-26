@@ -3,6 +3,8 @@ package dc.targetman.mechanics.weapon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.Body
+import dc.targetman.audio.SoundManager
+import dc.targetman.audio.SoundPlayedEvent
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.ForcePart
 import dc.targetman.epf.parts.InventoryPart
@@ -34,8 +36,11 @@ import dclib.physics.Transform
 import dclib.util.FloatRange
 import kotlin.experimental.inv
 
-class WeaponSystem(private val entityManager: EntityManager, private val factoryTools: FactoryTools)
-: EntitySystem(entityManager) {
+class WeaponSystem(
+        private val entityManager: EntityManager,
+        private val factoryTools: FactoryTools,
+        private val soundManager: SoundManager)
+    : EntitySystem(entityManager) {
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         val firingPart = entity.tryGet(FiringPart::class)
@@ -66,6 +71,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val factory
             val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.data.recoil).scl(-1f)
             PhysicsUtils.applyForce(entityManager.getAll(), entity, recoil)
             createBullets(muzzleTransform, weapon, entity.getAttribute(Alliance::class)!!)
+            soundManager.played.notify(SoundPlayedEvent(muzzleTransform.center, /*TODO: Replace hardcoded value*/ 10f, entity))
             weapon.reloadTimer.reset()
         }
     }
@@ -73,7 +79,7 @@ class WeaponSystem(private val entityManager: EntityManager, private val factory
     private fun createBullets(muzzleTransform: Transform, weapon: Weapon, alliance: Alliance) {
         val weaponData = weapon.data
         val spreadRange = FloatRange(-weaponData.spread / 2, weaponData.spread / 2)
-        for (i in 0..weaponData.numBullets - 1) {
+        for (i in 0 until weaponData.numBullets) {
             val angleOffset = spreadRange.random()
             val speed = weapon.speedRange.random()
             createBullet(weaponData.bullet, muzzleTransform, angleOffset, speed, alliance)

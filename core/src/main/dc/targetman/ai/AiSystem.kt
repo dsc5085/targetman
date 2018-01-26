@@ -1,6 +1,8 @@
 package dc.targetman.ai
 
 import com.badlogic.gdx.math.Rectangle
+import dc.targetman.audio.SoundManager
+import dc.targetman.audio.SoundPlayedEvent
 import dc.targetman.epf.parts.AiPart
 import dc.targetman.epf.parts.FiringPart
 import dc.targetman.epf.parts.MovementPart
@@ -12,24 +14,21 @@ import dc.targetman.mechanics.character.CharacterActions
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
+import dclib.epf.parts.TransformPart
 import dclib.geometry.center
+import dclib.physics.collision.CollidedEvent
 import dclib.physics.collision.CollisionChecker
 
 class AiSystem(
         private val entityManager: EntityManager,
         private val steering: Steering,
         private val pathUpdater: PathUpdater,
-        private val collisionChecker: CollisionChecker
+        private val collisionChecker: CollisionChecker,
+        soundManager: SoundManager
 ) : EntitySystem(entityManager) {
     init {
-        collisionChecker.collided.on {
-            val aiPart = it.collision.source.entity.tryGet(AiPart::class)
-            if (aiPart != null) {
-                if (EntityUtils.areOpposing(it.collision.source.entity, it.collision.target.entity)) {
-                    aiPart.resetAlertTimer()
-                }
-            }
-        }
+        collisionChecker.collided.on(this::handleCollided)
+        soundManager.played.on(this::handleSoundPlayed)
     }
 
     override fun update(delta: Float, entity: Entity) {
@@ -75,6 +74,27 @@ class AiSystem(
         val muzzle = entity[SkeletonPart::class].tryGet(muzzleName)
         if (muzzle != null) {
             CharacterActions.aim(entity, targetBounds.center)
+        }
+    }
+
+    private fun handleCollided(event: CollidedEvent) {
+        val aiPart = event.collision.source.entity.tryGet(AiPart::class)
+        if (aiPart != null) {
+            if (EntityUtils.areOpposing(event.collision.source.entity, event.collision.target.entity)) {
+                aiPart.resetAlertTimer()
+            }
+        }
+    }
+
+    private fun handleSoundPlayed(event: SoundPlayedEvent) {
+        for (entity in entityManager.getAll()) {
+            val aiPart = entity.tryGet(AiPart::class)
+            if (aiPart != null && EntityUtils.areOpposing(entity, event.entity)) {
+                val center = entity[TransformPart::class].transform.center
+                if (center.cpy().dst(event.origin) <= event.range) {
+                    aiPart.resetAlertTimer()
+                }
+            }
         }
     }
 }

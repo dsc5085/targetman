@@ -144,10 +144,10 @@ class LevelController(
 				PhysicsUpdater(world, entityManager, { !it.of(DeathForm.CORPSE) }),
 				createSkeletonSystem(),
 				collisionChecker,
-				MovementSystem(entityManager, world, collisionChecker),
+				MovementSystem(entityManager, world, collisionChecker, soundManager),
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
-				WeaponSystem(entityManager, factoryTools),
+				WeaponSystem(entityManager, factoryTools, soundManager),
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
@@ -159,7 +159,7 @@ class LevelController(
 		val graphQuery = GraphQueryFactory.create(map, textureCache)
 		val steering = Steering(graphQuery, world.gravity.y)
 		val pathUpdater = PathUpdater(graphQuery, collisionChecker)
-		return AiSystem(entityManager, steering, pathUpdater, collisionChecker)
+		return AiSystem(entityManager, steering, pathUpdater, collisionChecker, soundManager)
 	}
 
 	private fun createSkeletonSystem(): SkeletonSyncSystem {
