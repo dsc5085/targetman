@@ -11,6 +11,7 @@ import dc.targetman.AppConfig
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.PathUpdater
 import dc.targetman.ai.Steering
+import dc.targetman.audio.SoundManager
 import dc.targetman.character.ActionsSystem
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
 import dc.targetman.character.DeathForm
@@ -80,7 +81,6 @@ class LevelController(
     private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
-	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val mapRenderer: MapRenderer
@@ -88,6 +88,7 @@ class LevelController(
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val map = TmxMapLoader().load("maps/level1.tmx")
 	private val drawerManager: DrawerManager
+	private val soundManager = SoundManager()
 	private val advancer: Advancer
 	private val commandModule: CommandModule
 
@@ -146,7 +147,7 @@ class LevelController(
 				MovementSystem(entityManager, world, collisionChecker),
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
-				WeaponSystem(entityManager, bulletFactory),
+				WeaponSystem(entityManager, factoryTools),
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
