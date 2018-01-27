@@ -3,7 +3,7 @@ package dc.targetman.skeleton
 import dc.targetman.epf.parts.SkeletonPart
 import dclib.epf.Entity
 
-// TODO: Test performance of these methods
+// TODO: improve performance of these methods
 object LimbUtils {
     fun find(entities: Collection<Entity>, limbEntity: Entity): Limb? {
         var limb: Limb? = null

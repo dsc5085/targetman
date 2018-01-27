@@ -87,7 +87,13 @@ class WeaponSystem(
     }
 
     // TODO: Use center instead of position
-    fun createBullet(bullet: Bullet, muzzleTransform: Transform, angleOffset: Float, speed: Float, alliance: Alliance) {
+    private fun createBullet(
+            bullet: Bullet,
+            muzzleTransform: Transform,
+            angleOffset: Float,
+            speed: Float,
+            alliance: Alliance
+    ) {
         val relativeCenter = PolygonUtils.relativeCenter(muzzleTransform.center, bullet.size)
         val position3 = relativeCenter.toVector3()
         val bulletBody = createBody(bullet.regionName, bullet.size, false)

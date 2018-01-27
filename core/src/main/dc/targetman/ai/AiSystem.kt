@@ -11,6 +11,7 @@ import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.character.CharacterActions
+import dc.targetman.skeleton.LimbUtils
 import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
@@ -32,6 +33,7 @@ class AiSystem(
     }
 
     override fun update(delta: Float, entity: Entity) {
+        val aimAlertTime = 2f
         val aiPart = entity.tryGet(AiPart::class)
         if (aiPart != null) {
             aiPart.tick(delta)
@@ -46,10 +48,12 @@ class AiSystem(
                     steer(agent)
                 }
                 val movementPart = entity[MovementPart::class]
-                if (aiPart.isAlert) {
-                    aim(entity, agent.targetBounds)
-                    CharacterActions.trigger(entity)
+                if (!aiPart.alertTimer.isElapsed) {
                     movementPart.runSpeedRatio = 1f
+                    if (aiPart.alertTimer.elapsedTime < aimAlertTime) {
+                        aim(entity, agent.targetBounds)
+                        CharacterActions.trigger(entity)
+                    }
                 } else {
                     movementPart.runSpeedRatio = MovementPart.WALK_SPEED_RATIO
                 }
@@ -78,10 +82,13 @@ class AiSystem(
     }
 
     private fun handleCollided(event: CollidedEvent) {
-        val aiPart = event.collision.source.entity.tryGet(AiPart::class)
-        if (aiPart != null) {
-            if (EntityUtils.areOpposing(event.collision.source.entity, event.collision.target.entity)) {
-                aiPart.resetAlertTimer()
+        val container = LimbUtils.findContainer(entityManager.getAll(), event.collision.source.entity)
+        if (container != null) {
+            val aiPart = container.tryGet(AiPart::class)
+            if (aiPart != null) {
+                if (EntityUtils.areOpposing(container, event.collision.target.entity)) {
+                    aiPart.resetAlertTimer()
+                }
             }
         }
     }

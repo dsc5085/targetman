@@ -14,7 +14,7 @@ import dclib.util.FloatRange
 
 class PathUpdater(private val graphQuery: GraphQuery, private val collisionChecker: CollisionChecker) {
     fun update(agent: Agent) {
-        if (agent.aiPart.isAlert) {
+        if (!agent.aiPart.alertTimer.isElapsed) {
             calculateTargetPath(agent)
         } else {
             calculatePatrolPath(agent)

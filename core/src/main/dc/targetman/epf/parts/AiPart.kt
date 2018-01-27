@@ -13,12 +13,11 @@ class AiPart(val profile: AiProfile) {
 
     val path = Path()
     val steerState = SteerState()
-    val isAlert get() = !alertTimer.isElapsed
     val waitTimer: Timer = Timer()
+    val alertTimer = Timer(ALERT_TIME, ALERT_TIME)
 
     private val calculatePathTimer = Timer(CALCULATE_PATH_TIME, CALCULATE_PATH_TIME)
     private val detectTimer = Timer(DETECT_TIME, DETECT_TIME)
-    private val alertTimer = Timer(ALERT_TIME, ALERT_TIME)
 
     fun checkCalculatePath(): Boolean {
         return calculatePathTimer.check()

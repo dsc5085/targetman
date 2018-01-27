@@ -111,7 +111,7 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val toNode = agent.path.currentConnection.toNode
         val fromNode = agent.path.currentConnection.fromNode
         val isVerticalNodeConnection = fromNode.x == toNode.x
-        if (agent.aiPart.isAlert && targetSegment !== null && targetSegment === belowSegment) {
+        if (agent.aiPart.alertTimer.isElapsed && targetSegment !== null && targetSegment === belowSegment) {
             nextX = getTargetX(agent, targetSegment)
         } else if (isVerticalNodeConnection) {
             nextX = getNextXToGetAroundEdge(agent.bounds, agent.path.currentConnection)
