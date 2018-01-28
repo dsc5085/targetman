@@ -9,13 +9,12 @@ import dclib.util.Timer
 class AiPart(val profile: AiProfile) {
     private val CALCULATE_PATH_TIME = MathUtils.random(0.07f, 0.12f)
     private val DETECT_TIME = MathUtils.random(0.01f, 0.015f)
-    private val ALERT_TIME = 10f
 
     val path = Path()
     val steerState = SteerState()
     val waitTimer: Timer = Timer()
-    val alertTimer = Timer(ALERT_TIME, ALERT_TIME)
-    val sightTimer = Timer(Float.MAX_VALUE)
+    val alertTimer = Timer(10f, 10f)
+    val sightTimer = Timer(2f, 2f)
 
     private val calculatePathTimer = Timer(CALCULATE_PATH_TIME, CALCULATE_PATH_TIME)
     private val detectTimer = Timer(DETECT_TIME, DETECT_TIME)
