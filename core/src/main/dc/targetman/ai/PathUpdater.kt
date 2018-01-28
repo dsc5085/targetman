@@ -49,7 +49,7 @@ class PathUpdater(private val graphQuery: GraphQuery, private val collisionCheck
 
     private fun atNode(node: DefaultNode, bounds: Rectangle): Boolean {
         val buffer = Box2dUtils.ROUNDING_ERROR
-        val checkBounds = bounds.setHeight(0f).grow(buffer, buffer)
+        val checkBounds = Rectangle(bounds).setHeight(0f).grow(buffer, buffer)
         return checkBounds.contains(node.position)
     }
 

@@ -53,7 +53,8 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     }
 
     private fun climb(agent: Agent) {
-        val toNode = agent.path.currentConnection.toNode
+        val connection = agent.path.currentConnection
+        val toNode = connection.toNode
         val toSegment = graphQuery.getSegment(toNode)
         val moveDirection: Direction
         if (toNode == toSegment.leftNode) {
@@ -72,12 +73,18 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
         val steerState = agent.aiPart.steerState
         when {
-            steerState.dismounted -> {
+            steerState.climbState == ClimbState.MOVE_TO_LADDER -> {
+                move(agent)
+                if (agent.bounds.containsX(connection.fromNode.x)) {
+                    steerState.climbState = ClimbState.CLIMBING
+                }
+            }
+            steerState.climbState == ClimbState.DISMOUNTED -> {
                 move(agent)
             }
-            dismountRangeY.contains(offsetY) || steerState.dismounted -> {
+            dismountRangeY.contains(offsetY) -> {
                 agent.moveHorizontal(moveDirection)
-                steerState.dismounted = true
+                steerState.climbState = ClimbState.DISMOUNTED
             }
             agentY < toNode.y -> agent.climbUp()
             agentY > toNode.y -> agent.climbDown()
