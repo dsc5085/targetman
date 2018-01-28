@@ -7,7 +7,9 @@ import dc.targetman.ai.graph.DefaultConnection
 import dc.targetman.ai.graph.DefaultNode
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.ai.graph.Segment
+import dc.targetman.epf.parts.AiPart
 import dc.targetman.mechanics.Direction
+import dclib.util.FloatRange
 import org.junit.Test
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
@@ -112,6 +114,7 @@ class SteeringTest {
         `when`(agent.speed).thenReturn(Vector2(5f, 3f))
         `when`(agent.velocity).thenReturn(velocity)
         `when`(agent.bounds).thenReturn(Rectangle(position.x, position.y, 1f, 1f))
+        `when`(agent.aiPart).thenReturn(AiPart(AiProfile(FloatRange(0f, 10f), Fov(FloatRange(-75f, 75f), 10f))))
         return agent
     }
 }
