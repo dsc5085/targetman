@@ -22,7 +22,7 @@ import dclib.util.Maths
  */
 class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
     fun update(agent: Agent) {
-        if (agent.path.isNotEmpty) {
+        if (!agent.path.isEmpty) {
             when (agent.path.currentConnection.type) {
                 ConnectionType.NORMAL -> {
                     move(agent)
@@ -70,13 +70,14 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val offsetY = toNode.y - agentY
         val dismountBufferY = agent.bounds.height * dismountBufferRatio
         val dismountRangeY = FloatRange(-dismountBufferY, dismountBufferY)
+        val steerState = agent.aiPart.steerState
         when {
-            agent.steerState.dismounted -> {
+            steerState.dismounted -> {
                 move(agent)
             }
-            dismountRangeY.contains(offsetY) || agent.steerState.dismounted -> {
+            dismountRangeY.contains(offsetY) || steerState.dismounted -> {
                 agent.moveHorizontal(moveDirection)
-                agent.steerState.dismounted = true
+                steerState.dismounted = true
             }
             agentY < toNode.y -> agent.climbUp()
             agentY > toNode.y -> agent.climbDown()
@@ -110,8 +111,8 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         val toNode = agent.path.currentConnection.toNode
         val fromNode = agent.path.currentConnection.fromNode
         val isVerticalNodeConnection = fromNode.x == toNode.x
-        if (targetSegment !== null && targetSegment === belowSegment) {
-            nextX = getNextXOnSameSegment(agent, targetSegment)
+        if (agent.aiPart.alertTimer.isElapsed && targetSegment !== null && targetSegment === belowSegment) {
+            nextX = getTargetX(agent, targetSegment)
         } else if (isVerticalNodeConnection) {
             nextX = getNextXToGetAroundEdge(agent.bounds, agent.path.currentConnection)
         } else {
@@ -150,17 +151,15 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
         return nextX
     }
 
-    private fun getNextXOnSameSegment(agent: Agent, segment: Segment): Float? {
+    private fun getTargetX(agent: Agent, segment: Segment): Float? {
         var nextX: Float? = null
         val agentX = agent.bounds.center.x
         val targetX = agent.targetBounds.center.x
         val distance = Maths.distance(agentX, targetX)
-        if (distance !in agent.profile.minTargetDistance..agent.profile.maxTargetDistance) {
-            if (agentX > targetX) {
-                nextX = targetX - agent.profile.minTargetDistance
-            } else {
-                nextX = targetX + agent.profile.minTargetDistance
-            }
+        val profile = agent.aiPart.profile
+        if (!profile.targetDistanceRange.contains(distance)) {
+            nextX = if (agentX > targetX) targetX - profile.targetDistanceRange.min
+                else targetX + profile.targetDistanceRange.min
             nextX = MathUtils.clamp(nextX, segment.left, segment.right)
         }
         return nextX

@@ -6,6 +6,8 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
+import dc.targetman.audio.SoundManager
+import dc.targetman.audio.SoundPlayedEvent
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.epf.parts.SkeletonPart
 import dc.targetman.epf.parts.StaggerPart
@@ -19,6 +21,7 @@ import dclib.epf.Entity
 import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.TransformPart
+import dclib.geometry.base
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.collision.CollisionChecker
@@ -29,7 +32,8 @@ import net.dermetfan.gdx.physics.box2d.Box2DUtils
 class MovementSystem(
         entityManager: EntityManager,
         private val world: World,
-        private val collisionChecker: CollisionChecker
+        private val collisionChecker: CollisionChecker,
+        private val soundManager: SoundManager
 ) : EntitySystem(entityManager) {
     private val CLIMBING_HAND = "left_hand"
 
@@ -55,18 +59,26 @@ class MovementSystem(
             direction = Direction.NONE
         }
         val skeletonPart = entity[SkeletonPart::class]
-        updateSkeletonState(isGrounded, direction, skeletonPart)
+        val isMoving = direction != Direction.NONE && isGrounded
+        updateSkeletonState(isMoving, direction, movementPart.runSpeedRatio, skeletonPart)
         val targetVelocityX = getMoveSpeed(movementPart, entity[SkeletonPart::class]).x * direction.toFloat()
         applyMoveImpulse(entity, targetVelocityX)
+        if (isMoving) {
+            val soundOrigin = entity[TransformPart::class].transform.bounds.base
+            soundManager.played.notify(SoundPlayedEvent(soundOrigin, 5f, entity))
+        }
     }
 
-    private fun updateSkeletonState(isGrounded: Boolean, direction: Direction, skeletonPart: SkeletonPart) {
-        if (isGrounded) {
-            if (direction == Direction.NONE) {
-                skeletonPart.playAnimation("idle")
-            } else {
-                skeletonPart.playAnimation("run")
-            }
+    private fun updateSkeletonState(
+            isMoving: Boolean,
+            direction: Direction,
+            runSpeedRatio: Float,
+            skeletonPart: SkeletonPart) {
+        if (isMoving) {
+            val animationName = if (runSpeedRatio > MovementPart.WALK_SPEED_RATIO) "run" else "walk"
+            skeletonPart.playAnimation(animationName)
+        } else {
+            skeletonPart.playAnimation("idle")
         }
         if (direction != Direction.NONE) {
             skeletonPart.flipX = direction === Direction.LEFT
@@ -194,6 +206,8 @@ class MovementSystem(
         val movementLimbNames = movementPart.limbNames
         val limbs = skeletonPart.getLimbs()
         val numActiveMovementLimbs = movementLimbNames.count { limbs.any { it.name == it.name } }
-        return movementPart.speed.cpy().scl(numActiveMovementLimbs.toFloat() / movementLimbNames.size)
+        val moveSpeed = movementPart.maxSpeed.cpy().scl(numActiveMovementLimbs.toFloat() / movementLimbNames.size)
+        moveSpeed.x *= movementPart.runSpeedRatio
+        return moveSpeed
     }
 }

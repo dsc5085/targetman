@@ -12,6 +12,7 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.geometry.base
 import dclib.geometry.size
+import dclib.util.Maths
 
 class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entityManager) {
     val animationApplied = EventDelegate<AnimationAppliedEvent>()
@@ -58,7 +59,7 @@ class SkeletonSyncSystem(val entityManager: EntityManager) : EntitySystem(entity
             val boneScale = limb.spineScale.scl(VectorUtils.inv(rootScale.abs()))
             val attachmentScale = SkeletonUtils.calculateAttachmentScale(boneScale, attachment.rotation)
             transform.setScale(attachmentScale)
-            transform.rotation += VectorUtils.getScaledRotation(attachment.rotation, attachmentScale)
+            transform.rotation += Maths.getScaledRotation(attachment.rotation, attachmentScale)
         }
         val origin = transform.localCenter
         transform.setLocalToWorld(origin, world)

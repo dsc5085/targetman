@@ -10,6 +10,7 @@ import dclib.geometry.VectorUtils
 import dclib.geometry.abs
 import dclib.geometry.div
 import dclib.geometry.size
+import dclib.util.Maths
 
 object SkeletonUtils {
     fun getRegionAttachments(slots: Iterable<Slot>): List<RegionAttachment> {
@@ -19,7 +20,7 @@ object SkeletonUtils {
     fun getOffset(from: Bone, to: RegionAttachment, toScale: Vector2): Vector2 {
         // TODO: see if its better to calculate scale or pass it in, e.g. toScale
         val attachmentScale = calculateAttachmentScale(toScale, to.rotation)
-        val offsetRotation = VectorUtils.getScaledRotation(from.worldRotationX, toScale)
+        val offsetRotation = Maths.getScaledRotation(from.worldRotationX, toScale)
         return Vector2(to.x, to.y).rotate(offsetRotation).scl(attachmentScale)
     }
 

@@ -10,6 +10,12 @@ import dclib.physics.collision.CollisionChecker
 import net.dermetfan.gdx.physics.box2d.Box2DUtils
 
 object EntityUtils {
+    fun areOpposing(e1: Entity, e2: Entity): Boolean {
+        val alliance1 = e1.getAttribute(Alliance::class)
+        val alliance2 = e2.getAttribute(Alliance::class)
+        return alliance1 != null && alliance2 == alliance1.target
+    }
+
     fun filterSameAlliance(entity: Entity) {
         val alliance = entity.getAttribute(Alliance::class)
         val transform = entity.tryGet(TransformPart::class)?.transform

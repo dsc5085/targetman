@@ -33,7 +33,7 @@ class GraphDrawer(
     private fun draw(entity: Entity) {
         val pointSize = 0.2f
         val aiPart = entity.tryGet(AiPart::class)
-        if (aiPart != null && aiPart.path.isNotEmpty) {
+        if (aiPart != null && !aiPart.path.isEmpty) {
             val bounds = entity[TransformPart::class].transform.bounds
             val firstNode = aiPart.path.currentConnection.fromNode.position
             val points = listOf(bounds.base) + firstNode + aiPart.path.connections.map { it.toNode.position }

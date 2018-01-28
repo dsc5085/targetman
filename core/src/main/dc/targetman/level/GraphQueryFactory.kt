@@ -11,6 +11,7 @@ import dc.targetman.ai.graph.GraphFactory
 import dc.targetman.ai.graph.GraphQuery
 import dc.targetman.epf.parts.MovementPart
 import dc.targetman.mechanics.Alliance
+import dc.targetman.physics.Interactivity
 import dc.targetman.physics.JumpChecker
 import dc.targetman.physics.PhysicsUtils
 import dclib.epf.DefaultEntityManager
@@ -31,7 +32,7 @@ object GraphQueryFactory {
         val aiEntity = mapLoader.createCharacter("characters/dummy.json", Vector3(), Alliance.ENEMY)
         mapLoader.createWalls()
         val agentSize = aiEntity[TransformPart::class].transform.size
-        val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].speed)
+        val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].maxSpeed)
         val graph = GraphFactory(segmentBoundsList, ladderBoundsList, agentSize, jumpChecker).create()
         entityManager.dispose()
         staticWorld.dispose()
@@ -91,11 +92,12 @@ object GraphQueryFactory {
         val pixelsPerUnit = MapUtils.getPixelsPerUnit(layer)
         do {
             val cell = layer.getCell(x, i)
-            if (cell != null) {
-                val tileSize = getTileSize(cell, pixelsPerUnit)
-                i += MathUtils.ceil(tileSize.y)
+            if (cell == null || !cell.tile.properties.containsKey(Interactivity.CLIMB.name)) {
+                break
             }
-        } while (i < layer.height && cell != null)
+            val tileSize = getTileSize(cell, pixelsPerUnit)
+            i += MathUtils.ceil(tileSize.y)
+        } while (i < layer.height)
         return i - y
     }
 

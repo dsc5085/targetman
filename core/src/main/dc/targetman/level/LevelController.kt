@@ -11,11 +11,12 @@ import dc.targetman.AppConfig
 import dc.targetman.ai.AiSystem
 import dc.targetman.ai.PathUpdater
 import dc.targetman.ai.Steering
+import dc.targetman.audio.SoundManager
 import dc.targetman.character.ActionsSystem
 import dc.targetman.character.CorpseOnLimbBranchDestroyed
 import dc.targetman.character.DeathForm
+import dc.targetman.character.DestroyContainerOnVitalLimbDestroyed
 import dc.targetman.character.MovementSystem
-import dc.targetman.character.VitalLimbsSystem
 import dc.targetman.command.CommandModule
 import dc.targetman.command.CommandProcessor
 import dc.targetman.epf.graphics.GraphDrawer
@@ -30,6 +31,7 @@ import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.ChangeContainerHealthOnEntityAdded
 import dc.targetman.mechanics.EntityFinder
+import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.InputUpdater
 import dc.targetman.mechanics.InventorySystem
 import dc.targetman.mechanics.ScaleSystem
@@ -79,7 +81,6 @@ class LevelController(
     private val entityManager = createEntityManager()
 	private val world = PhysicsUtils.createWorld()
 	private val factoryTools = FactoryTools(entityManager, textureCache, world)
-	private val bulletFactory = BulletFactory(factoryTools)
 	private val box2DRenderer = Box2DDebugRenderer()
 	private val jointsDrawer = JointsDrawer(world, render.shape, screenHelper)
 	private val mapRenderer: MapRenderer
@@ -87,6 +88,7 @@ class LevelController(
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
 	private val map = TmxMapLoader().load("maps/level1.tmx")
 	private val drawerManager: DrawerManager
+	private val soundManager = SoundManager()
 	private val advancer: Advancer
 	private val commandModule: CommandModule
 
@@ -121,6 +123,7 @@ class LevelController(
 
 	private fun createEntityManager(): EntityManager {
 		val entityManager = DefaultEntityManager()
+		entityManager.entityDestroyed.on(DestroyContainerOnVitalLimbDestroyed(entityManager))
 		entityManager.entityAdded.on(DestroyOnNoHealthEntityAdded(entityManager))
 		entityManager.entityAdded.on(ChangeContainerHealthOnEntityAdded(entityManager))
 		entityManager.entityAdded.on(AddLimbEntitiesOnEntityAdded(entityManager))
@@ -141,11 +144,10 @@ class LevelController(
 				PhysicsUpdater(world, entityManager, { !it.of(DeathForm.CORPSE) }),
 				createSkeletonSystem(),
 				collisionChecker,
-				MovementSystem(entityManager, world, collisionChecker),
+				MovementSystem(entityManager, world, collisionChecker, soundManager),
 				TimedDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
-				WeaponSystem(entityManager, bulletFactory),
-				VitalLimbsSystem(entityManager),
+				WeaponSystem(entityManager, factoryTools, soundManager),
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
@@ -157,7 +159,7 @@ class LevelController(
 		val graphQuery = GraphQueryFactory.create(map, textureCache)
 		val steering = Steering(graphQuery, world.gravity.y)
 		val pathUpdater = PathUpdater(graphQuery, collisionChecker)
-		return AiSystem(entityManager, steering, pathUpdater)
+		return AiSystem(entityManager, steering, pathUpdater, collisionChecker, soundManager)
 	}
 
 	private fun createSkeletonSystem(): SkeletonSyncSystem {
@@ -205,10 +207,7 @@ class LevelController(
 
 	private fun getCollisionFilter(): Predicate<CollidedEvent> {
 		return Predicate {
-			val targetEntity = it!!.collision.target.entity
-			val targetAlliance = targetEntity.getAttribute(Alliance::class)
-			val sourceAlliance = it.collision.source.entity.getAttribute(Alliance::class)
-			sourceAlliance != null && sourceAlliance.target === targetAlliance
+			EntityUtils.areOpposing(it!!.collision.source.entity, it.collision.target.entity)
 		}
 	}
 

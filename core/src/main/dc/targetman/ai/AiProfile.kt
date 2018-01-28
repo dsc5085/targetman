@@ -1,3 +1,5 @@
 package dc.targetman.ai
 
-data class AiProfile(val minTargetDistance: Float, val maxTargetDistance: Float)
+import dclib.util.FloatRange
+
+data class AiProfile(val targetDistanceRange: FloatRange, val fov: Fov)

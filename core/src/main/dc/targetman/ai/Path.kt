@@ -6,7 +6,7 @@ import dc.targetman.ai.graph.DefaultConnection
  * Keeps track of the current path for an AI, including its current connection.
  */
 class Path {
-    val isNotEmpty get() = _connections.isNotEmpty()
+    val isEmpty get() = _connections.isEmpty()
     val currentConnection get() = _connections.first()
     val connections get() = _connections.toList()
 
