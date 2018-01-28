@@ -50,7 +50,7 @@ class AiSystem(
                 val movementPart = entity[MovementPart::class]
                 if (!aiPart.alertTimer.isElapsed) {
                     movementPart.runSpeedRatio = 1f
-                    if (aiPart.alertTimer.elapsedTime < aimAlertTime) {
+                    if (aiPart.sightTimer.elapsedTime < aimAlertTime) {
                         aim(entity, agent.targetBounds)
                         CharacterActions.trigger(entity)
                     }
@@ -70,6 +70,7 @@ class AiSystem(
     private fun detectTarget(agent: Agent, aiPart: AiPart) {
         if (AiUtils.isTargetInSight(agent, collisionChecker)) {
             aiPart.resetAlertTimer()
+            aiPart.sightTimer.reset()
         }
     }
 
