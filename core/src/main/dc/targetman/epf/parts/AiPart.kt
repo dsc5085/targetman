@@ -15,6 +15,7 @@ class AiPart(val profile: AiProfile) {
     val steerState = SteerState()
     val waitTimer: Timer = Timer()
     val alertTimer = Timer(ALERT_TIME, ALERT_TIME)
+    val sightTimer = Timer(Float.MAX_VALUE)
 
     private val calculatePathTimer = Timer(CALCULATE_PATH_TIME, CALCULATE_PATH_TIME)
     private val detectTimer = Timer(DETECT_TIME, DETECT_TIME)
@@ -34,7 +35,8 @@ class AiPart(val profile: AiProfile) {
     fun tick(delta: Float) {
         calculatePathTimer.tick(delta)
         detectTimer.tick(delta)
-        alertTimer.tick(delta)
         waitTimer.tick(delta)
+        alertTimer.tick(delta)
+        sightTimer.tick(delta)
     }
 }
