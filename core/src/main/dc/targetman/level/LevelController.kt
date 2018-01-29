@@ -156,7 +156,7 @@ class LevelController(
 	}
 
 	private fun createAiSystem(collisionChecker: CollisionChecker): AiSystem {
-		val graphQuery = GraphQueryFactory.create(map, textureCache)
+		val graphQuery = GraphQueryFactory(map, textureCache).create()
 		val steering = Steering(graphQuery, world.gravity.y)
 		val pathUpdater = PathUpdater(graphQuery, collisionChecker)
 		return AiSystem(entityManager, steering, pathUpdater, collisionChecker, soundManager)
