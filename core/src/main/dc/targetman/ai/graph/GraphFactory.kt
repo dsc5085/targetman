@@ -90,7 +90,7 @@ class GraphFactory(
                     ladderNodes.add(segment.leftNode)
                 } else if (ladderCheckBounds.contains(segment.rightNode.position)) {
                     ladderNodes.add(segment.rightNode)
-                } else if (ladder.y - segment.y in 0f..agentSize.y && segment.overlapsX(ladder)) {
+                } else if (ladder.y - segment.y <= 0 && segment.overlapsX(ladder)) {
                     ladderNodes.add(segment.createNode(ladder.center.x))
                 }
             }
