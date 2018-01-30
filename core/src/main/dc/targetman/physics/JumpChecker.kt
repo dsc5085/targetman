@@ -20,16 +20,12 @@ class JumpChecker(private val world: World, private val moveSpeed: Vector2) {
             local: Vector2,
             result: JumpVelocityResult
     ): Boolean {
-        // Since the simulation is a little inaccurate, make the size of the test body bigger to prevent false positives
-        val simSizeScale = 1.1f
-        val simSize = size.cpy().scl(simSizeScale)
-        val simLocal = local.cpy().scl(simSizeScale)
-        val body = createBody(simSize)
+        val body = createBody(size)
         val transform = Box2dTransform(body)
-        transform.setLocalToWorld(simLocal, from)
+        transform.setLocalToWorld(local, from)
         transform.velocity = result.velocity
         runSimulation(result.airTime)
-        val actualTo = transform.toWorld(simLocal)
+        val actualTo = transform.toWorld(local)
         world.destroyBody(body)
         return areBox2dPositionsApproximatelyEqual(to, from, actualTo)
     }

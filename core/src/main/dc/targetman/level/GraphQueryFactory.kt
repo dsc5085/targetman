@@ -20,18 +20,18 @@ import dclib.geometry.div
 import dclib.graphics.TextureCache
 import dclib.map.MapUtils
 
-object GraphQueryFactory {
-    fun create(map: TiledMap, textureCache: TextureCache): GraphQuery {
-        val segmentBoundsList = createSegmentBoundsList(map)
-        val ladderBoundsList = createLadderBoundsList(map)
+class GraphQueryFactory(private val map: TiledMap, private val textureCache: TextureCache) {
+    fun create(): GraphQuery {
         val staticWorld = PhysicsUtils.createWorld()
         val entityManager = DefaultEntityManager()
         val factoryTools = FactoryTools(entityManager, textureCache, staticWorld)
         val mapLoader = MapLoader(map, factoryTools)
         // TODO: Creating an entity just for this is wasteful.
         val aiEntity = mapLoader.createCharacter("characters/dummy.json", Vector3(), Alliance.ENEMY)
-        mapLoader.createWalls()
         val agentSize = aiEntity[TransformPart::class].transform.size
+        val segmentBoundsList = createSegmentBoundsList(agentSize)
+        val ladderBoundsList = createLadderBoundsList()
+        mapLoader.createWalls()
         val jumpChecker = JumpChecker(staticWorld, aiEntity[MovementPart::class].maxSpeed)
         val graph = GraphFactory(segmentBoundsList, ladderBoundsList, agentSize, jumpChecker).create()
         entityManager.dispose()
@@ -39,13 +39,13 @@ object GraphQueryFactory {
         return DefaultGraphQuery(graph)
     }
 
-    private fun createSegmentBoundsList(map: TiledMap): List<Rectangle> {
+    private fun createSegmentBoundsList(agentSize: Vector2): List<Rectangle> {
         val boundsList = mutableListOf<Rectangle>()
         val foregroundLayer = MapUtils.getForegroundLayer(map)
         for (y in 0 until foregroundLayer.height - 1) {
             var x = 0
             while (x < foregroundLayer.width) {
-                val floorLength = getFloorLength(foregroundLayer, x, y)
+                val floorLength = getFloorLength(foregroundLayer, agentSize, x, y)
                 if (floorLength > 0) {
                     val bounds = Rectangle(x.toFloat(), y.toFloat(), floorLength.toFloat(), 1f)
                     boundsList.add(bounds)
@@ -57,15 +57,25 @@ object GraphQueryFactory {
         return boundsList
     }
 
-    private fun getFloorLength(layer: TiledMapTileLayer, x: Int, y: Int): Int {
-        var i = x
-        while (i < layer.width && layer.getCell(i, y) != null && layer.getCell(i, y + 1) == null) {
-            i++
+    private fun getFloorLength(layer: TiledMapTileLayer, agentSize: Vector2, x: Int, y: Int): Int {
+        var maxX = x
+        while (maxX < layer.width && layer.getCell(maxX, y) != null && hasEnoughSpace(layer, agentSize, maxX, y + 1)) {
+            maxX++
         }
-        return i - x
+        return maxX - x
     }
 
-    private fun createLadderBoundsList(map: TiledMap): List<Rectangle> {
+    private fun hasEnoughSpace(layer: TiledMapTileLayer, agentSize: Vector2, x: Int, y: Int): Boolean {
+        val numTilesToCheck = Math.min(MathUtils.ceil(agentSize.y), layer.height - y - 1)
+        for (i in 0 until numTilesToCheck) {
+            if (layer.getCell(x, y + i) != null) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun createLadderBoundsList(): List<Rectangle> {
         // This is simply the createSegmentBoundsList method rotated 90 degrees onto the y-axis
         val boundsList = mutableListOf<Rectangle>()
         val backgroundLayers = MapUtils.getBackgroundLayers(map)

@@ -124,8 +124,8 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     }
 
     private fun createBody(size: Vector2, position: Vector3): Body {
-        // Provide a small buffer to the base radius so that it doesn't collide with the wall and create friction
-        val baseRadiusRatio = 0.99f
+        // Provide a small buffer to the box fixture so that the body doesn't hang off the edge of a wall
+        val boxWidthRatio = 0.99f
         val halfWidth = size.x / 2
         val boxHalfHeight = (size.y - halfWidth) / 2
         val def = BodyDef()
@@ -134,9 +134,9 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
         body.isFixedRotation = true
         body.setTransform(position.x, position.y, 0f)
         val basePosition = Vector2(0f, -boxHalfHeight)
-        createBaseFixtures(basePosition, body, halfWidth * baseRadiusRatio)
+        createBaseFixtures(basePosition, body, halfWidth)
         val boxShape = PolygonShape()
-        boxShape.setAsBox(halfWidth, boxHalfHeight)
+        boxShape.setAsBox(halfWidth * boxWidthRatio, boxHalfHeight)
         val bodyFixture = body.createFixture(boxShape, DENSITY)
         // TODO: Make sure the mass of this body is equal to the total mass of the limbs
         bodyFixture.friction = 0f

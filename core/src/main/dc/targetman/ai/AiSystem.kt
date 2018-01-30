@@ -33,7 +33,6 @@ class AiSystem(
     }
 
     override fun update(delta: Float, entity: Entity) {
-        val aimAlertTime = 2f
         val aiPart = entity.tryGet(AiPart::class)
         if (aiPart != null) {
             aiPart.tick(delta)
@@ -50,7 +49,7 @@ class AiSystem(
                 val movementPart = entity[MovementPart::class]
                 if (!aiPart.alertTimer.isElapsed) {
                     movementPart.runSpeedRatio = 1f
-                    if (aiPart.sightTimer.elapsedTime < aimAlertTime) {
+                    if (!aiPart.sightTimer.isElapsed) {
                         aim(entity, agent.targetBounds)
                         CharacterActions.trigger(entity)
                     }
