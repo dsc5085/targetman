@@ -32,7 +32,6 @@ import dc.targetman.util.Json
 import dclib.epf.Entity
 import dclib.epf.parts.HealthPart
 import dclib.epf.parts.TransformPart
-import dclib.geometry.PolygonUtils
 import dclib.geometry.size
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
@@ -124,37 +123,19 @@ class CharacterFactory(private val factoryTools: FactoryTools) {
     }
 
     private fun createBody(size: Vector2, position: Vector3): Body {
-        // Provide a small buffer to the box fixture so that the body doesn't hang off the edge of a wall
-        val boxWidthRatio = 0.99f
-        val halfWidth = size.x / 2
-        val boxHalfHeight = (size.y - halfWidth) / 2
+        val halfSize = size.cpy().scl(0.5f)
         val def = BodyDef()
         def.type = BodyDef.BodyType.DynamicBody
         val body = factoryTools.world.createBody(def)
         body.isFixedRotation = true
         body.setTransform(position.x, position.y, 0f)
-        val basePosition = Vector2(0f, -boxHalfHeight)
-        createBaseFixtures(basePosition, body, halfWidth)
         val boxShape = PolygonShape()
-        boxShape.setAsBox(halfWidth * boxWidthRatio, boxHalfHeight)
+        boxShape.setAsBox(halfSize.x, halfSize.y)
         val bodyFixture = body.createFixture(boxShape, DENSITY)
         // TODO: Make sure the mass of this body is equal to the total mass of the limbs
         bodyFixture.friction = 0f
         boxShape.dispose()
         Box2dUtils.setFilter(body, CollisionCategory.BOUNDS, CollisionCategory.PROJECTILE.inv())
         return body
-    }
-
-    private fun createBaseFixtures(basePosition: Vector2, body: Body, radius: Float) {
-        val numPerimeterPoints = 14
-        val baseVertices = PolygonUtils.createCircleVertices(radius, basePosition, numPerimeterPoints)
-        val baseVerticesPartitions = PolygonUtils.partition(baseVertices)
-        for (baseVerticesPartition in baseVerticesPartitions) {
-            val baseShape = PolygonShape()
-            baseShape.set(baseVerticesPartition)
-            val baseFixture = body.createFixture(baseShape, DENSITY)
-            baseFixture.friction = 0.1f
-            baseShape.dispose()
-        }
     }
 }
