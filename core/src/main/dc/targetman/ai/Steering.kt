@@ -71,20 +71,22 @@ class Steering(private val graphQuery: GraphQuery, private val gravity: Float) {
                     steerState.climbState = ClimbState.CLIMBING
                 }
             }
+            steerState.climbState == ClimbState.DISMOUNTED -> {
+                move(agent)
+            }
             steerState.climbState == ClimbState.CLIMBING -> {
                 if (moveDirection != agent.facingDirection) {
                     agent.moveHorizontal(moveDirection)
                 }
+                when {
+                    dismountRangeY.contains(offsetY) -> {
+                        agent.moveHorizontal(moveDirection)
+                        steerState.climbState = ClimbState.DISMOUNTED
+                    }
+                    agentY < toNode.y -> agent.climbUp()
+                    agentY > toNode.y -> agent.climbDown()
+                }
             }
-            steerState.climbState == ClimbState.DISMOUNTED -> {
-                move(agent)
-            }
-            dismountRangeY.contains(offsetY) -> {
-                agent.moveHorizontal(moveDirection)
-                steerState.climbState = ClimbState.DISMOUNTED
-            }
-            agentY < toNode.y -> agent.climbUp()
-            agentY > toNode.y -> agent.climbDown()
         }
     }
 
