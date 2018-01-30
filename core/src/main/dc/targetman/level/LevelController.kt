@@ -86,7 +86,7 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/bug_nav_ai_hole.tmx")
+	private val map = TmxMapLoader().load("maps/level1.tmx")
 	private val drawerManager: DrawerManager
 	private val soundManager = SoundManager()
 	private val advancer: Advancer
