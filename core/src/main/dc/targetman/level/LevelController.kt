@@ -30,6 +30,7 @@ import dc.targetman.level.executers.SetSpeedExecuter
 import dc.targetman.level.executers.StepExecuter
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.ChangeContainerHealthOnEntityAdded
+import dc.targetman.mechanics.CounterDeathSystem
 import dc.targetman.mechanics.EntityFinder
 import dc.targetman.mechanics.EntityUtils
 import dc.targetman.mechanics.InputUpdater
@@ -146,8 +147,9 @@ class LevelController(
 				collisionChecker,
 				MovementSystem(entityManager, world, collisionChecker, soundManager),
 				TimedDeathSystem(entityManager),
+				CounterDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
-				WeaponSystem(entityManager, factoryTools, soundManager),
+				WeaponSystem(factoryTools, soundManager),
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),
