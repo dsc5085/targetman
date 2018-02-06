@@ -10,13 +10,25 @@ import dclib.epf.parts.SpritePart
 import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.graphics.TextureCache
+import dclib.particles.EntityPositionGetter
+import dclib.particles.ParticlesManager
 import dclib.physics.DefaultTransform
 import dclib.physics.Transform
 
-class WeaponEffectsFactory(private val entityManager: EntityManager, private val textureCache: TextureCache) {
+class WeaponEffectsFactory(
+        private val entityManager: EntityManager,
+        private val textureCache: TextureCache,
+        private val particlesManager: ParticlesManager
+) {
     private val flashNamespaceToNames = mutableMapOf<String, List<String>>()
 
-    fun create(effectsData: WeaponEffectsData, muzzleTransform: Transform) {
+    fun create(effectsData: WeaponEffectsData, muzzle: Entity) {
+        val muzzleTransform = muzzle[TransformPart::class].transform
+        createFlash(effectsData, muzzleTransform)
+        particlesManager.createEffect("smoke", EntityPositionGetter(muzzle)).start()
+    }
+
+    private fun createFlash(effectsData: WeaponEffectsData, muzzleTransform: Transform) {
         val namespace = effectsData.flashNamespace
         val names = flashNamespaceToNames.getOrPut(namespace, { textureCache.getNames(namespace) })
         val name = names[MathUtils.random(names.size - 1)]

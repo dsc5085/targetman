@@ -87,7 +87,7 @@ class LevelController(
 	private val mapRenderer: MapRenderer
 	private val camera = screenHelper.viewport.camera as OrthographicCamera
 	private val particlesManager = ParticlesManager(textureCache, render.sprite, screenHelper, world)
-	private val map = TmxMapLoader().load("maps/level1.tmx")
+	private val map = TmxMapLoader().load("maps/arena.tmx")
 	private val drawerManager: DrawerManager
 	private val soundManager = SoundManager()
 	private val advancer: Advancer
@@ -149,7 +149,7 @@ class LevelController(
 				TimedDeathSystem(entityManager),
 				CounterDeathSystem(entityManager),
 				InventorySystem(factoryTools, collisionChecker),
-				WeaponSystem(factoryTools, soundManager),
+				WeaponSystem(factoryTools, soundManager, particlesManager),
 				StaggerSystem(factoryTools),
 				LimbsShadowingSystem(entityManager),
 				SpriteSyncSystem(entityManager, screenHelper),

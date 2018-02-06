@@ -28,6 +28,7 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
 import dclib.geometry.toVector3
+import dclib.particles.ParticlesManager
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
@@ -36,9 +37,11 @@ import kotlin.experimental.inv
 
 class WeaponSystem(
         private val factoryTools: FactoryTools,
-        private val soundManager: SoundManager)
-    : EntitySystem(factoryTools.entityManager) {
-    private val effectsFactory = WeaponEffectsFactory(factoryTools.entityManager, factoryTools.textureCache)
+        private val soundManager: SoundManager,
+        particlesManager: ParticlesManager
+) : EntitySystem(factoryTools.entityManager) {
+    private val effectsFactory = WeaponEffectsFactory(factoryTools.entityManager, factoryTools.textureCache,
+            particlesManager)
 
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
@@ -66,9 +69,10 @@ class WeaponSystem(
         val trigger = entity[ActionsPart::class][ActionKey.TRIGGER].doing
         if (weapon != null && weapon.reloadTimer.isElapsed && trigger) {
             val skeletonPart = entity[SkeletonPart::class]
-            val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
+            val muzzleLimb = skeletonPart[firingPart.muzzleName]
+            val muzzleTransform = muzzleLimb.transform
             createBullets(muzzleTransform, weapon, entity.getAttribute(Alliance::class)!!)
-            effectsFactory.create(weapon.data.effects, muzzleTransform)
+            effectsFactory.create(weapon.data.effects, muzzleLimb.entity)
             soundManager.played.notify(SoundPlayedEvent(muzzleTransform.center, /*TODO: Replace hardcoded value*/ 10f, entity))
             weapon.reloadTimer.reset()
         }
