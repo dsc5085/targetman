@@ -8,5 +8,6 @@
   "width": 1.2,
   "skeletonPath": "skeletons/ts-23.skel",
   "atlasName": "objects",
-  "bullet": "weapons/sniper_bullet.json"
+  "bullet": "weapons/sniper_bullet.json",
+  "effects": "weapons/pistol_effect.json"
 }

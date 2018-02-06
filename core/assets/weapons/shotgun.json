@@ -8,5 +8,6 @@
   "width": 0.4,
   "skeletonPath": "skeletons/walther_p99.skel",
   "atlasName": "objects",
-  "bullet": "weapons/pellet.json"
+  "bullet": "weapons/pellet.json",
+  "effects": "weapons/pistol_effect.json"
 }

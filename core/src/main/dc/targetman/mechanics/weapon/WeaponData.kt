@@ -10,4 +10,6 @@ data class WeaponData(
         val width: Float = 1f,
         val skeletonPath: String = "",
         val atlasName: String = "",
-        var bullet: Bullet = Bullet())
+        var bullet: Bullet = Bullet(),
+        val effects: WeaponEffectsData = WeaponEffectsData()
+)

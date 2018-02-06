@@ -15,11 +15,9 @@ import dc.targetman.mechanics.ActionKey
 import dc.targetman.mechanics.ActionsPart
 import dc.targetman.mechanics.Alliance
 import dc.targetman.mechanics.EntityUtils
-import dc.targetman.physics.PhysicsUtils
 import dc.targetman.physics.collision.CollisionCategory
 import dc.targetman.physics.collision.Material
 import dclib.epf.Entity
-import dclib.epf.EntityManager
 import dclib.epf.EntitySystem
 import dclib.epf.parts.AutoRotatePart
 import dclib.epf.parts.CollisionDamagePart
@@ -30,6 +28,7 @@ import dclib.epf.parts.TransformPart
 import dclib.geometry.PolygonUtils
 import dclib.geometry.VectorUtils
 import dclib.geometry.toVector3
+import dclib.particles.ParticlesManager
 import dclib.physics.Box2dTransform
 import dclib.physics.Box2dUtils
 import dclib.physics.Transform
@@ -37,10 +36,13 @@ import dclib.util.FloatRange
 import kotlin.experimental.inv
 
 class WeaponSystem(
-        private val entityManager: EntityManager,
         private val factoryTools: FactoryTools,
-        private val soundManager: SoundManager)
-    : EntitySystem(entityManager) {
+        private val soundManager: SoundManager,
+        particlesManager: ParticlesManager
+) : EntitySystem(factoryTools.entityManager) {
+    private val effectsFactory = WeaponEffectsFactory(factoryTools.entityManager, factoryTools.textureCache,
+            particlesManager)
+
     override fun update(delta: Float, entity: Entity) {
         val inventoryPart = entity.tryGet(InventoryPart::class)
         val firingPart = entity.tryGet(FiringPart::class)
@@ -67,10 +69,10 @@ class WeaponSystem(
         val trigger = entity[ActionsPart::class][ActionKey.TRIGGER].doing
         if (weapon != null && weapon.reloadTimer.isElapsed && trigger) {
             val skeletonPart = entity[SkeletonPart::class]
-            val muzzleTransform = skeletonPart[firingPart.muzzleName].transform
-            val recoil = VectorUtils.toVector2(muzzleTransform.rotation, weapon.data.recoil).scl(-1f)
-            PhysicsUtils.applyForce(entityManager.getAll(), entity, recoil)
+            val muzzleLimb = skeletonPart[firingPart.muzzleName]
+            val muzzleTransform = muzzleLimb.transform
             createBullets(muzzleTransform, weapon, entity.getAttribute(Alliance::class)!!)
+            effectsFactory.create(weapon.data.effects, muzzleLimb.entity)
             soundManager.played.notify(SoundPlayedEvent(muzzleTransform.center, /*TODO: Replace hardcoded value*/ 10f, entity))
             weapon.reloadTimer.reset()
         }
@@ -113,7 +115,7 @@ class WeaponSystem(
         if (bullet.scaleTime != null) {
             entity.attach(ScalePart(FloatRange(0f, 1f), bullet.scaleTime))
         }
-        entityManager.add(entity)
+        factoryTools.entityManager.add(entity)
     }
 
     private fun createBaseEntity(body: Body, position: Vector3, regionName: String, vararg attributes: Enum<*>): Entity {
